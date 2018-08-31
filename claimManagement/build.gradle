@@ -1,0 +1,46 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.sonarqube'
+
+android {
+    compileSdkVersion 7
+    buildToolsVersion '27.0.3'
+
+    defaultConfig {
+        applicationId "com.exact.imis.claim"
+        minSdkVersion 7
+        targetSdkVersion 7
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile project(':CaptureActivity')
+    compile project(':General')
+}
+
+sonarqube {
+    properties {
+        def libraries = project.android.sdkDirectory.getPath() + "/platforms/android-27/android.jar"/* + ", build/intermediates/exploded-aar*//**//*classes.jar"*/
+
+        property "sonar.sources", "src/main/java"
+        property "sonar.binaries", "build/intermediates/classes-jar/debug"
+        property "sonar.libraries", libraries
+        property "sonar.tests", "src/test/java, src/androidTest/java"
+        property "sonar.java.test.binaries", "build/intermediates/manifest/androidTest/debug"
+        property "sonar.java.test.libraries", libraries
+
+        property "sonar.jacoco.reportPath", "build/jacoco/testDebugUnitTest.exec"
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.junit.reportsPath", "build/test-results/debug"
+        property "sonar.android.lint.report", "build/outputs/lint-results"
+
+    }
+
+
+}
