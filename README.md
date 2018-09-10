@@ -19,7 +19,7 @@ on your local machine, you first need to install:
 * [openIMIS Web Services](https://github.com/openimis/web_service_vb)
 
 
-### Installing
+### Installation
 
 To make a copy of this project on your local machine, please clone
 the repository.
@@ -28,7 +28,7 @@ the repository.
 git clone https://github.com/openimis/claim_android_app_java
 ```
 
-### Configuring
+### Configuration
 
 In order to run the openIMIS Claim Android Application, you need to
 know the openIMIS Web Services domain (DNS or IP address) and to configure it in the
@@ -41,7 +41,7 @@ private String _Domain = "http://132.148.151.32/";
 For demo purposes, the default Web Services domain is set to the openIMIS
 demo server: demo.openimis.org (IP: 132.148.151.32).  
 
-### Running
+### Running the app
 
 After configuring the application, you can then compile and execute
 on Android operated mobile devices.
