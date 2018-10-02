@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="tz.co.exact.claimenq.MainActivity"
+    tools:showIn="@layout/app_bar_main"
+    android:orientation="vertical"
+    android:layout_margin="30dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:typeface="monospace"
+        android:fontFamily="sans-serif-light"
+        android:textSize="25dp"
+        android:textColor="@color/Black"
+        android:layout_marginBottom="20dp"
+        android:text="Dasboard"/>
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp">
+
+        <TextView
+            android:id="@+id/pink"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@color/cyan"/>
+
+        <TextView
+            android:id="@+id/accepted"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accepted Claims"
+            android:layout_toRightOf="@+id/pink"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:typeface="monospace"
+            android:textColor="@color/Black"
+            android:fontFamily="sans-serif-light" />
+
+        <TextView
+            android:id="@+id/accepted_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="10"
+            android:layout_toRightOf="@+id/accepted"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="10dp"
+            android:typeface="monospace"
+            android:textColor="@color/blue"
+            android:textAlignment="textEnd"
+            android:layout_alignParentRight="true"
+            android:fontFamily="sans-serif-light" />
+
+
+        <TextView
+            android:id="@+id/rejected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rejected Claims"
+            android:layout_toRightOf="@+id/pink"
+            android:layout_below="@id/accepted"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:typeface="monospace"
+            android:textColor="@color/Black"
+            android:fontFamily="sans-serif-light" />
+
+        <TextView
+            android:id="@+id/rejected_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:layout_toRightOf="@+id/rejected"
+            android:layout_below="@+id/accepted_count"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="10dp"
+            android:typeface="monospace"
+            android:textColor="@color/blue"
+            android:textAlignment="textEnd"
+            android:layout_alignParentRight="true"
+            android:fontFamily="sans-serif-light" />
+
+        <TextView
+            android:id="@+id/pending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pending Claims"
+            android:layout_toRightOf="@+id/pink"
+            android:layout_below="@id/rejected"
+            android:layout_marginLeft="10dp"
+            android:typeface="monospace"
+            android:textColor="@color/Black"
+            android:fontFamily="sans-serif-light" />
+
+        <TextView
+            android:id="@+id/pending_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="5"
+            android:layout_toRightOf="@+id/pending"
+            android:layout_below="@+id/rejected_count"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="10dp"
+            android:typeface="monospace"
+            android:textColor="@color/blue"
+            android:textAlignment="textEnd"
+            android:layout_alignParentRight="true"
+            android:fontFamily="sans-serif-light" />
+    </RelativeLayout>
+
+
+</LinearLayout>

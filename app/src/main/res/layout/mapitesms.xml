@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:layout_margin="20dp">
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:typeface="monospace"
+			android:fontFamily="sans-serif-light"
+			android:textSize="25dp"
+			android:textColor="@color/Black"
+			android:layout_marginBottom="20dp"
+			android:text="@string/MapItems"/>
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/CheckUncheck"
+			android:fontFamily="sans-serif-light"/>
+
+        <CheckBox
+            android:id="@+id/chkAll"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="left|center_vertical" />
+
+    </LinearLayout>
+
+     <EditText
+            android:id="@+id/etSearchItems"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="@string/SearchItems"
+            android:ems="10"
+            android:singleLine="true"
+		 	android:background="@drawable/corner"
+		 	android:paddingLeft="10dp"
+		 	android:layout_marginLeft="20dp"
+		 	android:layout_marginRight="20dp"
+            android:maxLength="8">
+        </EditText>	
+     
+    <ListView
+	        android:id="@+id/lvMapItems"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_margin="20dp"
+	        android:background="@color/faint"
+	        android:choiceMode="none"
+	        android:divider="@color/grey2"
+	        android:dividerHeight="0.5dp"
+	        android:fadeScrollbars="true"
+			android:padding="10dp"
+			android:fontFamily="sans-serif-light"
+            android:textFilterEnabled="true">
+
+	    </ListView>
+    
+</LinearLayout>

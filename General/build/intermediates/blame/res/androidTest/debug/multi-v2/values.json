@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "D:\\2018 v18.1.0 12.06.2018\\IMIS Android v18.1.2 10.07.2018\\SOURCE CODE v18.1.2 10.07.2018\\ClaimEnq\\General\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+            "map": [
+                {
+                    "source": "D:\\2018 v18.1.0 12.06.2018\\IMIS Android v18.1.2 10.07.2018\\SOURCE CODE v18.1.2 10.07.2018\\ClaimEnq\\General\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,100",
+                        "endColumns": "44,46",
+                        "endOffsets": "95,142"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,45 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:2:1-14:12
+INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:2:1-14:12
+INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:2:1-14:12
+INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:2:1-14:12
+INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:2:1-14:12
+INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:2:1-14:12
+INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:2:1-14:12
+	package
+		ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:3:5-32
+		INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml
+		INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml
+	android:versionName
+		ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:5:5-30
+		INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml
+		INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:2:11-69
+	android:versionCode
+		ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:4:5-28
+		INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml
+		INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml
+uses-sdk
+ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:7:5-43
+INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:7:5-43
+INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:7:5-43
+INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:7:5-43
+INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:7:5-43
+	android:targetSdkVersion
+		INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml
+		ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:7:5-43
+		INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:7:15-40
+		INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml
+		INJECTED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:9:5-79
+	android:name
+		ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:9:22-76
+application
+ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:10:5-12:19
+	android:label
+		ADDED from D:\2018 v18.1.0 12.06.2018\IMIS Android v18.1.2 10.07.2018\SOURCE CODE v18.1.2 10.07.2018\ClaimEnq\General\src\main\AndroidManifest.xml:11:9-41

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true" >
+
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:typeface="monospace"
+		android:fontFamily="sans-serif-light"
+		android:textSize="25dp"
+		android:textColor="@color/Black"
+		android:text="@string/AddItems"
+		android:layout_margin="20dp"/>
+
+    <LinearLayout android:id="@+id/llTop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+		android:layout_marginLeft="20dp"
+		android:layout_marginRight="20dp"
+		android:layout_marginTop="70dp"
+            android:orientation="vertical">
+
+
+		        <!--<Spinner-->
+		            <!--android:id="@+id/spItems"-->
+		            <!--android:layout_width="0dp"-->
+		            <!--android:layout_height="wrap_content"-->
+		            <!--android:layout_weight="1"-->
+		            <!--android:focusable="true"-->
+		            <!--android:prompt="@string/SelectItem" />-->
+
+				<AutoCompleteTextView
+					android:id="@+id/etItems"
+					android:layout_width="match_parent"
+					android:layout_height="50dp"
+					android:layout_weight="1"
+					android:focusable="true"
+                    android:hint="@string/SelectItem"
+					android:fontFamily="sans-serif-light"/>
+				<EditText
+					android:id="@+id/etQuantity"
+					android:layout_width="match_parent"
+					android:layout_height="50dp"
+					android:ems="10"
+					android:hint="@string/Quantity"
+					android:inputType="number"
+					android:maxLength="6"
+					android:singleLine="true"
+					android:fontFamily="sans-serif-light"/>
+				<EditText
+					android:id="@+id/etAmount"
+					android:layout_width="match_parent"
+					android:layout_height="50dp"
+					android:hint="@string/Amount"
+					android:ems="10"
+					android:singleLine="true"
+					android:inputType="number"
+					android:fontFamily="sans-serif-light"
+					android:maxLength="9"/>
+
+		     <Button
+		            android:id="@+id/btnAdd"
+		            android:layout_width="match_parent"
+		            android:layout_height="50dp"
+		            android:layout_gravity="center"
+		            android:gravity="center_vertical|center_horizontal"
+		            android:text="@string/Add" />
+		        
+			</LinearLayout>
+
+
+	<LinearLayout
+	    android:id="@+id/llListView"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_above="@+id/llButton"
+	    android:layout_below="@+id/llTop"
+	    android:visibility="visible"
+		android:layout_margin="0dp"
+		android:fontFamily="sans-serif-thin">
+
+	    <ListView
+	        android:id="@+id/lvItems"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:background="@color/colorPrimary"
+	        android:choiceMode="none"
+	        android:divider="@color/grey2"
+	        android:dividerHeight="0.5dp"
+	        android:fadeScrollbars="true"
+			android:padding="10dp"
+			android:layout_marginTop="10dp"
+			android:layout_margin="20dp"
+			android:fontFamily="sans-serif-light">
+
+	    </ListView>
+
+    </LinearLayout>
+    
+    
+    <LinearLayout android:id="@+id/llButton"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:orientation="horizontal">
+
+
+	</LinearLayout>
+	
+</RelativeLayout>
