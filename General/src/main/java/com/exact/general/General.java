@@ -18,7 +18,7 @@ import android.util.DisplayMetrics;
 public class General {
 
 	// IP address of openIMIS demo server => please update with your own Web Services base URL
-	private String _Domain = "http://132.148.151.32/";
+	private String _Domain = "http://demo.openimis.org/";
 
 	public String getDomain(){
 		return _Domain;
