@@ -3,8 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CaptureActivity/CaptureActivity.iml" filepath="$PROJECT_DIR$/CaptureActivity/CaptureActivity.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ClaimEnq.iml" filepath="$PROJECT_DIR$/ClaimEnq.iml" />
       <module fileurl="file://$PROJECT_DIR$/General/General.iml" filepath="$PROJECT_DIR$/General/General.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ImisClaim.iml" filepath="$PROJECT_DIR$/ImisClaim.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

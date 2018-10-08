@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_root"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="10dp" >
+
+    <TextView
+        android:id="@+id/LoginLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/claim_code"
+        android:layout_margin="10dp"
+        android:fontFamily="sans-serif-light"
+        android:typeface="monospace"
+        android:textSize="25dp" />
+
+    <EditText
+        android:id="@+id/ClaimCode"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        android:inputType="text"
+        android:background="@drawable/corner"
+        android:hint="@string/type_here"
+        android:paddingLeft="5dp">
+        <requestFocus />
+    </EditText>
+
+
+</LinearLayout>

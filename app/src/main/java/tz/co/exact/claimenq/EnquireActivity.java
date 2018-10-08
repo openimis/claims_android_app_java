@@ -114,12 +114,12 @@ public class EnquireActivity extends AppCompatActivity {
         }
 
 
-        new Thread() {
+/*        new Thread() {
             public void run() {
                 CheckForUpdates();
             }
 
-        }.start();
+        }.start();*/
         etCHFID = (EditText) findViewById(R.id.etCHFID);
         tvCHFID = (TextView) findViewById(R.id.tvCHFID);
         tvName = (TextView) findViewById(R.id.tvName);
@@ -236,7 +236,7 @@ public class EnquireActivity extends AppCompatActivity {
             }
         }
     }*/
-    private void CheckForUpdates(){
+    /*private void CheckForUpdates(){
         if(_General.isNetworkAvailable(EnquireActivity.this)){
             if(_General.isNewVersionAvailable(VersionField,EnquireActivity.this,getApplicationContext().getPackageName())){
                 //Show notification bar
@@ -260,10 +260,10 @@ public class EnquireActivity extends AppCompatActivity {
                 //builder.setSmallIcon(R.drawable.silverware);
                 builder.setContentIntent(intent);
                 builder.setOngoing(false);
-/*				String s = "ring";
+*//*				String s = "ring";
 				int res_sound_id = context.getResources().getIdentifier(s, "raw", context.getPackageName());
 				Uri u = Uri.parse("android.resource://" + context.getPackageName() + "/" + res_sound_id);
-				builder.setSound(u);*/
+				builder.setSound(u);*//*
 
                 mNotificationManager.notify(SIMPLE_NOTIFICATION_ID, builder.build());
                 vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
@@ -273,7 +273,7 @@ public class EnquireActivity extends AppCompatActivity {
 
 
 
-    }
+    }*/
 
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -371,7 +371,7 @@ public class EnquireActivity extends AppCompatActivity {
         return new AlertDialog.Builder(this)
                 .setMessage(msg)
                 .setCancelable(false)
-                .setPositiveButton("Ok", new android.content.DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.Ok, new android.content.DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

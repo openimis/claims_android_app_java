@@ -10,7 +10,7 @@
 	        android:title="@string/AddServices">
 	    </item>
 
-        <item android:id="@+id/mnuMapItems"
+<!--        <item android:id="@+id/mnuMapItems"
 	    	android:icon="@drawable/mapitems"
 	        android:title="@string/MapItems">
 	    </item>
@@ -21,11 +21,11 @@
         <item android:id="@+id/mnuStatistics"
             android:icon="@drawable/statistics"
             android:title="@string/Statistics">
-
-			<item android:id="@+id/mnuUploadClaim"
-				android:icon="@drawable/upload"
-				android:title="@string/UploadAllClaims" >
-			</item>
-        </item>
+		</item>-->
+		<item android:id="@+id/mnuUploadClaim"
+			android:icon="@drawable/upload"
+			android:title="@string/UploadAllClaims"
+			android:visible="false">
+		</item>
     </menu>
     

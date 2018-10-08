@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="25dp"
+    android:background="@drawable/side_nav_bar"
+    tools:context="tz.co.exact.claimenq.About">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:typeface="monospace"
+        android:fontFamily="sans-serif-light"
+        android:textSize="25dp"
+        android:textColor="@color/white"
+        android:layout_marginLeft="10dp"
+        android:text="@string/about" />
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@mipmap/ic_launcher_round"/>
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:typeface="monospace"
+        android:fontFamily="sans-serif-light"
+        android:textSize="15dp"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/white"
+        android:text="Version: 1.0, Released: 26-09-2018"
+        />
+
+</LinearLayout>

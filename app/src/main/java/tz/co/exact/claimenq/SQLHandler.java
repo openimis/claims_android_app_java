@@ -41,7 +41,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	SQLiteDatabase dbMapping = this.getWritableDatabase();
 
 	public SQLHandler(Context context) {
-		super(context, DB_NAME, null, 3);
+		super(context, DB_NAME, null, 1);
 		// TODO Auto-generated constructor stub
 	}
 

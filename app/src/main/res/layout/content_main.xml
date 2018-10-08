@@ -18,7 +18,7 @@
         android:textSize="25dp"
         android:textColor="@color/Black"
         android:layout_marginBottom="20dp"
-        android:text="Dasboard"/>
+        android:text="@string/dashboard"/>
     
     <RelativeLayout
         android:layout_width="match_parent"
@@ -26,17 +26,18 @@
 
         <TextView
             android:id="@+id/pink"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:background="@color/cyan"/>
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@mipmap/ic_launcher_round"/>
 
         <TextView
             android:id="@+id/accepted"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Accepted Claims"
+            android:text="@string/accepted"
             android:layout_toRightOf="@+id/pink"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="10dp"
             android:typeface="monospace"
             android:textColor="@color/Black"
@@ -49,6 +50,7 @@
             android:text="10"
             android:layout_toRightOf="@+id/accepted"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="10dp"
             android:layout_marginEnd="10dp"
             android:typeface="monospace"
@@ -62,7 +64,7 @@
             android:id="@+id/rejected"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rejected Claims"
+            android:text="@string/rejected"
             android:layout_toRightOf="@+id/pink"
             android:layout_below="@id/accepted"
             android:layout_marginLeft="10dp"
@@ -91,7 +93,7 @@
             android:id="@+id/pending"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pending Claims"
+            android:text="@string/pending"
             android:layout_toRightOf="@+id/pink"
             android:layout_below="@id/rejected"
             android:layout_marginLeft="10dp"

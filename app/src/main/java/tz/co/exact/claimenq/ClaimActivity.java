@@ -156,9 +156,6 @@ public class ClaimActivity extends AppCompatActivity {
         }
 
 
-
-
-
         File DirRejected = new File(Path + "RejectedClaims");
         DirRejected.mkdir();
 
@@ -348,14 +345,14 @@ public class ClaimActivity extends AppCompatActivity {
                 Intent AddServices = new Intent(ClaimActivity.this,AddServices.class);
                 ClaimActivity.this.startActivity(AddServices);
                 return true;
-            case R.id.mnuMapItems:
+/*            case R.id.mnuMapItems:
                 Intent MapItem = new Intent(ClaimActivity.this,MapItems.class);
                 ClaimActivity.this.startActivity(MapItem);
                 return true;
             case R.id.mnuMapServices:
                 Intent MapService = new Intent(ClaimActivity.this,MapServices.class);
                 ClaimActivity.this.startActivity(MapService);
-                return true;
+                return true;*/
             case R.id.mnuUploadClaim:
                 //Get the total number of files to upload
                 Claims = GetListOfFiles(Path);
@@ -413,7 +410,7 @@ public class ClaimActivity extends AppCompatActivity {
 
                 return true;
 
-            case R.id.mnuStatistics:
+/*            case R.id.mnuStatistics:
 
                 if(!_General.isNetworkAvailable(ClaimActivity.this)){
                     ShowDialog(getResources().getString(R.string.InternetRequired));
@@ -433,7 +430,7 @@ public class ClaimActivity extends AppCompatActivity {
                 Stats.putExtra("HFCode",etHealthFacility.getText());
                 Stats.putExtra("ClaimAdmin",etClaimAdmin.getText());
                 ClaimActivity.this.startActivity(Stats);
-                return true;
+                return true;*/
 
             default:
                 onBackPressed();
@@ -693,7 +690,7 @@ public class ClaimActivity extends AppCompatActivity {
         return new AlertDialog.Builder(this)
                 .setMessage(msg)
                 .setCancelable(false)
-                .setPositiveButton("Ok", new android.content.DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.Ok, new android.content.DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1228,8 +1225,10 @@ public class ClaimActivity extends AppCompatActivity {
         return true;
 
     }*/
-@Override
-public void onBackPressed() {
-    super.onBackPressed();
-}
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+
 }

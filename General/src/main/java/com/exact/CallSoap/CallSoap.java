@@ -138,7 +138,33 @@ public class CallSoap {
 		return response.toString();
 		
 	}
-	
+	public int isUserLoggedIn(String LoginName, String Password) {
+		SoapObject request = new SoapObject("http://tempuri.org/", this.OPERATION_NAME);
+		PropertyInfo pi = new PropertyInfo();
+		pi.setName("LoginName");
+		pi.setValue(LoginName);
+		request.addProperty(pi);
+		pi = new PropertyInfo();
+		pi.setName("Password");
+		pi.setValue(Password);
+		request.addProperty(pi);
+		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(110);
+		envelope.dotNet = true;
+		envelope.setOutputSoapObject(request);
+		HttpTransportSE httpTransport = new HttpTransportSE(this.SOAP_ADDRESS);
+		Object response = null;
+
+		try {
+			httpTransport.call(this.SOAP_ACTION, envelope);
+			response = envelope.getResponse();
+		} catch (IOException var9) {
+			return 0;
+		} catch (XmlPullParserException var10) {
+			return 0;
+		}
+
+		return Integer.parseInt(response.toString());
+	}
 	
 	public boolean isPolicyAccepted(String FileName){
 		SoapObject request = new SoapObject(WSDL_TARGET_NAMESPACE, OPERATION_NAME);

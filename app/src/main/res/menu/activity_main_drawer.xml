@@ -5,25 +5,45 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="@string/home" />
+        <item
+            android:id="@+id/nav_enquire"
+            android:icon="@drawable/ic_enquire"
             android:title="@string/app_name_enquire" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:id="@+id/nav_Map_Services"
+            android:icon="@drawable/mapservices"
+            android:title="@string/map_services" />
+        <item
+            android:id="@+id/nav_Map_Items"
+            android:icon="@drawable/mapitems"
+            android:title="@string/map_items" />
+        <item
+            android:id="@+id/nav_claim"
+            android:icon="@drawable/ic_claims"
             android:title="@string/app_name_claim" />
+        <item
+            android:id="@+id/nav_Reports"
+            android:icon="@drawable/statistics"
+            android:title="@string/reports" />
+        <item
+            android:id="@+id/nav_Sync"
+            android:icon="@drawable/ic_sync"
+            android:title="@string/synchronize" />
     </group>
 
     <item android:title="Other">
         <menu>
-<!--            <item
-                android:id="@+id/nav_manage"
-                android:icon="@drawable/ic_menu_manage"
-                android:title="About" />-->
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Quit" />
+                android:id="@+id/nav_quit"
+                android:icon="@drawable/ic_quit"
+                android:title="@string/quit" />
+            <item
+                android:id="@+id/nav_about"
+                android:icon="@drawable/ic_about"
+                android:title="@string/about" />
         </menu>
     </item>
 

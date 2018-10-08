@@ -15,7 +15,7 @@
     <string name="FTPConnectionFailed">Impossible de se connecter au serveur. L\'opération est interrompue.</string>
 
 
-    <string name="app_name">Remboursements/Recherche</string>
+    <string name="app_name">Imis Claims</string>
     <string name="app_name_claim">Remboursements</string>
     <string name="app_name_enquire">Recherche</string>
     <string name="ManageBatch">Gérer le batch</string>
@@ -118,6 +118,39 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="MemoryFull">Your phone memory if full please free some space and try again.</string>
     <string name="SelectItems">Please check items to map before saving</string>
+
+
+    <string name="claim_code">Claim Code</string>
+    <string name="type_here">Type here</string>
+    <string name="Login">Login</string>
+    <string name="Logout">Logout</string>
+    <string name="user_name">User Name</string>
+    <string name="Password">Password</string>
+    <string name="synchronize">Synchronize</string>
+    <string name="ZipAllClaims">Create Claims XML</string>
+    <string name="reports">Reports</string>
+    <string name="map_items">Map Items</string>
+    <string name="map_services">Map Services</string>
+    <string name="quit">Quit</string>
+    <string name="about">About</string>
+    <string name="home">Home</string>
+
+    <string name="Enter_Credentials">Please enter user name and password</string>
+    <string name="Login_Successful">Login Successful</string>
+    <string name="Logout_Successful">Logout Successful</string>
+    <string name="LoginFail">Login Failed</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="rejected">Rejected</string>
+    <string name="accepted">Accepted</string>
+    <string name="pending">Pending</string>
+    <string name="title_activity_report">Report</string>
+    <string name="ZipXMLCreated">Zipped XML file Created Successfully</string>
+    <string name="AreYouSure">Are you sure you want to continue?</string>
+
+    <string name="Continue">Continue</string>
+    <string name="accepted_claims">Accepted Claims</string>
+    <string name="rejected_claims">Rejected Claims</string>
+    <string name="pending_claims">Pending Claims</string>
 
 
 

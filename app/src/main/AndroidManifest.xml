@@ -2,14 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="tz.co.exact.claimenq">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.FLASHLIGHT"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_round"
@@ -31,18 +32,35 @@
             android:name=".EnquireActivity"
             android:label="@string/title_activity_enquire"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ClaimActivity"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:name="AddItems" android:label="@string/AddItems"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:name="AddServices" android:label="@string/AddServices"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:name="MapItems" android:label="@string/MapItems"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:name="MapServices" android:label="@string/MapServices"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:name="Statistics" android:label="@string/GetStats"
-            android:windowSoftInputMode="stateHidden"></activity>
+        <activity
+            android:name=".ClaimActivity"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".AddItems"
+            android:label="@string/AddItems"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".AddServices"
+            android:label="@string/AddServices"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".MapItems"
+            android:label="@string/MapItems"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".MapServices"
+            android:label="@string/MapServices"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".Statistics"
+            android:label="@string/GetStats"
+            android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".Synchronize" />
+        <activity android:name=".About" />
+        <activity
+            android:name=".Report"
+            android:label="@string/title_activity_report"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
