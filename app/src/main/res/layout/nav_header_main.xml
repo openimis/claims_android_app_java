@@ -34,6 +34,6 @@
         android:layout_height="wrap_content"
         android:typeface="monospace"
         android:fontFamily="sans-serif-light"
-        android:text="Version: 1.0, Released: 26-09-2018" />
+        android:text="@string/release" />
 
 </LinearLayout>

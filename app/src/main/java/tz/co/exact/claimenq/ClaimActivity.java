@@ -70,7 +70,7 @@ public class ClaimActivity extends AppCompatActivity {
     UploadFile uf = new UploadFile();
 
     public static final String PREFS_NAME = "CMPref";
-    final CharSequence[] lang = {"English","Français"};
+    final CharSequence[] lang = {"English","Swahili"};
 
     final String VersionField = "AppVersionClaim";
     final String ApkFileLocation = _General.getDomain() + "/Apps/ClaimManagement.apk";
@@ -679,15 +679,15 @@ public class ClaimActivity extends AppCompatActivity {
     }
 
     private boolean isValidCHFID(){
-        return true;
-//	if (etCHFID.getText().toString().length() != 9) return false;
-//	String chfid;
-//	int Part1, Part2;
-//	Part1 = Integer.parseInt(etCHFID.getText().toString())/10;
-//	Part2 = Part1 % 7;
-//
-//	chfid = etCHFID.getText().toString().substring(0, 8) + Integer.toString(Part2);
-//	return etCHFID.getText().toString().equals(chfid);
+        //return true;
+        if (etCHFID.getText().toString().length() != 9) return false;
+        String chfid;
+        int Part1, Part2;
+        Part1 = Integer.parseInt(etCHFID.getText().toString())/10;
+        Part2 = Part1 % 7;
+
+        chfid = etCHFID.getText().toString().substring(0, 8) + Integer.toString(Part2);
+        return etCHFID.getText().toString().equals(chfid);
 
     }
 
