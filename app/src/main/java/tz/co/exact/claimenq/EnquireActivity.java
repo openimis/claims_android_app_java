@@ -76,7 +76,7 @@ public class EnquireActivity extends AppCompatActivity {
     final String ApkFileLocation = _General.getDomain() + "/Apps/Enquire.apk";
     final String VersionField = "AppVersionEnquire";
     final String Path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
-    final CharSequence[] lang = {"English","Swahili"};
+    final CharSequence[] lang = {"English","z"};
     final int SIMPLE_NOTIFICATION_ID = 1;
 
 

@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity
     Menu menu;
 
     public static final String PREFS_NAME = "CMPref";
-    final CharSequence[] lang = {"English","Swahili"};
+    final CharSequence[] lang = {"English","Français"};
 
     final static String Path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
 
