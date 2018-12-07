@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
@@ -36,12 +37,14 @@ public class SQLHandler extends SQLiteOpenHelper{
 	private static final String DB_NAME = MainActivity.Path + "Mapping.db3";
 	private static final String CreateTable = "CREATE TABLE tblMapping(Code text,Name text,Type text);";
 
+
+
 	SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(MainActivity.Path + "ImisData.db3",null);
 	//SQLiteDatabase dbMapping = SQLiteDatabase.openOrCreateDatabase(ClaimManagementActivity.Path + "Mapping.db3", null);
 	SQLiteDatabase dbMapping = this.getWritableDatabase();
 
 	public SQLHandler(Context context) {
-		super(context, DB_NAME, null, 1);
+		super(context, DB_NAME, null, 3);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -49,6 +52,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// TODO Auto-generated method stub
+		checkDataBase();
 		db.execSQL(CreateTable);
 	}
 
@@ -58,6 +62,17 @@ public class SQLHandler extends SQLiteOpenHelper{
 
 	}
 
+	public boolean checkDataBase() {
+		SQLiteDatabase checkDB = null;
+		try {
+			checkDB = SQLiteDatabase.openDatabase(MainActivity.Path + "ImisData.db3", null,
+					SQLiteDatabase.OPEN_READONLY);
+		} catch (SQLiteException e) {
+			// database doesn't exist yet.
+			return false;
+		}
+		return true;
+	}
 	public Cursor getData(String Table,String Columns[],String Criteria){
 		try {
 			//db = SQLiteDatabase.openDatabase(ClaimManagementActivity.Path + "ImisData.db3", null,SQLiteDatabase.OPEN_READONLY);
@@ -149,4 +164,5 @@ public class SQLHandler extends SQLiteOpenHelper{
 
 		return adjustibility;
 	}
+
 }

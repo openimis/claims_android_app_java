@@ -10,7 +10,7 @@
         android:id="@+id/LoginLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/claim_code"
+        android:text="@string/ClaimAdmin"
         android:layout_margin="10dp"
         android:fontFamily="sans-serif-light"
         android:typeface="monospace"
@@ -23,7 +23,7 @@
         android:layout_margin="10dp"
         android:inputType="text"
         android:background="@drawable/corner"
-        android:hint="@string/type_here"
+        android:hint="@string/code"
         android:paddingLeft="5dp">
         <requestFocus />
     </EditText>

@@ -194,6 +194,11 @@ public class ClaimActivity extends AppCompatActivity {
 
         if(sql.getAdjustibility("ClaimAdministrator").equals("N")){
             etClaimAdmin.setVisibility(View.GONE);
+        }else{
+            Global global = new Global();
+            if(global.getOfficerCode() != null){
+                etClaimAdmin.setText(global.getOfficerCode().toString());
+            }
         }
 
         if(sql.getAdjustibility("GuaranteeNo").equals("N")){
@@ -961,6 +966,8 @@ public class ClaimActivity extends AppCompatActivity {
         File MyDir = new File(Path);
         MyDir.mkdir();
 
+        sql = new SQLHandler(this);
+        sql.onOpen(db);
 
         //Create a file name
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");

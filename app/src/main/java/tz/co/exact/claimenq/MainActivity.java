@@ -10,6 +10,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -44,6 +46,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     String Language;
     General _General = new General();
+    SQLHandler sql;
+    SQLiteDatabase db;
 
     TextView accepted_count;
     TextView rejected_count;
@@ -81,6 +85,19 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        CreateFolders();
+
+        requestPermision();
+
+/*        requestPermisionWRITE_EXTERNAL_STORAGE();
+        requestPermisionACCESS_NETWORK_STATE();
+        requestPermisionACCESS_WIFI_STATE();
+        requestPermisionCAMERA();
+        requestPermisionCHANGE_WIFI_STATE();
+        requestPermisionINTERNET();
+        requestPermisionVIBRATE();*/
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         new Thread() {
@@ -89,12 +106,32 @@ public class MainActivity extends AppCompatActivity
             }
 
         }.start();
-
         Global global = new Global();
 
-        if(global.getOfficerCode() == null){
-            ClaimAdminDialogBox();
+        File myDir = new File(Path);
+        myDir.mkdir();
+        //connection db
+
+
+        if(checkDataBase()){
+            sql = new SQLHandler(this);
+            sql.onOpen(db);
+
+
+            try{
+                if(global.getOfficerCode() == null || global.getOfficerCode().equals("")){
+                    if(!sql.getAdjustibility("ClaimAdministrator").equals("N")){
+                        ClaimAdminDialogBox();
+                    }
+
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
+
+
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -103,7 +140,6 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
 
-        requestPermision();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -119,20 +155,43 @@ public class MainActivity extends AppCompatActivity
         File pendingFolder = new File(PendingFolder);
         File trashFolder = new File(TrashFolder);
 
-        int countAccepted;
-        int countRejected;
+        //Accepted & Rejected
+        int countAccepted = 0;
+        int countRejected = 0;
         if(acceptedClaims.listFiles() != null){
-            countAccepted = acceptedClaims.listFiles().length;
-        }else{
+            for(int i = 0; i< acceptedClaims.listFiles().length; i++){
+                String fname = acceptedClaims.listFiles()[i].getName();
+                String str;
+                try{
+                    str = fname.substring(0,6);
+                }catch (StringIndexOutOfBoundsException e){
+                    continue;
+                }
+                if(str.equals("Claim_")){
+                    countAccepted++;
+                }
+            }
+        }else {
             countAccepted = 0;
         }
+
         if(rejectedClaims.listFiles() != null){
-            countRejected = rejectedClaims.listFiles().length;
+            for(int i = 0; i< rejectedClaims.listFiles().length; i++){
+                String fname = rejectedClaims.listFiles()[i].getName();
+                String str;
+                try{
+                    str = fname.substring(0,6);
+                }catch (StringIndexOutOfBoundsException e){
+                    continue;
+                }
+                if(str.equals("Claim_")){
+                    countRejected++;
+                }
+            }
         }else {
             countRejected = 0;
         }
-
-
+        //Pending & Trash
         int count_pending = 0;
         int count_trash = 0;
         if(pendingFolder.listFiles() != null){
@@ -305,6 +364,8 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(getApplicationContext(), Synchronize.class);
             startActivity(intent);
         } else if (id == R.id.nav_quit) {
+            Global global = new Global();
+            global.setOfficerCode("");
             finish();
         }else if (id == R.id.nav_about) {
             Intent intent = new Intent(this, About.class);
@@ -314,6 +375,12 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+    public void CreateFolders(){
+        String MainPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
+        //Here we are creating a directory
+        File MyDir = new File(MainPath);
+        MyDir.mkdir();
     }
     private void isSDCardAvailable(){
 
@@ -453,17 +520,19 @@ public class MainActivity extends AppCompatActivity
                 .setPositiveButton(R.string.Continue,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                if(!claim_code.getText().toString().equals("")){
-                                    Global global = new Global();
-                                    global.setOfficerCode(claim_code.getText().toString());
-                                }else{
-                                    Toast.makeText(getBaseContext(),R.string.MissingClaimCode, Toast.LENGTH_LONG).show();
-                                    ClaimAdminDialogBox();
+                                if(!sql.getAdjustibility("ClaimAdministrator").equals("O")){
+                                    if(!claim_code.getText().toString().equals("")){
+                                        Global global = new Global();
+                                        global.setOfficerCode(claim_code.getText().toString());
+                                    }else{
+                                        Toast.makeText(getBaseContext(),R.string.MissingClaimCode, Toast.LENGTH_LONG).show();
+                                        ClaimAdminDialogBox();
+                                    }
                                 }
 
                             }
                         })
-                .setNegativeButton("CANCEL",
+                .setNegativeButton(R.string.Cancel,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                 dialog.cancel();
@@ -582,38 +651,62 @@ public class MainActivity extends AppCompatActivity
         File pendingFolder = new File(PendingFolder);
         File trashFolder = new File(TrashFolder);
 
-        int countAccepted;
-        int countRejected;
+        int countAccepted = 0;
+        int countRejected = 0;
         if(acceptedClaims.listFiles() != null){
-            countAccepted = acceptedClaims.listFiles().length;
-        }else{
+            for(int i = 0; i< acceptedClaims.listFiles().length; i++){
+                String fname = acceptedClaims.listFiles()[i].getName();
+                String str;
+                try{
+                    str = fname.substring(0,6);
+                }catch (StringIndexOutOfBoundsException e){
+                    continue;
+                }
+                if(str.equals("Claim_")){
+                    countAccepted++;
+                }
+            }
+        }else {
             countAccepted = 0;
         }
+
         if(rejectedClaims.listFiles() != null){
-            countRejected = rejectedClaims.listFiles().length;
+            for(int i = 0; i< rejectedClaims.listFiles().length; i++){
+                String fname = rejectedClaims.listFiles()[i].getName();
+                String str;
+                try{
+                    str = fname.substring(0,6);
+                }catch (StringIndexOutOfBoundsException e){
+                    continue;
+                }
+                if(str.equals("Claim_")){
+                    countRejected++;
+                }
+            }
         }else {
             countRejected = 0;
         }
-
+        //Pending & Trash
         int count_pending = 0;
         int count_trash = 0;
-        if(pendingFolder.listFiles() != null) {
-            for (int i = 0; i < pendingFolder.listFiles().length; i++) {
+        if(pendingFolder.listFiles() != null){
+            for(int i = 0; i< pendingFolder.listFiles().length; i++){
                 String fname = pendingFolder.listFiles()[i].getName();
                 String str;
-                try {
-                    str = fname.substring(0, 6);
-                } catch (StringIndexOutOfBoundsException e) {
+                try{
+                    str = fname.substring(0,6);
+                }catch (StringIndexOutOfBoundsException e){
                     continue;
                 }
-                if (str.equals("Claim_")) {
+                if(str.equals("Claim_")){
                     count_pending++;
                 }
             }
-        }else{
+        }else {
             count_pending = 0;
         }
-        if(trashFolder.listFiles() != null) {
+
+        if(trashFolder.listFiles() != null){
             for(int i = 0; i< trashFolder.listFiles().length; i++){
                 String fname = trashFolder.listFiles()[i].getName();
                 String str;
@@ -626,7 +719,7 @@ public class MainActivity extends AppCompatActivity
                     count_trash++;
                 }
             }
-        }else{
+        }else {
             count_trash = 0;
         }
 
@@ -635,12 +728,43 @@ public class MainActivity extends AppCompatActivity
         accepted_count.setText(String.valueOf(countAccepted));
         rejected_count.setText(String.valueOf(countRejected));
         pending_count.setText(String.valueOf(total_pending));
+
     }
 
 
-    public void requestPermision(){
+    public void requestPermisionWRITE_EXTERNAL_STORAGE(){
         ActivityCompat.requestPermissions(MainActivity.this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                1);
+    }
+    public void requestPermisionINTERNET(){
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.INTERNET},
+                1);
+    }
+    public void requestPermisionVIBRATE(){
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.VIBRATE},
+                1);
+    }
+    public void requestPermisionCAMERA(){
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.CAMERA},
+                1);
+    }
+    public void requestPermisionACCESS_NETWORK_STATE(){
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.ACCESS_NETWORK_STATE},
+                1);
+    }
+    public void requestPermisionCHANGE_WIFI_STATE(){
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.CHANGE_WIFI_STATE},
+                1);
+    }
+    public void requestPermisionACCESS_WIFI_STATE(){
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.ACCESS_WIFI_STATE},
                 1);
     }
     @Override
@@ -658,7 +782,7 @@ public class MainActivity extends AppCompatActivity
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(MainActivity.this, "Permission denied to send message", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
@@ -667,6 +791,36 @@ public class MainActivity extends AppCompatActivity
             // permissions this app might request
         }
 
+    }
+
+    //Ask for permission
+    public void requestPermision(){
+        int PERMISSION_ALL = 1;
+        String[] PERMISSIONS = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
+        if(!hasPermissions(this, PERMISSIONS)){
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+        }
+    }
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    public boolean checkDataBase() {
+        SQLiteDatabase checkDB = null;
+        try {
+            checkDB = SQLiteDatabase.openDatabase(Path + "ImisData.db3", null,
+                    SQLiteDatabase.OPEN_READONLY);
+        } catch (SQLiteException e) {
+            // database doesn't exist yet.
+            return false;
+        }
+        return true;
     }
 
 }

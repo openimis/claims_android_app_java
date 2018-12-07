@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-
     <string name="ReadOnly">SD Card is set to readonly mode. Please set the mode to read/write and restart the application.</string>
     <string name="NoSDCard">IMIS needs external memory card to run. Please insert memory card and restart the application.</string>
     <string name="ForceClose">Force Close</string>
@@ -16,9 +14,7 @@
     <string name="FTPConnectionFailed">Unable to connect the server. Operation aborted.</string>
     <string name="FailToUpload">Failed to Upload to server.</string>
     <string name="SomethingWentWrongServer">Something went wrong on the server.</string>
-
-
-    <string name="app_name">Imis Claims</string>
+    <string name="app_name">IMIS CLAIMS</string>
     <string name="app_name_claim">Claim</string>
     <string name="app_name_enquire">Enquire</string>
     <string name="ManageBatch">MANAGE BATCH</string>
@@ -81,7 +77,6 @@
     <string name="Referral">Referral</string>
     <string name="Other">Other</string>
     <string name="MissingVisitType">Please select visit type.</string>
-
     <string name="Back">Back</string>
     <string name="New">New Claim</string>
     <string name="Save">Post Claim</string>
@@ -105,7 +100,6 @@
     <string name="InProgress">In Progress...</string>
     <string name="InternetRequired">Internet connection is required to view the statistics.</string>
     <string name="title_activity_enquire">Enquire.</string>
-
     <string name="Go">Go</string>
     <string name="InsureeName">Name</string>
     <string name="Gender">Gender</string>
@@ -113,12 +107,10 @@
     <string name="GetingInsuuree">Getting insuree info&#8230;</string>
     <string name="RecordNotFound">Member with this Insurance No. does not exist.</string>
     <string name="change_language">Change Language</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="MemoryFull">Your phone memory if full please free some space and try again.</string>
     <string name="SelectItems">Please check items to map before saving</string>
-
     <string name="claim_code">Claim Code</string>
     <string name="type_here">Type here</string>
     <string name="Login">Login</string>
@@ -133,8 +125,6 @@
     <string name="quit">Quit</string>
     <string name="about">About</string>
     <string name="home">Home</string>
-
-
     <string name="Enter_Credentials">Please enter user name and password</string>
     <string name="Login_Successful">Login Successful</string>
     <string name="Logout_Successful">Logout Successful</string>
@@ -151,5 +141,7 @@
     <string name="accepted_claims">Accepted Claims</string>
     <string name="rejected_claims">Rejected Claims</string>
     <string name="pending_claims">Pending Claims</string>
-
+    <string name="code">code</string>
+    <string name="permission_denied">Sorry some Permissions were not granted</string>
+    <string name="release">Version: 2.0, Released: 09-10-2018</string>
 </resources>

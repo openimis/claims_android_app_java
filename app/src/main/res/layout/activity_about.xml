@@ -32,7 +32,7 @@
         android:textSize="15dp"
         android:layout_marginLeft="10dp"
         android:textColor="@color/white"
-        android:text="Version: 1.0, Released: 26-09-2018"
+        android:text="@string/release"
         />
 
 </LinearLayout>

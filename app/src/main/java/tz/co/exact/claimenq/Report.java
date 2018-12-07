@@ -44,22 +44,45 @@ public class Report extends AppCompatActivity {
         File pendingFolder = new File(PendingFolder);
         File trashFolder = new File(TrashFolder);
 
-        int countAccepted;
-        int countRejected;
-        if(acceptedClaims.listFiles() != null){
-            countAccepted = acceptedClaims.listFiles().length;
-        }else{
+        int countAccepted = 0;
+        int countRejected = 0;
+        if(acceptedClaims.listFiles().length > 0){
+            for(int i = 0; i< acceptedClaims.listFiles().length; i++){
+                String fname = acceptedClaims.listFiles()[i].getName();
+                String str;
+                try{
+                    str = fname.substring(0,6);
+                }catch (StringIndexOutOfBoundsException e){
+                    continue;
+                }
+                if(str.equals("Claim_")){
+                    countAccepted++;
+                }
+            }
+        }else {
             countAccepted = 0;
         }
-        if(rejectedClaims.listFiles() != null){
-            countRejected = rejectedClaims.listFiles().length;
+
+        if(rejectedClaims.listFiles().length > 0){
+            for(int i = 0; i< rejectedClaims.listFiles().length; i++){
+                String fname = rejectedClaims.listFiles()[i].getName();
+                String str;
+                try{
+                    str = fname.substring(0,6);
+                }catch (StringIndexOutOfBoundsException e){
+                    continue;
+                }
+                if(str.equals("Claim_")){
+                    countRejected++;
+                }
+            }
         }else {
             countRejected = 0;
         }
-
+        //Pending & Trash
         int count_pending = 0;
         int count_trash = 0;
-        if(pendingFolder.listFiles() != null){
+        if(pendingFolder.listFiles().length > 0){
             for(int i = 0; i< pendingFolder.listFiles().length; i++){
                 String fname = pendingFolder.listFiles()[i].getName();
                 String str;
@@ -76,7 +99,7 @@ public class Report extends AppCompatActivity {
             count_pending = 0;
         }
 
-        if(trashFolder.listFiles() != null){
+        if(trashFolder.listFiles().length > 0){
             for(int i = 0; i< trashFolder.listFiles().length; i++){
                 String fname = trashFolder.listFiles()[i].getName();
                 String str;

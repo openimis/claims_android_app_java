@@ -144,6 +144,12 @@ public class Synchronize extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onResume() {
+        reFreshCount();
+        super.onResume();
+    }
+
     //Methods
     public void LoginDialogBox(final String page) {
 
@@ -194,16 +200,18 @@ public class Synchronize extends AppCompatActivity {
                                                             startActivity(intent);
                                                             Toast.makeText(Synchronize.this,Synchronize.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
                                                         }
-
                                                     }else{
                                                         pd.dismiss();
-                                                        Toast.makeText(Synchronize.this,Synchronize.this.getResources().getString(R.string.LoginFail),Toast.LENGTH_LONG).show();
-                                                        //ShowDialog(Synchronize.this.getResources().getString(R.string.LoginFail));
-                                                        LoginDialogBox(page);
+                                                        if(!_General.isNetworkAvailable(Synchronize.this)){
+                                                            LoginDialogBox(page);
+                                                            ShowDialog(Synchronize.this.getResources().getString(R.string.CheckInternet));
+                                                        }else{
+                                                            Toast.makeText(Synchronize.this,Synchronize.this.getResources().getString(R.string.LoginFail),Toast.LENGTH_LONG).show();
+                                                            LoginDialogBox(page);
+                                                        }
                                                     }
                                                 }
                                             });
-
                                         }
                                     }.start();
 
@@ -271,11 +279,12 @@ public class Synchronize extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         boolean res1 = UploadAllClaims();
                         boolean res2 = UploadAllClaimsTrash();
-                        if(res1 == true || res2 == true){
-                            finish();
+/*                        if(res1 == true || res2 == true){
+                            reFreshCount();
+*//*                            finish();
                             Intent intent = new Intent(Synchronize.this, Synchronize.class);
-                            startActivity(intent);
-                        }
+                            startActivity(intent);*//*
+                        }*/
                     }
                 }).show();
     }
@@ -297,7 +306,7 @@ public class Synchronize extends AppCompatActivity {
         ClaimsJSON = GetListOfJSONFiles(Path);
         TotalClaims = Claims.length;
         int TotalClaimsTrash;
-        if(GetListOfFiles(TrashFolder) != null){
+        if(GetListOfFiles(TrashFolder).length > 0){
             TotalClaimsTrash = Integer.parseInt(String.valueOf(GetListOfFiles(TrashFolder).length));
         }else{
             TotalClaimsTrash = 0;
@@ -367,7 +376,7 @@ public class Synchronize extends AppCompatActivity {
 
         //If there are no files to upload give the message and exit
         if (TotalClaims == 0){
-            ShowDialog(getResources().getString(R.string.NoClaim));
+            //ShowDialog(getResources().getString(R.string.NoClaim));
             return false;
         }
 
@@ -417,6 +426,10 @@ public class Synchronize extends AppCompatActivity {
     }
 
     private void UploadAllJSONClaims(){
+        Claims = GetListOfFiles(Path);
+        ClaimsJSON = GetListOfJSONFiles(Path);
+        TotalClaims = Claims.length;
+
         CallSoap cs = new CallSoap();
         cs.setFunctionName("UploadClaim");
         for(int i=0;i<ClaimsJSON.length;i++){
@@ -442,6 +455,13 @@ public class Synchronize extends AppCompatActivity {
                 result = -2;
             }
         }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                reFreshCount();
+            }
+        });
+
     }
     private File[] GetListOfFiles(String DirectoryPath){
         File Directory = new File(DirectoryPath);
@@ -574,7 +594,7 @@ public class Synchronize extends AppCompatActivity {
 
         int count_pending = 0;
         int count_trash = 0;
-        if(pendingFolder.listFiles() != null){
+        if(pendingFolder.listFiles().length > 0){
             for(int i = 0; i< pendingFolder.listFiles().length; i++){
                 String fname = pendingFolder.listFiles()[i].getName();
                 String str;
@@ -592,7 +612,7 @@ public class Synchronize extends AppCompatActivity {
         }
 
 
-        if(trashFolder.listFiles() != null){
+        if(trashFolder.listFiles().length > 0){
             for(int i = 0; i< trashFolder.listFiles().length; i++){
                 String fname = trashFolder.listFiles()[i].getName();
                 String str;
