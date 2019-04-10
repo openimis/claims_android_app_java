@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+            "outputFile": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
             "map": [
                 {
-                    "source": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "source": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",

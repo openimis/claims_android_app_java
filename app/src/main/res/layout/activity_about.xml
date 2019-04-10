@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:padding="25dp"
     android:background="@drawable/side_nav_bar"
-    tools:context="tz.co.exact.claimenq.About">
+    tools:context="org.openimis.imisclaims.About">
 
     <TextView
         android:layout_width="match_parent"

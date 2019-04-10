@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="tz.co.exact.claimenq">
+    package="org.openimis.imisclaims">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="org.openimis.imisclaims.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -29,36 +29,36 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".EnquireActivity"
+            android:name="org.openimis.imisclaims.EnquireActivity"
             android:label="@string/title_activity_enquire"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ClaimActivity"
+            android:name="org.openimis.imisclaims.ClaimActivity"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".AddItems"
+            android:name="org.openimis.imisclaims.AddItems"
             android:label="@string/AddItems"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".AddServices"
+            android:name="org.openimis.imisclaims.AddServices"
             android:label="@string/AddServices"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".MapItems"
+            android:name="org.openimis.imisclaims.MapItems"
             android:label="@string/MapItems"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".MapServices"
+            android:name="org.openimis.imisclaims.MapServices"
             android:label="@string/MapServices"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".Statistics"
+            android:name="org.openimis.imisclaims.Statistics"
             android:label="@string/GetStats"
             android:windowSoftInputMode="stateHidden" />
-        <activity android:name=".Synchronize" />
-        <activity android:name=".About" />
+        <activity android:name="org.openimis.imisclaims.Synchronize" />
+        <activity android:name="org.openimis.imisclaims.About" />
         <activity
-            android:name=".Report"
+            android:name="org.openimis.imisclaims.Report"
             android:label="@string/title_activity_report"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>

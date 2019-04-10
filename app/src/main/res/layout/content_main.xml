@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="tz.co.exact.claimenq.MainActivity"
+    tools:context="org.openimis.imisclaims.MainActivity"
     tools:showIn="@layout/app_bar_main"
     android:orientation="vertical"
     android:layout_margin="30dp">

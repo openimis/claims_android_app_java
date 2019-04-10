@@ -157,9 +157,8 @@ public class CallSoap {
 		try {
 			httpTransport.call(this.SOAP_ACTION, envelope);
 			response = envelope.getResponse();
-		} catch (IOException var9) {
-			return 0;
-		} catch (XmlPullParserException var10) {
+		} catch (Exception e) {
+			e.printStackTrace();
 			return 0;
 		}
 

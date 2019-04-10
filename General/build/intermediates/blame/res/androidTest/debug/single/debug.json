@@ -1,22 +1,22 @@
 [
     {
-        "merged": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-ldpi-v4_ic_launcher.png.flat",
-        "source": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\bundles\\debug\\res\\drawable-ldpi-v4\\ic_launcher.png"
+        "merged": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-hdpi-v4_ic_launcher.png.flat",
+        "source": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\bundles\\debug\\res\\drawable-hdpi-v4\\ic_launcher.png"
     },
     {
-        "merged": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\res\\merged\\androidTest\\debug\\layout_main.xml.flat",
-        "source": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\bundles\\debug\\res\\layout\\main.xml"
+        "merged": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-ldpi-v4_ic_launcher.png.flat",
+        "source": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\bundles\\debug\\res\\drawable-ldpi-v4\\ic_launcher.png"
     },
     {
-        "merged": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-hdpi-v4_ic_launcher.png.flat",
-        "source": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\bundles\\debug\\res\\drawable-hdpi-v4\\ic_launcher.png"
+        "merged": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-xhdpi-v4_ic_launcher.png.flat",
+        "source": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\bundles\\debug\\res\\drawable-xhdpi-v4\\ic_launcher.png"
     },
     {
-        "merged": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-xhdpi-v4_ic_launcher.png.flat",
-        "source": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\bundles\\debug\\res\\drawable-xhdpi-v4\\ic_launcher.png"
+        "merged": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-mdpi-v4_ic_launcher.png.flat",
+        "source": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\bundles\\debug\\res\\drawable-mdpi-v4\\ic_launcher.png"
     },
     {
-        "merged": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-mdpi-v4_ic_launcher.png.flat",
-        "source": "D:\\REPOS\\ImisClaim\\General\\build\\intermediates\\bundles\\debug\\res\\drawable-mdpi-v4\\ic_launcher.png"
+        "merged": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\res\\merged\\androidTest\\debug\\layout_main.xml.flat",
+        "source": "D:\\REPOS\\org.openimis.imisclaims\\General\\build\\intermediates\\bundles\\debug\\res\\layout\\main.xml"
     }
 ]

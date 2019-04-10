@@ -3,11 +3,11 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 26
     defaultConfig {
-        applicationId "tz.co.exact.claimenq"
+        applicationId "org.openimis.imisclaims"
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
-        versionName "1.3"
+        versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -32,4 +32,6 @@ dependencies {
     implementation files('libs/picasso-2.5.2.jar')
     implementation project(':CaptureActivity')
     implementation files('libs/zip4j-1.2.7.jar')
+    implementation files('libs/httpclient-4.2.3.jar')
+    implementation files('libs/httpcore-4.2.3.jar')
 }
