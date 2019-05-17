@@ -278,7 +278,6 @@ public class MainActivity extends AppCompatActivity
                         Intent intent = new Intent(MainActivity.this, MainActivity.class);
                         startActivity(intent);
 
-
                     }
 
                 }).show();
@@ -374,9 +373,8 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(getApplicationContext(), Synchronize.class);
             startActivity(intent);
         } else if (id == R.id.nav_quit) {
-            Global global = new Global();
-            global.setOfficerCode("");
-            finish();
+            QuitConfirmDialogBox();
+
         }else if (id == R.id.nav_about) {
             Intent intent = new Intent(this, About.class);
             startActivity(intent);
@@ -385,6 +383,41 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+    public void QuitConfirmDialogBox() {
+
+        // get prompts.xml view
+        LayoutInflater li = LayoutInflater.from(this);
+        View promptsView = li.inflate(R.layout.quit_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                this);
+
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(R.string.Yes,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                Global global = new Global();
+                                global.setOfficerCode("");
+                                dialog.cancel();
+                                finish();
+                            }
+                        })
+                .setNegativeButton(R.string.No,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
     private void initializeDb3File(SQLHandler sql) {
         if(checkDataBase()){

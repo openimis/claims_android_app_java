@@ -36,19 +36,14 @@
             android:id="@+id/nav_Sync"
             android:icon="@drawable/ic_synchronize"
             android:title="@string/synchronize" />
+        <item
+            android:id="@+id/nav_quit"
+            android:icon="@drawable/ic_quit1"
+            android:title="@string/quit" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_about1"
+            android:title="@string/about" />
     </group>
-
-    <item android:title="Other">
-        <menu>
-            <item
-                android:id="@+id/nav_quit"
-                android:icon="@drawable/ic_quit1"
-                android:title="@string/quit" />
-            <item
-                android:id="@+id/nav_about"
-                android:icon="@drawable/ic_about1"
-                android:title="@string/about" />
-        </menu>
-    </item>
 
 </menu>
