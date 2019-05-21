@@ -156,7 +156,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 
 	public Cursor SearchItems(String InputText){
 		//Cursor c = db.rawQuery("SELECT Code as _id,Code, Name,Code + ' ' + Name AS Disease FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
-		Cursor c = dbMapping.rawQuery("SELECT Code as _id,Code, Name FROM tblMapping WHERE Type = 'I' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
+		Cursor c = dbMapping.rawQuery("SELECT Code as _id,Code, Name FROM tblMapping WHERE Type = 'I' ",null);
 		if (c != null){
 			c.moveToFirst();
 		}

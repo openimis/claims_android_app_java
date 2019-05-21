@@ -1410,7 +1410,7 @@ public class MainActivity extends AppCompatActivity
                                 for(int i=0; i < arrItems.length(); i++){
                                     objItems = arrItems.getJSONObject(i);
                                     sql.InsertReferences(objItems.getString("code").toString(),objItems.getString("name").toString(),"I",objItems.getString("price").toString());
-                                    sql.InsertMapping(objItems.getString("code").toString(),objServices.getString("name").toString(),"I");
+                                    sql.InsertMapping(objItems.getString("code").toString(),objItems.getString("name").toString(),"I");
                                 }
 
                                 runOnUiThread(new Runnable() {
@@ -1550,7 +1550,7 @@ public class MainActivity extends AppCompatActivity
                                 for(int i=0; i < arrItems.length(); i++){
                                     objItems = arrItems.getJSONObject(i);
                                     sql.InsertReferences(objItems.getString("code").toString(),objItems.getString("name").toString(),"I",objItems.getString("price").toString());
-                                    sql.InsertMapping(objItems.getString("code").toString(),objServices.getString("name").toString(),"I");
+                                    sql.InsertMapping(objItems.getString("code").toString(),objItems.getString("name").toString(),"I");
                                 }
 
                                 runOnUiThread(new Runnable() {
@@ -1694,7 +1694,7 @@ public class MainActivity extends AppCompatActivity
                                 for (int i = 0; i < arrItems.length(); i++) {
                                     objItems = arrItems.getJSONObject(i);
                                     //sql.InsertReferences(objItems.getString("code").toString(), objItems.getString("name").toString(), "I", objItems.getString("price").toString());
-                                    sql.InsertMapping(objItems.getString("code").toString(),objServices.getString("name").toString(),"I");
+                                    sql.InsertMapping(objItems.getString("code").toString(),objItems.getString("name").toString(),"I");
                                 }
                                 runOnUiThread(new Runnable() {
                                     public void run() {

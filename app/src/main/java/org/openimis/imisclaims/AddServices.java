@@ -33,14 +33,14 @@ public class AddServices extends AppCompatActivity {
 	AutoCompleteTextView etServices;
 
 	int Pos;
-	
+
 	ArrayList<HashMap<String, String>> ServiceList = new ArrayList<HashMap<String,String>>();
 	//ArrayList<HashMap<String,String>> lvItemList;
-	
+
 	HashMap<String, String> oService;
 	SimpleAdapter alAdapter;
-	
-	
+
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
