@@ -21,7 +21,7 @@
     <string name="ManageClaims">MANAGE CLAIMS</string>
     <string name="Submit">SUBMIT</string>
     <string name="HFCode">Health facility code</string>
-    <string name="ClaimAdmin">Claim Admin</string>
+    <string name="ClaimAdmin">Claim Administrator Code</string>
     <string name="BatchCode">Batch Code</string>
     <string name="PeriodFrom">Period From</string>
     <string name="PeriodTo">Period To</string>
@@ -48,7 +48,7 @@
     <string name="Service">Service</string>
     <string name="Total">Total</string>
     <string name="MissingHealthFacility">Please enter Health Facility Code</string>
-    <string name="MissingClaimAdmin">Please enter Claim Admin Code</string>
+    <string name="MissingClaimAdmin">Please enter Claim Administrator Code</string>
     <string name="MissingGuaranteeNo">Please enter Guarantee No</string>
     <string name="MissingClaimCode">Please enter Claim Code</string>
     <string name="MissingCHFID">Pleae enter CHFID</string>
@@ -143,7 +143,7 @@
     <string name="pending_claims">Pending Claims</string>
     <string name="code">code</string>
     <string name="permission_denied">Sorry some Permissions were not granted</string>
-    <string name="release">Version: 1.3.0.14, Released: 17-05-2019</string>
+    <string name="release">Version: 1.3.0.15, Released: 03-06-2019</string>
 
 
     <!--Please convert below new strings-->
@@ -167,7 +167,7 @@
     <string name="getMasterData">Download Master Data</string>
     <string name="verifying">Verifying</string>
     <string name="code_verified">Claim Code Accepted</string>
-    <string name="invalid_code">Invalid Claim Code</string>
+    <string name="invalid_code">Invalid Claim Administrator Code</string>
     <string name="get_master">Get Master Data</string>
     <string name="initializing">Initializing...</string>
     <string name="initializing_complete">Initializing Complete</string>
