@@ -50,6 +50,8 @@ import org.openimis.imisclaims.R;
 public class EnquireActivity extends AppCompatActivity {
 
     General _General = new General();
+
+    SQLHandler sql;
    // downloadFile df = new downloadFile();
 
     EditText etCHFID;
@@ -57,7 +59,7 @@ public class EnquireActivity extends AppCompatActivity {
     ImageButton btnGo,btnScan;
     ListView lv;
     ImageView iv;
-    LinearLayout ll;
+    //LinearLayout ll;
     ProgressDialog pd;
     NotificationManager mNotificationManager;
     Vibrator vibrator;
@@ -87,12 +89,13 @@ public class EnquireActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_enquire);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle(getResources().getString(R.string.app_name_enquire));
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle(getResources().getString(R.string.app_name_enquire));
+
+        sql = new SQLHandler(this);
+        sql.onOpen(db);
 
 
         isSDCardAvailable();
@@ -123,7 +126,7 @@ public class EnquireActivity extends AppCompatActivity {
         btnGo = (ImageButton) findViewById(R.id.btnGo);
         btnScan = (ImageButton) findViewById(R.id.btnScan);
         lv = (ListView) findViewById(R.id.listView1);
-        ll = (LinearLayout) findViewById(R.id.llListView);
+        //ll = (LinearLayout) findViewById(R.id.llListView);
 
 
         iv.setOnClickListener(new View.OnClickListener() {
@@ -470,10 +473,10 @@ public class EnquireActivity extends AppCompatActivity {
                         return;
                     }
 
-                    ll.setVisibility(View.VISIBLE);
+                    //ll.setVisibility(View.VISIBLE);
 
                     int i = 0;
-                    for(i = 0;i< jsonArray.length();i++){
+                    for(i = 0;i< 1;i++){
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         if (!etCHFID.getText().toString().trim().equals(jsonObject.getString("CHFID").trim())) continue;
 
@@ -562,6 +565,40 @@ public class EnquireActivity extends AppCompatActivity {
                             Policy.put("SubItem1", jsonObject.getString("ProductName"));
                             Policy.put("SubItem2",Ded);
                             Policy.put("SubItem3",Ceiling);
+
+                            String TotalAdmissionsLeft = "";
+                            String TotalVisitsLeft = "";
+                            String TotalConsultationsLeft = "";
+                            String TotalSurgeriesLeft = "";
+                            String TotalDelivieriesLeft = "";
+                            String TotalAntenatalLeft = "";
+                            String ConsultationAmountLeft = "";
+                            String SurgeryAmountLeft = "";
+                            String HospitalizationAmountLeft = "";
+                            String AntenatalAmountLeft = "";
+
+                            TotalAdmissionsLeft = jsonObject.getString("TotalAdmissionsLeft").equalsIgnoreCase("null")? "": "TotalAdmissionsLeft: "+jsonObject.getString("TotalAdmissionsLeft");
+                            TotalVisitsLeft = jsonObject.getString("TotalVisitsLeft").equalsIgnoreCase("null")? "": "TotalVisitsLeft: "+jsonObject.getString("TotalVisitsLeft");
+                            TotalConsultationsLeft = jsonObject.getString("TotalConsultationsLeft").equalsIgnoreCase("null")? "": "TotalConsultationsLeft: "+jsonObject.getString("TotalConsultationsLeft");
+                            TotalSurgeriesLeft = jsonObject.getString("TotalSurgeriesLeft").equalsIgnoreCase("null")? "": "TotalSurgeriesLeft: "+jsonObject.getString("TotalSurgeriesLeft");
+                            TotalDelivieriesLeft = jsonObject.getString("TotalDelivieriesLeft").equalsIgnoreCase("null")? "": "TotalDelivieriesLeft: "+jsonObject.getString("TotalDelivieriesLeft");
+                            TotalAntenatalLeft = jsonObject.getString("TotalAntenatalLeft").equalsIgnoreCase("null")? "": "TotalAntenatalLeft: "+jsonObject.getString("TotalAntenatalLeft");
+                            ConsultationAmountLeft = jsonObject.getString("ConsultationAmountLeft").equalsIgnoreCase("null")? "": "ConsultationAmountLeft: "+jsonObject.getString("ConsultationAmountLeft");
+                            SurgeryAmountLeft = jsonObject.getString("SurgeryAmountLeft").equalsIgnoreCase("null")? "": "TotalAdmissionsLeft: "+jsonObject.getString("SurgeryAmountLeft");
+                            HospitalizationAmountLeft = jsonObject.getString("HospitalizationAmountLeft").equalsIgnoreCase("null")? "": "TotalAdmissionsLeft: "+jsonObject.getString("HospitalizationAmountLeft");
+                            AntenatalAmountLeft = jsonObject.getString("AntenatalAmountLeft").equalsIgnoreCase("null")? "": "AntenatalAmountLeft: "+jsonObject.getString("AntenatalAmountLeft");
+
+                            if(!sql.getAdjustibility("TotalAdmissionsLeft").equals("N")){Policy.put("SubItem4",TotalAdmissionsLeft);}
+                            if(!sql.getAdjustibility("TotalVisitsLeft").equals("N")){Policy.put("SubItem5",TotalVisitsLeft);}
+                            if(!sql.getAdjustibility("TotalConsultationsLeft").equals("N")){Policy.put("SubItem6",TotalConsultationsLeft);}
+                            if(!sql.getAdjustibility("TotalSurgeriesLeft").equals("N")){Policy.put("SubItem7",TotalSurgeriesLeft);}
+                            if(!sql.getAdjustibility("TotalDelivieriesLeft").equals("N")){Policy.put("SubItem8",TotalDelivieriesLeft);}
+                            if(!sql.getAdjustibility("TotalAntenatalLeft").equals("N")){Policy.put("SubItem9",TotalAntenatalLeft);}
+                            if(!sql.getAdjustibility("ConsultationAmountLeft").equals("N")){Policy.put("SubItem10",ConsultationAmountLeft);}
+                            if(!sql.getAdjustibility("SurgeryAmountLeft").equals("N")){Policy.put("SubItem11",SurgeryAmountLeft);}
+                            if(!sql.getAdjustibility("HospitalizationAmountLeft").equals("N")){Policy.put("SubItem12",HospitalizationAmountLeft);}
+                            if(!sql.getAdjustibility("AntenatalAmountLeft").equals("N")){Policy.put("SubItem13",AntenatalAmountLeft);}
+
                             PolicyList.add(Policy);
                             etCHFID.setText("");
                             //break;
@@ -569,8 +606,8 @@ public class EnquireActivity extends AppCompatActivity {
                     }
                     ListAdapter adapter = new SimpleAdapter(EnquireActivity.this,
                             PolicyList, R.layout.policylist,
-                            new String[]{"Heading","Heading1","SubItem1","SubItem2","SubItem3"},
-                            new int[]{R.id.tvHeading,R.id.tvHeading1,R.id.tvSubItem1,R.id.tvSubItem2,R.id.tvSubItem3}
+                            new String[]{"Heading","Heading1","SubItem1","SubItem2","SubItem3","SubItem4","SubItem5","SubItem6","SubItem7","SubItem8","SubItem9","SubItem10","SubItem11","SubItem12","SubItem13"},
+                            new int[]{R.id.tvHeading,R.id.tvHeading1,R.id.tvSubItem1,R.id.tvSubItem2,R.id.tvSubItem3,R.id.tvSubItem4,R.id.tvSubItem5,R.id.tvSubItem6,R.id.tvSubItem7,R.id.tvSubItem8,R.id.tvSubItem9,R.id.tvSubItem10,R.id.tvSubItem11,R.id.tvSubItem12,R.id.tvSubItem13}
                     );
 
                     lv.setAdapter(adapter);
@@ -607,7 +644,7 @@ public class EnquireActivity extends AppCompatActivity {
         tvDOB.setText(getResources().getString(R.string.DOB));
         tvGender.setText(getResources().getString(R.string.Gender));
         iv.setImageResource(R.drawable.noimage);
-        ll.setVisibility(View.INVISIBLE);
+        //ll.setVisibility(View.INVISIBLE);
         PolicyList.clear();
         lv.setAdapter(null);
     }

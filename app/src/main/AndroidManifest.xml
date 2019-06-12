@@ -30,8 +30,7 @@
         </activity>
         <activity
             android:name="org.openimis.imisclaims.EnquireActivity"
-            android:label="@string/title_activity_enquire"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="@string/title_activity_enquire" />
         <activity
             android:name="org.openimis.imisclaims.ClaimActivity"
             android:windowSoftInputMode="stateHidden" />
