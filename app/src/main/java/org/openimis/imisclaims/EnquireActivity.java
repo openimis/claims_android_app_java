@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -598,6 +599,52 @@ public class EnquireActivity extends AppCompatActivity {
                             if(!sql.getAdjustibility("SurgeryAmountLeft").equals("N")){Policy.put("SubItem11",SurgeryAmountLeft);}
                             if(!sql.getAdjustibility("HospitalizationAmountLeft").equals("N")){Policy.put("SubItem12",HospitalizationAmountLeft);}
                             if(!sql.getAdjustibility("AntenatalAmountLeft").equals("N")){Policy.put("SubItem13",AntenatalAmountLeft);}
+
+                            View view;
+                            LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            view = inflater.inflate(R.layout.policylist, null);
+
+                            if(TotalAdmissionsLeft.equals("")){
+                                TextView textView = (TextView) view.findViewById(R.id.tvSubItem4);
+                                textView.setVisibility(View.INVISIBLE);
+                            }
+                            if(TotalVisitsLeft.equals("")){
+                                TextView textView = (TextView) view.findViewById(R.id.tvSubItem5);
+                                textView.setVisibility(View.INVISIBLE);
+                            }
+                            if(TotalConsultationsLeft.equals("")){
+                                TextView textView = (TextView) view.findViewById(R.id.tvSubItem6);
+                                textView.setVisibility(View.INVISIBLE);
+                            }
+                            if(TotalSurgeriesLeft.equals("")){
+                                TextView textView = (TextView) view.findViewById(R.id.tvSubItem7);
+                                textView.setVisibility(View.INVISIBLE);
+                            }
+                            if(TotalDelivieriesLeft.equals("")){
+                                TextView textView = (TextView) view.findViewById(R.id.tvSubItem8);
+                                textView.setVisibility(View.INVISIBLE);
+                            }
+                            if(TotalAntenatalLeft.equals("")){
+                                TextView textView = (TextView) view.findViewById(R.id.tvSubItem9);
+                                textView.setVisibility(View.INVISIBLE);
+                            }
+                            if(ConsultationAmountLeft.equals("")){
+                                TextView textView = (TextView) view.findViewById(R.id.tvSubItem10);
+                                textView.setVisibility(View.INVISIBLE);
+                            }
+                            if(SurgeryAmountLeft.equals("")){
+                                TextView textView = (TextView) view.findViewById(R.id.tvSubItem11);
+                                textView.setVisibility(View.INVISIBLE);
+                            }
+                            if(HospitalizationAmountLeft.equals("")){
+                                TextView textView = (TextView) view.findViewById(R.id.tvSubItem12);
+                                textView.setVisibility(View.INVISIBLE);
+                            }
+                            if(AntenatalAmountLeft.equals("")){
+                                TextView textView = (TextView) view.findViewById(R.id.tvSubItem13);
+                                textView.setVisibility(View.INVISIBLE);
+                            }
+
 
                             PolicyList.add(Policy);
                             etCHFID.setText("");
