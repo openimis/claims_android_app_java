@@ -606,43 +606,43 @@ public class EnquireActivity extends AppCompatActivity {
 
                             if(TotalAdmissionsLeft.equals("")){
                                 TextView textView = (TextView) view.findViewById(R.id.tvSubItem4);
-                                textView.setVisibility(View.INVISIBLE);
+                                textView.setVisibility(View.GONE);
                             }
                             if(TotalVisitsLeft.equals("")){
                                 TextView textView = (TextView) view.findViewById(R.id.tvSubItem5);
-                                textView.setVisibility(View.INVISIBLE);
+                                textView.setVisibility(View.GONE);
                             }
                             if(TotalConsultationsLeft.equals("")){
                                 TextView textView = (TextView) view.findViewById(R.id.tvSubItem6);
-                                textView.setVisibility(View.INVISIBLE);
+                                textView.setVisibility(View.GONE);
                             }
                             if(TotalSurgeriesLeft.equals("")){
                                 TextView textView = (TextView) view.findViewById(R.id.tvSubItem7);
-                                textView.setVisibility(View.INVISIBLE);
+                                textView.setVisibility(View.GONE);
                             }
                             if(TotalDelivieriesLeft.equals("")){
                                 TextView textView = (TextView) view.findViewById(R.id.tvSubItem8);
-                                textView.setVisibility(View.INVISIBLE);
+                                textView.setVisibility(View.GONE);
                             }
                             if(TotalAntenatalLeft.equals("")){
                                 TextView textView = (TextView) view.findViewById(R.id.tvSubItem9);
-                                textView.setVisibility(View.INVISIBLE);
+                                textView.setVisibility(View.GONE);
                             }
                             if(ConsultationAmountLeft.equals("")){
                                 TextView textView = (TextView) view.findViewById(R.id.tvSubItem10);
-                                textView.setVisibility(View.INVISIBLE);
+                                textView.setVisibility(View.GONE);
                             }
                             if(SurgeryAmountLeft.equals("")){
                                 TextView textView = (TextView) view.findViewById(R.id.tvSubItem11);
-                                textView.setVisibility(View.INVISIBLE);
+                                textView.setVisibility(View.GONE);
                             }
                             if(HospitalizationAmountLeft.equals("")){
                                 TextView textView = (TextView) view.findViewById(R.id.tvSubItem12);
-                                textView.setVisibility(View.INVISIBLE);
+                                textView.setVisibility(View.GONE);
                             }
                             if(AntenatalAmountLeft.equals("")){
                                 TextView textView = (TextView) view.findViewById(R.id.tvSubItem13);
-                                textView.setVisibility(View.INVISIBLE);
+                                textView.setVisibility(View.GONE);
                             }
 
 
@@ -691,7 +691,7 @@ public class EnquireActivity extends AppCompatActivity {
         tvDOB.setText(getResources().getString(R.string.DOB));
         tvGender.setText(getResources().getString(R.string.Gender));
         iv.setImageResource(R.drawable.noimage);
-        //ll.setVisibility(View.INVISIBLE);
+        //ll.setVisibility(View.GONE);
         PolicyList.clear();
         lv.setAdapter(null);
     }
