@@ -10,7 +10,7 @@ import com.exact.CallSoap.CallSoap;
 
 public class getFTPCredentials {
 	
-	public String Host = "";
+	/*public String Host = "";
 	public String UserName = "";
 	public String Password = "";
 	public int Port = 21;
@@ -18,15 +18,15 @@ public class getFTPCredentials {
 	public String FTPClaimFolder = "";
 	public String FTPFeedbackFolder = "";
 	public String FTPPolicyRenewalFolder = "";
-	
-		
+
+
 	public getFTPCredentials(){
 		String rslt = "";
-		
+
 		CallSoap cs = new CallSoap();
 		cs.setFunctionName("getFTPCredentials");
 		rslt = cs.Call();
-		
+
 			try {
 				JSONArray jsonArray = new JSONArray(rslt);
 				for (int i =0;i < jsonArray.length();i++){
@@ -44,11 +44,11 @@ public class getFTPCredentials {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			
-		
-			}
-	
-	}
+
+
+
+			}*/
+
+}
 	
 

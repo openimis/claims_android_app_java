@@ -1,17 +1,15 @@
 package com.exact.imis.claim;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import android.app.Activity;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuBuilder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -25,21 +23,27 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Button;
 import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MapServices extends Activity{
+import com.exact.imis.claim.R;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class MapServices extends AppCompatActivity {
 
 SQLHandler sql; 
 	
 	ListView lvMapServices;
 	CheckBox chkAll,chk;
 	EditText etSearchServices;
-	Button btnSave;
 
 	ArrayList<HashMap<String, Object>> ServiceList = new ArrayList<HashMap<String, Object>>();
 	
@@ -52,11 +56,15 @@ SQLHandler sql;
 			// TODO Auto-generated method stub
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.mapservices);
+
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setTitle(getResources().getString(R.string.app_name_claim));
+
 			lvMapServices = (ListView)findViewById(R.id.lvMapServices);
 		    chkAll = (CheckBox)findViewById(R.id.chkAllServices);
 		    chk = (CheckBox)findViewById(R.id.chkMap);
 			etSearchServices = (EditText)findViewById(R.id.etSearchServices);
-			btnSave = (Button)findViewById(R.id.btnSvMap);
 			
 			etSearchServices.addTextChangedListener(new TextWatcher() {
 				@Override
@@ -66,21 +74,15 @@ SQLHandler sql;
 
 				@Override
 				public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-					alAdapter.getFilter().filter(charSequence.toString());
+					if(alAdapter != null){
+						alAdapter.getFilter().filter(charSequence.toString());
+					}
+
 				}
 
 				@Override
 				public void afterTextChanged(Editable editable) {
 
-				}
-			});
-
-
-			btnSave.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					openOptionsMenu();
 				}
 			});
 
@@ -140,9 +142,9 @@ SQLHandler sql;
 				
 			}
 
-			 alAdapter = new ServiceAdapter(MapServices.this,ServiceList,R.layout.mappinglist,
+			 alAdapter = new ServiceAdapter(MapServices.this,ServiceList, R.layout.mappinglist,
 					 	new String[]{"Code","Name","isMapped"},
-					 	new int[]{R.id.tvMapCode,R.id.tvMapName,R.id.chkMap});
+					 	new int[]{R.id.tvMapCode, R.id.tvMapName, R.id.chkMap});
 
 			 
 			 	//lvMapServices.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice,Items));
@@ -166,13 +168,19 @@ SQLHandler sql;
 				alAdapter.notifyDataSetChanged();
 			}
 		}
-		
-		@Override
-		public boolean onCreateOptionsMenu(Menu menu) {
-			MenuInflater mif = getMenuInflater();
-			mif.inflate(R.menu.mapping, menu);
-			return true;
+
+	@SuppressLint("RestrictedApi")
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu){
+		MenuInflater mif = getMenuInflater();
+		mif.inflate(R.menu.mapping, menu);
+		if(menu instanceof MenuBuilder){
+			MenuBuilder m = (MenuBuilder) menu;
+			//noinspection RestrictedApi
+			m.setOptionalIconsVisible(true);
 		}
+		return true;
+	}
 		
 		@Override
 		public boolean onOptionsItemSelected(MenuItem item) {
@@ -183,9 +191,30 @@ SQLHandler sql;
 				pd = ProgressDialog.show(this, "", getResources().getString(R.string.Saving));
 				new Thread(){
 					public void run(){
-						Save();
-						finish();
-						pd.dismiss();
+						int save = Save();
+						if(save == 2){
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									ShowDialog(getResources().getString(R.string.MemoryFull));
+								}
+							});
+
+						} else if(save == 1){
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								ShowDialog(getResources().getString(R.string.SelectItems));
+							}
+						});
+					}else{
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {ShowDialog(getResources().getString(R.string.saved_successfully));
+								}
+							});
+						}
+					pd.dismiss();
 					}
 				}.start();
 				
@@ -194,23 +223,45 @@ SQLHandler sql;
 				finish();
 				return true;
 			default:
-				return super.onOptionsItemSelected(item);
+				onBackPressed();
+				return true;
 			}
 		}
 		
-		private void Save(){
+		private int Save(){
+			int count = 0;
 			sql = new SQLHandler(this);
 			sql.ClearMapping("S");
 			for(int i=0;i<ServiceList.size();i++){
 				oService = (HashMap<String,Object>)ServiceList.get(i);
 				boolean checked = (Boolean) oService.get("isMapped");
 					if (checked){
-						sql.InsertMapping(oService.get("Code").toString(), oService.get("Name").toString(), "S");
+						count++;
+						if(!sql.InsertMapping(oService.get("Code").toString(), oService.get("Name").toString(), "S")){
+							return 2;
+						}
+
 					}
 				}
+			if(count == 0){
+				return 1;
 			}
+			return 0;
+		}
 
+	protected AlertDialog ShowDialog(String msg){
+		return new AlertDialog.Builder(this)
+				.setMessage(msg)
+				.setCancelable(false)
+				.setPositiveButton(getResources().getString(R.string.Ok), new DialogInterface.OnClickListener() {
 
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						//et.requestFocus();
+						return;
+					}
+				}).show();
+	}
 	private class ServiceAdapter extends SimpleAdapter{
 
 		private ArrayList<HashMap<String, Object>> OriginalList,FilteredList;
@@ -321,8 +372,10 @@ SQLHandler sql;
 			}
 		}
 	}
-
-
-		}
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+	}
+}
 
 

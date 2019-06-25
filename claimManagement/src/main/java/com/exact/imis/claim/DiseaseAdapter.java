@@ -10,6 +10,8 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import com.exact.imis.claim.R;
+
 public class DiseaseAdapter extends CursorAdapter implements AdapterView.OnItemClickListener {
     SQLHandler sql;
     SQLiteDatabase db;

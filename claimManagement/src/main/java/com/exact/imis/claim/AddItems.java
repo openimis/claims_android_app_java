@@ -1,32 +1,34 @@
 package com.exact.imis.claim;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 
-public class AddItems extends Activity {
+import com.exact.imis.claim.R;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class AddItems extends AppCompatActivity {
 	
 //	Spinner spItems;
 	ListView lvItems;
 	TextView tvCode,tvName;
 	EditText etQuantity, etAmount;
-	Button btnAdd,btnBack;
+	Button btnAdd;
 	SQLiteDatabase db;
     AutoCompleteTextView etItems;
 
@@ -46,7 +48,10 @@ public class AddItems extends Activity {
 	    super.onCreate(savedInstanceState);
 	    
 	    setContentView(R.layout.additems);
-	    
+
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setTitle(getResources().getString(R.string.app_name_claim));
+		actionBar.setDisplayHomeAsUpEnabled(true);
 	    
 	    
 //	    spItems = (Spinner)findViewById(R.id.spItems);
@@ -58,11 +63,11 @@ public class AddItems extends Activity {
 	    etAmount = (EditText)findViewById(R.id.etAmount);
         etItems  = (AutoCompleteTextView)findViewById(R.id.etItems);
 	    
-	    //ClaimManagementActivity.lvItemList = new ArrayList<HashMap<String, String>>();
+	    //ClaimActivity.lvItemList = new ArrayList<HashMap<String, String>>();
 
-	    alAdapter = new SimpleAdapter(AddItems.this,ClaimManagementActivity.lvItemList,R.layout.lvitem,
+	    alAdapter = new SimpleAdapter(AddItems.this,ClaimActivity.lvItemList, R.layout.lvitem,
 				new String[]{"Code","Name","Price","Quantity"},
-				new int[]{R.id.tvLvCode,R.id.tvLvName,R.id.tvLvPrice,R.id.tvLvQuantity});
+				new int[]{R.id.tvLvCode, R.id.tvLvName, R.id.tvLvPrice, R.id.tvLvQuantity});
 
 
         ItemAdapter itemAdapter = new ItemAdapter(AddItems.this,null);
@@ -115,7 +120,7 @@ public class AddItems extends Activity {
 					lvItem.put("Price", Amount);
 					if(etQuantity.getText().toString().length() == 0) Quantity = "1"; else Quantity = etQuantity.getText().toString();
 					lvItem.put("Quantity", Quantity);
-					ClaimManagementActivity.lvItemList.add(lvItem);
+					ClaimActivity.lvItemList.add(lvItem);
 					
 					alAdapter.notifyDataSetChanged();
 
@@ -130,15 +135,7 @@ public class AddItems extends Activity {
 				}
 			}
 		});
-	    
-	    btnBack = (Button)findViewById(R.id.btnBack);
-	    btnBack.setOnClickListener(new OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 	    
 	    //BindSpItems();
 
@@ -188,7 +185,7 @@ public class AddItems extends Activity {
 					@Override
 					public void onClick(View v) {
 						// TODO Auto-generated method stub
-						ClaimManagementActivity.lvItemList.remove(Pos);
+						ClaimActivity.lvItemList.remove(Pos);
 						HideAllDeleteButtons();
 //						alAdapter.notifyDataSetChanged();
 					}
@@ -221,7 +218,7 @@ public class AddItems extends Activity {
 //		String Columns[] = {"Code","Name","Type"};
 //		String Criteria = "Type='I'";
 //
-//		//db = openOrCreateDatabase(ClaimManagementActivity.Path + "ImisData.db3", SQLiteDatabase.OPEN_READONLY, null);
+//		//db = openOrCreateDatabase(ClaimActivity.Path + "ImisData.db3", SQLiteDatabase.OPEN_READONLY, null);
 //
 //		Cursor c = sql.getData(Table, Columns, Criteria);
 //
@@ -269,7 +266,19 @@ public class AddItems extends Activity {
 //		}
 //
 //	}
-	
+public boolean onOptionsItemSelected(MenuItem item){
+	onBackPressed();
+//	Intent myIntent = new Intent(getApplicationContext(), ClaimActivity.class);
+//	startActivityForResult(myIntent, 0);
+	//finish();
+	return true;
+}
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+	}
+
 
 
 }

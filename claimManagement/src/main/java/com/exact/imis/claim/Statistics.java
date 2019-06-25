@@ -19,13 +19,13 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 import com.exact.CallSoap.CallSoap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.exact.imis.claim.R;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class Statistics extends Activity {
 
@@ -260,7 +259,7 @@ public class Statistics extends Activity {
                                 ClaimStats,
                                 R.layout.lvstats,
                                 new String[]{"Label","Value"},
-                                new int[]{R.id.tvStatsLabel,R.id.tvStats}
+                                new int[]{R.id.tvStatsLabel, R.id.tvStats}
                         );
 
                         lvStats.setAdapter(adapter);

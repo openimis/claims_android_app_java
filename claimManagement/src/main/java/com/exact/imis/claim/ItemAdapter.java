@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import com.exact.imis.claim.R;
+
 public class ItemAdapter extends CursorAdapter {
     SQLHandler sql;
     SQLiteDatabase db;

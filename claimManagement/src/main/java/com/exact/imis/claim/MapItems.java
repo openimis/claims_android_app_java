@@ -1,16 +1,15 @@
 package com.exact.imis.claim;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import android.app.Activity;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuBuilder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -21,28 +20,31 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.Button;
 import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MapItems extends Activity {
+import com.exact.imis.claim.R;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class MapItems extends AppCompatActivity {
 	
 	SQLHandler sql; 
 	
 	ListView lvMapItems;
 	CheckBox chkAll,chk;
 	EditText etSearchItems;
-	Button btnSave;
 
 	ArrayList<HashMap<String, Object>> ItemsList = new ArrayList<HashMap<String, Object>>();
 	
@@ -55,15 +57,16 @@ public class MapItems extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.mapitesms);
-	
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setTitle(getResources().getString(R.string.app_name_claim));
 	   
 	        
 	    lvMapItems = (ListView)findViewById(R.id.lvMapItems);
 	    chkAll = (CheckBox)findViewById(R.id.chkAll);
 	    chk = (CheckBox)findViewById(R.id.chkMap);
 		etSearchItems = (EditText)findViewById(R.id.etSearchItems);
-		btnSave = (Button)findViewById(R.id.btnSvMap);
-		
+
 		etSearchItems.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -72,7 +75,10 @@ public class MapItems extends Activity {
 
 			@Override
 			public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-				alAdapter.getFilter().filter(charSequence);
+				if(alAdapter != null){
+					alAdapter.getFilter().filter(charSequence);
+				}
+
 			}
 
 			@Override
@@ -81,16 +87,7 @@ public class MapItems extends Activity {
 			}
 		});
 
-
-		btnSave.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				openOptionsMenu();
-			}
-		});
-
-	    lvMapItems.setOnItemClickListener(new ListView.OnItemClickListener(){
+	    lvMapItems.setOnItemClickListener(new OnItemClickListener(){
 			
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
@@ -147,9 +144,9 @@ public class MapItems extends Activity {
 				
 			}
 	
-			 alAdapter = new ItemAdapter(MapItems.this,ItemsList,R.layout.mappinglist,
+			 alAdapter = new ItemAdapter(MapItems.this,ItemsList, R.layout.mappinglist,
 						 new String[]{"Code","Name","isMapped"},
-						 new int[]{R.id.tvMapCode,R.id.tvMapName,R.id.chkMap});
+						 new int[]{R.id.tvMapCode, R.id.tvMapName, R.id.chkMap});
 	
 			 
 				 //lvMapItems.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice,Items));
@@ -175,11 +172,17 @@ public class MapItems extends Activity {
 			alAdapter.notifyDataSetChanged();
 		}
 	}
-	
+
+	@SuppressLint("RestrictedApi")
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu){
 		MenuInflater mif = getMenuInflater();
 		mif.inflate(R.menu.mapping, menu);
+		if(menu instanceof MenuBuilder){
+			MenuBuilder m = (MenuBuilder) menu;
+			//noinspection RestrictedApi
+			m.setOptionalIconsVisible(true);
+		}
 		return true;
 	}
 	
@@ -192,34 +195,76 @@ public class MapItems extends Activity {
 			pd = ProgressDialog.show(this, "", getResources().getString(R.string.Saving));
 			new Thread(){
 				public void run(){
-					Save();
-					finish();
+					int save = Save();
+					if(save == 2){
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								ShowDialog(getResources().getString(R.string.MemoryFull));
+							}
+						});
+
+					}else if(save == 1){
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								ShowDialog(getResources().getString(R.string.SelectItems));
+							}
+						});
+					}else{
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {ShowDialog(getResources().getString(R.string.saved_successfully));
+							}
+						});
+					}
+
 					pd.dismiss();
 				}
 			}.start();
-			
-			
 			//finish();
 			return true;
 		case R.id.mnuCancel:
 			finish();
 			return true;
 		default:
-			return super.onOptionsItemSelected(item);
+			onBackPressed();
+			return true;
 		}
 	}
 	
-	private void Save(){
+	private int Save(){
+		int count = 0;
 		sql = new SQLHandler(this);
 		sql.ClearMapping("I");
-		for(int i=0;i<ItemsList.size();i++){
-			oItem = (HashMap<String,Object>)ItemsList.get(i);
-			boolean checked = (Boolean) oItem.get("isMapped");
+			for(int i=0;i<ItemsList.size();i++){
+				oItem = (HashMap<String,Object>)ItemsList.get(i);
+				boolean checked = (Boolean) oItem.get("isMapped");
 				if (checked){
-					sql.InsertMapping(oItem.get("Code").toString(), oItem.get("Name").toString(), "I");
+					count++;
+					if(!sql.InsertMapping(oItem.get("Code").toString(), oItem.get("Name").toString(), "I")){
+						return 2;
+					}
 				}
 			}
-		}
+			if(count == 0){
+				return 1;
+			}
+		return 0;
+	}
+	protected AlertDialog ShowDialog(String msg){
+		return new AlertDialog.Builder(this)
+				.setMessage(msg)
+				.setCancelable(false)
+				.setPositiveButton(getResources().getString(R.string.Ok), new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						//et.requestFocus();
+						return;
+					}
+				}).show();
+	}
 
 
 	private class ItemAdapter extends SimpleAdapter{
@@ -333,7 +378,6 @@ public class MapItems extends Activity {
 			}
 		}
 	}
-
 
 
 	}

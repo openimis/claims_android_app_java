@@ -13,16 +13,16 @@ import com.exact.general.getFTPCredentials;
 
 public class downloadFile {
 	
-	FTPClient f;
+	/*FTPClient f;
 	getFTPCredentials ftp = new getFTPCredentials();
 	final String Host = ftp.Host;  //"173.192.19.70";
 	final int Port = ftp.Port;
 	final String UserName = ftp.UserName;
 	final String Password = ftp.Password;
 
-	
+
 	InputStream in;
-	
+
 	public boolean isValidFTPCredentials(){
 		f = new FTPClient();
 		try {
@@ -42,25 +42,25 @@ public class downloadFile {
 		}
 		return false;
 	}
-	
+
 	public InputStream  DownloadFileFromServer(String file){
 		try {
-			
+
 			f = new FTPClient();
 			f.connect(Host,Port);
 			if(f.login(UserName, Password)){
 				f.setFileType(FTP.BINARY_FILE_TYPE);
 				f.enterLocalPassiveMode();
-				
-				
+
+
 				in =  f.retrieveFileStream(file);
-				
-			
+
+
 				 //Log.v("upload result", "succeeded");
 			}
 			f.logout();
 			f.disconnect();
-			
+
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -69,6 +69,6 @@ public class downloadFile {
 			e.printStackTrace();
 		}
 		return in;
-	} 
-	
+	} */
+
 }

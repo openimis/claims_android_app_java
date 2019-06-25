@@ -15,7 +15,7 @@ import com.exact.general.getFTPCredentials;
 
 public class UploadFile {
 	
-	FTPClient f;
+/*	FTPClient f;
 	getFTPCredentials ftp = new getFTPCredentials();
 	final String Host = ftp.Host;  //"173.192.19.70";
 	final int Port = ftp.Port;
@@ -25,7 +25,7 @@ public class UploadFile {
 	final String FTPClaimFolder = ftp.FTPClaimFolder;
 	final String FTPFeedbackFolder = ftp.FTPFeedbackFolder;
 	final String FTPPolicyRenewalFolder = ftp.FTPPolicyRenewalFolder;
-	
+
 	public boolean isValidFTPCredentials(){
 		f = new FTPClient();
 		try {
@@ -45,13 +45,13 @@ public class UploadFile {
 		}
 		return false;
 	}
-	
+
 	public boolean uploadFileToServer(Context ctx,File file){
 		boolean result = false;
 		try {
 			String UploadPath = "";
 			String Package = ctx.getApplicationInfo().packageName;
-			
+
 			if (Package.equalsIgnoreCase("com.exact.imis.feedback"))
 				UploadPath = FTPFeedbackFolder;
 			else if (Package.equalsIgnoreCase("com.exact.imis.enrollment"))
@@ -60,26 +60,26 @@ public class UploadFile {
 				UploadPath = FTPPolicyRenewalFolder;
 			else if (Package.equalsIgnoreCase("com.exact.imis.Claim"))
 				UploadPath = FTPClaimFolder;
-			
-			
+
+
 			f = new FTPClient();
 			f.connect(Host,Port);
 			if(f.login(UserName, Password)){
 				f.setFileType(FTP.BINARY_FILE_TYPE);
 				f.enterLocalPassiveMode();
-							
+
 				FileInputStream in = new FileInputStream(file);
 				result = f.storeFile(UploadPath + "/" + file.getName(), in);
-				
+
 				in.close();
 				 //Log.v("upload result", "succeeded");
 			}else{
 				return false;
 			}
-			
+
 			f.logout();
 			f.disconnect();
-			
+
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -88,8 +88,8 @@ public class UploadFile {
 			e.printStackTrace();
 		}
 		return result;
-	} 
-	
+	} */
+
 
 
 }

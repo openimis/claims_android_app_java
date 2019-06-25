@@ -1,15 +1,12 @@
 package com.exact.imis.claim;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -18,35 +15,41 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-public class AddServices extends Activity {
+import com.exact.imis.claim.R;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class AddServices extends AppCompatActivity {
 
 	//Spinner spServices;
 	ListView lvServices;
 	TextView tvCode,tvName;
 	EditText etSQuantity, etSAmount;
-	Button btnAdd,btnBack;
+	Button btnAdd;
 	SQLiteDatabase db;
 	AutoCompleteTextView etServices;
 
 	int Pos;
-	
+
 	ArrayList<HashMap<String, String>> ServiceList = new ArrayList<HashMap<String,String>>();
 	//ArrayList<HashMap<String,String>> lvItemList;
-	
+
 	HashMap<String, String> oService;
 	SimpleAdapter alAdapter;
-	
-	
+
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    
 	    setContentView(R.layout.addservices);
-	    
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setTitle(getResources().getString(R.string.app_name_claim));
+		actionBar.setDisplayHomeAsUpEnabled(true);
 	    
 	    
 	    //spServices = (Spinner)findViewById(R.id.spServices);
@@ -85,11 +88,11 @@ public class AddServices extends Activity {
             }
         });
 	    
-	    //ClaimManagementActivity.lvItemList = new ArrayList<HashMap<String, String>>();
+	    //ClaimActivity.lvItemList = new ArrayList<HashMap<String, String>>();
 
-	    alAdapter = new SimpleAdapter(AddServices.this,ClaimManagementActivity.lvServiceList,R.layout.lvitem,
+	    alAdapter = new SimpleAdapter(AddServices.this,ClaimActivity.lvServiceList, R.layout.lvitem,
 				new String[]{"Code","Name","Price","Quantity"},
-				new int[]{R.id.tvLvCode,R.id.tvLvName,R.id.tvLvPrice,R.id.tvLvQuantity});
+				new int[]{R.id.tvLvCode, R.id.tvLvName, R.id.tvLvPrice, R.id.tvLvQuantity});
 	    
 	    
 	  
@@ -114,7 +117,7 @@ public class AddServices extends Activity {
 					lvService.put("Price", Amount);
 					if(etSQuantity.getText().toString().length() == 0) Quantity = "1"; else Quantity = etSQuantity.getText().toString();
 					lvService.put("Quantity", Quantity);
-					ClaimManagementActivity.lvServiceList.add(lvService);
+					ClaimActivity.lvServiceList.add(lvService);
 					
 					alAdapter.notifyDataSetChanged();
 
@@ -129,14 +132,6 @@ public class AddServices extends Activity {
             }
         });
 
-        btnBack = (Button) findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				finish();				
-			}
-		});
 	    
 	    //BindSpServices();
 	    
@@ -183,7 +178,7 @@ public class AddServices extends Activity {
 					@Override
 					public void onClick(View v) {
 						// TODO Auto-generated method stub
-						ClaimManagementActivity.lvServiceList.remove(Pos);
+						ClaimActivity.lvServiceList.remove(Pos);
 						HideAllDeleteButtons();
 						alAdapter.notifyDataSetChanged();
 					}
@@ -216,7 +211,7 @@ public class AddServices extends Activity {
 //		String Columns[] = {"Code","Name","Type"};
 //		String Criteria = "Type='S'";
 //
-//		//db = openOrCreateDatabase(ClaimManagementActivity.Path + "ImisData.db3", SQLiteDatabase.OPEN_READONLY, null);
+//		//db = openOrCreateDatabase(ClaimActivity.Path + "ImisData.db3", SQLiteDatabase.OPEN_READONLY, null);
 //
 //		Cursor c = sql.getData(Table, Columns, Criteria);
 //
@@ -262,5 +257,13 @@ public class AddServices extends Activity {
 //		}
 //
 //	}
-	
+    public boolean onOptionsItemSelected(MenuItem item){
+		onBackPressed();
+        return true;
+    }
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+	}
 }

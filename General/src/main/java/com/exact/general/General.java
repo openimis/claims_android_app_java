@@ -16,14 +16,14 @@ import android.os.Environment;
 import android.util.DisplayMetrics;
 
 public class General {
-
-	// IP address of openIMIS demo server => please update with your own Web Services base URL
-	private String _Domain = "http://demo.openimis.org/";
+	//private String _Domain = "http://192.168.8.100/";
+	//private String _Domain = "http://dev.chf-imis.or.tz/";
+    private static String _Domain = "http://demo.openimis.org/";
 
 	public String getDomain(){
 		return _Domain;
 	}
-	
+
 	public int isSDCardAvailable(){
 		String State = Environment.getExternalStorageState();
 		if (State.equals(Environment.MEDIA_MOUNTED_READ_ONLY)){
@@ -34,40 +34,40 @@ public class General {
 			return 1;
 		}
 	}
-	
+
 	public boolean isNetworkAvailable(Context ctx){
-    	ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-    	NetworkInfo ni = cm.getActiveNetworkInfo();
-    	
-    	return (ni != null && ni.isConnected());
-    		
-    }
+		ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo ni = cm.getActiveNetworkInfo();
+
+		return (ni != null && ni.isConnected());
+
+	}
 
 	public void ChangeLanguage(Context ctx,String Language){
 		Resources res = ctx.getResources();
-        DisplayMetrics dm = res.getDisplayMetrics();
-        android.content.res.Configuration config = res.getConfiguration();
-        config.locale = new Locale(Language.toLowerCase());
-        res.updateConfiguration(config, dm);
+		DisplayMetrics dm = res.getDisplayMetrics();
+		android.content.res.Configuration config = res.getConfiguration();
+		config.locale = new Locale(Language.toLowerCase());
+		res.updateConfiguration(config, dm);
 	}
-	
+
 	public String getVersion(Context ctx, String PackageName){
 		String VersionName = "";
-		
+
 		PackageManager manager = ctx.getPackageManager();
 		try {
 			PackageInfo info = manager.getPackageInfo(PackageName, 0);
 			//int Code = info.versionCode;
 			VersionName = info.versionName;
-			
-						
+
+
 		} catch (NameNotFoundException e) {
 			// TODO Auto-generated catch block
 		}
 		return VersionName;
-		
+
 	}
-	
+
 	public boolean isNewVersionAvailable(String Field,Context ctx, String PackageName){
 
 		CallSoap cs = new CallSoap();
@@ -77,10 +77,10 @@ public class General {
 			result = result.replaceAll("(\\d+)\\,(\\d+)", "$1.$2");
 		}
 		return result == ""?false:Float.parseFloat(this.getVersion(ctx, PackageName).toString()) < Float.parseFloat(result);
-		
+
 	}
-	
-	
+
+
 }
 	
 	

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.exact.imis.claim.EnquireActivity"
+    tools:showIn="@layout/activity_enquire">
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etCHFID"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:inputType="number"
+            android:hint="@string/CHFID"
+            android:maxLength="12"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:paddingLeft="5dp"
+            android:typeface="monospace"
+            android:fontFamily="sans-serif-light"
+            android:background="@drawable/corner"
+            android:imeOptions="actionGo" >
+
+            <requestFocus />
+        </EditText>
+
+        <ImageButton
+            android:id="@+id/btnScan"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_margin="5dp"
+            android:contentDescription="@string/Scan"
+            android:src="@drawable/scan"
+            android:scaleType="fitXY"/>
+
+        <ImageButton
+            android:id="@+id/btnGo"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_margin="5dp"
+            android:src="@drawable/go"
+            android:scaleType="fitXY"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="left"
+            android:layout_margin="10dp"
+            android:src="@drawable/noimage"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+
+            <TextView
+                android:id="@+id/tvCHFID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/CHFID"
+                android:fontFamily="sans-serif-light"
+                android:layout_marginBottom="15dp"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/InsureeName"
+                android:fontFamily="sans-serif-light"
+                android:layout_marginBottom="15dp"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/tvGender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Gender"
+                android:fontFamily="sans-serif-light"
+                android:layout_marginBottom="15dp"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <TextView
+                android:id="@+id/tvDOB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/DOB"
+                android:fontFamily="sans-serif-light"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llListView"
+        android:visibility="invisible"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:background="@color/white"
+        android:fontFamily="sans-serif-light" >
+        <ListView
+            android:id="@+id/listView1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:choiceMode="none"
+            android:divider="@color/grey2"
+            android:dividerHeight="0.5dp"
+            android:fadeScrollbars="true"
+            android:padding="10dp"
+            android:background="@color/white"
+            android:fontFamily="sans-serif-light" >
+        </ListView>
+    </LinearLayout>
+
+
+</LinearLayout>
+
+
+</android.support.v4.widget.NestedScrollView>

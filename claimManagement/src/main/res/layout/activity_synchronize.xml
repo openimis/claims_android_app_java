@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.exact.imis.claim.Synchronize"
+    android:layout_margin="30dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:typeface="monospace"
+            android:fontFamily="sans-serif-light"
+            android:textSize="25dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginBottom="30dp"
+            android:textColor="@color/Black"
+            android:text="@string/synchronize"/>
+
+        <RelativeLayout
+            android:id="@+id/upload_claims"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/orange_corner"
+            android:orientation="vertical"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/lableUploadAllClaims"
+                android:layout_width="232dp"
+                android:layout_height="40dp"
+                android:background="@drawable/side_nav_bar"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:text="@string/UploadAllClaims"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="15dp"
+                android:typeface="monospace" />
+
+            <TextView
+                android:id="@+id/tvUploadClaims"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:layout_toRightOf="@+id/lableUploadAllClaims"
+                android:background="@drawable/side_nav_bar"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/zip_claims"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/orange_corner"
+            android:orientation="vertical"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:id="@+id/lableZipAllClaims"
+                android:layout_width="232dp"
+                android:layout_height="40dp"
+                android:background="@drawable/side_nav_bar"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:text="@string/ZipAllClaims"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="15dp"
+                android:typeface="monospace" />
+
+            <TextView
+                android:id="@+id/tvZipClaims"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:layout_toRightOf="@+id/lableZipAllClaims"
+                android:background="@drawable/side_nav_bar"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
+</LinearLayout>

@@ -31,14 +31,15 @@ public class CallSoap {
 	public String SOAP_ACTION = "http://tempuri.org/";
 	public String OPERATION_NAME = "";
 	public final String WSDL_TARGET_NAMESPACE = "http://tempuri.org/";
-	
+
 	public final String SOAP_ADDRESS = _General.getDomain() + "/Services/ImisServices.asmx";
+	//public final String SOAP_ADDRESS = "http://192.168.10.246/TestService/ExactServices.asmx";
 
 	public CallSoap(){
-		
+
 	}
-	
-	
+
+
 	public String Call(){
 		SoapObject request = new SoapObject(WSDL_TARGET_NAMESPACE, OPERATION_NAME);
 //		PropertyInfo pi = new PropertyInfo();
@@ -46,21 +47,21 @@ public class CallSoap {
 //		pi.setValue(FirstName);
 //		pi.setType(String.class);
 //		request.addProperty(pi);
-//		
+//
 //		pi = new PropertyInfo();
 //		pi.setName("LastName");
 //		pi.setValue(LastName);
 //		pi.setType(String.class);
 //		request.addProperty(pi);
-	
-			
+
+
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 		envelope.dotNet = true;
 		envelope.setOutputSoapObject(request);
-		
+
 		HttpTransportSE HttpTransport = new HttpTransportSE(SOAP_ADDRESS);
 		Object response = null;
-		
+
 		try {
 			HttpTransport.call(SOAP_ACTION, envelope);
 			response = envelope.getResponse();
@@ -69,26 +70,26 @@ public class CallSoap {
 		} catch (XmlPullParserException e) {
 			response = e.toString();
 		}
-		
+
 		return response.toString();
 	}
-	
+
 	public String getInsureeInfo(String CHFID){
-		
+
 		SoapObject request = new SoapObject(WSDL_TARGET_NAMESPACE, OPERATION_NAME);
 		PropertyInfo pi = new PropertyInfo();
 		pi.setName("CHFID");
 		pi.setValue(CHFID);
 		pi.setType(String.class);
 		request.addProperty(pi);
-		
+
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 		envelope.dotNet = true;
 		envelope.setOutputSoapObject(request);
-		
+
 		HttpTransportSE httpTransport = new HttpTransportSE(SOAP_ADDRESS);
 		Object response = null;
-		
+
 		try {
 			httpTransport.call(SOAP_ACTION, envelope);
 			response = envelope.getResponse();
@@ -98,29 +99,29 @@ public class CallSoap {
 			// TODO Auto-generated catch block
 			response = e.toString();
 		}
-		
-		
+
+
 		return response.toString();
-		
+
 	}
-	
+
 	public String GetCurrentVersion(String Field){
-		
+
 		SoapObject request = new SoapObject(WSDL_TARGET_NAMESPACE, OPERATION_NAME);
-		
+
 		PropertyInfo pi = new PropertyInfo();
 		pi.setName("Field");
 		pi.setValue(Field);
 		pi.setType(String.class);
 		request.addProperty(pi);
-		
+
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 		envelope.dotNet = true;
 		envelope.setOutputSoapObject(request);
-		
+
 		HttpTransportSE httpTransport = new HttpTransportSE(SOAP_ADDRESS);
 		Object response = null;
-		
+
 		try {
 			httpTransport.call(SOAP_ACTION, envelope);
 			response = envelope.getResponse();
@@ -132,28 +133,53 @@ public class CallSoap {
 			//response = e.toString();
 			response = "";
 		}
-		
-		
+
+
 		return response.toString();
-		
+
 	}
-	
-	
+	public int isUserLoggedIn(String LoginName, String Password) {
+		SoapObject request = new SoapObject("http://tempuri.org/", this.OPERATION_NAME);
+		PropertyInfo pi = new PropertyInfo();
+		pi.setName("LoginName");
+		pi.setValue(LoginName);
+		request.addProperty(pi);
+		pi = new PropertyInfo();
+		pi.setName("Password");
+		pi.setValue(Password);
+		request.addProperty(pi);
+		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(110);
+		envelope.dotNet = true;
+		envelope.setOutputSoapObject(request);
+		HttpTransportSE httpTransport = new HttpTransportSE(this.SOAP_ADDRESS);
+		Object response = null;
+
+		try {
+			httpTransport.call(this.SOAP_ACTION, envelope);
+			response = envelope.getResponse();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
+
+		return Integer.parseInt(response.toString());
+	}
+
 	public boolean isPolicyAccepted(String FileName){
 		SoapObject request = new SoapObject(WSDL_TARGET_NAMESPACE, OPERATION_NAME);
-		
+
 		PropertyInfo pi = new PropertyInfo();
 		pi.setName("FileName");
 		pi.setValue(FileName);
 		request.addProperty(pi);
-		
+
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 		envelope.dotNet = true;
 		envelope.setOutputSoapObject(request);
-		
+
 		HttpTransportSE httpTransport = new HttpTransportSE(SOAP_ADDRESS);
 		Object response = null;
-		
+
 		try {
 			httpTransport.call(SOAP_ACTION, envelope);
 			response = envelope.getResponse();
@@ -164,27 +190,27 @@ public class CallSoap {
 			// TODO Auto-generated catch block
 			return false;
 		}
-		
+
 		return Boolean.parseBoolean(response.toString());
-		
+
 	}
-	
+
 	public int isClaimAccepted(String FileName){
 		int result = -3;
 		SoapObject request = new SoapObject(WSDL_TARGET_NAMESPACE, OPERATION_NAME);
-		
+
 		PropertyInfo pi = new PropertyInfo();
 		pi.setName("FileName");
 		pi.setValue(FileName);
 		request.addProperty(pi);
-		
+
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 		envelope.dotNet = true;
 		envelope.setOutputSoapObject(request);
-		
+
 		HttpTransportSE httpTransport = new HttpTransportSE(SOAP_ADDRESS);
 		Object response = null;
-		
+
 		try {
 			httpTransport.call(SOAP_ACTION, envelope);
 			response = envelope.getResponse();
@@ -197,7 +223,7 @@ public class CallSoap {
 		}
 		//return true;
 		return Integer.parseInt(response.toString());
-		
+
 	}
 	public boolean UploadClaim(String ClaimData, String FileName){
 		SoapObject request = new SoapObject(WSDL_TARGET_NAMESPACE, OPERATION_NAME);
@@ -233,22 +259,22 @@ public class CallSoap {
 		return Boolean.parseBoolean(response.toString());
 
 	}
-	
+
 	public boolean isFeedbackAccepted(String FileName){
 		SoapObject request = new SoapObject(WSDL_TARGET_NAMESPACE,OPERATION_NAME);
-		
+
 		PropertyInfo pi = new PropertyInfo();
 		pi.setName("FileName");
 		pi.setValue(FileName);
 		request.addProperty(pi);
-		
+
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 		envelope.dotNet = true;
 		envelope.setOutputSoapObject(request);
-		
+
 		HttpTransportSE httpTransport = new HttpTransportSE(SOAP_ADDRESS);
 		Object response = null;
-		
+
 		try {
 			httpTransport.call(SOAP_ACTION, envelope);
 			response = envelope.getResponse();
@@ -257,54 +283,54 @@ public class CallSoap {
 		} catch (XmlPullParserException e) {
 			return false;
 		}
-		
+
 		return Boolean.parseBoolean(response.toString());
 	}
 
 	public String GetClaimStats(String HFCode, String ClaimAdmin, Date FromDate, Date ToDate){
 		SoapObject request  = new SoapObject(WSDL_TARGET_NAMESPACE,OPERATION_NAME);
 
-        PropertyInfo pi = new PropertyInfo();
-        pi.setName("HFCode");
-        pi.setValue(HFCode);
-        request.addProperty(pi);
+		PropertyInfo pi = new PropertyInfo();
+		pi.setName("HFCode");
+		pi.setValue(HFCode);
+		request.addProperty(pi);
 
-        pi = new PropertyInfo();
-        pi.setName("ClaimAdmin");
-        pi.setValue(ClaimAdmin);
-        request.addProperty(pi);
+		pi = new PropertyInfo();
+		pi.setName("ClaimAdmin");
+		pi.setValue(ClaimAdmin);
+		request.addProperty(pi);
 
-        pi = new PropertyInfo();
-        pi.setName("FromDate");
-        pi.setValue(FromDate);
-        pi.setType(Date.class);
-        request.addProperty(pi);
+		pi = new PropertyInfo();
+		pi.setName("FromDate");
+		pi.setValue(FromDate);
+		pi.setType(Date.class);
+		request.addProperty(pi);
 
-        pi = new PropertyInfo();
-        pi.setName("ToDate");
-        pi.setValue(ToDate);
-        pi.setType(Date.class);
-        request.addProperty(pi);
+		pi = new PropertyInfo();
+		pi.setName("ToDate");
+		pi.setValue(ToDate);
+		pi.setType(Date.class);
+		request.addProperty(pi);
 
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.dotNet = true;
-        envelope.setOutputSoapObject(request);
+		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+		envelope.dotNet = true;
+		envelope.setOutputSoapObject(request);
 
-        HttpTransportSE transportSE = new HttpTransportSE(SOAP_ADDRESS);
-        Object response = null;
+		HttpTransportSE transportSE = new HttpTransportSE(SOAP_ADDRESS);
+		Object response = null;
 
-        try {
-            new MarshalDate().register(envelope);
-            transportSE.call(SOAP_ACTION, envelope);
-            response = envelope.getResponse();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-            return null;
-        }
+		try {
+			new MarshalDate().register(envelope);
+			transportSE.call(SOAP_ACTION, envelope);
+			response = envelope.getResponse();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} catch (XmlPullParserException e) {
+			e.printStackTrace();
+			return null;
+		}
 
-        return response.toString();
-    }
+		return response.toString();
+	}
 }
