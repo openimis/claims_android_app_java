@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.exact.imis.claim.EnquireActivity"
+    tools:context="org.openimis.imisclaims.EnquireActivity"
     tools:showIn="@layout/activity_enquire">
 <LinearLayout
     android:layout_width="wrap_content"
