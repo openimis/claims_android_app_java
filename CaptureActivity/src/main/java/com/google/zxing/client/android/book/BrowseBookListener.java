@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
 import android.widget.AdapterView;
+
 import com.google.zxing.client.android.LocaleManager;
 
 import java.util.List;

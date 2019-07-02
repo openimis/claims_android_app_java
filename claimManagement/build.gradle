@@ -1,46 +1,49 @@
 apply plugin: 'com.android.application'
-apply plugin: 'org.sonarqube'
 
 android {
-    compileSdkVersion 7
-    buildToolsVersion '27.0.3'
-
+    compileSdkVersion 26
     defaultConfig {
-        applicationId "com.exact.imis.claim"
-        minSdkVersion 7
-        targetSdkVersion 7
+        applicationId "org.openimis.imisclaims"
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.3"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-}
-
-dependencies {
-    compile project(':CaptureActivity')
-    compile project(':General')
-}
-
-sonarqube {
-    properties {
-        def libraries = project.android.sdkDirectory.getPath() + "/platforms/android-27/android.jar"/* + ", build/intermediates/exploded-aar*//**//*classes.jar"*/
-
-        property "sonar.sources", "src/main/java"
-        property "sonar.binaries", "build/intermediates/classes-jar/debug"
-        property "sonar.libraries", libraries
-        property "sonar.tests", "src/test/java, src/androidTest/java"
-        property "sonar.java.test.binaries", "build/intermediates/manifest/androidTest/debug"
-        property "sonar.java.test.libraries", libraries
-
-        property "sonar.jacoco.reportPath", "build/jacoco/testDebugUnitTest.exec"
-        property "sonar.java.coveragePlugin", "jacoco"
-        property "sonar.junit.reportsPath", "build/test-results/debug"
-        property "sonar.android.lint.report", "build/outputs/lint-results"
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
 
     }
+}
+
+
+
+dependencies {
+    //implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:support-v4:26.1.0'
+    implementation 'com.android.support:design:26.1.0'
+    compile 'com.android.support:support-annotations:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    compile project(path: ':General')
+    // https://mvnrepository.com/artifact/com.squareup.picasso/picasso
+    compile group: 'com.squareup.picasso', name: 'picasso', version: '2.5.2'
+    implementation project(':CaptureActivity')
+    // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
+    compile group: 'net.lingala.zip4j', name: 'zip4j', version: '1.2.7'
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore
+    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.1'
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.4.1'
 
 
 }

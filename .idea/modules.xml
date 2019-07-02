@@ -5,7 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/CaptureActivity/CaptureActivity.iml" filepath="$PROJECT_DIR$/CaptureActivity/CaptureActivity.iml" />
       <module fileurl="file://$PROJECT_DIR$/General/General.iml" filepath="$PROJECT_DIR$/General/General.iml" />
       <module fileurl="file://$PROJECT_DIR$/claimManagement/claimManagement.iml" filepath="$PROJECT_DIR$/claimManagement/claimManagement.iml" />
-      <module fileurl="file://$PROJECT_DIR$/claim_android_app_java.iml" filepath="$PROJECT_DIR$/claim_android_app_java.iml" />
+      <module fileurl="file://$PROJECT_DIR$/claims_android_app_java.iml" filepath="$PROJECT_DIR$/claims_android_app_java.iml" />
     </modules>
   </component>
 </project>
