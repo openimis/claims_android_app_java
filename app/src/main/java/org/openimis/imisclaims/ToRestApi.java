@@ -112,18 +112,28 @@ public class ToRestApi {
 
     public String getFromRestApi(final String functionName) {
         final String[] content = {null};
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(uri+functionName);
-        httpGet.setHeader("Content-type", "application/json");
+        HttpClient httpClient = null;
+        HttpGet httpGet = null;
+        HttpEntity respEntity = null;
+        try{
+            httpClient = new DefaultHttpClient();
+            httpGet = new HttpGet(uri+functionName);
+            httpGet.setHeader("Content-type", "application/json");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
 
         //Send Request Here
         HttpResponse response = null;
         try {
             response = httpClient.execute(httpGet);
+            respEntity = response.getEntity();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        HttpEntity respEntity = response.getEntity();
+
         if (respEntity != null) {
             final String[] code = {null};
             // EntityUtils to get the response content

@@ -18,7 +18,7 @@ import android.os.Environment;
 import android.os.Vibrator;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.NotificationCompat;
+//import android.support.v7.app.NotificationCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         new Thread() {
             public void run() {
-                CheckForUpdates();
+                //CheckForUpdates();
             }
 
         }.start();
@@ -133,6 +133,8 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
 
+        sql = new SQLHandler(this);
+        sql.onOpen(db);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -421,8 +423,8 @@ public class MainActivity extends AppCompatActivity
     }
     private void initializeDb3File(SQLHandler sql) {
         if(checkDataBase()){
-/*            sql = new SQLHandler(this);
-            sql.onOpen(db);*/
+            sql = new SQLHandler(this);
+            sql.onOpen(db);
             //if(sql.getAdjustibility("ClaimAdministrator").length() == 0){
             if(_General.isNetworkAvailable(this)){
                 //DownloadMasterDialog();
@@ -912,7 +914,7 @@ public class MainActivity extends AppCompatActivity
                 .show();
     }
 
-    private void CheckForUpdates(){
+    /*private void CheckForUpdates(){
         if(_General.isNetworkAvailable(MainActivity.this)){
             if(_General.isNewVersionAvailable(VersionField,MainActivity.this,getApplicationContext().getPackageName())){
                 //Show notification bar
@@ -936,10 +938,10 @@ public class MainActivity extends AppCompatActivity
                 builder.setSmallIcon(R.mipmap.ic_launcher_round);
                 builder.setContentIntent(intent);
                 builder.setOngoing(false);
-/*				String s = "ring";
+*//*				String s = "ring";
 				int res_sound_id = context.getResources().getIdentifier(s, "raw", context.getPackageName());
 				Uri u = Uri.parse("android.resource://" + context.getPackageName() + "/" + res_sound_id);
-				builder.setSound(u);*/
+				builder.setSound(u);*//*
 
                 try{
                     mNotificationManager.notify(SIMPLE_NOTIFICATION_ID, builder.build());
@@ -951,7 +953,7 @@ public class MainActivity extends AppCompatActivity
                 vibrator.vibrate(500);
             }
         }
-    }
+    }*/
     private void updateMenuTitlesLogout() {
         MenuItem login_logout = menu.findItem(R.id.login_logout);
         login_logout.setTitle(R.string.Logout);
@@ -1100,7 +1102,6 @@ public class MainActivity extends AppCompatActivity
                         makeImisDirectories();
                         sql = new SQLHandler(this);
                         sql.onOpen(db);
-                        sql.createTables();
                         initializeDb3File(sql);
 
                 } else {
@@ -1137,12 +1138,14 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
     public boolean checkDataBase() {
-        SQLiteDatabase checkDB = null;
         try {
-            checkDB = SQLiteDatabase.openDatabase(Path + "ImisData.db3", null,
-                    SQLiteDatabase.OPEN_READONLY);
+            File database = getApplicationContext().getDatabasePath(SQLHandler.DB_NAME);
+            if (!database.exists()) {
+                sql.getReadableDatabase();
+            }else
+                sql.getReadableDatabase();
         } catch (SQLiteException e) {
-            // database doesn't exist yet.
+            e.printStackTrace();
             return false;
         }
         return true;
@@ -1295,7 +1298,6 @@ public class MainActivity extends AppCompatActivity
                     global.setOfficerName(ClaimName);
                     AdminName = (TextView) findViewById(R.id.AdminName);
                     AdminName.setText(global.getOfficeName());
-                    sql = new SQLHandler(MainActivity.this);
                     Cursor c = sql.getMapping("I");
                     if(c.getCount() == 0){
                         try {
@@ -1314,10 +1316,9 @@ public class MainActivity extends AppCompatActivity
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    }
+                    }//Ths will be called only if there is no data
                 }else{
                     Global global = new Global();
-                    sql = new SQLHandler(MainActivity.this);
                     Cursor c = sql.getMapping("I");
                     if(c.getCount() == 0){
                         try {
