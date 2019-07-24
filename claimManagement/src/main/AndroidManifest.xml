@@ -59,6 +59,7 @@
             android:windowSoftInputMode="stateHidden" />
         <activity android:name="org.openimis.imisclaims.Synchronize" />
         <activity android:name="org.openimis.imisclaims.About" />
+        <activity android:name="org.openimis.imisclaims.Settings"/>
         <activity
             android:name="org.openimis.imisclaims.Report"
             android:label="@string/title_activity_report"
