@@ -83,6 +83,14 @@ public class EnquireActivity extends AppCompatActivity {
     private boolean ZoomOut = false;
     private int orgHeight, orgWidth;
 
+    public EditText getEtCHFID() {
+        return etCHFID;
+    }
+
+    public TextView getTvCHFID() {
+        return tvCHFID;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,7 +160,8 @@ public class EnquireActivity extends AppCompatActivity {
                 inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
                 ClearForm();
-                if (!CheckCHFID()) return;
+                Escape escape = new Escape();
+                if (!escape.CheckCHFID()) return;
 
                 pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
                 new Thread() {
@@ -186,7 +195,8 @@ public class EnquireActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_GO) {
                     ClearForm();
-                    if (!CheckCHFID()) return false;
+                    Escape escape = new Escape();
+                    if (!escape.CheckCHFID()) return false;
 
                     pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
                     new Thread() {
@@ -279,7 +289,8 @@ public class EnquireActivity extends AppCompatActivity {
                         String CHFID = data.getStringExtra("SCAN_RESULT");
                         etCHFID.setText(CHFID);
 
-                        if (!CheckCHFID())return;
+                        Escape escape = new Escape();
+                        if (!escape.CheckCHFID())return;
 
                         pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
                         new Thread(){
