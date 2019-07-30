@@ -5,22 +5,25 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.client.android.Intents;
+
 import org.openimis.CallSoap.CallSoap;
 import org.openimis.general.General;
-
-import org.openimis.imisclaims.R;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,9 +31,16 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Random;
+import java.util.Set;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 public class Synchronize extends AppCompatActivity {
 
@@ -52,6 +62,8 @@ public class Synchronize extends AppCompatActivity {
     ProgressDialog pd;
 
     private Menu menu;
+
+    private String salt;
 
     String PendingFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
     String TrashFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Trash";
@@ -594,7 +606,25 @@ public class Synchronize extends AppCompatActivity {
         String targetPathClaims = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
         String zipFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Claims_"+global.getOfficerCode()+"_"+dzip+".rar";
         //String unzippedFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Photos_"+global.getOfficerCode()+"_"+d+"";
-        String password = ")(#$1HsD"; // keep it EMPTY<""> for applying no password protection
+
+        String password = "";
+        try{
+            Settings settings = new Settings();
+            SharedPreferences sharedPreferences = getSharedPreferences("MyPref", 0);
+            if (!sharedPreferences.contains("rarPwd")){
+                password = General.getDefaultRarPassword();
+            }
+            else{
+                String encryptedRarPassword = sharedPreferences.getString("rarPwd", General.getDefaultRarPassword());
+                String trimEncryptedPassword = encryptedRarPassword.trim();
+                salt = sharedPreferences.getString("salt", null);
+                String trimSalt = salt.trim();
+                password = settings.decryptRarPwd(trimEncryptedPassword, trimSalt);
+            }
+        }
+        catch (Exception e){
+            e.getMessage();
+        }
 
         ArrayList<File> FilesToAdd = new ArrayList<File>();
 

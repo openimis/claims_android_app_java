@@ -371,6 +371,9 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.nav_about) {
             Intent intent = new Intent(this, About.class);
             startActivity(intent);
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, Settings.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1094,6 +1097,7 @@ public class MainActivity extends AppCompatActivity
                         sql = new SQLHandler(this);
                         sql.onOpen(db);
                         sql.createTables();
+
                         initializeDb3File(sql);
 
                 } else {

@@ -125,6 +125,7 @@
     <string name="quit">Quit</string>
     <string name="about">About</string>
     <string name="home">Home</string>
+    <string name="settings">Settings</string>
     <string name="Enter_Credentials">Please enter user name and password</string>
     <string name="Login_Successful">Login Successful</string>
     <string name="Logout_Successful">Logout Successful</string>
@@ -173,4 +174,7 @@
     <string name="initializing_complete">Initializing Complete</string>
     <string name="application">Application</string>
     <string name="QuitConfirmation">Are you sure you want to quit?</string>
+    <string name="RarPassword">RAR Password</string>
+    <string name="DefaultRarPassword">Set the default RAR password</string>
+    <string name="SaveRarPassword">Save</string>
 </resources>
