@@ -20,8 +20,14 @@ public class General {
 	//private String _Domain = "http://dev.chf-imis.or.tz/";
     private static String _Domain = "http://demo.openimis.org/";
 
+    private static final String DEFAULT_RAR_PASSWORD = ")(#$1HsD";
+
 	public String getDomain(){
 		return _Domain;
+	}
+
+	public static String getDefaultRarPassword() {
+		return DEFAULT_RAR_PASSWORD;
 	}
 
 	public int isSDCardAvailable(){

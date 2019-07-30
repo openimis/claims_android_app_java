@@ -174,4 +174,7 @@
     <string name="initializing_complete">Initializing Complete</string>
     <string name="application">Application</string>
     <string name="QuitConfirmation">Are you sure you want to quit?</string>
+    <string name="RarPassword">RAR Password</string>
+    <string name="DefaultRarPassword">Set the default RAR password</string>
+    <string name="SaveRarPassword">Save</string>
 </resources>

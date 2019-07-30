@@ -12,7 +12,7 @@
         android:textColor="@color/Black"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text="RAR Password" />
+        android:text="@string/RarPassword" />
 
     <EditText
         android:id="@+id/rarPassword"
@@ -34,7 +34,31 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Save" />
-
+        android:text="@string/SaveRarPassword"
+        android:layout_marginBottom="10dp"/>
     </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:textSize="20dp"
+        android:textColor="@color/Black"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/DefaultRarPassword" />
+
+    <LinearLayout android:id="@+id/llDefaultRarPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnDefaultRarPassword"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/SaveRarPassword" />
+    </LinearLayout>
+
 </LinearLayout>

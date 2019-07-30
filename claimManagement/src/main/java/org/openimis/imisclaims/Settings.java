@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import org.openimis.general.General;
+
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -21,10 +23,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class Settings extends AppCompatActivity {
 
-    Button btnSaveRarPwd;
+    Button btnSaveRarPwd, btnDefaultRarPassword;
     EditText etRarPassword;
     private String salt, password;
-    private final String defaultRarPassword = ")(#$1HsD";
     public static String generatedSalt;
 
     @Override
@@ -38,6 +39,7 @@ public class Settings extends AppCompatActivity {
 
         btnSaveRarPwd = (Button)findViewById(R.id.btnSaveRarPwd);
         etRarPassword = (EditText)findViewById(R.id.rarPassword);
+        btnDefaultRarPassword = (Button) findViewById(R.id.btnDefaultRarPassword);
 
         btnSaveRarPwd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,13 +49,23 @@ public class Settings extends AppCompatActivity {
                 }
                 else {
                     password = etRarPassword.getText().toString();
-                    generatedSalt = saveRarPassword(password);
+                    saveRarPassword(password);
                     ShowDialog("Password has been changed");
                     etRarPassword.setText("");
                 }
 
             }
         });
+
+        btnDefaultRarPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                password = General.getDefaultRarPassword();
+                saveRarPassword(password);
+                ShowDialog("Password has been changed to the default rar password");
+            }
+        });
+
     }
 
     public static String getGeneratedSalt() {
@@ -108,19 +120,20 @@ public class Settings extends AppCompatActivity {
         return encodedSalt;
     }
 
-    public String saveRarPassword(String password){
+    public void saveRarPassword(String password){
         try {
             SharedPreferences sharedPreferences = getSharedPreferences("MyPref", 0);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             salt = generateSalt();
-            String encryptedPassword = encryptRarPwd(password, salt);
-            editor.putString("rarPwd", encryptedPassword);
+            String trimSalt = salt.trim();
+            String encryptedPassword = encryptRarPwd(password, trimSalt);
+            String trimEncryptedPassword = encryptedPassword.trim();
+            editor.putString("rarPwd", trimEncryptedPassword);
+            editor.putString("salt", trimSalt);
             editor.apply();
-            return salt;
         }
         catch (Exception e) {
             e.getMessage();
-            return null;
         }
     }
 

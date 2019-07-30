@@ -63,10 +63,10 @@ public class Synchronize extends AppCompatActivity {
 
     private Menu menu;
 
+    private String salt;
+
     String PendingFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
     String TrashFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Trash";
-
-    private final String defaultRarPassword = ")(#$1HsD";
 
     Runnable ChangeMessage = new Runnable() {
 
@@ -610,14 +610,16 @@ public class Synchronize extends AppCompatActivity {
         String password = "";
         try{
             Settings settings = new Settings();
-            String generatedSalt = Settings.getGeneratedSalt();
             SharedPreferences sharedPreferences = getSharedPreferences("MyPref", 0);
             if (!sharedPreferences.contains("rarPwd")){
-                password = defaultRarPassword;
+                password = General.getDefaultRarPassword();
             }
             else{
-                String encryptedRarPassword = sharedPreferences.getString("rarPwd", defaultRarPassword);
-                password = settings.decryptRarPwd(encryptedRarPassword, generatedSalt);
+                String encryptedRarPassword = sharedPreferences.getString("rarPwd", General.getDefaultRarPassword());
+                String trimEncryptedPassword = encryptedRarPassword.trim();
+                salt = sharedPreferences.getString("salt", null);
+                String trimSalt = salt.trim();
+                password = settings.decryptRarPwd(trimEncryptedPassword, trimSalt);
             }
         }
         catch (Exception e){
