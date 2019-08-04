@@ -83,10 +83,6 @@ public class EnquireActivity extends AppCompatActivity {
     private boolean ZoomOut = false;
     private int orgHeight, orgWidth;
 
-    public EditText getEtCHFID() {
-        return etCHFID;
-    }
-
     public TextView getTvCHFID() {
         return tvCHFID;
     }
@@ -161,7 +157,11 @@ public class EnquireActivity extends AppCompatActivity {
 
                 ClearForm();
                 Escape escape = new Escape();
-                if (!escape.CheckCHFID()) return;
+                if (!escape.CheckCHFID(etCHFID.getText().toString())) {
+                    ShowDialog(tvCHFID, getResources().getString(R.string.MissingCHFID));
+                    return;
+                }
+
 
                 pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
                 new Thread() {
@@ -196,7 +196,7 @@ public class EnquireActivity extends AppCompatActivity {
                 if (actionId == EditorInfo.IME_ACTION_GO) {
                     ClearForm();
                     Escape escape = new Escape();
-                    if (!escape.CheckCHFID()) return false;
+                    if (!escape.CheckCHFID(etCHFID.getText().toString())) return false;
 
                     pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
                     new Thread() {
@@ -290,7 +290,7 @@ public class EnquireActivity extends AppCompatActivity {
                         etCHFID.setText(CHFID);
 
                         Escape escape = new Escape();
-                        if (!escape.CheckCHFID())return;
+                        if (!escape.CheckCHFID(etCHFID.getText().toString())) return;
 
                         pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
                         new Thread(){
