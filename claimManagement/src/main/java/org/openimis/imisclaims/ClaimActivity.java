@@ -686,7 +686,8 @@ public class ClaimActivity extends AppCompatActivity {
     }
 
     private boolean isValidCHFID(){
-        return true;
+        Escape escape = new Escape();
+        return escape.CheckCHFID(etCHFID.getText().toString());
     }
 
     protected AlertDialog ShowDialog(final Object tv,String msg){

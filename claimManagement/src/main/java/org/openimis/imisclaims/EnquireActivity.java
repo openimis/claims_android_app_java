@@ -343,35 +343,6 @@ public class EnquireActivity extends AppCompatActivity {
         }
     }
 
-    private boolean CheckCHFID(){
-        if (etCHFID.getText().length() == 0){
-            ShowDialog(tvCHFID, getResources().getString(R.string.MissingCHFID));
-            return false;
-        }
-
-        if (!isValidCHFID()){
-            ShowDialog(etCHFID,getResources().getString(R.string.InvalidCHFID));
-            return false;
-
-        }
-
-        return true;
-    }
-
-    private boolean isValidCHFID(){
-
-//    	if (etCHFID.getText().toString().length() != 9) return false;
-//    	String chfid;
-//    	int Part1, Part2;
-//    	Part1 = Integer.parseInt(etCHFID.getText().toString())/10;
-//    	Part2 = Part1 % 7;
-//
-//    	chfid = etCHFID.getText().toString().substring(0, 8) + Integer.toString(Part2);
-//    	return etCHFID.getText().toString().equals(chfid);
-//
-        return true;
-    }
-
     protected AlertDialog ShowDialog(final TextView tv,String msg){
         return new AlertDialog.Builder(this)
                 .setMessage(msg)
