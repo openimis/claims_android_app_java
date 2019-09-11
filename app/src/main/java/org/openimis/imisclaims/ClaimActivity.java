@@ -229,7 +229,6 @@ public class ClaimActivity extends AppCompatActivity {
 
 
         etStartDate.setOnTouchListener(new View.OnTouchListener() {
-
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 showDialog(StartDate_Dialog_ID);

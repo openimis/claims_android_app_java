@@ -292,8 +292,6 @@ public class MainActivity extends AppCompatActivity
                 global.setUserId(0);
                 item.setTitle("Login");
                 Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Logout_Successful),Toast.LENGTH_LONG).show();
-
-
             }
             return true;
         }
@@ -378,6 +376,16 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.nav_about) {
             Intent intent = new Intent(this, About.class);
             startActivity(intent);
+        }else if (id == R.id.nav_Retrieve) {
+
+            if(tokenl.getTokenText().length() <= 0){
+                LoginDialogBox("search_claims");
+            }else{
+                Intent intent = new Intent(this, SearchClaims.class);
+                startActivity(intent);
+            }
+
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -626,6 +634,11 @@ public class MainActivity extends AppCompatActivity
                                                                 if(page.equals("refresh_map")){
                                                                     Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
                                                                     ShowComfirmationDialog();
+                                                                }
+                                                                if(page.equals("search_claims")){
+                                                                    Intent intent = new Intent(MainActivity.this, SearchClaims.class);
+                                                                    startActivity(intent);
+                                                                    Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
                                                                 }
 
                                                             }else{

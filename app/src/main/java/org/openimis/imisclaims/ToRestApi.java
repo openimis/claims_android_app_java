@@ -114,13 +114,13 @@ public class ToRestApi {
         final String[] content = {null};
         HttpClient httpClient = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(uri+functionName);
-        httpGet.setHeader("Content-type", "application/json");
+        httpGet.setHeader("Content-Type", "application/json");
 
         //Send Request Here
         HttpResponse response = null;
         try {
             response = httpClient.execute(httpGet);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         HttpEntity respEntity = response.getEntity();

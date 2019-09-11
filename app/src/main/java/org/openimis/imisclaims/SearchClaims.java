@@ -1,0 +1,585 @@
+package org.openimis.imisclaims;
+
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.exact.general.General;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import static org.openimis.imisclaims.ClaimActivity.EndDate_Dialog_ID;
+import static org.openimis.imisclaims.ClaimActivity.StartDate_Dialog_ID;
+
+
+public class SearchClaims extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+
+    ProgressDialog pd;
+
+    General _General;
+    ToRestApi toRestApi;
+    Token tokenl;
+
+    EditText visit_date_from;
+    EditText visit_date_to;
+    EditText date_processed_from;
+    EditText date_processed_to;
+
+    Button clear;
+    Button search;
+
+    static final int StartDate_Dialog_ID1 = 2;
+    static final int EndDate_Dialog_ID2 = 3;
+
+    private int year, month, day;
+    final Calendar cal = Calendar.getInstance();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_search_claims);
+
+        pd = new ProgressDialog(this);
+        pd.setCancelable(false);
+
+        _General = new General();
+
+        toRestApi = new ToRestApi();
+        tokenl = new Token();
+
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle(getResources().getString(R.string.SearchClaims));
+
+
+        // Spinner element
+        Spinner spinner = (Spinner) findViewById(R.id.spinner_status);
+
+        // Spinner click listener
+        spinner.setOnItemSelectedListener(this);
+
+        // Spinner Drop down elements
+        List<String> categories = new ArrayList<String>();
+        categories.add(getString(R.string.Entered));
+        categories.add(getString(R.string.Checked));
+        categories.add(getString(R.string.Processed));
+        categories.add(getString(R.string.Valuated));
+        categories.add(getString(R.string.Rejected));
+
+        // Creating adapter for spinner
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
+
+        // Drop down layout style - list view with radio button
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // attaching data adapter to spinner
+        spinner.setAdapter(dataAdapter);
+
+
+        clear = (Button) findViewById(R.id.clear);
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                visit_date_from.setText("");
+                visit_date_to.setText("");
+                date_processed_from.setText("");
+                date_processed_to.setText("");
+            }
+        });
+
+        search = (Button) findViewById(R.id.search);
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JSONObject object = new JSONObject();
+                try {
+                    //object.put("userName",username.getText().toString());
+                    object.put("password","");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(tokenl.getTokenText().length() <= 0){
+                    LoginDialogBox();
+                }else{
+                    JSONObject object1 = new JSONObject();
+
+                    getClaims(object);
+                }
+            }
+        });
+
+        visit_date_from = (EditText) findViewById(R.id.visit_date_from);
+        visit_date_to = (EditText) findViewById(R.id.visit_date_to);
+        date_processed_from = (EditText) findViewById(R.id.date_processed_from);
+        date_processed_to = (EditText) findViewById(R.id.date_processed_to);
+
+        visit_date_from.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                showDialog(StartDate_Dialog_ID);
+                return false;
+            }
+        });
+
+        visit_date_to.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                showDialog(EndDate_Dialog_ID);
+                return false;
+            }
+        });
+
+        date_processed_from.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                showDialog(StartDate_Dialog_ID1);
+                return false;
+            }
+        });
+
+        date_processed_to.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                showDialog(EndDate_Dialog_ID2);
+                return false;
+            }
+        });
+    }
+
+    private void getClaims(JSONObject object) {
+        String claims = "";
+        claims = getClaimsApi(object);
+        Intent intent = new Intent(this, Claims.class);
+        intent.putExtra("claims", claims);
+        startActivity(intent);
+    }
+
+    private String getClaimsApi(final JSONObject object) {
+/*        String error_occurred = null;
+        String error_message = null;
+        String content = null;
+
+        final HttpResponse[] resp = {null};
+        if(_General.isNetworkAvailable(this)){
+            String progress_message = getResources().getString(R.string.getClaims)+"...";
+            pd = ProgressDialog.show(this, getResources().getString(R.string.DownLoad), progress_message);
+            Thread thread = new Thread() {
+                public void run() {
+
+                    String services = null;
+                    String error_occurred = null;
+                    String error_message = null;
+                    String content = null;
+
+                    String functionName = "api/Load";
+                    try{
+                        HttpResponse response = toRestApi.postToRestApiToken(object,functionName);
+                        resp[0] = response;
+                        HttpEntity respEntity = response.getEntity();
+                        if (respEntity != null) {
+                            final String[] code = {null};
+                            // EntityUtils to get the response content
+                            try {
+                                content = EntityUtils.toString(respEntity);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        int code = response.getStatusLine().getStatusCode();
+
+                        JSONObject ob = null;
+                        try {
+                            ob = new JSONObject(content);
+                            if(String.valueOf(code).equals("200")){
+                                services = ob.getString("pricelist_services");
+
+                                //Insert Services
+                                JSONArray arrServices = null;
+                                JSONObject objServices = null;
+                                arrServices = new JSONArray(services);
+                                for (int i = 0; i < arrServices.length(); i++) {
+                                    objServices = arrServices.getJSONObject(i);
+                                    //sql.InsertReferences(objServices.getString("code").toString(), objServices.getString("name").toString(), "S", objServices.getString("price").toString());
+                                    //sql.InsertMapping(objServices.getString("code").toString(),objServices.getString("name").toString(),"S");
+                                }
+
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        pd.dismiss();
+                                        Toast.makeText(SearchClaims.this,getResources().getString(R.string.ClaimsSuccess),Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }else{
+                                error_occurred = ob.getString("error_occured");
+                                if(error_occurred.equals("true")){
+                                    if(code >= 400){
+                                        runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                pd.dismiss();
+                                                LoginDialogBox();
+                                            }
+                                        });
+                                    }else{
+                                        error_message = ob.getString("error_message");
+                                        final String finalError_message = error_message;
+                                        runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                pd.dismiss();
+                                            }
+                                        });
+                                        ErrorDialogBox(finalError_message);
+                                    }
+                                }
+                            }
+                        } catch (JSONException e) {
+                            Toast.makeText(SearchClaims.this,String.valueOf(e),Toast.LENGTH_LONG).show();
+                            runOnUiThread(new Runnable() {
+                                public void run() {pd.dismiss();}});
+                        }
+                    }catch (Exception e){
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                pd.dismiss();
+                            }
+                        });
+                        Toast.makeText(SearchClaims.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.AccessDenied),Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            };
+            thread.start();
+        }else{
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    pd.dismiss();
+                }
+            });
+            ErrorDialogBox(getResources().getString(R.string.CheckInternet));
+        }*/
+        return "";
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // On selecting a spinner item
+        String item = parent.getItemAtPosition(position).toString();
+
+        // Showing selected spinner item
+
+    }
+    public void onNothingSelected(AdapterView<?> arg0) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id){
+        switch(id){
+
+            case StartDate_Dialog_ID:
+
+                year = cal.get(Calendar.YEAR);
+                month = cal.get(Calendar.MONTH);
+                day = cal.get(Calendar.DAY_OF_MONTH);
+
+                return new DatePickerDialog(this, visit_date_fromPickerListener, year, month, day);
+
+            case EndDate_Dialog_ID:
+                year = cal.get(Calendar.YEAR);
+                month = cal.get(Calendar.MONTH);
+                day = cal.get(Calendar.DAY_OF_MONTH);
+
+                return new DatePickerDialog(this, visit_date_toPickerListner, year, month, day);
+
+
+            case StartDate_Dialog_ID1:
+
+                year = cal.get(Calendar.YEAR);
+                month = cal.get(Calendar.MONTH);
+                day = cal.get(Calendar.DAY_OF_MONTH);
+
+                return new DatePickerDialog(this, date_processed_fromPickerListener, year, month, day);
+
+            case EndDate_Dialog_ID2:
+                year = cal.get(Calendar.YEAR);
+                month = cal.get(Calendar.MONTH);
+                day = cal.get(Calendar.DAY_OF_MONTH);
+
+                return new DatePickerDialog(this, date_processed_toPickerListner, year, month, day);
+        }
+        return null;
+    }
+
+    private DatePickerDialog.OnDateSetListener visit_date_fromPickerListener = new DatePickerDialog.OnDateSetListener() {
+
+        @Override
+        public void onDateSet(DatePicker view, int Selectedyear, int SelectedMonth, int SelectedDay) {
+            year = Selectedyear;
+            month = SelectedMonth;
+            day = SelectedDay;
+
+            visit_date_from.setText(new StringBuilder().append(day).append("/").append(month + 1).append("/").append(year));
+        }
+    };
+
+    private DatePickerDialog.OnDateSetListener visit_date_toPickerListner = new DatePickerDialog.OnDateSetListener() {
+
+        @Override
+        public void onDateSet(DatePicker view, int SelectedYear, int SelectedMonth, int SelectedDay) {
+            year = SelectedYear;
+            month = SelectedMonth;
+            day = SelectedDay;
+
+            visit_date_to.setText(new StringBuilder().append(day).append("/").append(month + 1).append("/").append(year));
+        }
+    };
+
+
+    private DatePickerDialog.OnDateSetListener date_processed_fromPickerListener = new DatePickerDialog.OnDateSetListener() {
+
+        @Override
+        public void onDateSet(DatePicker view, int Selectedyear, int SelectedMonth, int SelectedDay) {
+            year = Selectedyear;
+            month = SelectedMonth;
+            day = SelectedDay;
+
+            date_processed_from.setText(new StringBuilder().append(day).append("/").append(month + 1).append("/").append(year));
+        }
+    };
+
+    private DatePickerDialog.OnDateSetListener date_processed_toPickerListner = new DatePickerDialog.OnDateSetListener() {
+
+        @Override
+        public void onDateSet(DatePicker view, int SelectedYear, int SelectedMonth, int SelectedDay) {
+            year = SelectedYear;
+            month = SelectedMonth;
+            day = SelectedDay;
+
+            date_processed_to.setText(new StringBuilder().append(day).append("/").append(month + 1).append("/").append(year));
+        }
+    };
+
+    public void ErrorDialogBox(final String message) {
+
+        // get prompts.xml view
+        LayoutInflater li = LayoutInflater.from(this);
+        View promptsView = li.inflate(R.layout.error_message_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                this);
+
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+
+        final TextView error = (TextView) promptsView.findViewById(R.id.error_message);
+        error.setText(message.toString());
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(R.string.button_ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+    public void LoginDialogBox() {
+
+        final int[] userid = {0};
+
+        Global global = new Global();
+
+        // get prompts.xml view
+        LayoutInflater li = LayoutInflater.from(this);
+        View promptsView = li.inflate(R.layout.login_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                this);
+
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+
+        final TextView username = (TextView) promptsView.findViewById(R.id.UserName);
+        final TextView password = (TextView) promptsView.findViewById(R.id.Password);
+        String officer_code = global.getOfficerCode();
+        username.setText(String.valueOf(officer_code));
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(getResources().getString(R.string.Ok),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                if(_General.isNetworkAvailable(SearchClaims.this)){
+                                    if(!username.getText().toString().equals("") && !password.getText().toString().equals("")){
+                                        pd = ProgressDialog.show(SearchClaims.this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
+
+                                        new Thread() {
+                                            public void run() {
+/*                                            CallSoap callSoap = new CallSoap();
+                                            callSoap.setFunctionName("isValidLogin");
+                                            userid[0] = callSoap.isUserLoggedIn(username.getText().toString(),password.getText().toString());*/
+                                                JSONObject object = new JSONObject();
+                                                try {
+                                                    object.put("userName",username.getText().toString());
+                                                    object.put("password",password.getText().toString());
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                String functionName = "login";
+                                                HttpResponse response = null;
+                                                String content = null;
+                                                try{
+                                                    response = toRestApi.postToRestApi(object,functionName);
+
+                                                    HttpEntity respEntity = response.getEntity();
+                                                    if (respEntity != null) {
+                                                        final String[] code = {null};
+                                                        // EntityUtils to get the response content
+
+
+                                                        content = EntityUtils.toString(respEntity);
+
+                                                    }
+                                                }catch (Exception e){
+                                                    final HttpResponse finalResponse = response;
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            pd.dismiss();
+                                                            //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
+                                                            Toast.makeText(SearchClaims.this, finalResponse.getStatusLine().getStatusCode()+"-"+SearchClaims.this.getResources().getString(R.string.LoginFail),Toast.LENGTH_LONG).show();
+                                                            LoginDialogBox();
+                                                        }
+                                                    });
+                                                }
+
+                                                if(response.getStatusLine().getStatusCode() == 401){
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            pd.dismiss();
+                                                            //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
+                                                            Toast.makeText(SearchClaims.this,SearchClaims.this.getResources().getString(R.string.LoginFail),Toast.LENGTH_LONG).show();
+                                                            LoginDialogBox();
+                                                        }
+                                                    });
+
+                                                }else{
+                                                    JSONObject ob = null;
+                                                    String token = null;
+                                                    try {
+                                                        ob = new JSONObject(content);
+                                                        token = ob.getString("access_token");
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+
+                                                    tokenl.saveTokenText(token.toString());
+
+                                                    final String finalToken = token;
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            if(finalToken.length() > 0){
+                                                                pd.dismiss();
+                                                                Toast.makeText(SearchClaims.this,SearchClaims.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
+
+
+                                                            }else{
+                                                                pd.dismiss();
+                                                                //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
+                                                                Toast.makeText(SearchClaims.this,SearchClaims.this.getResources().getString(R.string.LoginFail),Toast.LENGTH_LONG).show();
+                                                                LoginDialogBox();
+                                                            }
+                                                        }
+                                                    });
+                                                }
+
+
+                                            }
+                                        }.start();
+
+
+                                    }else{
+                                        LoginDialogBox();
+                                        Toast.makeText(SearchClaims.this,SearchClaims.this.getResources().getString(R.string.Enter_Credentials), Toast.LENGTH_LONG).show();
+                                    }
+                                }else{
+                                    ErrorDialogBox(getResources().getString(R.string.CheckInternet));
+                                }
+
+
+
+                            }
+                        })
+                .setNegativeButton(R.string.Cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+/*    public AlertDialog ShowComfirmationDialog(final JSONObject object) {00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+        return new AlertDialog.Builder(this)
+                .setMessage(getResources().getString(R.string.AreYouSure))
+                .setCancelable(false)
+
+                .setPositiveButton(R.string.Ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        JSONObject l = null;
+                        JSONObject object1 = new JSONObject();
+
+                        getClaims(object);
+                    }
+                })
+                .setNegativeButton(R.string.Cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                dialog.cancel();
+                            }
+                        })
+                .show();
+    }*/
+
+}
