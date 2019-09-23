@@ -53,6 +53,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
     EditText visit_date_to;
     EditText date_processed_from;
     EditText date_processed_to;
+    String status_claim = "";
 
     Button clear;
     Button search;
@@ -62,6 +63,8 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
 
     private int year, month, day;
     final Calendar cal = Calendar.getInstance();
+
+    Global global = new Global();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +92,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
 
         // Spinner Drop down elements
         List<String> categories = new ArrayList<String>();
+        categories.add("Select claim status");
         categories.add(getString(R.string.Entered));
         categories.add(getString(R.string.Checked));
         categories.add(getString(R.string.Processed));
@@ -116,26 +120,6 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        search = (Button) findViewById(R.id.search);
-        search.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                JSONObject object = new JSONObject();
-                try {
-                    //object.put("userName",username.getText().toString());
-                    object.put("password","");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                if(tokenl.getTokenText().length() <= 0){
-                    LoginDialogBox();
-                }else{
-                    JSONObject object1 = new JSONObject();
-
-                    getClaims(object);
-                }
-            }
-        });
 
         visit_date_from = (EditText) findViewById(R.id.visit_date_from);
         visit_date_to = (EditText) findViewById(R.id.visit_date_to);
@@ -175,18 +159,236 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                 return false;
             }
         });
+
+        search = (Button) findViewById(R.id.search);
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(tokenl.getTokenText().length() <= 0){
+                    LoginDialogBox();
+                }else{
+                    JSONObject object = new JSONObject();
+
+                    try {
+                        //object.put("userName",username.getText().toString());
+                        object.put("claim_administrator_code",global.getOfficerCode().toString());
+                        object.put("status_claim",status_claim);
+                        object.put("visit_date_from",visit_date_from.getText().toString());
+                        object.put("visit_date_to",visit_date_to.getText().toString());
+                        object.put("processed_date_from",date_processed_from.getText().toString());
+                        object.put("processed_date_to",date_processed_to.getText().toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    getClaims(object);
+                }
+            }
+        });
     }
 
     private void getClaims(JSONObject object) {
-        String claims = "";
-        claims = getClaimsApi(object);
+        String claims = "{\n" +
+                "  \"error_occured\": false,\n" +
+                "  \"claims\": [\n" +
+                "    {\n" +
+                "      \"health_facility_code\": \"HF02\",\n" +
+                "      \"health_facility_name\": \"District1 health Center\",\n" +
+                "      \"insurance_number\": \"111111142\",\n" +
+                "      \"patient_name\": \"Fuchs Elis\",\n" +
+                "      \"main_dg\": \"Shigellosis(BacilliaryDysentry)\",\n" +
+                "      \"claim_number\": \"xx1\",\n" +
+                "      \"date_claimed\": \"2017-06-26T00:00:00\",\n" +
+                "      \"visit_date_from\": \"2017-06-26T00:00:00\",\n" +
+                "      \"visit_type\": \"O\",\n" +
+                "      \"claim_status\": \"Valuated\",\n" +
+                "      \"sec_dg_1\": null,\n" +
+                "      \"sec_dg_2\": null,\n" +
+                "      \"sec_dg_3\": null,\n" +
+                "      \"sec_dg_4\": null,\n" +
+                "      \"visit_date_to\": \"2017-06-26T00:00:00\",\n" +
+                "      \"claimed\": 1500,\n" +
+                "      \"approved\": 500,\n" +
+                "      \"adjusted\": 380,\n" +
+                "      \"explination\": \"\",\n" +
+                "      \"adjustment\": null,\n" +
+                "      \"guarantee_number\": \"\",\n" +
+                "      \"services\": [\n" +
+                "        {\n" +
+                "          \"claim_number\": \"xx1\",\n" +
+                "          \"service\": \"Urinary lab test\",\n" +
+                "          \"service_qty\": null,\n" +
+                "          \"service_price\": 1000,\n" +
+                "          \"service_adjusted_qty\": null,\n" +
+                "          \"service_adjusted_price\": 200,\n" +
+                "          \"service_explination\": \"\",\n" +
+                "          \"service_justificaion\": null,\n" +
+                "          \"service_valuated\": 200,\n" +
+                "          \"service_result\": null\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"claim_number\": \"xx1\",\n" +
+                "          \"service\": \"Antenatal examination\",\n" +
+                "          \"service_qty\": null,\n" +
+                "          \"service_price\": 100,\n" +
+                "          \"service_adjusted_qty\": null,\n" +
+                "          \"service_adjusted_price\": 100,\n" +
+                "          \"service_explination\": \"\",\n" +
+                "          \"service_justificaion\": null,\n" +
+                "          \"service_valuated\": 100,\n" +
+                "          \"service_result\": null\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"items\": [\n" +
+                "        {\n" +
+                "          \"claim_number\": \"xx1\",\n" +
+                "          \"item\": \"ACETYLSALICYLIC ACID (ASPIRIN) TABS 300MG-\",\n" +
+                "          \"item_qty\": null,\n" +
+                "          \"item_price\": 400,\n" +
+                "          \"item_adjusted_qty\": null,\n" +
+                "          \"item_adjusted_price\": 200,\n" +
+                "          \"item_explination\": \"\",\n" +
+                "          \"item_justificaion\": null,\n" +
+                "          \"item_valuated\": 80,\n" +
+                "          \"item_result\": \"0\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"claim_number\": \"xx1\",\n" +
+                "          \"item\": \"ADRENALINE 1ML INJ 1MG/ML\",\n" +
+                "          \"item_qty\": 1,\n" +
+                "          \"item_price\": 500,\n" +
+                "          \"item_adjusted_qty\": 0,\n" +
+                "          \"item_adjusted_price\": null,\n" +
+                "          \"item_explination\": \"\",\n" +
+                "          \"item_justificaion\": null,\n" +
+                "          \"item_valuated\": null,\n" +
+                "          \"item_result\": \"10\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"claim_number\": \"xx1\",\n" +
+                "          \"item\": \"FRUSEMIDE TABS 40 MG\",\n" +
+                "          \"item_qty\": 1,\n" +
+                "          \"item_price\": 500,\n" +
+                "          \"item_adjusted_qty\": 0,\n" +
+                "          \"item_adjusted_price\": null,\n" +
+                "          \"item_explination\": \"\",\n" +
+                "          \"item_justificaion\": null,\n" +
+                "          \"item_valuated\": null,\n" +
+                "          \"item_result\": \"4\"\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"health_facility_code\": \"HF02\",\n" +
+                "      \"health_facility_name\": \"District1 health Center\",\n" +
+                "      \"insurance_number\": \"00100114\",\n" +
+                "      \"patient_name\": \"Joseph Alila\",\n" +
+                "      \"main_dg\": \"Food Poisoning (Bacterial)\",\n" +
+                "      \"claim_number\": \"CLT003\",\n" +
+                "      \"date_claimed\": \"2017-07-20T00:00:00\",\n" +
+                "      \"visit_date_from\": \"2017-07-20T00:00:00\",\n" +
+                "      \"visit_type\": \"E\",\n" +
+                "      \"claim_status\": \"Valuated\",\n" +
+                "      \"sec_dg_1\": null,\n" +
+                "      \"sec_dg_2\": null,\n" +
+                "      \"sec_dg_3\": null,\n" +
+                "      \"sec_dg_4\": null,\n" +
+                "      \"visit_date_to\": \"2017-07-20T00:00:00\",\n" +
+                "      \"claimed\": 1600,\n" +
+                "      \"approved\": 500,\n" +
+                "      \"adjusted\": 500,\n" +
+                "      \"explination\": \"\",\n" +
+                "      \"adjustment\": null,\n" +
+                "      \"guarantee_number\": \"\",\n" +
+                "      \"services\": [\n" +
+                "        {\n" +
+                "          \"claim_number\": \"CLT003\",\n" +
+                "          \"service\": \"GP visit\",\n" +
+                "          \"service_qty\": null,\n" +
+                "          \"service_price\": 100,\n" +
+                "          \"service_adjusted_qty\": null,\n" +
+                "          \"service_adjusted_price\": 100,\n" +
+                "          \"service_explination\": \"\",\n" +
+                "          \"service_justificaion\": null,\n" +
+                "          \"service_valuated\": 100,\n" +
+                "          \"service_result\": null\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"items\": []\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"health_facility_code\": \"HF02\",\n" +
+                "      \"health_facility_name\": \"District1 health Center\",\n" +
+                "      \"insurance_number\": \"777888981\",\n" +
+                "      \"patient_name\": \"Pappen Jane\",\n" +
+                "      \"main_dg\": \"Food Poisoning (Bacterial)\",\n" +
+                "      \"claim_number\": \"wef03\",\n" +
+                "      \"date_claimed\": \"2017-08-31T00:00:00\",\n" +
+                "      \"visit_date_from\": \"2017-08-30T00:00:00\",\n" +
+                "      \"visit_type\": \"R\",\n" +
+                "      \"claim_status\": \"Processed\",\n" +
+                "      \"sec_dg_1\": null,\n" +
+                "      \"sec_dg_2\": null,\n" +
+                "      \"sec_dg_3\": null,\n" +
+                "      \"sec_dg_4\": null,\n" +
+                "      \"visit_date_to\": \"2017-08-30T00:00:00\",\n" +
+                "      \"claimed\": 158,\n" +
+                "      \"approved\": 158,\n" +
+                "      \"adjusted\": 0,\n" +
+                "      \"explination\": \"\",\n" +
+                "      \"adjustment\": null,\n" +
+                "      \"guarantee_number\": null,\n" +
+                "      \"services\": [],\n" +
+                "      \"items\": [\n" +
+                "        {\n" +
+                "          \"claim_number\": \"wef03\",\n" +
+                "          \"item\": null,\n" +
+                "          \"item_qty\": null,\n" +
+                "          \"item_price\": null,\n" +
+                "          \"item_adjusted_qty\": null,\n" +
+                "          \"item_adjusted_price\": null,\n" +
+                "          \"item_explination\": null,\n" +
+                "          \"item_justificaion\": null,\n" +
+                "          \"item_valuated\": null,\n" +
+                "          \"item_result\": null\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"health_facility_code\": \"HF02\",\n" +
+                "      \"health_facility_name\": \"District1 health Center\",\n" +
+                "      \"insurance_number\": \"00100114\",\n" +
+                "      \"patient_name\": \"Joseph Alila\",\n" +
+                "      \"main_dg\": \"Food Poisoning (Bacterial)\",\n" +
+                "      \"claim_number\": \"wex04\",\n" +
+                "      \"date_claimed\": \"2017-08-31T00:00:00\",\n" +
+                "      \"visit_date_from\": \"2017-08-30T00:00:00\",\n" +
+                "      \"visit_type\": \"R\",\n" +
+                "      \"claim_status\": \"Valuated\",\n" +
+                "      \"sec_dg_1\": null,\n" +
+                "      \"sec_dg_2\": null,\n" +
+                "      \"sec_dg_3\": null,\n" +
+                "      \"sec_dg_4\": null,\n" +
+                "      \"visit_date_to\": \"2017-08-30T00:00:00\",\n" +
+                "      \"claimed\": 165,\n" +
+                "      \"approved\": 165,\n" +
+                "      \"adjusted\": 100,\n" +
+                "      \"explination\": \"\",\n" +
+                "      \"adjustment\": null,\n" +
+                "      \"guarantee_number\": null,\n" +
+                "      \"services\": [],\n" +
+                "      \"items\": []\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+        //claims = getClaimsApi(object);
         Intent intent = new Intent(this, Claims.class);
         intent.putExtra("claims", claims);
         startActivity(intent);
     }
 
     private String getClaimsApi(final JSONObject object) {
-/*        String error_occurred = null;
+        String error_occurred = null;
         String error_message = null;
         String content = null;
 
@@ -202,9 +404,9 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                     String error_message = null;
                     String content = null;
 
-                    String functionName = "api/Load";
+                    String functionName = "api/GetClaims";
                     try{
-                        HttpResponse response = toRestApi.postToRestApiToken(object,functionName);
+                        HttpResponse response = toRestApi.postToRestApi(object,functionName);
                         resp[0] = response;
                         HttpEntity respEntity = response.getEntity();
                         if (respEntity != null) {
@@ -219,7 +421,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                         int code = response.getStatusLine().getStatusCode();
 
                         JSONObject ob = null;
-                        try {
+/*                        try {
                             ob = new JSONObject(content);
                             if(String.valueOf(code).equals("200")){
                                 services = ob.getString("pricelist_services");
@@ -266,7 +468,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                             Toast.makeText(SearchClaims.this,String.valueOf(e),Toast.LENGTH_LONG).show();
                             runOnUiThread(new Runnable() {
                                 public void run() {pd.dismiss();}});
-                        }
+                        }*/
                     }catch (Exception e){
                         runOnUiThread(new Runnable() {
                             public void run() {
@@ -286,20 +488,21 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                 }
             });
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
-        }*/
-        return "";
+        }
+        return content;
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // On selecting a spinner item
-        String item = parent.getItemAtPosition(position).toString();
+        status_claim = (parent.getItemAtPosition(position).toString().equals("Select claim status"))?"":parent.getItemAtPosition(position).toString();
 
         // Showing selected spinner item
 
     }
     public void onNothingSelected(AdapterView<?> arg0) {
         // TODO Auto-generated method stub
+        status_claim = "";
     }
 
     @Override
@@ -348,7 +551,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
             month = SelectedMonth;
             day = SelectedDay;
 
-            visit_date_from.setText(new StringBuilder().append(day).append("/").append(month + 1).append("/").append(year));
+            visit_date_from.setText(new StringBuilder().append(year).append("-").append(month + 1).append("-").append(day));
         }
     };
 
@@ -360,7 +563,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
             month = SelectedMonth;
             day = SelectedDay;
 
-            visit_date_to.setText(new StringBuilder().append(day).append("/").append(month + 1).append("/").append(year));
+            visit_date_to.setText(new StringBuilder().append(year).append("-").append(month + 1).append("-").append(day));
         }
     };
 
@@ -373,7 +576,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
             month = SelectedMonth;
             day = SelectedDay;
 
-            date_processed_from.setText(new StringBuilder().append(day).append("/").append(month + 1).append("/").append(year));
+            date_processed_from.setText(new StringBuilder().append(year).append("-").append(month + 1).append("-").append(day));
         }
     };
 
@@ -385,7 +588,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
             month = SelectedMonth;
             day = SelectedDay;
 
-            date_processed_to.setText(new StringBuilder().append(day).append("/").append(month + 1).append("/").append(year));
+            date_processed_to.setText(new StringBuilder().append(year).append("-").append(month + 1).append("-").append(day));
         }
     };
 
@@ -559,7 +762,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
         alertDialog.show();
     }
 
-/*    public AlertDialog ShowComfirmationDialog(final JSONObject object) {00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+/*    public AlertDialog ShowComfirmationDialog(final JSONObject object) {
         return new AlertDialog.Builder(this)
                 .setMessage(getResources().getString(R.string.AreYouSure))
                 .setCancelable(false)

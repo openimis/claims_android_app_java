@@ -134,6 +134,9 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         holder.itemView.setSelected(focusedItem == position);
         claimsData = claims;
 
+
+
+
         try {
             JSONObject object = claimsData.getJSONObject(position);
             claim_no = object.getString("claim_number");
@@ -161,7 +164,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
 
     @Override
     public int getItemCount() {
-        return 10;//claims.length();
+        return claims.length();
     }
 
 
