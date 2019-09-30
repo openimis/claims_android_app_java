@@ -1245,8 +1245,9 @@ public class MainActivity extends AppCompatActivity
                                 objControls = arrControls.getJSONObject(i);
                                 String lastName = objControls.getString("lastName").toString();
                                 String otherNames = objControls.getString("otherNames").toString();
+                                String hfCode = objControls.getString("hfCode").toString();
                                 String name = lastName+" "+otherNames;
-                                sql.InsertClaimAdmins(objControls.getString("claimAdminCode"),name);
+                                sql.InsertClaimAdmins(objControls.getString("claimAdminCode"),name,hfCode);
                             }
 
                         runOnUiThread(new Runnable() {

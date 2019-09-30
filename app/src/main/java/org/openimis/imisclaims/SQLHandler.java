@@ -97,6 +97,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	public String getHealthFacilityCode(String Code) {
 		String Name = "";
 		try {
+			openDatabase();
 			String query = "SELECT hfCode FROM tblAdministrators WHERE upper(Code) like '"+Code.toUpperCase()+"'";
 			Cursor cursor1 = db.rawQuery(query, null);
 			// looping through all rows
@@ -181,10 +182,10 @@ public class SQLHandler extends SQLiteOpenHelper{
 			e.printStackTrace();
 		}
 	}
-	public void InsertClaimAdmins(String Code,String Name){
+	public void InsertClaimAdmins(String Code,String Name, String hfCode){
 		try {
 			String sSQL = "";
-			sSQL = "INSERT INTO tblAdministrators(Code,Name)VALUES('"+Code+"','"+Name+"')";
+			sSQL = "INSERT INTO tblAdministrators(Code,Name,hfCode)VALUES('"+Code+"','"+Name+"','"+hfCode+"')";
 			db.execSQL(sSQL);
 		} catch (Exception e){
 			e.printStackTrace();
