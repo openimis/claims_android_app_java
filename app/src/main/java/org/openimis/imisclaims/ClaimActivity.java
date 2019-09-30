@@ -182,14 +182,22 @@ public class ClaimActivity extends AppCompatActivity {
         tvItemTotal.setText("0");
         tvServiceTotal.setText("0");
 
-
+        Global global = new Global();
         if(sql.getAdjustibility("ClaimAdministrator").equals("N")){
             etClaimAdmin.setVisibility(View.GONE);
         }else{
-            Global global = new Global();
+
             if(global.getOfficerCode() != null){
                 etClaimAdmin.setText(global.getOfficerCode().toString());
             }
+        }
+
+        if(global.getOfficerCode() != null){
+            String hfcode = sql.getHealthFacilityCode(global.getOfficerCode().toString());
+            if(!hfcode.equals("")){
+                etHealthFacility.setText(hfcode.toLowerCase());
+            }
+
         }
 
         if(sql.getAdjustibility("GuaranteeNo").equals("N")){

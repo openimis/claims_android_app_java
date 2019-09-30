@@ -24,7 +24,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	public static final String DB_NAME = "ImisData.db3";
 	private static final String CreateTableMapping = "CREATE TABLE tblMapping(Code text,Name text,Type text)";
 	private static final String CreateTableControls = "CREATE TABLE tblControls(FieldName text, Adjustibility text)";
-	private static final String CreateTableClaimAdmins = "CREATE TABLE tblAdministrators(Code text, Name text)";
+	private static final String CreateTableClaimAdmins = "CREATE TABLE tblAdministrators(Code text, Name text, hfCode text)";
 	private static final String CreateTableReferences = "CREATE TABLE tblReferences(Code text, Name text, Type text, Price text)";
 	//private static final String CreateTableDateUpdates = "CREATE TABLE tblDateUpdates(Id INTEGER PRIMARY KEY AUTOINCREMENT, last_update_date text);";
 
@@ -92,6 +92,25 @@ public class SQLHandler extends SQLiteOpenHelper{
 			return null;
 		}
 	}*/
+
+
+	public String getHealthFacilityCode(String Code) {
+		String Name = "";
+		try {
+			String query = "SELECT hfCode FROM tblAdministrators WHERE upper(Code) like '"+Code.toUpperCase()+"'";
+			Cursor cursor1 = db.rawQuery(query, null);
+			// looping through all rows
+			if (cursor1.moveToFirst()) {
+				do {
+					Name = cursor1.getString(0);
+				} while (cursor1.moveToNext());
+			}
+		}catch (Exception e){
+			return Name;
+		}
+
+		return Name;
+	}
 
 	public Cursor getMapping(String Type){
 		openDatabase();
