@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Hiren on 06/09/2019.
@@ -25,6 +27,14 @@ public class ServicesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v =  inflater.inflate(R.layout.fragment_services,container,false);
+
+        String c = ((ClaimReview)getContext()).claims;
+        try {
+            JSONObject object = new JSONObject(c);
+            claimJson = new JSONArray(object.getString("services"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         fillClaims(v);
 

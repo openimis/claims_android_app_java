@@ -136,7 +136,7 @@ public class ServicesAdapter<VH extends TrackSelectionAdapter.ViewHolder> extend
 
         try {
             JSONObject object = itemsData.getJSONObject(position);
-            service_code = object.getString("service_code");
+            service_code = ""; //object.getString("service_code");
             service_name = object.getString("service_name");
             quantity = object.getString("qty");
             price = object.getString("price");
@@ -152,8 +152,17 @@ public class ServicesAdapter<VH extends TrackSelectionAdapter.ViewHolder> extend
             e.printStackTrace();
         }
 
-/*        ((Reportmsg) holder).claimNo.setText(claim_no);
-        ((Reportmsg) holder).ItemStatus.setText(claim_status);*/
+        ((Reportmsg) holder).ServiceCode.setText(service_code);
+        ((Reportmsg) holder).ServiceName.setText(service_name);
+        ((Reportmsg) holder).Quantity.setText(quantity);
+        ((Reportmsg) holder).Price.setText(price);
+        ((Reportmsg) holder).Explanation.setText(explanation);
+        ((Reportmsg) holder).AppQty.setText(app_qty);
+        ((Reportmsg) holder).AppPrice.setText(app_price);
+        ((Reportmsg) holder).Justification.setText(justification);
+        ((Reportmsg) holder).Status.setText(status);
+        ((Reportmsg) holder).Valuated.setText(valuated);
+        ((Reportmsg) holder).Result.setText(result);
 
 
     }
