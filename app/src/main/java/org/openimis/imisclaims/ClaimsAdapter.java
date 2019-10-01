@@ -34,6 +34,8 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
     String visit_date_from = null;
     String visit_date_to = null;
 
+    public int ind = 0;
+
     private int focusedItem = 0;
 
 
@@ -134,9 +136,6 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         holder.itemView.setSelected(focusedItem == position);
         claimsData = claims;
 
-
-
-
         try {
             JSONObject object = claimsData.getJSONObject(position);
             claim_no = object.getString("claim_number");
@@ -190,8 +189,14 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    JSONObject obj = null;
+                    try {
+                       obj = claims.getJSONObject(getAdapterPosition());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     Intent intent = new Intent(_context, ClaimReview.class);
+                    intent.putExtra("claims", String.valueOf(obj));
                     _context.startActivity(intent);
 
 /*                    // Redraw the old selection and the new

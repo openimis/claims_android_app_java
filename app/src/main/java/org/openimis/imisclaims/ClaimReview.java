@@ -1,5 +1,6 @@
 package org.openimis.imisclaims;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -10,6 +11,8 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 public class ClaimReview extends AppCompatActivity {
+
+    public String claims = "";
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -38,6 +41,9 @@ public class ClaimReview extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_claim_review);
+
+        Intent intent = getIntent();
+        claims = intent.getStringExtra("claims");
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);

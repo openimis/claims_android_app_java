@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Hiren on 06/09/2019.
@@ -27,13 +29,21 @@ public class ItemsFragment extends Fragment {
 
         View v =  inflater.inflate(R.layout.fragment_items,container,false);
 
+        String c = ((ClaimReview)getContext()).claims;
+        try {
+            JSONObject object = new JSONObject(c);
+            claimJson = new JSONArray(object.getString("items"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         fillClaims(v);
 
         return v;
     }
 
     public void fillClaims(View v){
-        claimJson = new JSONArray();//clientAndroidInterface.getRecordedPolicies(InsuranceNumber,OtherNames,LastName,InsuranceProduct,UploadedFrom,UploadedTo,RadioRenewal,RequestedFrom,RequestedTo, PaymentType, RadioSms);//OrderArray;
+        //claimJson = new JSONArray();//clientAndroidInterface.getRecordedPolicies(InsuranceNumber,OtherNames,LastName,InsuranceProduct,UploadedFrom,UploadedTo,RadioRenewal,RequestedFrom,RequestedTo, PaymentType, RadioSms);//OrderArray;
         LayoutInflater li = LayoutInflater.from(getContext());
         View promptsView = li.inflate(R.layout.activity_search_claims, null);
         listOfClaims = (RecyclerView) v.findViewById(R.id.listOfItems);

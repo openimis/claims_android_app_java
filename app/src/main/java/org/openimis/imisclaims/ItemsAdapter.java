@@ -136,31 +136,40 @@ public class ItemsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends R
 
         try {
             JSONObject object = itemsData.getJSONObject(position);
-            item_code = object.getString("item_code");
-            item_name = object.getString("item_name");
-            quantity = object.getString("qty");
-            price = object.getString("price");
-            explanation = object.getString("explanation");
-            app_qty = object.getString("adjusted_qty");
-            app_price = object.getString("adjusted_price");
-            justification = object.getString("justification");
-            status = object.getString("claim_status");
-            valuated = object.getString("valuated");
-            result = object.getString("result");
+            item_code = "";//object.getString("");
+            item_name = object.getString("item");
+            quantity = object.getString("item_qty");
+            price = object.getString("item_price");
+            explanation = object.getString("item_explination");
+            app_qty = object.getString("item_adjusted_qty");
+            app_price = object.getString("item_adjusted_price");
+            justification = object.getString("item_justificaion");
+            status = "";//object.getString("claim_status");
+            valuated = object.getString("item_valuated");
+            result = object.getString("item_result");
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-/*        ((Reportmsg) holder).claimNo.setText(claim_no);
-        ((Reportmsg) holder).ItemStatus.setText(claim_status);*/
+        ((Reportmsg) holder).ItemCode.setText(item_code);
+        ((Reportmsg) holder).ItemName.setText(item_name);
+        ((Reportmsg) holder).Quantity.setText(quantity);
+        ((Reportmsg) holder).Price.setText(price);
+        ((Reportmsg) holder).Explanation.setText(explanation);
+        ((Reportmsg) holder).AppQty.setText(app_qty);
+        ((Reportmsg) holder).AppPrice.setText(app_price);
+        ((Reportmsg) holder).Justification.setText(justification);
+        ((Reportmsg) holder).Status.setText(status);
+        ((Reportmsg) holder).Valuated.setText(valuated);
+        ((Reportmsg) holder).Result.setText(result);
 
 
     }
 
     @Override
     public int getItemCount() {
-        return 10;//Items.length();
+        return Items.length();
     }
 
 
