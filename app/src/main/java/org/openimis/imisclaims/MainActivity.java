@@ -1190,12 +1190,16 @@ public class MainActivity extends AppCompatActivity
 
 
                         }else {
+                            error_message = ob.getString("error_message");
+                            final String finalError_message = error_message;
                             runOnUiThread(new Runnable() {
                                 public void run() {pd.dismiss();
+
+                                    ErrorDialogBox(finalError_message);
+
                                 }
                             });
-                            error_message = ob.getString("error_message");
-                            ErrorDialogBox(error_message);
+
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -1665,79 +1669,77 @@ public class MainActivity extends AppCompatActivity
                             }
                         }
                         int code = response.getStatusLine().getStatusCode();
-
                         JSONObject ob = null;
-                        try {
+                        if(String.valueOf(code).equals("200")){
                             ob = new JSONObject(content);
-                            if(String.valueOf(code).equals("200")){
-                                services = ob.getString("pricelist_services");
-                                items = ob.getString("pricelist_items");
-                                last_update_date = ob.getString("update_since_last");
-                                saveLastUpdateDate(last_update_date);
 
-                                //sql.ClearReferencesSI();
-                                sql.ClearMapping("S");
-                                sql.ClearMapping("I");
+                            services = ob.getString("pricelist_services");
+                            items = ob.getString("pricelist_items");
+                            last_update_date = ob.getString("update_since_last");
+                            saveLastUpdateDate(last_update_date);
 
-                                //Insert Services
-                                JSONArray arrServices = null;
-                                JSONObject objServices = null;
-                                arrServices = new JSONArray(services);
-                                for (int i = 0; i < arrServices.length(); i++) {
-                                    objServices = arrServices.getJSONObject(i);
-                                    //sql.InsertReferences(objServices.getString("code").toString(), objServices.getString("name").toString(), "S", objServices.getString("price").toString());
-                                    sql.InsertMapping(objServices.getString("code").toString(),objServices.getString("name").toString(),"S");
+                            //sql.ClearReferencesSI();
+                            sql.ClearMapping("S");
+                            sql.ClearMapping("I");
+
+                            //Insert Services
+                            JSONArray arrServices = null;
+                            JSONObject objServices = null;
+                            arrServices = new JSONArray(services);
+                            for (int i = 0; i < arrServices.length(); i++) {
+                                objServices = arrServices.getJSONObject(i);
+                                //sql.InsertReferences(objServices.getString("code").toString(), objServices.getString("name").toString(), "S", objServices.getString("price").toString());
+                                sql.InsertMapping(objServices.getString("code").toString(),objServices.getString("name").toString(),"S");
+                            }
+
+                            //Insert Items
+                            JSONArray arrItems = null;
+                            JSONObject objItems = null;
+                            arrItems = new JSONArray(items);
+                            for (int i = 0; i < arrItems.length(); i++) {
+                                objItems = arrItems.getJSONObject(i);
+                                //sql.InsertReferences(objItems.getString("code").toString(), objItems.getString("name").toString(), "I", objItems.getString("price").toString());
+                                sql.InsertMapping(objItems.getString("code").toString(),objItems.getString("name").toString(),"I");
+                            }
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    pd.dismiss();
+                                    Toast.makeText(MainActivity.this,getResources().getString(R.string.MapSuccessful),Toast.LENGTH_LONG).show();
                                 }
+                            });
 
-                                //Insert Items
-                                JSONArray arrItems = null;
-                                JSONObject objItems = null;
-                                arrItems = new JSONArray(items);
-                                for (int i = 0; i < arrItems.length(); i++) {
-                                    objItems = arrItems.getJSONObject(i);
-                                    //sql.InsertReferences(objItems.getString("code").toString(), objItems.getString("name").toString(), "I", objItems.getString("price").toString());
-                                    sql.InsertMapping(objItems.getString("code").toString(),objItems.getString("name").toString(),"I");
-                                }
+                        }else{
+                            //error_occurred = ob.getString("error_occured");
+/*                            if(error_occurred.equals("true")){
+
+                            }*/
+                            if(code >= 400){
                                 runOnUiThread(new Runnable() {
                                     public void run() {
                                         pd.dismiss();
-                                        Toast.makeText(MainActivity.this,getResources().getString(R.string.MapSuccessful),Toast.LENGTH_LONG).show();
+                                        LoginDialogBox("refresh_map");
                                     }
                                 });
                             }else{
-                                error_occurred = ob.getString("error_occured");
-                                if(error_occurred.equals("true")){
-                                    if(code >= 400){
-                                        runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                pd.dismiss();
-                                                LoginDialogBox("refresh_map");
-                                            }
-                                        });
-                                    }else{
-                                        error_message = ob.getString("error_message");
-                                        final String finalError_message = error_message;
-                                        runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                pd.dismiss();
-                                            }
-                                        });
+                                //error_message = ob.getString("error_message");
+                                final String finalError_message = getResources().getString(R.string.SomethingWentWrongServer);
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        pd.dismiss();
                                         ErrorDialogBox(finalError_message);
                                     }
-                                }
+                                });
+
                             }
-                        } catch (JSONException e) {
-                            Toast.makeText(MainActivity.this,String.valueOf(e),Toast.LENGTH_LONG).show();
-                            runOnUiThread(new Runnable() {
-                                public void run() {pd.dismiss();}});
                         }
+
                     }catch (Exception e){
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 pd.dismiss();
+                                Toast.makeText(MainActivity.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.AccessDenied),Toast.LENGTH_LONG).show();
                             }
                         });
-                        Toast.makeText(MainActivity.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.AccessDenied),Toast.LENGTH_LONG).show();
                     }
 
                 }
