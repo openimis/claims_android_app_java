@@ -4,23 +4,20 @@
     android:layout_height="wrap_content"
     android:padding="10dp"
     android:elevation="20dp"
-    android:background="@drawable/side_nav_bar"
+    android:background="@drawable/bottom_side_border"
     android:layout_margin="5dp">
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/White"
         android:orientation="horizontal">
         <TextView
-            android:textColor="@color/Black"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:textSize="10dp"
             android:text="Claim No"/>
         <TextView
-            android:textColor="@color/Black"
             android:id="@+id/claimNo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,13 +30,11 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TextView
-            android:textColor="@color/white"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:textSize="10dp"
             android:text="Claim Status"/>
         <TextView
-            android:textColor="@color/white"
             android:id="@+id/claimStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,13 +47,11 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TextView
-            android:textColor="@color/white"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:textSize="10dp"
             android:text="@string/HealthFacility"/>
         <TextView
-            android:textColor="@color/white"
             android:id="@+id/healthFacility"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -66,46 +59,21 @@
             android:text="@string/HealthFacilityName"/>
 
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="@string/visit_date_from"
-            android:textColor="@color/white"
-            android:textSize="10dp" />
-
-        <TextView
-            android:id="@+id/visitDateFrom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/visit_date_from"
-            android:textColor="@color/white"
-            android:textSize="10dp" />
-
-    </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TextView
-            android:textColor="@color/white"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:textSize="10dp"
             android:text="@string/InsureeNumber"/>
-        <TextView
-            android:textColor="@color/white"
+        <EditText
             android:id="@+id/insuranceNo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="13dp"
-            android:text="@string/InsureeNumber"/>
+            android:hint="@string/InsureeNumber"/>
 
     </LinearLayout>
     <LinearLayout
@@ -113,13 +81,11 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TextView
-            android:textColor="@color/white"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:textSize="10dp"
             android:text="@string/date_claimed"/>
         <TextView
-            android:textColor="@color/white"
             android:id="@+id/dateClaimed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -127,19 +93,33 @@
             android:text="@string/date_claimed"/>
 
     </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TextView
-            android:textColor="@color/white"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:text="@string/visit_date_from"/>
+        <TextView
+            android:id="@+id/visitDateFrom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:text="@string/visit_date_from"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:textSize="10dp"
             android:text="@string/visit_date_to"/>
         <TextView
-            android:textColor="@color/white"
             android:id="@+id/visitDateTo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

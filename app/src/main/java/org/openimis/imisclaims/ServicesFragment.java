@@ -42,7 +42,6 @@ public class ServicesFragment extends Fragment {
     }
 
     public void fillClaims(View v){
-        claimJson = new JSONArray();//clientAndroidInterface.getRecordedPolicies(InsuranceNumber,OtherNames,LastName,InsuranceProduct,UploadedFrom,UploadedTo,RadioRenewal,RequestedFrom,RequestedTo, PaymentType, RadioSms);//OrderArray;
         LayoutInflater li = LayoutInflater.from(getContext());
         View promptsView = li.inflate(R.layout.activity_search_claims, null);
         listOfClaims = (RecyclerView) v.findViewById(R.id.listOfServices);

@@ -169,7 +169,8 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                     LoginDialogBox();
                 }else{
                     JSONObject object = new JSONObject();
-
+                        Global global = new Global();
+                    global.setOfficerCode("cl02");
                     try {
                         //object.put("userName",username.getText().toString());
                         object.put("claim_administrator_code",global.getOfficerCode().toString());
@@ -784,5 +785,10 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                         })
                 .show();
     }*/
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 
 }

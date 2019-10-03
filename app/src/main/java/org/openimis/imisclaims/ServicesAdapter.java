@@ -137,16 +137,16 @@ public class ServicesAdapter<VH extends TrackSelectionAdapter.ViewHolder> extend
         try {
             JSONObject object = itemsData.getJSONObject(position);
             service_code = ""; //object.getString("service_code");
-            service_name = object.getString("service_name");
-            quantity = object.getString("qty");
-            price = object.getString("price");
-            explanation = object.getString("explanation");
-            app_qty = object.getString("adjusted_qty");
-            app_price = object.getString("adjusted_price");
-            justification = object.getString("justification");
-            status = object.getString("claim_status");
-            valuated = object.getString("valuated");
-            result = object.getString("result");
+            service_name = object.getString("service");
+            quantity = object.getString("service_qty");
+            price = object.getString("service_price");
+            explanation = object.getString("service_explination");
+            app_qty = object.getString("service_adjusted_qty");
+            app_price = object.getString("service_adjusted_price");
+            justification = object.getString("service_justificaion");
+            status = "";//object.getString("claim_status");
+            valuated = object.getString("service_valuated");
+            result = object.getString("service_result");
 
         } catch (JSONException e) {
             e.printStackTrace();
