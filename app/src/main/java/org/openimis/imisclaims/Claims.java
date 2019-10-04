@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,12 +34,17 @@ public class Claims extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_claims);
+
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle(getResources().getString(R.string.claims));
+
         Intent intent = getIntent();
         claims = intent.getStringExtra("claims");
 
         try {
             object = new JSONObject(claims);
-            claimJson = new JSONArray(object.getString("claims"));
+            claimJson = new JSONArray(object.getString("data"));
 
 
         } catch (JSONException e) {
@@ -59,5 +65,14 @@ public class Claims extends AppCompatActivity {
         listOfClaims.setAdapter(claimsAdapter);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 }

@@ -24,7 +24,11 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
 
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
         </activity>
         <activity
@@ -59,15 +63,7 @@
             android:name=".Report"
             android:label="@string/title_activity_report"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".SearchClaims">
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-        </activity>
+        <activity android:name=".SearchClaims"></activity>
         <activity android:name=".Claims">
 
         </activity>

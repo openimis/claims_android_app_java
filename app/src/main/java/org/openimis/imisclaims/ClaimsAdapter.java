@@ -381,7 +381,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
 
             //ClaimCode
             serializer.startTag(null, "ClaimCode");
-            serializer.text(obj.getString("claim_number"));
+            serializer.text("@"+obj.getString("claim_number"));
             serializer.endTag(null, "ClaimCode");
 
             //GuaranteeNo
@@ -572,7 +572,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
             //Claim Admin
             ClaimObject.put("ClaimAdmin", global.getOfficerCode().toString());
             //ClaimCode
-            ClaimObject.put("ClaimCode", obj.getString("claim_number"));
+            ClaimObject.put("ClaimCode", "@"+obj.getString("claim_number"));
             //GuaranteeNo
             ClaimObject.put("GuaranteeNo", obj.getString("guarantee_number"));
             //CHFID

@@ -221,4 +221,5 @@
     <string name="Restore">Restore</string>
     <string name="ClaimRestored">Claim has been restored</string>
     <string name="ClaimReview">Claim Review</string>
+    <string name="claims">Claims</string>
 </resources>

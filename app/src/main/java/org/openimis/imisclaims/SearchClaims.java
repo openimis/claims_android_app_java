@@ -170,15 +170,14 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                 }else{
                     JSONObject object = new JSONObject();
                         Global global = new Global();
-                    global.setOfficerCode("cl02");
                     try {
                         //object.put("userName",username.getText().toString());
                         object.put("claim_administrator_code",global.getOfficerCode().toString());
-                        object.put("status_claim",status_claim);
-                        object.put("visit_date_from",visit_date_from.getText().toString());
-                        object.put("visit_date_to",visit_date_to.getText().toString());
-                        object.put("processed_date_from",date_processed_from.getText().toString());
-                        object.put("processed_date_to",date_processed_to.getText().toString());
+                        if(status_claim.length() != 0){object.put("status_claim",status_claim);}
+                        if(visit_date_from.length() != 0){object.put("status_claim",visit_date_from);}
+                        if(visit_date_to.length() != 0){object.put("status_claim",visit_date_to);}
+                        if(date_processed_from.length() != 0){object.put("status_claim",date_processed_from);}
+                        if(date_processed_to.length() != 0){object.put("status_claim",date_processed_to);}
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -189,7 +188,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void getClaims(JSONObject object) {
-        String claims = "{\n" +
+/*        String claims = "{\n" +
                 "  \"error_occured\": false,\n" +
                 "  \"claims\": [\n" +
                 "    {\n" +
@@ -381,14 +380,12 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                 "      \"items\": []\n" +
                 "    }\n" +
                 "  ]\n" +
-                "}";
-        //claims = getClaimsApi(object);
-        Intent intent = new Intent(this, Claims.class);
-        intent.putExtra("claims", claims);
-        startActivity(intent);
+                "}";*/
+        getClaimsApi(object);
+
     }
 
-    private String getClaimsApi(final JSONObject object) {
+    private void getClaimsApi(final JSONObject object) {
         String error_occurred = null;
         String error_message = null;
         String content = null;
@@ -421,62 +418,41 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                         }
                         int code = response.getStatusLine().getStatusCode();
 
-                        JSONObject ob = null;
-/*                        try {
-                            ob = new JSONObject(content);
-                            if(String.valueOf(code).equals("200")){
-                                services = ob.getString("pricelist_services");
-
-                                //Insert Services
-                                JSONArray arrServices = null;
-                                JSONObject objServices = null;
-                                arrServices = new JSONArray(services);
-                                for (int i = 0; i < arrServices.length(); i++) {
-                                    objServices = arrServices.getJSONObject(i);
-                                    //sql.InsertReferences(objServices.getString("code").toString(), objServices.getString("name").toString(), "S", objServices.getString("price").toString());
-                                    //sql.InsertMapping(objServices.getString("code").toString(),objServices.getString("name").toString(),"S");
+                        if(code < 400){
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    pd.dismiss();
                                 }
-
+                            });
+                            JSONObject jsonObject = new JSONObject(content);
+                            String data = jsonObject.getString("data");
+                            if(data.length() != 0){
+                                openClaimReview(content);
+                            }else {
                                 runOnUiThread(new Runnable() {
                                     public void run() {
-                                        pd.dismiss();
-                                        Toast.makeText(SearchClaims.this,getResources().getString(R.string.ClaimsSuccess),Toast.LENGTH_LONG).show();
+                                        Toast.makeText(SearchClaims.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.NoClaim),Toast.LENGTH_LONG).show();
                                     }
                                 });
-                            }else{
-                                error_occurred = ob.getString("error_occured");
-                                if(error_occurred.equals("true")){
-                                    if(code >= 400){
-                                        runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                pd.dismiss();
-                                                LoginDialogBox();
-                                            }
-                                        });
-                                    }else{
-                                        error_message = ob.getString("error_message");
-                                        final String finalError_message = error_message;
-                                        runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                pd.dismiss();
-                                            }
-                                        });
-                                        ErrorDialogBox(finalError_message);
-                                    }
-                                }
                             }
-                        } catch (JSONException e) {
-                            Toast.makeText(SearchClaims.this,String.valueOf(e),Toast.LENGTH_LONG).show();
+
+                        }else {
+                            pd.dismiss();
                             runOnUiThread(new Runnable() {
-                                public void run() {pd.dismiss();}});
-                        }*/
+                                public void run() {
+                                    Toast.makeText(SearchClaims.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.AccessDenied),Toast.LENGTH_LONG).show();
+                                    LoginDialogBox();
+                                }
+                            });
+                            Toast.makeText(SearchClaims.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.AccessDenied),Toast.LENGTH_LONG).show();
+                        }
                     }catch (Exception e){
+                        pd.dismiss();
                         runOnUiThread(new Runnable() {
                             public void run() {
-                                pd.dismiss();
+                                Toast.makeText(SearchClaims.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.AccessDenied),Toast.LENGTH_LONG).show();
                             }
                         });
-                        Toast.makeText(SearchClaims.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.AccessDenied),Toast.LENGTH_LONG).show();
                     }
 
                 }
@@ -490,7 +466,13 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
             });
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
         }
-        return content;
+
+    }
+
+    public void openClaimReview(String claims){
+        Intent intent = new Intent(this, Claims.class);
+        intent.putExtra("claims", claims);
+        startActivity(intent);
     }
 
     @Override
@@ -789,6 +771,12 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
 }
