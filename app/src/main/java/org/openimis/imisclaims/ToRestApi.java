@@ -112,35 +112,15 @@ public class ToRestApi {
 
     public String getFromRestApi(final String functionName) {
         final String[] content = {null};
-<<<<<<< HEAD
-        HttpClient httpClient = null;
-        HttpGet httpGet = null;
-        HttpEntity respEntity = null;
-        try{
-            httpClient = new DefaultHttpClient();
-            httpGet = new HttpGet(uri+functionName);
-            httpGet.setHeader("Content-type", "application/json");
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-
-=======
         HttpClient httpClient = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(uri+functionName);
         httpGet.setHeader("Content-Type", "application/json");
->>>>>>> imisclaims112
 
         //Send Request Here
         HttpResponse response = null;
         try {
             response = httpClient.execute(httpGet);
-<<<<<<< HEAD
-            respEntity = response.getEntity();
-        } catch (IOException e) {
-=======
         } catch (Exception e) {
->>>>>>> imisclaims112
             e.printStackTrace();
         }
 
