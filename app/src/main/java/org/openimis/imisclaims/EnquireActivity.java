@@ -448,7 +448,12 @@ public class EnquireActivity extends AppCompatActivity {
         if(_General.isNetworkAvailable(this)){
             CallSoap cs = new CallSoap();
             cs.setFunctionName("EnquireInsuree");
-            result = cs.getInsureeInfo(chfid);
+            try{
+                result = cs.getInsureeInfo(chfid);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
         }else{
             //TODO: yet to be done
             result = getDataFromDb(etCHFID.getText().toString());
