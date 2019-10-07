@@ -123,7 +123,7 @@ public class ToRestApi {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        HttpEntity respEntity = response.getEntity();
         if (respEntity != null) {
             final String[] code = {null};
             // EntityUtils to get the response content
