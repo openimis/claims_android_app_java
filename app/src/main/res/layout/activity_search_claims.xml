@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="org.openimis.imisclaims.SearchClaims">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:background="@color/colorPrimary2">
+
+        <Spinner
+            android:id="@+id/spinner_status"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/corner_fields"
+            android:elevation="10dp"
+            android:prompt="@string/Amount"/>
+        <EditText
+            android:id="@+id/visit_date_from"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:elevation="10dp"
+            android:inputType="none"
+            android:focusable="false"
+            android:textIsSelectable="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:hint="@string/visit_date_from"
+            android:drawableRight="@drawable/calendar1"
+            android:layout_below="@+id/spinner_status"
+            android:background="@drawable/corner_edittext"/>
+        <EditText
+            android:id="@+id/visit_date_to"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:elevation="10dp"
+            android:inputType="none"
+            android:focusable="false"
+            android:textIsSelectable="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:hint="@string/visit_date_to"
+            android:drawableRight="@drawable/calendar1"
+            android:layout_below="@+id/spinner_status"
+            android:layout_toRightOf="@+id/visit_date_from"
+            android:background="@drawable/corner_edittext"/>
+
+        <EditText
+            android:id="@+id/date_processed_from"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:elevation="10dp"
+            android:inputType="none"
+            android:focusable="false"
+            android:textIsSelectable="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:hint="@string/date_processed_from"
+            android:drawableRight="@drawable/calendar1"
+            android:layout_below="@+id/visit_date_from"
+            android:background="@drawable/corner_edittext"/>
+        <EditText
+            android:id="@+id/date_processed_to"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:elevation="10dp"
+            android:inputType="none"
+            android:focusable="false"
+            android:textIsSelectable="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:hint="@string/date_processed_to"
+            android:drawableRight="@drawable/calendar1"
+            android:layout_below="@+id/visit_date_to"
+            android:layout_toRightOf="@+id/date_processed_from"
+            android:background="@drawable/corner_edittext"/>
+
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_margin="5dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/clear"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="5dp"
+            android:background="@color/yellow"
+            android:text="@string/clear"/>
+
+        <Button
+            android:id="@+id/search"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
+            android:background="@color/cyan"
+            android:textColor="@color/white"
+            android:text="@string/search"/>
+
+    </LinearLayout>
+
+</LinearLayout>
