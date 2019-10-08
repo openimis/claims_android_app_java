@@ -136,7 +136,7 @@ public class ItemsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends R
 
         try {
             JSONObject object = itemsData.getJSONObject(position);
-            item_code = "";//object.getString("item_code");
+            item_code = object.getString("item_code");
             item_name = object.getString("item");
             quantity = object.getString("item_qty");
             price = object.getString("item_price");

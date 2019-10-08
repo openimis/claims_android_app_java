@@ -460,7 +460,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
 
                 //Code
                 serializer.startTag(null, "ItemCode");
-                serializer.text(object.getString("item"));
+                serializer.text(object.getString("item_code"));
                 serializer.endTag(null, "ItemCode");
 
                 //Price
@@ -491,7 +491,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
 
                 //Code
                 serializer.startTag(null, "ServiceCode");
-                serializer.text(object.getString("service"));
+                serializer.text(object.getString("service_code"));
                 serializer.endTag(null, "ServiceCode");
 
                 //Price

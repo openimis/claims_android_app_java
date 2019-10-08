@@ -136,7 +136,7 @@ public class ServicesAdapter<VH extends TrackSelectionAdapter.ViewHolder> extend
 
         try {
             JSONObject object = itemsData.getJSONObject(position);
-            service_code = ""; //object.getString("service_code");
+            service_code = object.getString("service_code");
             service_name = object.getString("service");
             quantity = object.getString("service_qty");
             price = object.getString("service_price");
