@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
-        android:background="@color/colorPrimary2">
+        android:background="@color/faint">
 
         <Spinner
             android:id="@+id/spinner_status"
@@ -25,7 +25,7 @@
             android:prompt="@string/Amount"/>
         <EditText
             android:id="@+id/visit_date_from"
-            android:layout_width="150dp"
+            android:layout_width="190dp"
             android:layout_height="50dp"
             android:elevation="10dp"
             android:inputType="none"
@@ -40,7 +40,7 @@
             android:background="@drawable/corner_edittext"/>
         <EditText
             android:id="@+id/visit_date_to"
-            android:layout_width="150dp"
+            android:layout_width="190dp"
             android:layout_height="50dp"
             android:elevation="10dp"
             android:inputType="none"
@@ -57,7 +57,7 @@
 
         <EditText
             android:id="@+id/date_processed_from"
-            android:layout_width="150dp"
+            android:layout_width="190dp"
             android:layout_height="50dp"
             android:elevation="10dp"
             android:inputType="none"
@@ -72,7 +72,7 @@
             android:background="@drawable/corner_edittext"/>
         <EditText
             android:id="@+id/date_processed_to"
-            android:layout_width="150dp"
+            android:layout_width="190dp"
             android:layout_height="50dp"
             android:elevation="10dp"
             android:inputType="none"
@@ -101,7 +101,8 @@
             android:layout_width="150dp"
             android:layout_height="50dp"
             android:layout_marginRight="5dp"
-            android:background="@color/yellow"
+            android:textColor="@color/Black"
+            android:layout_gravity="left"
             android:text="@string/clear"/>
 
         <Button
@@ -109,8 +110,8 @@
             android:layout_width="150dp"
             android:layout_height="50dp"
             android:layout_marginLeft="5dp"
-            android:background="@color/cyan"
-            android:textColor="@color/white"
+            android:layout_gravity="right"
+            android:textColor="@color/Black"
             android:text="@string/search"/>
 
     </LinearLayout>
