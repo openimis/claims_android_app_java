@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import com.google.zxing.client.android.Intents;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.openimis.CallSoap.CallSoap;
 import org.openimis.general.General;
 
@@ -46,6 +48,8 @@ public class Synchronize extends AppCompatActivity {
 
     ToRestApi toRestApi;
     Token tokenl;
+    boolean isUserLogged;
+    Global global;
 
     TextView tvUploadClaims,tvZipClaims;
     RelativeLayout UploadClaims,zip_claims;
@@ -85,7 +89,7 @@ public class Synchronize extends AppCompatActivity {
         setContentView(R.layout.activity_synchronize);
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-
+        global = (Global)getApplication();
         toRestApi = new ToRestApi();
         tokenl = new Token();
 
@@ -144,8 +148,7 @@ public class Synchronize extends AppCompatActivity {
         UploadClaims.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Global global = new Global();
-                if(global.getUserId() <= 0){
+                if(!global.getIslogged()){
                     LoginDialogBox("Synchronize");
                 }else{
                     ConfirmUploadClaims();
@@ -172,8 +175,6 @@ public class Synchronize extends AppCompatActivity {
 
         final int[] userid = {0};
 
-        Global global = new Global();
-
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(this);
         View promptsView = li.inflate(R.layout.login_dialog, null);
@@ -199,53 +200,20 @@ public class Synchronize extends AppCompatActivity {
 
                                     new Thread() {
                                         public void run() {
-                                            CallSoap callSoap = new CallSoap();
-                                            callSoap.setFunctionName("isValidLogin");
-                                            userid[0] = callSoap.isUserLoggedIn(username.getText().toString(),password.getText().toString());
-                                            Global global = new Global();
-                                            global.setUserId(userid[0]);
-/*                                            JSONObject object = new JSONObject();
-                                            try {
-                                                object.put("userName",username.getText().toString());
-                                                object.put("password",password.getText().toString());
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            String functionName = "login";
-                                            HttpResponse response = toRestApi.postToRestApi(object,functionName);
-                                            JSONObject ob = null;
-                                            String token = null;
-
-                                            String content = null;
-                                            HttpEntity respEntity = response.getEntity();
-                                            if (respEntity != null) {
-                                                final String[] code = {null};
-                                                // EntityUtils to get the response content
-
-                                                try {
-                                                    content = EntityUtils.toString(respEntity);
-                                                } catch (IOException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
+                                            Login login = new Login();
 
                                             try {
-                                                ob = new JSONObject(content);
-                                                token = ob.getString("access_token");
-                                            } catch (JSONException e) {
+                                                isUserLogged = login.LoginToken(username.getText().toString(),password.getText().toString());
+                                                global.setIsLogged(isUserLogged);
+                                            } catch (InterruptedException e) {
                                                 e.printStackTrace();
                                             }
-
-                                            tokenl.saveTokenText(token.toString());*/
-
-                                            //final String finalToken = token;
 
                                             runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
                                                     pd.dismiss();
-                                                    Global global = new Global();
-                                                    if(global.getUserId() > 0){
+                                                    if(isUserLogged){
                                                         if(page.equals("Synchronize")){
                                                             finish();
                                                             Intent intent = new Intent(Synchronize.this, Synchronize.class);
@@ -496,22 +464,55 @@ public class Synchronize extends AppCompatActivity {
     }
 
     private void UploadAllJSONClaims(File[] Claims, File[] ClaimsJSON){
-        CallSoap cs = new CallSoap();
-        cs.setFunctionName("UploadClaim");
+
+        ToRestApi rest = new ToRestApi();
+        int resInt = 2;
+
         for(int i=0;i<ClaimsJSON.length;i++){
             UploadCounter = i + 1;
             TotalClaims = Claims.length;
             runOnUiThread(ChangeMessage);
             String claim = getClaimText(ClaimsJSON[i].getName());
-            if(cs.UploadClaim(claim,Claims[i].getName())){
+
+            try{
+                JSONObject jo = new JSONObject(claim);
+                JSONObject jobj = jo.getJSONObject("Claim");
+
+                JSONObject datailsObj = jobj.getJSONObject("Details");
+                JSONArray itemsArray = jobj.getJSONArray("Items");
+                JSONArray servicesArray = jobj.getJSONArray("Services");
+
+                JSONArray itemsArrayRes = new JSONArray();
+                for (int k = 0; k < itemsArray.length(); k++){
+                    itemsArrayRes.put(itemsArray.getJSONObject(k).getJSONObject("Item"));
+                }
+
+                JSONArray servicesArrayRes = new JSONArray();
+                for (int k = 0; k < servicesArray.length(); k++){
+                    servicesArrayRes.put(servicesArray.getJSONObject(k).getJSONObject("Service"));
+                }
+
+                JSONObject obj = new JSONObject();
+
+                obj.put("details", datailsObj);
+                obj.put("items", itemsArrayRes);
+                obj.put("services", servicesArrayRes);
+
+                resInt = Integer.parseInt(rest.postObjectToRestApiObjectToken(obj,"claim"));
+            }catch(Exception e){}
+
+            boolean isSaved = false;
+
+            if(resInt != 2) isSaved = true;
+
+            if(isSaved){
                 ClaimFile = Claims[i];
                 ClaimFileJSON = ClaimsJSON[i];
-                int res = ServerResponse();
-                if(res == 1){
+                if(resInt == 1){
                     result = 1;
-                } else if(res == 0){
+                } else if(resInt == 0){
                     result = 2;
-                }else if(res == 2){
+                }else if(resInt == 2){
                     result = -2;
                 }else{
                     result = -3;

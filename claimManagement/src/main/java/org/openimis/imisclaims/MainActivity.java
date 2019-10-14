@@ -1,6 +1,7 @@
 package org.openimis.imisclaims;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -49,6 +50,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity
     SQLiteDatabase db;
     ToRestApi toRestApi;
     TextView progressBarinsideText;
+    boolean isUserLogged;
 
     TextView accepted_count;
     TextView rejected_count;
@@ -541,9 +545,12 @@ public class MainActivity extends AppCompatActivity
 
                                         new Thread() {
                                             public void run() {
-/*                                            CallSoap callSoap = new CallSoap();
-                                            callSoap.setFunctionName("isValidLogin");
-                                            userid[0] = callSoap.isUserLoggedIn(username.getText().toString(),password.getText().toString());*/
+                                                try {
+                                                    isUserLogged = LoginToken(username.getText().toString(),password.getText().toString());
+                                                } catch (InterruptedException e) {
+                                                    e.printStackTrace();
+                                                }
+
                                                 JSONObject object = new JSONObject();
                                                 try {
                                                     object.put("userName",username.getText().toString());
@@ -662,6 +669,52 @@ public class MainActivity extends AppCompatActivity
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
+
+    // Login to API and get Token JWT
+    public boolean LoginToken(final String Username, final String Password) throws InterruptedException {
+        ToRestApi rest = new ToRestApi();
+
+        JSONObject object = new JSONObject();
+        try {
+            object.put("UserName",Username);
+            object.put("Password",Password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String functionName = "login";
+
+        HttpResponse response = rest.postToRestApi(object, functionName);
+
+        String content = null;
+
+        HttpEntity respEntity = response.getEntity();
+
+        if (respEntity != null) {
+            try {
+                content = EntityUtils.toString(respEntity);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(response.getStatusLine().getStatusCode() == 200){
+            JSONObject ob = null;
+            String jwt = null;
+            try {
+                ob = new JSONObject(content);
+                jwt = ob.getString("access_token");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            tokenl.saveTokenText(jwt);
+
+            return true;
+        }
+        return false;
+    }
+
     public void LoginDialogBoxServices(final String page) {
 
         final int[] userid = {0};
@@ -693,15 +746,15 @@ public class MainActivity extends AppCompatActivity
 
                                     new Thread() {
                                         public void run() {
-                                            CallSoap callSoap = new CallSoap();
-                                            callSoap.setFunctionName("isValidLogin");
-                                            userid[0] = callSoap.isUserLoggedIn(username.getText().toString(),password.getText().toString());
-
+                                            try {
+                                                isUserLogged = LoginToken(username.getText().toString(),password.getText().toString());
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
                                                 runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        if(userid[0] > 0){
-                                                            global.setUserId(userid[0]);
+                                                        if(isUserLogged){
                                                             pd.dismiss();
                                                             //updateMenuTitlesLogout();
                                                             if(page.equals("MainActivity")){
@@ -857,10 +910,13 @@ public class MainActivity extends AppCompatActivity
                                 object.put("last_update_date",getLastUpdateDate());
                             }*/
                             JSONObject object1 = new JSONObject();
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+                            String dateS = formatter.format(new Date(0));
+                            object1.put("last_update_date",dateS);
 
                             DownLoadDiagnosesServicesItemsAgain(object1, sql);
 
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -1155,7 +1211,7 @@ public class MainActivity extends AppCompatActivity
                     String error_occurred = null;
                     String error_message = null;
 
-                    String functionName = "api/Claims/Controls";
+                    String functionName = "Claims/Controls";
                     String content = toRestApi.getFromRestApi(functionName);
 
                     JSONObject ob = null;
@@ -1220,7 +1276,7 @@ public class MainActivity extends AppCompatActivity
                     String error_occurred = null;
                     String error_message = null;
 
-                    String functionName = "api/Claims/GetClaimAdmins";
+                    String functionName = "Claims/GetClaimAdmins";
                     String content = toRestApi.getFromRestApi(functionName);
 
                     JSONObject ob = null;
@@ -1303,6 +1359,9 @@ public class MainActivity extends AppCompatActivity
 
                             pd.dismiss();
                             JSONObject object = new JSONObject();
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+                            String dateS = formatter.format(new Date(0));
+                            object.put("last_update_date",dateS);
                             try {
                                 DownLoadDiagnosesServicesItems(object, sql);
                             } catch (IOException e) {
@@ -1325,6 +1384,9 @@ public class MainActivity extends AppCompatActivity
 
                             pd.dismiss();
                             JSONObject object = new JSONObject();
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+                            String dateS = formatter.format(new Date(0));
+                            object.put("last_update_date",dateS);
                             try {
                                 DownLoadDiagnosesServicesItems(object, sql);
                             } catch (IOException e) {
@@ -1354,7 +1416,7 @@ public class MainActivity extends AppCompatActivity
                     String error_occurred = null;
                     String error_message = null;
 
-                    String functionName = "api/GetDiagnosesServicesItems";
+                    String functionName = "GetDiagnosesServicesItems";
 
                     try {
                         HttpResponse response = toRestApi.postToRestApi(object,functionName);
@@ -1494,7 +1556,7 @@ public class MainActivity extends AppCompatActivity
                     String error_occurred = null;
                     String error_message = null;
 
-                    String functionName = "api/GetDiagnosesServicesItems";
+                    String functionName = "GetDiagnosesServicesItems";
 
                     try {
                         HttpResponse response = toRestApi.postToRestApi(object,functionName);
@@ -1645,7 +1707,7 @@ public class MainActivity extends AppCompatActivity
                     String last_update_date = null;
                     String content = null;
 
-                    String functionName = "api/GetPaymentLists";
+                    String functionName = "GetPaymentLists";
                     try{
                         HttpResponse response = toRestApi.postToRestApiToken(object,functionName);
                         resp[0] = response;
@@ -1722,17 +1784,17 @@ public class MainActivity extends AppCompatActivity
                                 }
                             }
                         } catch (JSONException e) {
-                            Toast.makeText(MainActivity.this,String.valueOf(e),Toast.LENGTH_LONG).show();
                             runOnUiThread(new Runnable() {
                                 public void run() {pd.dismiss();}});
+                            Toast.makeText(MainActivity.this,String.valueOf(e),Toast.LENGTH_LONG).show();
                         }
                     }catch (Exception e){
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 pd.dismiss();
+                                Toast.makeText(MainActivity.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.AccessDenied),Toast.LENGTH_LONG).show();
                             }
                         });
-                        Toast.makeText(MainActivity.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.AccessDenied),Toast.LENGTH_LONG).show();
                     }
 
                 }
