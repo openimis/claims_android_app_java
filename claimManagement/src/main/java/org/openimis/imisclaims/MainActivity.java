@@ -309,9 +309,7 @@ public class MainActivity extends AppCompatActivity
 //            startActivity(intent);
         }
         if (id == R.id.nav_enquire) {
-            Global global = new Global();
-            int userid = global.getUserId();
-            if(userid > 0){
+            if(isUserLogged){
                 Intent intent = new Intent(this, EnquireActivity.class);
                 startActivity(intent);
             }else{
