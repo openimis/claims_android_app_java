@@ -1,9 +1,15 @@
 package org.openimis.general;
 
 
+import java.io.IOException;
 import java.util.Locale;
 
-import org.openimis.CallSoap.CallSoap;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -74,19 +80,38 @@ public class General {
 
 	}
 
-	public boolean isNewVersionAvailable(String Field,Context ctx, String PackageName){
+	public String getFromRestApi(final String functionName) {
+		String uri = getDomain()+ "api/";
 
-		CallSoap cs = new CallSoap();
-		cs.setFunctionName("GetCurrentVersion");
-		String result = cs.GetCurrentVersion(Field);
+		final String[] content = {null};
+		HttpClient httpClient = new DefaultHttpClient();
+		HttpGet httpGet = new HttpGet(uri+functionName);
+		httpGet.setHeader("Content-type", "application/json");
+
+		HttpResponse response = null;
+		try {
+			response = httpClient.execute(httpGet);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		HttpEntity respEntity = response.getEntity();
+		if (respEntity != null) {
+			try {
+				content[0] = EntityUtils.toString(respEntity);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return content[0];
+	}
+
+	public boolean isNewVersionAvailable(String Field,Context ctx, String PackageName){
+		String result = getFromRestApi("system/apkversion/" + Field);
 		if(result.contains(",")) {
 			result = result.replaceAll("(\\d+)\\,(\\d+)", "$1.$2");
 		}
 		return result == ""?false:Float.parseFloat(this.getVersion(ctx, PackageName).toString()) < Float.parseFloat(result);
-
 	}
-
-
 }
 	
 	

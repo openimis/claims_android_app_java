@@ -37,6 +37,7 @@ public class Global extends Application {
     private static int UserId;
     private  int OfficerId;
     private String token;
+    private boolean isLogged;
 
     private String ImageFolder;
 
@@ -60,6 +61,13 @@ public class Global extends Application {
     }
     public void setOfficerId(int officerId) {
         OfficerId = officerId;
+    }
+
+    public boolean getIslogged() {
+        return isLogged;
+    }
+    public void setIsLogged(boolean logged) {
+        isLogged = logged;
     }
 
     public String getImageFolder() {
