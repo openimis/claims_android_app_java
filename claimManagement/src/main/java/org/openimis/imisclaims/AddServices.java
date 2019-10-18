@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,8 +52,8 @@ public class AddServices extends AppCompatActivity {
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setTitle(getResources().getString(R.string.app_name_claim));
 		actionBar.setDisplayHomeAsUpEnabled(true);
-	    
-	    
+
+
 	    //spServices = (Spinner)findViewById(R.id.spServices);
 	    lvServices = (ListView)findViewById(R.id.lvServices);
 	    tvCode = (TextView)findViewById(R.id.tvCode);
@@ -87,6 +89,30 @@ public class AddServices extends AppCompatActivity {
                 }
             }
         });
+
+		etServices.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+				if(s == null || s.toString().trim().length()==0){
+					btnAdd.setEnabled(false);
+				} else {
+					btnAdd.setEnabled(true);
+				}
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+										  int after) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+			}
+		});
 	    
 	    //ClaimActivity.lvItemList = new ArrayList<HashMap<String, String>>();
 
@@ -99,7 +125,9 @@ public class AddServices extends AppCompatActivity {
 	    lvServices.setAdapter(alAdapter);
 	    
 	    btnAdd = (Button)findViewById(R.id.btnAdd);
-	   
+
+        btnAdd.setEnabled(false);
+
 	    btnAdd.setOnClickListener(new OnClickListener() {
 			
 			@Override
