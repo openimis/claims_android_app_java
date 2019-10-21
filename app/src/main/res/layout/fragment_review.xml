@@ -145,6 +145,48 @@
             android:textSize="13dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
+            android:text="@string/SecDg2"/>
+        <TextView
+            android:id="@+id/SecDg2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13dp"
+            android:textColor="@color/Black"
+            android:text="@string/SecDg2"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:textSize="13dp"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/SecDg3"/>
+        <TextView
+            android:id="@+id/SecDg3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="13dp"
+            android:textColor="@color/Black"
+            android:text="@string/SecDg3"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:textSize="13dp"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
             android:text="@string/SecDg4"/>
         <TextView
             android:id="@+id/SecDg4"

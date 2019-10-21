@@ -23,6 +23,8 @@ public class ReviewFragment extends Fragment {
     TextView ClaimCode;
     TextView MainDg;
     TextView SecDg1;
+    TextView SecDg2;
+    TextView SecDg3;
     TextView SecDg4;
     TextView visit_date_from;
     TextView visit_date_to;
@@ -57,6 +59,8 @@ public class ReviewFragment extends Fragment {
                 ClaimCode = (TextView) v.findViewById(R.id.ClaimCode);
                 MainDg = (TextView) v.findViewById(R.id.MainDg);
                 SecDg1 = (TextView) v.findViewById(R.id.SecDg1);
+                SecDg2 = (TextView) v.findViewById(R.id.SecDg2);
+                SecDg3 = (TextView) v.findViewById(R.id.SecDg3);
                 SecDg4 = (TextView) v.findViewById(R.id.SecDg4);
                 visit_date_from = (TextView) v.findViewById(R.id.visit_date_from);
                 visit_date_to = (TextView) v.findViewById(R.id.visit_date_to);
@@ -78,6 +82,8 @@ public class ReviewFragment extends Fragment {
                 ClaimCode.setText(object.getString("claim_number"));
                 MainDg.setText(object.getString("main_dg"));
                 SecDg1.setText(object.getString("sec_dg_1"));
+                SecDg2.setText(object.getString("sec_dg_2"));
+                SecDg3.setText(object.getString("sec_dg_3"));
                 SecDg4.setText(object.getString("sec_dg_4"));
                 visit_date_from.setText(object.getString("visit_date_from"));
                 visit_date_to.setText(object.getString("visit_date_to"));
