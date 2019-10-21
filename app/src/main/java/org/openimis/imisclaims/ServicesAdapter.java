@@ -136,17 +136,17 @@ public class ServicesAdapter<VH extends TrackSelectionAdapter.ViewHolder> extend
 
         try {
             JSONObject object = itemsData.getJSONObject(position);
-            service_code = object.getString("service_code");
-            service_name = object.getString("service");
-            quantity = object.getString("service_qty");
-            price = object.getString("service_price");
-            explanation = object.getString("service_explination");
-            app_qty = object.getString("service_adjusted_qty");
-            app_price = object.getString("service_adjusted_price");
-            justification = object.getString("service_justificaion");
+            service_code = (object.getString("service_code").equals("null")?"":object.getString("service_code"));
+            service_name = (object.getString("service").equals("null")?"":object.getString("service"));
+            quantity = (object.getString("service_qty").equals("null")?"":object.getString("service_qty"));
+            price = (object.getString("service_price").equals("null")?"":object.getString("service_price"));
+            explanation = (object.getString("service_explination").equals("null")?"":object.getString("service_explination"));
+            app_qty = (object.getString("service_adjusted_qty").equals("null")?"":object.getString("service_adjusted_qty"));
+            app_price = (object.getString("service_adjusted_price").equals("null")?"":object.getString("service_adjusted_price"));
+            justification = (object.getString("service_justificaion").equals("null")?"":object.getString("service_justificaion"));
             status = "";//object.getString("claim_status");
-            valuated = object.getString("service_valuated");
-            result = object.getString("service_result");
+            valuated = (object.getString("service_valuated").equals("null")?"":object.getString("service_valuated"));
+            result = (object.getString("service_result").equals("null")?"":object.getString("service_result"));
 
         } catch (JSONException e) {
             e.printStackTrace();

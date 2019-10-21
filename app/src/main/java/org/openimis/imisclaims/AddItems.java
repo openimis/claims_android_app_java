@@ -128,6 +128,8 @@ public class AddItems extends AppCompatActivity {
                     etAmount.setText("");
                     etQuantity.setText("");
 
+					oItem = null;
+
 					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block

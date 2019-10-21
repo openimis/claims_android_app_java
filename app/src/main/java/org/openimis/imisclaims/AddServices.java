@@ -124,6 +124,8 @@ public class AddServices extends AppCompatActivity {
                     etServices.setText("");
                     etSAmount.setText("");
                     etSQuantity.setText("");
+
+					oService = null;
 					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block

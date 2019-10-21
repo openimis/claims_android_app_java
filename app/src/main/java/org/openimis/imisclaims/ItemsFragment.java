@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,8 +37,10 @@ public class ItemsFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        if(claimJson.length()!= 0){
+            fillClaims(v);
+        }
 
-        fillClaims(v);
 
         return v;
     }

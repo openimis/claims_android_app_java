@@ -48,6 +48,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
     String claim_no = null;
     String claim_status = null;
     String health_facility = null;
+    String health_facility_name = null;
     String insurance_no = null;
     String date_claimed = null;
     String visit_date_from = null;
@@ -164,7 +165,8 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
             JSONObject object = claimsData.getJSONObject(position);
             claim_no = object.getString("claim_number");
             claim_status = object.getString("claim_status");
-            health_facility = object.getString("health_facility_name");
+            health_facility = object.getString("health_facility_code");
+            health_facility_name = object.getString("health_facility_name");
             insurance_no = object.getString("insurance_number");
             date_claimed = object.getString("date_claimed");
             visit_date_from = object.getString("visit_date_from");
@@ -177,6 +179,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         ((Reportmsg) holder).claimNo.setText(claim_no);
         ((Reportmsg) holder).claimStatus.setText(claim_status);
         ((Reportmsg) holder).healthFacility.setText(health_facility);
+        ((Reportmsg) holder).healthFacilityName.setText(health_facility_name);
         ((Reportmsg) holder).insuranceNo.setText(insurance_no);
         ((Reportmsg) holder).dateClaimed.setText(date_claimed);
         ((Reportmsg) holder).visitDateFrom.setText(visit_date_from);
@@ -200,6 +203,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         public TextView claimNo;
         public TextView claimStatus;
         public TextView healthFacility;
+        public TextView healthFacilityName;
         public TextView insuranceNo;
         public TextView dateClaimed;
         public TextView visitDateFrom;
@@ -233,7 +237,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    RestoreDialogBox(claimNo.getText().toString(),claimStatus.getText().toString(),healthFacility.getText().toString(),insuranceNo.getText().toString(),dateClaimed.getText().toString(),visitDateFrom.getText().toString(),visitDateTo.getText().toString());
+                    RestoreDialogBox(claimNo.getText().toString(),claimStatus.getText().toString(),healthFacility.getText().toString(),healthFacilityName.getText().toString(),insuranceNo.getText().toString(),dateClaimed.getText().toString(),visitDateFrom.getText().toString(),visitDateTo.getText().toString());
                     return false;
                 }
             });
@@ -242,6 +246,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
             claimNo = (TextView) itemView.findViewById(R.id.claimNo);
             claimStatus = (TextView) itemView.findViewById(R.id.claimStatus);
             healthFacility = (TextView) itemView.findViewById(R.id.healthFacility);
+            healthFacilityName = (TextView) itemView.findViewById(R.id.healthFacilityName);
             insuranceNo = (TextView) itemView.findViewById(R.id.insuranceNo);
             dateClaimed = (TextView) itemView.findViewById(R.id.dateClaimed);
             visitDateFrom = (TextView) itemView.findViewById(R.id.visitDateFrom);
@@ -249,7 +254,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         }
     }
 
-    public void RestoreDialogBox(String _claimNo,String _claimStatus,String _healthFacility,String _insuranceNo,String _dateClaimed,String _visitDateFrom,String _visitDateTo) {
+    public void RestoreDialogBox(String _claimNo,String _claimStatus,String _healthFacility,String _healthFacilityName,String _insuranceNo,String _dateClaimed,String _visitDateFrom,String _visitDateTo) {
 
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(_context);
@@ -268,6 +273,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         TextView claimNo = (TextView) promptsView.findViewById(R.id.claimNo);
         TextView claimStatus = (TextView) promptsView.findViewById(R.id.claimStatus);
         TextView healthFacility = (TextView) promptsView.findViewById(R.id.healthFacility);
+        TextView healthFacilityName = (TextView) promptsView.findViewById(R.id.healthFacilityName);
         TextView insuranceNo = (TextView) promptsView.findViewById(R.id.insuranceNo);
         TextView dateClaimed = (TextView) promptsView.findViewById(R.id.dateClaimed);
         TextView visitDateFrom = (TextView) promptsView.findViewById(R.id.visitDateFrom);
@@ -277,6 +283,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         claimNo.setText(_claimNo);
         claimStatus.setText(_claimStatus);
         healthFacility.setText(_healthFacility);
+        healthFacilityName.setText(_healthFacilityName);
         if(_claimStatus.equals("Rejected")){
             insuranceNo.setText(_insuranceNo);
         }else {

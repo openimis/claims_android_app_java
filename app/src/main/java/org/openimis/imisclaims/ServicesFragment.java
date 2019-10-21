@@ -36,7 +36,9 @@ public class ServicesFragment extends Fragment {
             e.printStackTrace();
         }
 
-        fillClaims(v);
+        if(claimJson.length()!= 0){
+            fillClaims(v);
+        }
 
         return v;
     }

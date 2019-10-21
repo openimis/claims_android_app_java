@@ -136,17 +136,17 @@ public class ItemsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends R
 
         try {
             JSONObject object = itemsData.getJSONObject(position);
-            item_code = object.getString("item_code");
-            item_name = object.getString("item");
-            quantity = object.getString("item_qty");
-            price = object.getString("item_price");
-            explanation = object.getString("item_explination");
-            app_qty = object.getString("item_adjusted_qty");
-            app_price = object.getString("item_adjusted_price");
-            justification = object.getString("item_justificaion");
+            item_code = (object.getString("item_code").equals("null")?"":object.getString("item_code"));
+            item_name = (object.getString("item").equals("null")?"":object.getString("item"));
+            quantity = (object.getString("item_qty").equals("null")?"":object.getString("item_qty"));
+            price = (object.getString("item_price").equals("null")?"":object.getString("item_price"));
+            explanation = (object.getString("item_explination").equals("null")?"":object.getString("item_explination"));
+            app_qty = (object.getString("item_adjusted_qty").equals("null")?"":object.getString("item_adjusted_qty"));
+            app_price = (object.getString("item_adjusted_price").equals("null")?"":object.getString("item_adjusted_price"));
+            justification = (object.getString("item_justificaion").equals("null")?"":object.getString("item_justificaion"));
             status = "";//object.getString("claim_status");
-            valuated = object.getString("item_valuated");
-            result = object.getString("item_result");
+            valuated = (object.getString("item_valuated").equals("null")?"":object.getString("item_valuated"));
+            result = (object.getString("item_result").equals("null")?"":object.getString("item_result"));
 
         } catch (JSONException e) {
             e.printStackTrace();

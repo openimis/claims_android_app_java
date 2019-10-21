@@ -144,7 +144,7 @@
     <string name="pending_claims">Pending Claims</string>
     <string name="code">code</string>
     <string name="permission_denied">Sorry some Permissions were not granted</string>
-    <string name="release">Version: 1.3.1.1, Released: 10-10-2019</string>
+    <string name="release">Version: 1.3.1.3, Released: 16-10-2019</string>
 
 
     <!--Please convert below new strings-->
@@ -183,7 +183,7 @@
     <string name="Rejected">Rejected</string>
     <string name="visit_date_from">Visit Date From</string>
     <string name="visit_date_to">Visit Date To</string>
-    <string name="date_processed_from">Processed From</string>
+    <string name="date_processed_from">Date Processed</string>
     <string name="date_processed_to">Processed To</string>
     <string name="clear">Clear</string>
     <string name="search">Search</string>

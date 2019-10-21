@@ -174,10 +174,10 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                         //object.put("userName",username.getText().toString());
                         object.put("claim_administrator_code",global.getOfficerCode().toString());
                         if(status_claim.length() != 0){object.put("status_claim",status_claim);}
-                        if(visit_date_from.length() != 0){object.put("status_claim",visit_date_from);}
-                        if(visit_date_to.length() != 0){object.put("status_claim",visit_date_to);}
-                        if(date_processed_from.length() != 0){object.put("status_claim",date_processed_from);}
-                        if(date_processed_to.length() != 0){object.put("status_claim",date_processed_to);}
+                        if(visit_date_from.length() != 0){object.put("visit_date_from",visit_date_from.getText());}
+                        if(visit_date_to.length() != 0){object.put("visit_date_to",visit_date_to.getText());}
+                        if(date_processed_from.length() != 0){object.put("processed_date_from",date_processed_from.getText());}
+                        if(date_processed_to.length() != 0){object.put("processed_date_to",date_processed_to.getText());}
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

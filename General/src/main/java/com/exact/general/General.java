@@ -16,7 +16,7 @@ import android.os.Environment;
 import android.util.DisplayMetrics;
 
 public class General {
-	private String _Domain = "http://chf-imis.or.tz/";
+	private String _Domain = "http://imis-mv.swisstph-mis.ch/";
 
 	public String getDomain(){
 		return _Domain;

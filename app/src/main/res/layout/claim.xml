@@ -63,6 +63,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="10dp"
+            android:text="@string/HealthFacility"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:textColor="@color/white"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:text="@string/HealthFacilityName"/>
+        <TextView
+            android:textColor="@color/white"
+            android:id="@+id/healthFacilityName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
             android:text="@string/HealthFacilityName"/>
 
     </LinearLayout>
@@ -86,6 +106,26 @@
             android:text="@string/visit_date_from"
             android:textColor="@color/white"
             android:textSize="10dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:textColor="@color/white"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:text="@string/visit_date_to"/>
+        <TextView
+            android:textColor="@color/white"
+            android:id="@+id/visitDateTo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:text="@string/visit_date_to"/>
 
     </LinearLayout>
 
@@ -125,26 +165,6 @@
             android:layout_height="wrap_content"
             android:textSize="10dp"
             android:text="@string/date_claimed"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:textColor="@color/white"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:textSize="10dp"
-            android:text="@string/visit_date_to"/>
-        <TextView
-            android:textColor="@color/white"
-            android:id="@+id/visitDateTo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="10dp"
-            android:text="@string/visit_date_to"/>
 
     </LinearLayout>
 
