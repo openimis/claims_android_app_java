@@ -106,7 +106,61 @@ public class AddItems extends AppCompatActivity {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-				if(s == null || s.toString().trim().length()==0){
+				if(s == null || s.toString().trim().length() == 0
+						|| etQuantity.getText().toString().trim().length() == 0
+						|| etAmount.getText().toString().trim().length() == 0){
+					btnAdd.setEnabled(false);
+				} else {
+					btnAdd.setEnabled(true);
+				}
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+										  int after) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+			}
+		});
+
+		etQuantity.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+				if(s == null || s.toString().trim().length() == 0
+						|| etItems.getText().toString().trim().length() == 0
+						|| etAmount.getText().toString().trim().length() == 0){
+					btnAdd.setEnabled(false);
+				} else {
+					btnAdd.setEnabled(true);
+				}
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+										  int after) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+			}
+		});
+
+		etAmount.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+				if(s == null || s.toString().trim().length() == 0
+						|| etQuantity.getText().toString().trim().length() == 0
+						|| etItems.getText().toString().trim().length() == 0){
 					btnAdd.setEnabled(false);
 				} else {
 					btnAdd.setEnabled(true);
