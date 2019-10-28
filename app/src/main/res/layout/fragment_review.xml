@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/HealthFacility"/>
@@ -23,7 +23,7 @@
             android:id="@+id/healthFacilityCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/HealthFacility"/>
     </LinearLayout>
@@ -36,7 +36,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/HealthFacilityName"/>
@@ -44,7 +44,7 @@
             android:id="@+id/healthFacilityName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:background="@drawable/bottom_side_border"
             android:text="@string/HealthFacilityName"/>
@@ -58,7 +58,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/PatientName"/>
@@ -66,7 +66,7 @@
             android:id="@+id/PatientName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/PatientName"/>
     </LinearLayout>
@@ -79,7 +79,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/ClaimCode"/>
@@ -87,7 +87,7 @@
             android:id="@+id/ClaimCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/ClaimCode"/>
     </LinearLayout>
@@ -100,7 +100,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/MainDg"/>
@@ -108,7 +108,7 @@
             android:id="@+id/MainDg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/MainDg"/>
     </LinearLayout>
@@ -121,7 +121,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/SecDg1"/>
@@ -129,7 +129,7 @@
             android:id="@+id/SecDg1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/SecDg1"/>
     </LinearLayout>
@@ -142,7 +142,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/SecDg2"/>
@@ -150,7 +150,7 @@
             android:id="@+id/SecDg2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/SecDg2"/>
     </LinearLayout>
@@ -163,7 +163,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/SecDg3"/>
@@ -171,7 +171,7 @@
             android:id="@+id/SecDg3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/SecDg3"/>
     </LinearLayout>
@@ -184,7 +184,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/SecDg4"/>
@@ -192,7 +192,7 @@
             android:id="@+id/SecDg4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:background="@drawable/bottom_side_border"
             android:text="@string/SecDg4"/>
@@ -206,7 +206,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/visit_date_from"/>
@@ -214,7 +214,7 @@
             android:id="@+id/visit_date_from"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/visit_date_from"/>
     </LinearLayout>
@@ -227,7 +227,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/visit_date_to"/>
@@ -235,7 +235,7 @@
             android:id="@+id/visit_date_to"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/visit_date_to"/>
     </LinearLayout>
@@ -248,7 +248,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/date_claimed"/>
@@ -256,7 +256,7 @@
             android:id="@+id/dateClaimed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/date_claimed"/>
     </LinearLayout>
@@ -269,7 +269,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/date_processed_from"/>
@@ -277,7 +277,7 @@
             android:id="@+id/date_processed_from"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/date_processed_from"/>
     </LinearLayout>
@@ -290,7 +290,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/VisitType"/>
@@ -298,7 +298,7 @@
             android:id="@+id/VisitType"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:background="@drawable/bottom_side_border"
             android:text="@string/VisitType"/>
@@ -312,7 +312,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/GuaranteeNo"/>
@@ -320,7 +320,7 @@
             android:id="@+id/etGuaranteeNo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/GuaranteeNo"/>
     </LinearLayout>
@@ -333,7 +333,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/Claimed"/>
@@ -341,7 +341,7 @@
             android:id="@+id/Claimed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/Claimed"/>
     </LinearLayout>
@@ -354,7 +354,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/Approved"/>
@@ -362,7 +362,7 @@
             android:id="@+id/Approved"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/Approved"/>
     </LinearLayout>
@@ -375,7 +375,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/Adjusted"/>
@@ -383,7 +383,7 @@
             android:id="@+id/Adjusted"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/Adjusted"/>
     </LinearLayout>
@@ -396,7 +396,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/ClaimStatus"/>
@@ -404,7 +404,7 @@
             android:id="@+id/ClaimStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:background="@drawable/bottom_side_border"
             android:text="@string/ClaimStatus"/>
@@ -418,7 +418,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/Explanation"/>
@@ -426,7 +426,7 @@
             android:id="@+id/Explanation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:background="@drawable/bottom_side_border"
             android:textColor="@color/Orange"
             android:text="@string/Explanation"/>
@@ -440,7 +440,7 @@
         <TextView
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="@string/Adjustment"/>
@@ -448,7 +448,7 @@
             android:id="@+id/Adjustment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="13dp"
+            android:textSize="12dp"
             android:textColor="@color/Black"
             android:text="@string/Adjustment"/>
     </LinearLayout>

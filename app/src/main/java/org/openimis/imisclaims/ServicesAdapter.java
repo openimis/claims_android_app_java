@@ -16,11 +16,11 @@ import org.json.JSONObject;
 /**
  * Created by Hiren on 10/12/2018.
  */
-//Please see itemsData and query to check Insuaree numbers
+//Please see serviceData and query to check Insuaree numbers
 public class ServicesAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends RecyclerView.Adapter {
 
     private JSONArray Items;
-    private JSONArray itemsData;
+    private JSONArray serviceData;
 
     String service_code = null;
     String service_name = null;
@@ -101,12 +101,12 @@ public class ServicesAdapter<VH extends TrackSelectionAdapter.ViewHolder> extend
                 String query = charSequence.toString();
 
                 if (query.isEmpty()) {
-                    itemsData = Items;
+                    serviceData = Items;
                 } else {
                     for(int i=0; i<=Items.length();i++){
                         try {
                             if (Items.getString(i).toLowerCase().contains(query.toLowerCase())) {
-                                itemsData.put(Items.getString(i));
+                                serviceData.put(Items.getString(i));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -115,15 +115,15 @@ public class ServicesAdapter<VH extends TrackSelectionAdapter.ViewHolder> extend
                 }
 
                 FilterResults results = new FilterResults();
-                results.count = itemsData.length();
-                results.values = itemsData;
+                results.count = serviceData.length();
+                results.values = serviceData;
                 return results;
             }
 
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults results) {
                 //Items = results.values;
-                itemsData = (JSONArray) results.values;
+                serviceData = (JSONArray) results.values;
                 notifyDataSetChanged();
             }
         };
@@ -132,10 +132,10 @@ public class ServicesAdapter<VH extends TrackSelectionAdapter.ViewHolder> extend
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         holder.itemView.setSelected(focusedItem == position);
-        itemsData = Items;
+        serviceData = Items;
 
         try {
-            JSONObject object = itemsData.getJSONObject(position);
+            JSONObject object = serviceData.getJSONObject(position);
             service_code = (object.getString("service_code").equals("null")?"":object.getString("service_code"));
             service_name = (object.getString("service").equals("null")?"":object.getString("service"));
             quantity = (object.getString("service_qty").equals("null")?"":object.getString("service_qty"));
@@ -169,7 +169,7 @@ public class ServicesAdapter<VH extends TrackSelectionAdapter.ViewHolder> extend
 
     @Override
     public int getItemCount() {
-        return 10;//Items.length();
+        return Items.length();
     }
 
 

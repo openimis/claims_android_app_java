@@ -26,7 +26,7 @@
     <string name="PeriodFrom">Period From</string>
     <string name="PeriodTo">Period To</string>
     <string name="BatchDate">Batch Date</string>
-    <string name="CHFID">Insurance No</string>
+    <string name="CHFID">ID Adherent</string>
     <string name="StartDate">Start Date</string>
     <string name="EndDate">End Date</string>
     <string name="Diagnosis">Diagnosis</string>
@@ -42,7 +42,6 @@
     <string name="SelectService">Please select a service</string>
     <string name="Add">Add +</string>
     <string name="HealthFacility">Health Facility Code</string>
-    <string name="HealthFacilityName">Health Facility Name</string>
     <string name="ClaimCode">Claim Code</string>
     <string name="Scan">Scan</string>
     <string name="Item">Item</string>
@@ -102,11 +101,11 @@
     <string name="InternetRequired">Internet connection is required.</string>
     <string name="title_activity_enquire">Enquire.</string>
     <string name="Go">Go</string>
-    <string name="InsureeName">Name</string>
+    <string name="InsureeName">Adherent</string>
     <string name="Gender">Gender</string>
     <string name="DOB">DOB</string>
-    <string name="GetingInsuuree">Getting insuree info&#8230;</string>
-    <string name="RecordNotFound">Member with this Insurance No. does not exist.</string>
+    <string name="GetingInsuuree">Getting Adherent info&#8230;</string>
+    <string name="RecordNotFound">Member with this ID Adherent. does not exist.</string>
     <string name="change_language">Change Language</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
