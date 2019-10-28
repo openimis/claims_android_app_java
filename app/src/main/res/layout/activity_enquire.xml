@@ -19,7 +19,7 @@
                 android:id="@+id/etCHFID"
                 android:layout_width="150dp"
                 android:layout_height="50dp"
-                android:inputType="number"
+                android:inputType="text"
                 android:hint="@string/CHFID"
                 android:maxLength="12"
                 android:layout_marginTop="10dp"

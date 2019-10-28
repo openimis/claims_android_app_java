@@ -229,7 +229,7 @@ public class ClaimActivity extends AppCompatActivity {
         SharedPreferences spHF = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
         String HF = spHF.getString("HF", "");
         if(HF.length() > 0) {
-            etHealthFacility.setText(HF);
+            //etHealthFacility.setText(HF);
             etClaimAdmin.requestFocus();
         }else{
             etHealthFacility.requestFocus();

@@ -76,7 +76,7 @@
                     android:hint="@string/CHFID"
                     android:fontFamily="sans-serif-light"
                     android:ems="10"
-                    android:inputType="number"
+                    android:inputType="text"
                     android:maxLength="12">
                 </EditText>
 
