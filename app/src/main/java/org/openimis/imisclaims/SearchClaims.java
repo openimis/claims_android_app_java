@@ -33,8 +33,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static org.openimis.imisclaims.ClaimActivity.EndDate_Dialog_ID;
@@ -534,7 +536,13 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
             month = SelectedMonth;
             day = SelectedDay;
 
-            visit_date_from.setText(new StringBuilder().append(year).append("-").append(month + 1).append("-").append(day));
+            Date d = new Date(year, month, day);
+            SimpleDateFormat dateFormatter = new SimpleDateFormat(
+                    "yyyy-MM-dd");
+            String vDateFrom = dateFormatter.format(d);
+
+            visit_date_from.setText(vDateFrom);
+            //visit_date_from.setText(new StringBuilder().append(year).append("-").append(month + 1).append("-").append(day));
         }
     };
 
@@ -546,6 +554,12 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
             month = SelectedMonth;
             day = SelectedDay;
 
+/*            Date d = new Date(year, month, day);
+            SimpleDateFormat dateFormatter = new SimpleDateFormat(
+                    "yyyy-MM-dd");
+            String vDateTo = dateFormatter.format(d);
+
+            visit_date_to.setText(vDateTo);*/
             visit_date_to.setText(new StringBuilder().append(year).append("-").append(month + 1).append("-").append(day));
         }
     };
@@ -559,6 +573,12 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
             month = SelectedMonth;
             day = SelectedDay;
 
+/*            Date d = new Date(year, month, day);
+            SimpleDateFormat dateFormatter = new SimpleDateFormat(
+                    "yyyy-MM-dd");
+            String datePF = dateFormatter.format(d);
+
+            date_processed_from.setText(datePF);*/
             date_processed_from.setText(new StringBuilder().append(year).append("-").append(month + 1).append("-").append(day));
         }
     };
@@ -571,6 +591,12 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
             month = SelectedMonth;
             day = SelectedDay;
 
+/*            Date d = new Date(year, month, day);
+            SimpleDateFormat dateFormatter = new SimpleDateFormat(
+                    "yyyy-MM-dd");
+            String datePT = dateFormatter.format(d);
+
+            date_processed_to.setText(datePT);*/
             date_processed_to.setText(new StringBuilder().append(year).append("-").append(month + 1).append("-").append(day));
         }
     };
