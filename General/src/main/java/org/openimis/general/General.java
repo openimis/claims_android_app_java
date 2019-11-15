@@ -22,8 +22,7 @@ import android.os.Environment;
 import android.util.DisplayMetrics;
 
 public class General {
-	//private String _Domain = "http://192.168.8.100/";
-	//private String _Domain = "http://dev.chf-imis.or.tz/";
+
     private static String _Domain = "http://demo.openimis.org/";
 
     private static final String DEFAULT_RAR_PASSWORD = ")(#$1HsD";
