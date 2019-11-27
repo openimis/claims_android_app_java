@@ -22,7 +22,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,9 +35,9 @@ import android.widget.Toast;
 import org.openimis.CallSoap.CallSoap;
 import org.openimis.general.General;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
+import cz.msebera.android.httpclient.HttpEntity;
+import cz.msebera.android.httpclient.HttpResponse;
+import cz.msebera.android.httpclient.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -979,7 +979,7 @@ public class MainActivity extends AppCompatActivity
                 Intent NotifyIntent = new Intent(this, MainActivity.class);
 
                 PendingIntent intent = PendingIntent.getActivity(this, 0, NotifyIntent,PendingIntent.FLAG_CANCEL_CURRENT);
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "Notification1");
                 builder.setAutoCancel(false);
                 builder.setContentTitle(ContentTitle);
                 builder.setContentText(ContentText);
