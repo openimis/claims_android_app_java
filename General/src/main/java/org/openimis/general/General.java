@@ -23,7 +23,7 @@ import android.util.DisplayMetrics;
 
 public class General {
 
-    private static String _Domain = "http://demo.openimis.org/";
+    private static String _Domain = "http://demo.openimis.org/rest/";
 
     private static final String DEFAULT_RAR_PASSWORD = ")(#$1HsD";
 

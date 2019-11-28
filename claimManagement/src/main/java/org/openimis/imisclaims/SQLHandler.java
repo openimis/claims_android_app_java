@@ -98,7 +98,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	public void InsertReferences(String Code,String Name,String Type, String Price){
 		try {
 			String sSQL = "";
-			sSQL = "INSERT INTO tblReferences(Code,Name,Type,Price)VALUES('"+Code+"','"+Name+"','"+Type+"','"+Price+"')";
+			sSQL = "INSERT INTO tblReferences(Code,Name,Type,Price)VALUES(\""+Code+"\",\""+Name+"\",\""+Type+"\",\""+Price+"\")";
 			db.execSQL(sSQL);
 		} catch (Exception e){
 			e.printStackTrace();
