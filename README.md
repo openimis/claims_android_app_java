@@ -32,7 +32,7 @@ git clone https://github.com/openimis/claim_android_app_java
 
 In order to run the openIMIS Claim Android Application, you need to
 know the openIMIS Web Services domain (DNS or IP address) and to configure it in the
-com.exact.general.General java file.
+openimis.general.General java file.
 
 ```
 private String _Domain = "http://132.148.151.32/";

@@ -23,6 +23,8 @@ import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 
+import com.google.zxing.client.android.R;
+
 import java.util.ArrayList;
 import java.util.Collection;
 

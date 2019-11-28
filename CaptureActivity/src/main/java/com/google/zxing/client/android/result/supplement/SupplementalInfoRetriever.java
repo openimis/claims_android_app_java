@@ -24,11 +24,12 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.widget.TextView;
+
+import com.google.zxing.client.android.history.HistoryManager;
 import com.google.zxing.client.result.ISBNParsedResult;
 import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.ProductParsedResult;
 import com.google.zxing.client.result.URIParsedResult;
-import com.google.zxing.client.android.history.HistoryManager;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
