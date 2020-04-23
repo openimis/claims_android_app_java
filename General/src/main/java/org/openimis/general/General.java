@@ -104,12 +104,14 @@ public class General {
 		return content[0];
 	}
 
+	// ToDo: depricate this method if published to Google Play
 	public boolean isNewVersionAvailable(String Field,Context ctx, String PackageName){
 		String result = getFromRestApi("system/apkversion/" + Field);
 		if(result.contains(",")) {
 			result = result.replaceAll("(\\d+)\\,(\\d+)", "$1.$2");
 		}
-		return result == ""?false:Float.parseFloat(this.getVersion(ctx, PackageName).toString()) < Float.parseFloat(result);
+		// return result == ""?false:Float.parseFloat(this.getVersion(ctx, PackageName)) < Float.parseFloat(result);
+		return false;
 	}
 }
 	

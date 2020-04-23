@@ -5,9 +5,9 @@ android {
     defaultConfig {
         applicationId "org.openimis.imisclaims"
         minSdkVersion 21
-        targetSdkVersion 26
-        versionCode 2
-        versionName "2.0"
+        targetSdkVersion 27
+        versionCode 3
+        versionName "2.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         useLibrary 'org.apache.http.legacy'
     }
