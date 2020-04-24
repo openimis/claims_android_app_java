@@ -62,7 +62,8 @@ public class General {
 		res.updateConfiguration(config, dm);
 	}
 
-	public String getVersion(Context ctx, String PackageName){
+	// ToDo: remove this method if published to Google Play
+	/*public String getVersion(Context ctx, String PackageName){
 		String VersionName = "";
 
 		PackageManager manager = ctx.getPackageManager();
@@ -77,9 +78,10 @@ public class General {
 		}
 		return VersionName;
 
-	}
+	}*/
 
-	public String getFromRestApi(final String functionName) {
+	// ToDo: remove this method if published to Google Play
+	/*public String getFromRestApi(final String functionName) {
 		String uri = getDomain()+ "api/";
 
 		final String[] content = {null};
@@ -102,14 +104,14 @@ public class General {
 			}
 		}
 		return content[0];
-	}
+	}*/
 
-	// ToDo: depricate this method if published to Google Play
+	// ToDo: depricate/remove this method if published to Google Play
 	public boolean isNewVersionAvailable(String Field,Context ctx, String PackageName){
-		String result = getFromRestApi("system/apkversion/" + Field);
-		if(result.contains(",")) {
-			result = result.replaceAll("(\\d+)\\,(\\d+)", "$1.$2");
-		}
+		//String result = getFromRestApi("system/apkversion/" + Field);
+		//if(result.contains(",")) {
+		//	result = result.replaceAll("(\\d+)\\,(\\d+)", "$1.$2");
+		//}
 		// return result == ""?false:Float.parseFloat(this.getVersion(ctx, PackageName)) < Float.parseFloat(result);
 		return false;
 	}
