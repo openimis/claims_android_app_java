@@ -32,7 +32,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.openimis.CallSoap.CallSoap;
 import org.openimis.general.General;
 
 import cz.msebera.android.httpclient.HttpEntity;
@@ -41,7 +40,6 @@ import cz.msebera.android.httpclient.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.openimis.imisclaims.R;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -373,6 +371,13 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.nav_about) {
             Intent intent = new Intent(this, About.class);
             startActivity(intent);
+        } else if (id == R.id.nav_Retrieve) {
+            if (tokenl.getTokenText().length() <= 0) {
+                LoginDialogBox("search_claims");
+            } else {
+                Intent intent = new Intent(this, SearchClaims.class);
+                startActivity(intent);
+            }
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
