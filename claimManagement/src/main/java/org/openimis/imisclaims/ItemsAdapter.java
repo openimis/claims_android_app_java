@@ -191,52 +191,8 @@ public class ItemsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends R
         public TextView Valuated;
         public TextView Result;
 
-
         public Reportmsg(final View itemView) {
             super(itemView);
-
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-/*                    // Redraw the old selection and the new
-                    if(overViewItems.num.size() == 0){
-                        overViewItems.num.add(String.valueOf(getLayoutPosition()));
-                        //itemView.setBackgroundColor(Color.GRAY);
-                        checkbox1.setBackgroundResource(R.drawable.checked);
-
-                        try {
-                            paymentObject = new JSONObject();
-                            //paymentObject.put("Id",String.valueOf(getLayoutPosition()));
-                            paymentObject.put("Position",String.valueOf(getLayoutPosition()));
-                            paymentObject.put("PolicyId",String.valueOf(PolicyId.getText()));
-                            paymentObject.put("internal_identifier",String.valueOf(InternalIdentifier.getText()));
-                            paymentObject.put("uploaded_date",String.valueOf(UploadedDate.getText()));
-                            paymentDetails.put(paymentObject);
-                            overViewItems.paymentDetails = paymentDetails;
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        //overViewItems.PolicyValueToSend += Integer.parseInt(PolicyValue);
-
-                    }*/
-
-                }
-            });
-
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-/*                    Context context = view.getContext();
-                    Intent intent = new Intent(context, ViewItems.class);
-                    intent.putExtra("IDENTIFIER", String.valueOf(InternalIdentifier.getText()));
-                    context.startActivity(intent);*/
-                    return false;
-                }
-            });
-
 
             ItemCode = (TextView) itemView.findViewById(R.id.ItemCode);
             ItemName = (TextView) itemView.findViewById(R.id.ItemName);
@@ -251,8 +207,4 @@ public class ItemsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends R
             Result = (TextView) itemView.findViewById(R.id.Result);
         }
     }
-
-
-
-
 }

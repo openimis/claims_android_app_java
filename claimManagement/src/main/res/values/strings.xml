@@ -500,7 +500,7 @@
   <string name="empty_year">Please fill the year</string>
   <string name="DeleteFamilyOnlyOffline">Deleting of family will also Delete all Insurees, Policies and Premiums of this Family</string>
   <string name="LastInstallment">Last Installment</string>
-  <string name="title_activity_claim_review">ClaimReview</string>
+  <string name="title_activity_claim_review">Claim Review</string>
   <string name="ClaimReview">Claim Review</string>
   <string name="claims">Claims</string>
   <string name="claim">Claim</string>
