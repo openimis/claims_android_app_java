@@ -37,6 +37,10 @@
             android:icon="@drawable/ic_synchronize"
             android:title="@string/synchronize" />
         <item
+            android:id="@+id/nav_Retrieve"
+            android:icon="@drawable/mapservices"
+            android:title="@string/retrieve" />
+        <item
             android:id="@+id/nav_quit"
             android:icon="@drawable/ic_quit1"
             android:title="@string/quit" />
