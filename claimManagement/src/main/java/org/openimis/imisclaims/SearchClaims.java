@@ -400,7 +400,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                     String error_message = null;
                     String content = null;
 
-                    String functionName = "api/GetClaims";
+                    String functionName = "GetClaims";
                     try{
                         HttpResponse response = toRestApi.postToRestApi(object,functionName);
                         resp[0] = response;
