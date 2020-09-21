@@ -1710,7 +1710,7 @@ public class MainActivity extends AppCompatActivity
                     String last_update_date = null;
                     String content = null;
 
-                    String functionName = "GetPaymentLists";
+                    String functionName = "getpaymentlists";
                     try{
                         HttpResponse response = toRestApi.postToRestApiToken(object,functionName);
                         resp[0] = response;

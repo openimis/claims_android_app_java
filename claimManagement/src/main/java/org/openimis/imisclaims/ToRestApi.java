@@ -14,6 +14,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Hiren on 14/02/2019.
@@ -24,8 +26,12 @@ public class ToRestApi {
     Token tokenl = new Token();
     private String uri = general.getDomain() + "api/";
 
+    private static final String CHF_FUNCTIONS = "GetDiagnosesServicesItems,GetClaims,Claims/Controls," +
+            "Claims/GetClaimAdmins";
+
     //Post without Token
     public HttpResponse postToRestApi(final JSONObject object, final String functionName) {
+        setProperUri(functionName);
         HttpResponse response = null;
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(uri+functionName);
@@ -47,6 +53,7 @@ public class ToRestApi {
 
     //Post with Token
     public HttpResponse postToRestApiToken(final JSONObject object, final String functionName) {
+        setProperUri(functionName);
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(uri+functionName);
         try {
@@ -69,6 +76,7 @@ public class ToRestApi {
 
     // Post without Token, returned object
     public String postObjectToRestApiObjectToken(final JSONObject object, final String functionName) {
+        setProperUri(functionName);
         final String[] content = {null};
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(uri+functionName);
@@ -101,6 +109,7 @@ public class ToRestApi {
 
     // Get without Token
     public String getFromRestApi(final String functionName) {
+        setProperUri(functionName);
         final String[] content = {null};
         HttpClient httpClient = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(uri+functionName);
@@ -125,6 +134,7 @@ public class ToRestApi {
 
     // Get with Token, returned object
     public String getObjectFromRestApiToken(final String functionName) {
+        setProperUri(functionName);
         String content = null;
         HttpClient httpClient = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(uri+functionName);
@@ -146,5 +156,24 @@ public class ToRestApi {
             }
         }
         return content;
+    }
+
+    private boolean isChfFunction(String functionName) {
+        List<String> functions = Arrays.asList(CHF_FUNCTIONS.split(","));
+        for (String function : functions) {
+            if (function.equals(functionName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void setProperUri(String functionName) {
+        if (isChfFunction(functionName)) {
+            if (uri.endsWith("rest/api/")) {
+                uri = uri.substring(0, uri.length() - 9);
+                uri = uri + "rest-chf/api/";
+            }
+        }
     }
 }
