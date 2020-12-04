@@ -509,7 +509,7 @@ public class EnquireActivity extends AppCompatActivity {
                             HashMap<String, String> Policy = new HashMap<>();
                             jsonObject = jsonArray.getJSONObject(i);
                             double iDedType = 0;
-                            if(!jsonObject.getString("DedType").equalsIgnoreCase("null"))iDedType = Double.valueOf(jsonObject.getString("dedType"));
+                            if(!jsonObject.getString("dedType").equalsIgnoreCase("null"))iDedType = Double.valueOf(jsonObject.getString("dedType"));
 
                             String Ded = "",Ded1= "",Ded2 = "";
                             String Ceiling = "",Ceiling1 = "", Ceiling2 ="";
@@ -548,6 +548,39 @@ public class EnquireActivity extends AppCompatActivity {
                             Policy.put("SubItem1", jsonObject.getString("productName"));
                             Policy.put("SubItem2",Ded);
                             Policy.put("SubItem3",Ceiling);
+                            String TotalAdmissionsLeft = "";
+                            String TotalVisitsLeft = "";
+                            String TotalConsultationsLeft = "";
+                            String TotalSurgeriesLeft = "";
+                            String TotalDeliveriesLeft = "";
+                            String TotalAntenatalLeft = "";
+                            String ConsultationAmountLeft = "";
+                            String SurgeryAmountLeft = "";
+                            String HospitalizationAmountLeft = "";
+                            String AntenatalAmountLeft = "";
+
+                            TotalAdmissionsLeft = buildEnquireValue(jsonObject, "totalAdmissionsLeft", R.string.totalAdmissionsLeft);
+                            TotalVisitsLeft = buildEnquireValue(jsonObject, "totalVisitsLeft", R.string.totalVisitsLeft);
+                            TotalConsultationsLeft = buildEnquireValue(jsonObject, "totalConsultationsLeft", R.string.totalConsultationsLeft);
+                            TotalSurgeriesLeft = buildEnquireValue(jsonObject, "totalSurgeriesLeft", R.string.totalSurgeriesLeft);
+                            TotalDeliveriesLeft = buildEnquireValue(jsonObject, "totalDelivieriesLeft", R.string.totalDeliveriesLeft);
+                            TotalAntenatalLeft = buildEnquireValue(jsonObject, "totalAntenatalLeft", R.string.totalAntenatalLeft);
+                            ConsultationAmountLeft = buildEnquireValue(jsonObject, "consultationAmountLeft", R.string.consultationAmountLeft);
+                            SurgeryAmountLeft = buildEnquireValue(jsonObject, "surgeryAmountLeft", R.string.surgeryAmountLeft);
+                            HospitalizationAmountLeft = buildEnquireValue(jsonObject, "hospitalizationAmountLeft", R.string.hospitalizationAmountLeft);
+                            AntenatalAmountLeft = buildEnquireValue(jsonObject, "antenatalAmountLeft", R.string.antenatalAmountLeft);
+
+                            if(!getSpecificControl("TotalAdmissionsLeft").equals("N")){Policy.put("SubItem4",TotalAdmissionsLeft);}
+                            if(!getSpecificControl("TotalVisitsLeft").equals("N")){Policy.put("SubItem5",TotalVisitsLeft);}
+                            if(!getSpecificControl("TotalConsultationsLeft").equals("N")){Policy.put("SubItem6",TotalConsultationsLeft);}
+                            if(!getSpecificControl("TotalSurgeriesLeft").equals("N")){Policy.put("SubItem7",TotalSurgeriesLeft);}
+                            if(!getSpecificControl("TotalDelivieriesLeft").equals("N")){Policy.put("SubItem8",TotalDeliveriesLeft);}
+                            if(!getSpecificControl("TotalAntenatalLeft").equals("N")){Policy.put("SubItem9",TotalAntenatalLeft);}
+                            if(!getSpecificControl("ConsultationAmountLeft").equals("N")){Policy.put("SubItem10",ConsultationAmountLeft);}
+                            if(!getSpecificControl("AntenatalAmountLeft").equals("N")){Policy.put("SubItem13",AntenatalAmountLeft);}
+                            if(!getSpecificControl("SurgeryAmountLeft").equals("N")){Policy.put("SubItem11",SurgeryAmountLeft);}
+                            if(!getSpecificControl("HospitalizationAmountLeft").equals("N")){Policy.put("SubItem12",HospitalizationAmountLeft);}
+
                             PolicyList.add(Policy);
                             etCHFID.setText("");
                             //break;
@@ -555,8 +588,8 @@ public class EnquireActivity extends AppCompatActivity {
                     }
                     ListAdapter adapter = new SimpleAdapter(EnquireActivity.this,
                             PolicyList, R.layout.policylist,
-                            new String[]{"Heading","Heading1","SubItem1","SubItem2","SubItem3"},
-                            new int[]{R.id.tvHeading, R.id.tvHeading1, R.id.tvSubItem1, R.id.tvSubItem2, R.id.tvSubItem3}
+                            new String[]{"Heading","Heading1","SubItem1","SubItem2","SubItem3","SubItem4","SubItem5","SubItem6","SubItem7","SubItem8","SubItem9","SubItem10","SubItem11","SubItem12","SubItem13"},
+                            new int[]{R.id.tvHeading,R.id.tvHeading1,R.id.tvSubItem1,R.id.tvSubItem2,R.id.tvSubItem3,R.id.tvSubItem4,R.id.tvSubItem5,R.id.tvSubItem6,R.id.tvSubItem7,R.id.tvSubItem8,R.id.tvSubItem9,R.id.tvSubItem10,R.id.tvSubItem11,R.id.tvSubItem12,R.id.tvSubItem13}
                     );
 
                     lv.setAdapter(adapter);
@@ -564,7 +597,7 @@ public class EnquireActivity extends AppCompatActivity {
 
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
-                    result = "";
+                    result = "Exception occurred:" + e.toString();
                 }catch(Exception e){
                     Log.e("Error", e.toString());
                     result = "";
@@ -574,6 +607,17 @@ public class EnquireActivity extends AppCompatActivity {
         });
 
     }
+
+    protected String buildEnquireValue(JSONObject jsonObject, String jsonKey, int labelId) throws JSONException {
+        boolean ignore = jsonObject.getString(jsonKey).equalsIgnoreCase("null");
+        if (ignore) {
+            return "";
+        } else {
+            String label = getResources().getString(labelId);
+            return label + ": " + jsonObject.getString(jsonKey);
+        }
+    }
+
     public AlertDialog ShowDialog(String msg) {
         return new AlertDialog.Builder(this)
                 .setMessage(msg)
@@ -596,6 +640,14 @@ public class EnquireActivity extends AppCompatActivity {
         ll.setVisibility(View.INVISIBLE);
         PolicyList.clear();
         lv.setAdapter(null);
+    }
+
+    private String getSpecificControl(String FieldName) {
+        SQLHandler sqlHandler = new SQLHandler(this);
+        sqlHandler.onOpen(db);
+        String control = sqlHandler.getAdjustibility(FieldName);
+        sqlHandler.close();
+        return control;
     }
 
     public boolean onOptionsItemSelected(MenuItem item){
