@@ -129,4 +129,12 @@
 		android:paddingRight="10dp"
 		android:textAppearance="?android:attr/textAppearanceSmall">
 	</TextView>
+	<TextView
+		android:id="@+id/tvSubItem14"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:textAppearance="?android:attr/textAppearanceSmall">
+	</TextView>
 </LinearLayout>
