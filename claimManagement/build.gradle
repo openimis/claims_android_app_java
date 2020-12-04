@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "org.openimis.imisclaims"
+        applicationId "org.openimis.mv.imisclaims"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 3
@@ -16,7 +16,51 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            debuggable = true
+        }
+        flavorDimensions 'std'
     }
+    flavorDimensions 'std'
+
+    flavorDimensions 'std'
+    productFlavors.all {
+        buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
+        buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
+    }
+    productFlavors {
+        demoProd {
+            buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
+            dimension = 'std'
+        }
+
+        demoRelease {
+            buildConfigField "String", "API_BASE_URL", '"http://release.openimis.org/rest/"'
+        }
+
+        chfDev {
+            buildConfigField "String", "API_BASE_URL", '"http://chf-dev.swisstph-mis.ch/rest/"'
+            dimension = 'std'
+        }
+        mvDev {
+            buildConfigField "String", "API_BASE_URL", '"http://imis-mv.swisstph-mis.ch/rest/"'
+            dimension = 'std'
+        }
+        bephaDev {
+            buildConfigField "String", "API_BASE_URL", '"http://149.210.235.40/devupgrade/rest/"'
+            dimension = 'std'
+        }
+        local {
+            buildConfigField "String", "API_BASE_URL", '"http://10.0.2.2:35788/"'
+            dimension = 'std'
+        }
+    }
+
+    sourceSets {
+        chfDev.res.srcDir 'src/chf/res'
+        bephaDev.res.srcDir 'src/bepha/res'
+    }
+
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
 
