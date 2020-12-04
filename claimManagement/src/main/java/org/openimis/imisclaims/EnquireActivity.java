@@ -509,7 +509,7 @@ public class EnquireActivity extends AppCompatActivity {
                             HashMap<String, String> Policy = new HashMap<>();
                             jsonObject = jsonArray.getJSONObject(i);
                             double iDedType = 0;
-                            if(!jsonObject.getString("DedType").equalsIgnoreCase("null"))iDedType = Double.valueOf(jsonObject.getString("dedType"));
+                            if(!jsonObject.getString("dedType").equalsIgnoreCase("null"))iDedType = Double.valueOf(jsonObject.getString("dedType"));
 
                             String Ded = "",Ded1= "",Ded2 = "";
                             String Ceiling = "",Ceiling1 = "", Ceiling2 ="";
@@ -564,7 +564,7 @@ public class EnquireActivity extends AppCompatActivity {
 
                 } catch (JSONException e) {
                     // TODO Auto-generated catch block
-                    result = "";
+                    result = "Exception occurred:" + e.toString();
                 }catch(Exception e){
                     Log.e("Error", e.toString());
                     result = "";
