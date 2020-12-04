@@ -307,6 +307,11 @@ public class MainActivity extends AppCompatActivity
 //            startActivity(intent);
         }
         if (id == R.id.nav_enquire) {
+            if(!_General.isNetworkAvailable(MainActivity.this)){
+                pd.dismiss();
+                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
+                return false;
+            }
             if(isUserLogged){
                 Intent intent = new Intent(this, EnquireActivity.class);
                 startActivity(intent);
