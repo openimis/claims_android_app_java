@@ -19,53 +19,61 @@ android {
         debug {
             debuggable = true
         }
-        flavorDimensions 'std'
     }
-    flavorDimensions 'std'
 
     flavorDimensions 'std'
+
     productFlavors.all {
-        buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
-        buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
 
     }
+
     productFlavors {
         demoProd {
-            buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
             applicationIdSuffix ".demoProd"
-            dimension = 'std'
+            dimension 'std'
         }
 
         demoRelease {
-            buildConfigField "String", "API_BASE_URL", '"http://release.openimis.org/rest/"'
             applicationIdSuffix ".demoRelease"
+            dimension 'std'
         }
 
         chfDev {
-            buildConfigField "String", "API_BASE_URL", '"http://chf-dev.swisstph-mis.ch/rest/"'
             applicationIdSuffix ".chfDev"
-            dimension = 'std'
+            dimension 'std'
         }
         mvDev {
-            buildConfigField "String", "API_BASE_URL", '"http://imis-mv.swisstph-mis.ch/rest/"'
             applicationIdSuffix ".mvDev"
-            dimension = 'std'
+            dimension 'std'
         }
         bephaDev {
-            buildConfigField "String", "API_BASE_URL", '"http://149.210.235.40/devupgrade/rest/"'
             applicationIdSuffix ".bephaDev"
-            dimension = 'std'
+            dimension 'std'
         }
         local {
-            buildConfigField "String", "API_BASE_URL", '"http://10.0.2.2:35788/"'
             applicationIdSuffix ".local"
-            dimension = 'std'
+            dimension 'std'
         }
     }
 
     sourceSets {
-        chfDev.res.srcDir 'src/chf/res'
-        bephaDev.res.srcDir 'src/bepha/res'
+        demoProd.java.srcDir 'src/demoProd/java'
+        demoProd.res.srcDir 'src/demoProd/res'
+
+        demoRelease.java.srcDir 'src/demoRelease/java'
+        demoRelease.res.srcDir 'src/demoRelease/res'
+
+        chfDev.java.srcDir 'src/chfDev/java'
+        chfDev.res.srcDir 'src/chfDev/res'
+
+        mvDev.java.srcDir 'src/mvDev/java'
+        mvDev.res.srcDir 'src/mvDev/res'
+
+        bephaDev.java.srcDir 'src/bephaDev/java'
+        bephaDev.res.srcDir 'src/bephaDev/res'
+
+        local.java.srcDir 'src/local/java'
+        local.res.srcDir 'src/local/res'
     }
 
     packagingOptions {
@@ -73,8 +81,6 @@ android {
 
     }
 }
-
-
 
 dependencies {
     //implementation fileTree(include: ['*.jar'], dir: 'libs')

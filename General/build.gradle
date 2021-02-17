@@ -18,38 +18,44 @@ android {
         debug {
             debuggable = true
         }
-        flavorDimensions 'std'
     }
+
     flavorDimensions 'std'
+
     productFlavors.all {
         buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
+        buildConfigField "String", "API_BASE_CHF_URL", '""'
         buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
     }
+
     productFlavors {
         demoProd {
             buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
-            dimension = 'std'
+            dimension 'std'
         }
 
         demoRelease {
             buildConfigField "String", "API_BASE_URL", '"http://release.openimis.org/rest/"'
+            dimension 'std'
         }
 
         chfDev {
-            buildConfigField "String", "API_BASE_URL", '"http://chf-dev.swisstph-mis.ch/rest-chf/"'
-            dimension = 'std'
+            buildConfigField "String", "API_BASE_URL", '"http://chf-dev.swisstph-mis.ch/rest/"'
+            buildConfigField "String", "API_BASE_CHF_URL", '"http://chf-dev.swisstph-mis.ch/restapi/"'
+            dimension 'std'
         }
         mvDev {
             buildConfigField "String", "API_BASE_URL", '"http://imis-mv.swisstph-mis.ch/rest/"'
-            dimension = 'std'
+            dimension 'std'
         }
         bephaDev {
             buildConfigField "String", "API_BASE_URL", '"http://149.210.235.40/devupgrade/rest/"'
-            dimension = 'std'
+            dimension 'std'
         }
         local {
-            buildConfigField "String", "API_BASE_URL", '"http://10.0.2.2:35788/"'
-            dimension = 'std'
+            buildConfigField "String", "API_BASE_URL", '"http://10.0.2.2:35787/"'
+            buildConfigField "String", "API_BASE_CHF_URL", '"http://10.0.2.2:63401/"'
+            dimension 'std'
         }
     }
 }
