@@ -31,6 +31,7 @@ public class ToRestApi {
 
     //Post without Token
     public HttpResponse postToRestApi(final JSONObject object, final String functionName) {
+        setProperUri(functionName);
         HttpResponse response = null;
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(uri+functionName);
@@ -52,6 +53,7 @@ public class ToRestApi {
 
     //Post with Token
     public HttpResponse postToRestApiToken(final JSONObject object, final String functionName) {
+        setProperUri(functionName);
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(uri+functionName);
         try {
@@ -74,6 +76,7 @@ public class ToRestApi {
 
     // Post without Token, returned object
     public String postObjectToRestApiObjectToken(final JSONObject object, final String functionName) {
+        setProperUri(functionName);
         final String[] content = {null};
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(uri+functionName);
@@ -106,6 +109,7 @@ public class ToRestApi {
 
     // Get without Token
     public String getFromRestApi(final String functionName) {
+        setProperUri(functionName);
         final String[] content = {null};
         HttpClient httpClient = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(uri+functionName);
@@ -130,6 +134,7 @@ public class ToRestApi {
 
     // Get with Token, returned object
     public String getObjectFromRestApiToken(final String functionName) {
+        setProperUri(functionName);
         String content = null;
         HttpClient httpClient = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(uri+functionName);
@@ -161,5 +166,14 @@ public class ToRestApi {
             }
         }
         return false;
+    }
+
+    private void setProperUri(String functionName) {
+        if (isChfFunction(functionName)) {
+            uri = general.getDomainCHF() + "api/";
+        }
+        else {
+            uri = general.getDomain() + "api/";
+        }
     }
 }

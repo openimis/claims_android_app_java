@@ -22,16 +22,21 @@ import android.os.Environment;
 import android.util.DisplayMetrics;
 
 import static com.openimis.general.BuildConfig.API_BASE_URL;
+import static com.openimis.general.BuildConfig.API_BASE_CHF_URL;
 import static com.openimis.general.BuildConfig.RAR_PASSWORD;
 
 public class General {
 
     private static String _Domain = API_BASE_URL;
+	private static String _DomainCHF = API_BASE_CHF_URL;
 
     private static final String DEFAULT_RAR_PASSWORD = RAR_PASSWORD;
 
 	public String getDomain(){
 		return _Domain;
+	}
+	public String getDomainCHF(){
+		return _DomainCHF;
 	}
 
 	// ToDo: remove this method if published to Google Play
