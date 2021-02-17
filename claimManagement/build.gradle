@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "org.openimis.mv.imisclaims"
+        applicationId "org.openimis.imisclaims"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 3
@@ -27,31 +27,38 @@ android {
     productFlavors.all {
         buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
         buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
+
     }
     productFlavors {
         demoProd {
             buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
+            applicationIdSuffix ".demoProd"
             dimension = 'std'
         }
 
         demoRelease {
             buildConfigField "String", "API_BASE_URL", '"http://release.openimis.org/rest/"'
+            applicationIdSuffix ".demoRelease"
         }
 
         chfDev {
             buildConfigField "String", "API_BASE_URL", '"http://chf-dev.swisstph-mis.ch/rest/"'
+            applicationIdSuffix ".chfDev"
             dimension = 'std'
         }
         mvDev {
             buildConfigField "String", "API_BASE_URL", '"http://imis-mv.swisstph-mis.ch/rest/"'
+            applicationIdSuffix ".mvDev"
             dimension = 'std'
         }
         bephaDev {
             buildConfigField "String", "API_BASE_URL", '"http://149.210.235.40/devupgrade/rest/"'
+            applicationIdSuffix ".bephaDev"
             dimension = 'std'
         }
         local {
             buildConfigField "String", "API_BASE_URL", '"http://10.0.2.2:35788/"'
+            applicationIdSuffix ".local"
             dimension = 'std'
         }
     }
