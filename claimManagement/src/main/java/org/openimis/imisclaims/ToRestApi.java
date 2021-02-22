@@ -170,10 +170,10 @@ public class ToRestApi {
 
     private void setProperUri(String functionName) {
         if (isChfFunction(functionName)) {
-            if (uri.endsWith("rest/api/")) {
-                uri = uri.substring(0, uri.length() - 9);
-                uri = uri + "rest-chf/api/";
-            }
+            uri = general.getDomainCHF() + "api/";
+        }
+        else {
+            uri = general.getDomain() + "api/";
         }
     }
 }
