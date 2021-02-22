@@ -14,7 +14,6 @@
   <string name="FTPConnectionFailed">Impossible de connecter le serveur. Opération annulée.</string>
   <string name="FailToUpload">Échec du téléchargement vers le serveur.</string>
   <string name="SomethingWentWrongServer">Quelque chose a mal tourné sur le serveur.</string>
-  <string name="app_name">Prestations openIMIS</string>
   <string name="app_name_claim">prestation</string>
   <string name="app_name_enquire">Renseignement</string>
   <string name="ManageBatch">GÉRER LE LOT</string>

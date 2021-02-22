@@ -14,7 +14,6 @@
   <string name="FTPConnectionFailed">Imeshindikana kuunganisha kwenye Kompyuta Kuu. Oparesheni imesitishwa.</string>
   <string name="FailToUpload">Imeshindikana kutuma taarifa.</string>
   <string name="SomethingWentWrongServer">Tatizo limejitokeza kwenye kompyuta kuu.</string>
-  <string name="app_name">IMIS CLAIMS</string>
   <string name="app_name_claim">Dai</string>
   <string name="app_name_enquire">Utambuzi</string>
   <string name="ManageBatch">Simamia kundi</string>

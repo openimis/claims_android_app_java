@@ -14,7 +14,6 @@
   <string name="FTPConnectionFailed">Unable to connect the server. Operation aborted.</string>
   <string name="FailToUpload">Failed to Upload to server.</string>
   <string name="SomethingWentWrongServer">Something went wrong on the server.</string>
-  <string name="app_name">openIMIS CLAIMS</string>
   <string name="app_name_claim">Claim</string>
   <string name="app_name_enquire">Enquire</string>
   <string name="ManageBatch">MANAGE BATCH</string>
