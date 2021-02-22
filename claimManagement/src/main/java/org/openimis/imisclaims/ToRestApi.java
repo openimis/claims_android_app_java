@@ -96,11 +96,7 @@ public class ToRestApi {
             e.printStackTrace();
         }
 
-        HttpEntity respEntity = null;
-        if(response != null) {
-            respEntity = response.getEntity();
-        }
-
+        HttpEntity respEntity = response.getEntity();
         if (respEntity != null) {
             try {
                 content[0] = EntityUtils.toString(respEntity);
@@ -125,12 +121,7 @@ public class ToRestApi {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        HttpEntity respEntity = null;
-        if(response != null) {
-            respEntity = response.getEntity();
-        }
-
+        HttpEntity respEntity = response.getEntity();
         if (respEntity != null) {
             try {
                 content[0] = EntityUtils.toString(respEntity);
@@ -156,10 +147,7 @@ public class ToRestApi {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        HttpEntity respEntity = null;
-        if(response != null) {
-            respEntity = response.getEntity();
-        }
+        HttpEntity respEntity = response.getEntity();
         if (respEntity != null) {
             try {
                 content = EntityUtils.toString(respEntity);
@@ -182,10 +170,10 @@ public class ToRestApi {
 
     private void setProperUri(String functionName) {
         if (isChfFunction(functionName)) {
-            uri = general.getDomainCHF() + "api/";
-        }
-        else {
-            uri = general.getDomain() + "api/";
+            if (uri.endsWith("rest/api/")) {
+                uri = uri.substring(0, uri.length() - 9);
+                uri = uri + "rest-chf/api/";
+            }
         }
     }
 }
