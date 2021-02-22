@@ -96,7 +96,11 @@ public class ToRestApi {
             e.printStackTrace();
         }
 
-        HttpEntity respEntity = response.getEntity();
+        HttpEntity respEntity = null;
+        if(response != null) {
+            respEntity = response.getEntity();
+        }
+
         if (respEntity != null) {
             try {
                 content[0] = EntityUtils.toString(respEntity);
@@ -121,7 +125,12 @@ public class ToRestApi {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        HttpEntity respEntity = response.getEntity();
+
+        HttpEntity respEntity = null;
+        if(response != null) {
+            respEntity = response.getEntity();
+        }
+
         if (respEntity != null) {
             try {
                 content[0] = EntityUtils.toString(respEntity);
@@ -147,7 +156,10 @@ public class ToRestApi {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        HttpEntity respEntity = response.getEntity();
+        HttpEntity respEntity = null;
+        if(response != null) {
+            respEntity = response.getEntity();
+        }
         if (respEntity != null) {
             try {
                 content = EntityUtils.toString(respEntity);

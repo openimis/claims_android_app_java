@@ -24,7 +24,7 @@ android {
 
     productFlavors.all {
         buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
-        buildConfigField "String", "API_BASE_CHF_URL", '""'
+        buildConfigField "String", "API_BASE_CHF_URL", '"http://demo.openimis.org/rest-chf/"'
         buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
     }
 
