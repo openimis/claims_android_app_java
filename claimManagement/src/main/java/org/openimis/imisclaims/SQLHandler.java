@@ -18,10 +18,10 @@ import static android.database.DatabaseUtils.sqlEscapeString;
 public class SQLHandler extends SQLiteOpenHelper{
 
 	private static final String DB_NAME = MainActivity.Path + "Mapping.db3";
-	private static final String CreateTable = "CREATE TABLE tblMapping(Code text,Name text,Type text);";
-	private static final String CreateTableControls = "CREATE TABLE tblControls(FieldName text, Adjustibility text);";
-	private static final String CreateTableClaimAdmins = "CREATE TABLE tblAdministrators(Code text, Name text);";
-	private static final String CreateTableReferences = "CREATE TABLE tblReferences(Code text, Name text, Type text, Price text);";
+	private static final String CreateTable = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
+	private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName text, Adjustibility text);";
+	private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblAdministrators(Code text, Name text);";
+	private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code text, Name text, Type text, Price text);";
 	//private static final String CreateTableDateUpdates = "CREATE TABLE tblDateUpdates(Id INTEGER PRIMARY KEY AUTOINCREMENT, last_update_date text);";
 
 	SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(MainActivity.Path + "ImisData.db3",null);
@@ -156,6 +156,26 @@ public class SQLHandler extends SQLiteOpenHelper{
 		return c;
 	}
 
+	public String getDiseaseCode(String disease)
+	{
+		String code = "";
+		try {
+			String table = "tblReferences";
+			String[] columns = {"Code"};
+			String selection = "Type='D' and Name=?";
+			String[] selectionArgs = {disease};
+			String limit = "1";
+			Cursor c = db.query(table,columns,selection,selectionArgs,null,null,null,limit);
+			if(c.getCount()==1) {
+				c.moveToFirst();
+				code = c.getString(c.getColumnIndexOrThrow("Code"));
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return code;
+	}
+
 	public Cursor SearchItems(String InputText){
 		//Cursor c = db.rawQuery("SELECT Code as _id,Code, Name,Code + ' ' + Name AS Disease FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
 		Cursor c = dbMapping.rawQuery("SELECT Code as _id,Code, Name FROM tblMapping WHERE Type = 'I' ",null);
@@ -175,7 +195,6 @@ public class SQLHandler extends SQLiteOpenHelper{
 
 		return c;
 	}
-
 
 	//Created by Herman 27.03.2018
 	public String getAdjustibility(String FieldName) {

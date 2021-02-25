@@ -8,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 public class ClaimReview extends AppCompatActivity {
 
@@ -36,6 +38,14 @@ public class ClaimReview extends AppCompatActivity {
         }
     };
 
+    private View.OnClickListener restoreButtonListener
+            = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            restoreClaim(v);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +61,9 @@ public class ClaimReview extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        Button restoreButton = (Button) findViewById(R.id.restore_button);
+        restoreButton.setOnClickListener(restoreButtonListener);
+
         Fragment selectedFragment = new ReviewFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container,selectedFragment).commit();
     }
@@ -65,4 +78,12 @@ public class ClaimReview extends AppCompatActivity {
         onBackPressed();
         return true;
     }
+
+    public void restoreClaim(View view)
+    {
+        Intent intent = new Intent(this, ClaimActivity.class);
+        intent.putExtra("claims", claims);
+        startActivity(intent);
+    }
+
 }

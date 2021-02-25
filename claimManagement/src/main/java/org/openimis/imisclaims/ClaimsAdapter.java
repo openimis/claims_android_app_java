@@ -1,5 +1,6 @@
 package org.openimis.imisclaims;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,8 +25,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Iterator;
 
 import static org.openimis.imisclaims.ClaimActivity.Path;
 
@@ -65,6 +68,17 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         _context = rContext;
         claims = _claims;
 
+        try {
+            for (int i = 0; i < _claims.length(); i++) {
+                JSONObject claim = claims.getJSONObject(i);
+                claim.put("date_claimed", parseDate(claims.getJSONObject(i).getString("date_claimed")));
+                claim.put("visit_date_from", parseDate(claims.getJSONObject(i).getString("visit_date_from")));
+                claim.put("visit_date_to", parseDate(claims.getJSONObject(i).getString("visit_date_to")));
+            }
+        } catch ( JSONException e )
+        {
+            e.printStackTrace();
+        }
     }
 
 
@@ -224,20 +238,6 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
                 }
             });
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    try {
-                        obj = claims.getJSONObject(getAdapterPosition());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    RestoreDialogBox(claimNo.getText().toString(),claimStatus.getText().toString(),healthFacility.getText().toString(),healthFacilityName.getText().toString(),insuranceNo.getText().toString(),dateClaimed.getText().toString(),visitDateFrom.getText().toString(),visitDateTo.getText().toString());
-                    return false;
-                }
-            });
-
-
             claimNo = (TextView) itemView.findViewById(R.id.claimNo);
             claimStatus = (TextView) itemView.findViewById(R.id.claimStatus);
             healthFacility = (TextView) itemView.findViewById(R.id.healthFacility);
@@ -249,70 +249,6 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         }
     }
 
-    public void RestoreDialogBox(String _claimNo,String _claimStatus,String _healthFacility,String _healthFacilityName,String _insuranceNo,String _dateClaimed,String _visitDateFrom,String _visitDateTo) {
-
-        // get prompts.xml view
-        LayoutInflater li = LayoutInflater.from(_context);
-        View promptsView = li.inflate(R.layout.restore_dialog, null);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                _context);
-
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-
-        //final TextView username = (TextView) promptsView.findViewById(R.id.UserName);
-        //final TextView password = (TextView) promptsView.findViewById(R.id.Password);
-
-
-        TextView claimNo = (TextView) promptsView.findViewById(R.id.claimNo);
-        TextView claimStatus = (TextView) promptsView.findViewById(R.id.claimStatus);
-        TextView healthFacility = (TextView) promptsView.findViewById(R.id.healthFacility);
-        TextView healthFacilityName = (TextView) promptsView.findViewById(R.id.healthFacilityName);
-        TextView insuranceNo = (TextView) promptsView.findViewById(R.id.insuranceNo);
-        TextView dateClaimed = (TextView) promptsView.findViewById(R.id.dateClaimed);
-        TextView visitDateFrom = (TextView) promptsView.findViewById(R.id.visitDateFrom);
-        TextView visitDateTo = (TextView) promptsView.findViewById(R.id.visitDateTo);
-
-
-        claimNo.setText(_claimNo);
-        claimStatus.setText(_claimStatus);
-        healthFacility.setText(_healthFacility);
-        healthFacilityName.setText(_healthFacilityName);
-        if(_claimStatus.equals("Rejected")){
-            insuranceNo.setText(_insuranceNo);
-        }else {
-            insuranceNo.setText("");
-        }
-        dateClaimed.setText(_dateClaimed);
-        visitDateFrom.setText(_visitDateFrom);
-        visitDateTo.setText(_visitDateTo);
-
-
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton(R.string.Restore,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                WriteXML();
-                                WriteJSON();
-
-                                ShowDialog(_context.getResources().getString(R.string.ClaimRestored));
-
-                            }
-                        })
-                .setNegativeButton(R.string.Cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
     protected AlertDialog ShowDialog(String msg){
         return new AlertDialog.Builder(_context)
                 .setMessage(msg)
@@ -327,356 +263,18 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
                 }).show();
     }
 
-    private void WriteXML(){
+    private String parseDate(String date)
+    {
+        SimpleDateFormat fromApiFormat = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat databaseFormat = new SimpleDateFormat("dd/MM/yyyy");
+        String parsedDate = null;
 
-        //Create all the directories required
-        File MyDir = new File(Path);
-        MyDir.mkdir();
-
-        File DirRejected = new File(Path + "RejectedClaims");
-        DirRejected.mkdir();
-
-        File DirAccepted = new File(Path + "AcceptedClaims");
-        DirAccepted.mkdir();
-
-        //Create a file name
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        Calendar cal = Calendar.getInstance();
-        String d = format.format(cal.getTime());
         try {
-
-            FileName = "Claim_" + obj.getString("health_facility_code") + "_" + obj.getString("claim_number") + "_" + d + ".xml";
-            ClaimFile = new File(MyDir,FileName);
-
-            FileOutputStream fos = new FileOutputStream(ClaimFile);
-
-            XmlSerializer serializer = Xml.newSerializer();
-
-            serializer.setOutput(fos, "UTF-8");
-
-            serializer.startDocument(null, Boolean.valueOf(true));
-
-            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
-
-            //<Claim>
-            serializer.startTag(null, "Claim");
-
-            //<Details>
-            serializer.startTag(null, "Details");
-
-            //ClaimDate
-            serializer.startTag(null, "ClaimDate");
-            format = new SimpleDateFormat("dd/MM/yyyy");
-            d = format.format(cal.getTime());
-            serializer.text(d);
-            serializer.endTag(null, "ClaimDate");
-
-            //HFCOde
-            serializer.startTag(null, "HFCode");
-            serializer.text(obj.getString("health_facility_code"));
-            serializer.endTag(null, "HFCode");
-
-            //Claim Admin
-            serializer.startTag(null, "ClaimAdmin");
-            serializer.text(global.getOfficerCode().toString());
-            serializer.endTag(null, "ClaimAdmin");
-
-            //ClaimCode
-            serializer.startTag(null, "ClaimCode");
-            serializer.text("@"+obj.getString("claim_number"));
-            serializer.endTag(null, "ClaimCode");
-
-            //GuaranteeNo
-            serializer.startTag(null, "GuaranteeNo");
-            serializer.text(obj.getString("guarantee_number"));
-            serializer.endTag(null, "GuaranteeNo");
-
-            //CHFID
-            serializer.startTag(null, "CHFID");
-            serializer.text(obj.getString("insurance_number"));
-            serializer.endTag(null, "CHFID");
-
-            //StartDate
-            serializer.startTag(null, "StartDate");
-            serializer.text(obj.getString("visit_date_from"));
-            serializer.endTag(null, "StartDate");
-
-            //EndDate
-            serializer.startTag(null, "EndDate");
-            serializer.text(obj.getString("visit_date_to"));
-            serializer.endTag(null, "EndDate");
-
-            //ICDCode
-            serializer.startTag(null, "ICDCode");
-            serializer.text(obj.getString("main_dg"));
-            serializer.endTag(null, "ICDCode");
-
-            //Comment
-            serializer.startTag(null, "Comment");
-            serializer.text(obj.getString("explination"));
-            serializer.endTag(null, "Comment");
-
-            //Total
-            serializer.startTag(null,"Total");
-            serializer.text("");
-            serializer.endTag(null,"Total");
-
-            //Diagnosis1
-            serializer.startTag(null, "ICDCode1");
-            serializer.text(obj.getString("sec_dg_1"));
-            serializer.endTag(null, "ICDCode1");
-
-            //Diagnosis2
-            serializer.startTag(null, "ICDCode2");
-            serializer.text(obj.getString("sec_dg_2"));
-            serializer.endTag(null, "ICDCode2");
-
-            //Diagnosis3
-            serializer.startTag(null, "ICDCode3");
-            serializer.text(obj.getString("sec_dg_3"));
-            serializer.endTag(null, "ICDCode3");
-
-            //Diagnosis4
-            serializer.startTag(null, "ICDCode4");
-            serializer.text(obj.getString("sec_dg_4"));
-            serializer.endTag(null, "ICDCode4");
-
-            //VisitType
-            serializer.startTag(null, "VisitType");
-            serializer.text(obj.getString("visit_type"));
-            serializer.endTag(null, "VisitType");
-
-
-            serializer.endTag(null, "Details");
-            //</Details>
-
-            //<Items>
-            serializer.startTag(null, "Items");
-
-            JSONArray lvItemList = new JSONArray(obj.getString("items"));
-
-            for(int i=0;i<lvItemList.length();i++){
-                JSONObject object = lvItemList.getJSONObject(i);
-                //<Item>
-                serializer.startTag(null,"Item");
-
-                //Code
-                serializer.startTag(null, "ItemCode");
-                serializer.text(object.getString("item_code"));
-                serializer.endTag(null, "ItemCode");
-
-                //Price
-                serializer.startTag(null, "ItemPrice");
-                serializer.text(object.getString("item_price"));
-                serializer.endTag(null, "ItemPrice");
-
-                //Quantity
-                serializer.startTag(null, "ItemQuantity");
-                serializer.text(object.getString("item_qty"));
-                serializer.endTag(null, "ItemQuantity");
-
-                serializer.endTag(null,"Item");
-                //</Item>
-            }
-
-            serializer.endTag(null, "Items");
-            //</Items>
-
-
-            //<Services>
-            serializer.startTag(null, "Services");
-            JSONArray lvServiceList = new JSONArray(obj.getString("services"));
-            for(int i=0;i<lvServiceList.length();i++){
-                JSONObject object = lvServiceList.getJSONObject(i);
-                //<Service>
-                serializer.startTag(null, "Service");
-
-                //Code
-                serializer.startTag(null, "ServiceCode");
-                serializer.text(object.getString("service_code"));
-                serializer.endTag(null, "ServiceCode");
-
-                //Price
-                serializer.startTag(null, "ServicePrice");
-                serializer.text(object.getString("service_price"));
-                serializer.endTag(null, "ServicePrice");
-
-                //Quantity
-                serializer.startTag(null, "ServiceQuantity");
-                serializer.text(object.getString("service_qty"));
-                serializer.endTag(null, "ServiceQuantity");
-
-                //<Service>
-                serializer.endTag(null, "Service");
-            }
-
-            serializer.endTag(null, "Services");
-            //</Services>
-
-            serializer.endTag(null, "Claim");
-            //</Claim>
-
-            serializer.endDocument();
-            serializer.flush();
-            fos.flush();
-            fos.close();
-
-
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
+            parsedDate = databaseFormat.format(fromApiFormat.parse(date));
+        } catch ( ParseException e ) {
             e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
+            parsedDate = date;
         }
-
-
+        return parsedDate;
     }
-
-    private void WriteJSON(){
-
-
-        //Create all the directories required
-        File MyDir = new File(Path);
-        MyDir.mkdir();
-
-        //sql = new SQLHandler(this);
-        //sql.onOpen(db);
-
-        //Create a file name
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-        Calendar cal = Calendar.getInstance();
-        String d = format.format(cal.getTime());
-        try {
-
-            FileName = "ClaimJSON_" + obj.getString("health_facility_code") + "_" + obj.getString("claim_number") + "_" + d + ".txt";
-            ClaimFile = new File(MyDir,FileName);
-
-            JSONObject jsonObject = new JSONObject();
-            JSONObject FullObject = new JSONObject();
-            JSONObject ClaimObject = new JSONObject();
-
-
-            format = new SimpleDateFormat("dd/MM/yyyy");
-            d = format.format(cal.getTime());
-            //ClaimDate
-            ClaimObject.put("ClaimDate", d);
-            //HFCOde
-            ClaimObject.put("HFCode", obj.getString("health_facility_code"));
-            //Claim Admin
-            ClaimObject.put("ClaimAdmin", global.getOfficerCode().toString());
-            //ClaimCode
-            ClaimObject.put("ClaimCode", "@"+obj.getString("claim_number"));
-            //GuaranteeNo
-            ClaimObject.put("GuaranteeNo", obj.getString("guarantee_number"));
-            //CHFID
-            ClaimObject.put("CHFID", obj.getString("insurance_number"));
-            //StartDate
-            ClaimObject.put("StartDate", obj.getString("visit_date_from"));
-            //EndDate
-            ClaimObject.put("EndDate", obj.getString("visit_date_to"));
-            //ICDCode
-            ClaimObject.put("ICDCode", obj.getString("main_dg"));
-            //Comment
-            ClaimObject.put("Comment", obj.getString("explination"));
-            //Total
-            ClaimObject.put("Total", "");
-            //Diagnosis1
-            ClaimObject.put("ICDCode1", obj.getString("sec_dg_1"));
-            //Diagnosis2
-            ClaimObject.put("ICDCode2", obj.getString("sec_dg_2"));
-            //Diagnosis3
-            ClaimObject.put("ICDCode3", obj.getString("sec_dg_3"));
-            //Diagnosis4
-            ClaimObject.put("ICDCode4", obj.getString("sec_dg_4"));
-            //VisitType
-            ClaimObject.put("VisitType", obj.getString("visit_type"));
-
-
-            FullObject.put("Details",ClaimObject);
-            //</Details>
-
-            //Items
-            ClaimObject = new JSONObject();
-
-
-            JSONArray lvItemList = new JSONArray(obj.getString("items"));
-            JSONArray ItemsArray = new JSONArray();
-
-            for(int i=0;i<lvItemList.length();i++){
-                JSONObject object = lvItemList.getJSONObject(i);
-                JSONObject SubObjectItems = new JSONObject();
-                JSONObject ItemObject = new JSONObject();
-                //Code
-                ItemObject.put("ItemCode",object.getString("item"));
-                //Price
-                ItemObject.put("ItemPrice",object.getString("item_price"));
-                //Quantity
-                ItemObject.put("ItemQuantity",object.getString("item_qty"));
-                SubObjectItems.put("Item",ItemObject);
-
-                ItemsArray.put(SubObjectItems);
-
-            }
-            //</Items>
-            FullObject.put("Items",ItemsArray);
-
-
-            //<Services>
-            ClaimObject = new JSONObject();
-
-            JSONArray lvServiceList = new JSONArray(obj.getString("services"));
-
-            JSONArray ServicesArray = new JSONArray();
-
-            for(int i=0;i<lvServiceList.length();i++){
-                JSONObject object = lvServiceList.getJSONObject(i);
-                JSONObject SubObjectServices = new JSONObject();
-                JSONObject ServiceObject = new JSONObject();
-                //Code
-                ServiceObject.put("ServiceCode",object.getString("service"));
-                //Price
-                ServiceObject.put("ServicePrice",object.getString("service_price"));
-                //Quantity
-                ServiceObject.put("ServiceQuantity",object.getString("service_qty"));
-                //</Service>
-                SubObjectServices.put("Service",ServiceObject);
-
-                ServicesArray.put(SubObjectServices);
-            }
-            //</Services>
-            FullObject.put("Services",ServicesArray);
-
-            //</Claim>
-            jsonObject.put("Claim",FullObject);
-
-            try {
-                String dir = Environment.getExternalStorageDirectory() + File.separator + "IMIS/";
-                FileOutputStream fOut = new FileOutputStream(dir+FileName);
-                OutputStreamWriter myOutWriter =new OutputStreamWriter(fOut);
-                myOutWriter.append(jsonObject.toString());
-                myOutWriter.close();
-                fOut.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }catch (IllegalStateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
 }
