@@ -21,14 +21,34 @@ import android.net.NetworkInfo;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 
+import static com.openimis.general.BuildConfig.API_BASE_URL;
+import static com.openimis.general.BuildConfig.API_BASE_CHF_URL;
+import static com.openimis.general.BuildConfig.RAR_PASSWORD;
+
 public class General {
 
-    private static String _Domain = "http://demo.openimis.org/rest/";
+    private static String _Domain = API_BASE_URL;
+	private static String _DomainCHF = API_BASE_CHF_URL;
 
-    private static final String DEFAULT_RAR_PASSWORD = ")(#$1HsD";
+    private static final String DEFAULT_RAR_PASSWORD = RAR_PASSWORD;
 
 	public String getDomain(){
 		return _Domain;
+	}
+	public String getDomainCHF(){
+		return _DomainCHF;
+	}
+
+	// ToDo: remove this method if published to Google Play
+	// ToDo: remove this method if published to Google Play
+	// ToDo: depricate/remove this method if published to Google Play
+	public boolean isNewVersionAvailable(String Field,Context ctx, String PackageName){
+		//String result = getFromRestApi("system/apkversion/" + Field);
+		//if(result.contains(",")) {
+		//	result = result.replaceAll("(\\d+)\\,(\\d+)", "$1.$2");
+		//}
+		// return result == ""?false:Float.parseFloat(this.getVersion(ctx, PackageName)) < Float.parseFloat(result);
+		return false;
 	}
 
 	public static String getDefaultRarPassword() {
@@ -62,7 +82,6 @@ public class General {
 		res.updateConfiguration(config, dm);
 	}
 
-	// ToDo: remove this method if published to Google Play
 	/*public String getVersion(Context ctx, String PackageName){
 		String VersionName = "";
 
@@ -80,7 +99,6 @@ public class General {
 
 	}*/
 
-	// ToDo: remove this method if published to Google Play
 	/*public String getFromRestApi(final String functionName) {
 		String uri = getDomain()+ "api/";
 
@@ -105,16 +123,6 @@ public class General {
 		}
 		return content[0];
 	}*/
-
-	// ToDo: depricate/remove this method if published to Google Play
-	public boolean isNewVersionAvailable(String Field,Context ctx, String PackageName){
-		//String result = getFromRestApi("system/apkversion/" + Field);
-		//if(result.contains(",")) {
-		//	result = result.replaceAll("(\\d+)\\,(\\d+)", "$1.$2");
-		//}
-		// return result == ""?false:Float.parseFloat(this.getVersion(ctx, PackageName)) < Float.parseFloat(result);
-		return false;
-	}
 }
 	
 	

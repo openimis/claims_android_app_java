@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import static android.database.DatabaseUtils.sqlEscapeString;
+
 /**
  * Created by user on 10/01/2018.
  */
@@ -117,7 +119,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	public void InsertClaimAdmins(String Code,String Name){
 		try {
 			String sSQL = "";
-			sSQL = "INSERT INTO tblAdministrators(Code,Name)VALUES('"+Code+"','"+Name+"')";
+			sSQL = "INSERT INTO tblAdministrators(Code,Name)VALUES("+sqlEscapeString(Code)+","+sqlEscapeString(Name)+")";
 			db.execSQL(sSQL);
 		} catch (Exception e){
 			e.printStackTrace();

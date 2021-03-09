@@ -16,14 +16,77 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            debuggable = true
+        }
     }
+
+    flavorDimensions 'std'
+
+    productFlavors.all {
+        resValue "string", "app_name", "openIMIS Claims"
+    }
+
+    productFlavors {
+        demoProd {
+            applicationIdSuffix ".demoProd"
+            resValue "string", "app_name", "Claims Demo"
+            dimension 'std'
+        }
+
+        demoRelease {
+            applicationIdSuffix ".demoRelease"
+            resValue "string", "app_name", "Claims Release"
+            dimension 'std'
+        }
+
+        chfDev {
+            applicationIdSuffix ".chfDev"
+            resValue "string", "app_name", "Claims CHF"
+            dimension 'std'
+        }
+        mvDev {
+            applicationIdSuffix ".mvDev"
+            resValue "string", "app_name", "Claims MV"
+            dimension 'std'
+        }
+        bephaDev {
+            applicationIdSuffix ".bephaDev"
+            resValue "string", "app_name", "Claims BEPHA"
+            dimension 'std'
+        }
+        local {
+            applicationIdSuffix ".local"
+            resValue "string", "app_name", "Claims Local"
+            dimension 'std'
+        }
+    }
+
+    sourceSets {
+        demoProd.java.srcDir 'src/demoProd/java'
+        demoProd.res.srcDir 'src/demoProd/res'
+
+        demoRelease.java.srcDir 'src/demoRelease/java'
+        demoRelease.res.srcDir 'src/demoRelease/res'
+
+        chfDev.java.srcDir 'src/chfDev/java'
+        chfDev.res.srcDir 'src/chfDev/res'
+
+        mvDev.java.srcDir 'src/mvDev/java'
+        mvDev.res.srcDir 'src/mvDev/res'
+
+        bephaDev.java.srcDir 'src/bephaDev/java'
+        bephaDev.res.srcDir 'src/bephaDev/res'
+
+        local.java.srcDir 'src/local/java'
+        local.res.srcDir 'src/local/res'
+    }
+
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
 
     }
 }
-
-
 
 dependencies {
     //implementation fileTree(include: ['*.jar'], dir: 'libs')
