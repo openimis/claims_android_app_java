@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import static android.database.DatabaseUtils.sqlEscapeString;
+
 /**
  * Created by user on 10/01/2018.
  */
@@ -16,10 +18,10 @@ import android.util.Log;
 public class SQLHandler extends SQLiteOpenHelper{
 
 	private static final String DB_NAME = MainActivity.Path + "Mapping.db3";
-	private static final String CreateTable = "CREATE TABLE tblMapping(Code text,Name text,Type text);";
-	private static final String CreateTableControls = "CREATE TABLE tblControls(FieldName text, Adjustibility text);";
-	private static final String CreateTableClaimAdmins = "CREATE TABLE tblAdministrators(Code text, Name text);";
-	private static final String CreateTableReferences = "CREATE TABLE tblReferences(Code text, Name text, Type text, Price text);";
+	private static final String CreateTable = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
+	private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName text, Adjustibility text);";
+	private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code text, Name text);";
+	private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code text, Name text, Type text, Price text);";
 	//private static final String CreateTableDateUpdates = "CREATE TABLE tblDateUpdates(Id INTEGER PRIMARY KEY AUTOINCREMENT, last_update_date text);";
 
 	SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(MainActivity.Path + "ImisData.db3",null);
@@ -117,7 +119,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	public void InsertClaimAdmins(String Code,String Name){
 		try {
 			String sSQL = "";
-			sSQL = "INSERT INTO tblAdministrators(Code,Name)VALUES('"+Code+"','"+Name+"')";
+			sSQL = "INSERT INTO tblClaimAdmins(Code,Name)VALUES("+sqlEscapeString(Code)+","+sqlEscapeString(Name)+")";
 			db.execSQL(sSQL);
 		} catch (Exception e){
 			e.printStackTrace();
@@ -194,28 +196,23 @@ public class SQLHandler extends SQLiteOpenHelper{
 		return adjustibility;
 	}
 
-	public String checkIfAny() {
-		String any = null;
+	public boolean checkIfAny(String table) {
+		boolean any = false;
 		try {
-			String query = "SELECT * FROM tblControls";
-			Cursor cursor1 = db.rawQuery(query, null);
-			// looping through all rows
-			if (cursor1.moveToFirst()) {
-				do {
-					any = cursor1.getString(0);
-				} while (cursor1.moveToNext());
-			}
+			Cursor c = db.query(table,null,null,null,null,null,null,"1");
+			any = c.getCount() > 0;
+			c.close();
 		}catch (Exception e){
+			e.printStackTrace();
 			return any;
 		}
-
 		return any;
 	}
 
 	public String getClaimAdmin(String Code) {
 		String Name = "";
 		try {
-			String query = "SELECT Name FROM tblAdministrators WHERE upper(Code) like '"+Code.toUpperCase()+"'";
+			String query = "SELECT Name FROM tblClaimAdmins WHERE upper(Code) like '"+Code.toUpperCase()+"'";
 			Cursor cursor1 = db.rawQuery(query, null);
 			// looping through all rows
 			if (cursor1.moveToFirst()) {
