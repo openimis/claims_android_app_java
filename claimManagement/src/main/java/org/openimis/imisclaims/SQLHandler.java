@@ -20,7 +20,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	private static final String DB_NAME = MainActivity.Path + "Mapping.db3";
 	private static final String CreateTable = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
 	private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName text, Adjustibility text);";
-	private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblAdministrators(Code text, Name text);";
+	private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code text, Name text);";
 	private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code text, Name text, Type text, Price text);";
 	//private static final String CreateTableDateUpdates = "CREATE TABLE tblDateUpdates(Id INTEGER PRIMARY KEY AUTOINCREMENT, last_update_date text);";
 
@@ -119,7 +119,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	public void InsertClaimAdmins(String Code,String Name){
 		try {
 			String sSQL = "";
-			sSQL = "INSERT INTO tblAdministrators(Code,Name)VALUES("+sqlEscapeString(Code)+","+sqlEscapeString(Name)+")";
+			sSQL = "INSERT INTO tblClaimAdmins(Code,Name)VALUES("+sqlEscapeString(Code)+","+sqlEscapeString(Name)+")";
 			db.execSQL(sSQL);
 		} catch (Exception e){
 			e.printStackTrace();
@@ -236,7 +236,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	public String getClaimAdmin(String Code) {
 		String Name = "";
 		try {
-			String query = "SELECT Name FROM tblAdministrators WHERE upper(Code) like '"+Code.toUpperCase()+"'";
+			String query = "SELECT Name FROM tblClaimAdmins WHERE upper(Code) like '"+Code.toUpperCase()+"'";
 			Cursor cursor1 = db.rawQuery(query, null);
 			// looping through all rows
 			if (cursor1.moveToFirst()) {
