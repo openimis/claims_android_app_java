@@ -17,34 +17,34 @@ public class Login {
     }
 
     // Login to API and get Token JWT
-    public boolean LoginToken(final String Username, final String Password) throws InterruptedException {
+    public boolean LoginToken(final String Username, final String Password){
         ToRestApi rest = new ToRestApi();
 
         JSONObject object = new JSONObject();
         try {
-            object.put("UserName",Username);
-            object.put("Password",Password);
+            object.put("UserName", Username);
+            object.put("Password", Password);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         String functionName = "login";
 
-        HttpResponse response = rest.postToRestApi(object, functionName);
+        HttpResponse response = null;
 
         String content = null;
 
-        HttpEntity respEntity = response.getEntity();
-
-        if (respEntity != null) {
-            try {
-                content = EntityUtils.toString(respEntity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            response = rest.postToRestApi(object, functionName);
+            HttpEntity respEntity = (response != null) ? response.getEntity() : null;
+            content = (respEntity != null) ? EntityUtils.toString(respEntity) : null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
         }
 
-        if(response.getStatusLine().getStatusCode() == 200){
+
+        if (response!=null && response.getStatusLine().getStatusCode() == 200) {
             JSONObject ob = null;
             String jwt = null;
             try {
@@ -58,6 +58,7 @@ public class Login {
 
             return true;
         }
+
         return false;
     }
 }

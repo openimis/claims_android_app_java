@@ -1,7 +1,6 @@
 package org.openimis.imisclaims;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -328,6 +327,10 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
         }
         if (id == R.id.nav_Refresh_Map) {
+            if(!_General.isNetworkAvailable(MainActivity.this)){
+                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
+                return false;
+            }
             //Are you sure dialog
             Global global = new Global();
             int userid = global.getUserId();
@@ -368,6 +371,10 @@ public class MainActivity extends AppCompatActivity
                 return true;*/
 
         } else if (id == R.id.nav_Sync) {
+            if(!_General.isNetworkAvailable(MainActivity.this)){
+                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
+                return false;
+            }
             Intent intent = new Intent(getApplicationContext(), Synchronize.class);
             startActivity(intent);
         } else if (id == R.id.nav_quit) {
@@ -377,6 +384,10 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, About.class);
             startActivity(intent);
         } else if (id == R.id.nav_Retrieve) {
+            if(!_General.isNetworkAvailable(MainActivity.this)){
+                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
+                return false;
+            }
             if (tokenl.getTokenText().length() <= 0) {
                 LoginDialogBox("search_claims");
             } else {
@@ -428,33 +439,37 @@ public class MainActivity extends AppCompatActivity
         alertDialog.show();
     }
     private void initializeDb3File(SQLHandler sql) {
-        if(checkDataBase()){
+        if (checkDataBase()) {
 /*            sql = new SQLHandler(this);
             sql.onOpen(db);*/
             //if(sql.getAdjustibility("ClaimAdministrator").length() == 0){
-            if(_General.isNetworkAvailable(this)){
+            if (_General.isNetworkAvailable(this)) {
                 //DownloadMasterDialog();
-                if(getControls()){
-                    try{
-                        if(global.getOfficerCode() == null || global.getOfficerCode().equals("")){
-                            if(!sql.getAdjustibility("ClaimAdministrator").equals("N")){
+                if (getControls()) {
+                    try {
+                        if (global.getOfficerCode() == null || global.getOfficerCode().equals("")) {
+                            if (!sql.getAdjustibility("ClaimAdministrator").equals("N")) {
                                 ClaimAdminDialogBox();
                             }
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                         DownloadMasterDialog();
                     }
-                }else{
+                } else {
                     DownloadMasterDialog();
                 }
-            }else{
-                if(sql.checkIfAny() != null){
+            } else {
+                if (!sql.checkIfAny("tblControls")) {
+                    ErrorDialogBox(getResources().getString(R.string.noControls) + " " + getResources().getString(R.string.provideExtractOrInternet),true);
+                } else if (!sql.checkIfAny("tblClaimAdmins")) {
+                    if (sql.getAdjustibility("ClaimAdministrator").equals("M"))
+                        ErrorDialogBox(getResources().getString(R.string.noAdmins) + " " + getResources().getString(R.string.provideExtractOrInternet),true);
+                } else {
                     ClaimAdminDialogBox();
-                }else{
-                    ErrorDialogBox2();
                 }
             }
+
 
 //            }else{
 //                ClaimAdminDialogBox();
@@ -546,103 +561,57 @@ public class MainActivity extends AppCompatActivity
                 .setCancelable(false)
                 .setPositiveButton(getResources().getString(R.string.Ok),
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                if(_General.isNetworkAvailable(MainActivity.this)){
-                                    if(!username.getText().toString().equals("") && !password.getText().toString().equals("")){
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (_General.isNetworkAvailable(MainActivity.this)) {
+                                    if (!username.getText().toString().equals("") && !password.getText().toString().equals("")) {
                                         pd = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
 
                                         new Thread() {
                                             public void run() {
-                                                try {
-                                                    isUserLogged = LoginToken(username.getText().toString(),password.getText().toString());
-                                                } catch (InterruptedException e) {
-                                                    e.printStackTrace();
-                                                }
+                                                isUserLogged = new Login().LoginToken(username.getText().toString(), password.getText().toString());
 
-                                                JSONObject object = new JSONObject();
-                                                try {
-                                                    object.put("userName",username.getText().toString());
-                                                    object.put("password",password.getText().toString());
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                                String functionName = "login";
-                                                HttpResponse response = null;
-                                                String content = null;
-                                                try{
-                                                    response = toRestApi.postToRestApi(object,functionName);
-
-                                                    HttpEntity respEntity = response.getEntity();
-                                                    if (respEntity != null) {
-                                                        final String[] code = {null};
-                                                        // EntityUtils to get the response content
-
-
-                                                        content = EntityUtils.toString(respEntity);
-
-                                                    }
-                                                }catch (Exception e){
-                                                    final HttpResponse finalResponse = response;
+                                                if (!isUserLogged) {
                                                     runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
                                                             pd.dismiss();
                                                             //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
-                                                            Toast.makeText(MainActivity.this, finalResponse.getStatusLine().getStatusCode()+"-"+MainActivity.this.getResources().getString(R.string.LoginFail),Toast.LENGTH_LONG).show();
-                                                            LoginDialogBox(page);
-                                                        }
-                                                    });
-                                                }
-
-                                                if(response.getStatusLine().getStatusCode() == 401){
-                                                    runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            pd.dismiss();
-                                                            //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
-                                                            Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.LoginFail),Toast.LENGTH_LONG).show();
+                                                            Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.LoginFail), Toast.LENGTH_LONG).show();
                                                             LoginDialogBox(page);
                                                         }
                                                     });
 
-                                                }else{
-                                                    JSONObject ob = null;
-                                                    String token = null;
-                                                    try {
-                                                        ob = new JSONObject(content);
-                                                        token = ob.getString("access_token");
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
-                                                    }
-
-                                                    tokenl.saveTokenText(token.toString());
-
-                                                    final String finalToken = token;
+                                                } else {
+                                                    final String finalToken = tokenl.getTokenText();
                                                     runOnUiThread(new Runnable() {
                                                         @Override
                                                         public void run() {
-                                                            if(finalToken.length() > 0){
+                                                            if (finalToken.length() > 0) {
                                                                 pd.dismiss();
                                                                 //updateMenuTitlesLogout();
-                                                                if(page.equals("MainActivity")){
+                                                                if (page.equals("MainActivity")) {
 /*                                                            Intent intent = new Intent(MainActivity.this, MainActivity.class);
                                                             startActivity(intent);*/
-                                                                    Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
+                                                                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
                                                                 }
-                                                                if(page.equals("Enquire")){
+                                                                if (page.equals("Enquire")) {
                                                                     Intent intent = new Intent(MainActivity.this, EnquireActivity.class);
                                                                     startActivity(intent);
-                                                                    Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
+                                                                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
                                                                 }
-                                                                if(page.equals("refresh_map")){
-                                                                    Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
+                                                                if (page.equals("refresh_map")) {
+                                                                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
                                                                     ShowComfirmationDialog();
                                                                 }
-
-                                                            }else{
+                                                                if(page.equals("search_claims")) {
+                                                                    Intent intent = new Intent(MainActivity.this, SearchClaims.class);
+                                                                    startActivity(intent);
+                                                                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
+                                                                }
+                                                            } else {
                                                                 pd.dismiss();
                                                                 //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
-                                                                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.LoginFail),Toast.LENGTH_LONG).show();
+                                                                Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.LoginFail), Toast.LENGTH_LONG).show();
                                                                 LoginDialogBox(page);
                                                             }
                                                         }
@@ -654,21 +623,20 @@ public class MainActivity extends AppCompatActivity
                                         }.start();
 
 
-                                    }else{
+                                    } else {
                                         LoginDialogBox(page);
-                                        Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Enter_Credentials), Toast.LENGTH_LONG).show();
+                                        Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Enter_Credentials), Toast.LENGTH_LONG).show();
                                     }
-                                }else{
+                                } else {
                                     ErrorDialogBox(getResources().getString(R.string.CheckInternet));
                                 }
-
 
 
                             }
                         })
                 .setNegativeButton(R.string.Cancel,
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
+                            public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
                             }
                         });
@@ -676,51 +644,6 @@ public class MainActivity extends AppCompatActivity
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
-    }
-
-    // Login to API and get Token JWT
-    public boolean LoginToken(final String Username, final String Password) throws InterruptedException {
-        ToRestApi rest = new ToRestApi();
-
-        JSONObject object = new JSONObject();
-        try {
-            object.put("UserName",Username);
-            object.put("Password",Password);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        String functionName = "login";
-
-        HttpResponse response = rest.postToRestApi(object, functionName);
-
-        String content = null;
-
-        HttpEntity respEntity = response.getEntity();
-
-        if (respEntity != null) {
-            try {
-                content = EntityUtils.toString(respEntity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if(response.getStatusLine().getStatusCode() == 200){
-            JSONObject ob = null;
-            String jwt = null;
-            try {
-                ob = new JSONObject(content);
-                jwt = ob.getString("access_token");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            tokenl.saveTokenText(jwt);
-
-            return true;
-        }
-        return false;
     }
 
     public void LoginDialogBoxServices(final String page) {
@@ -748,56 +671,52 @@ public class MainActivity extends AppCompatActivity
                 .setCancelable(false)
                 .setPositiveButton(getResources().getString(R.string.Ok),
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                if(!username.getText().toString().equals("") && !password.getText().toString().equals("")){
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (!username.getText().toString().equals("") && !password.getText().toString().equals("")) {
                                     pd = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
 
                                     new Thread() {
                                         public void run() {
-                                            try {
-                                                isUserLogged = LoginToken(username.getText().toString(),password.getText().toString());
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        if(isUserLogged){
-                                                            pd.dismiss();
-                                                            //updateMenuTitlesLogout();
-                                                            if(page.equals("MainActivity")){
+                                            isUserLogged = new Login().LoginToken(username.getText().toString(), password.getText().toString());
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    if (isUserLogged) {
+                                                        pd.dismiss();
+                                                        //updateMenuTitlesLogout();
+                                                        if (page.equals("MainActivity")) {
 /*                                                            Intent intent = new Intent(MainActivity.this, MainActivity.class);
                                                             startActivity(intent);*/
-                                                                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
-                                                            }
-                                                            if(page.equals("Enquire")){
-                                                                Intent intent = new Intent(MainActivity.this, EnquireActivity.class);
-                                                                startActivity(intent);
-                                                                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
-                                                            }
-
-                                                        }else{
-                                                            pd.dismiss();
-                                                            //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
-                                                            Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.LoginFail),Toast.LENGTH_LONG).show();
-                                                            LoginDialogBoxServices(page);
+                                                            Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
                                                         }
+                                                        if (page.equals("Enquire")) {
+                                                            Intent intent = new Intent(MainActivity.this, EnquireActivity.class);
+                                                            startActivity(intent);
+                                                            Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
+                                                        }
+
+                                                    } else {
+                                                        pd.dismiss();
+                                                        //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
+                                                        Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.LoginFail), Toast.LENGTH_LONG).show();
+                                                        LoginDialogBoxServices(page);
                                                     }
-                                                });
-                                            }
+                                                }
+                                            });
+                                        }
                                     }.start();
 
 
-                                }else{
+                                } else {
                                     LoginDialogBox(page);
-                                    Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Enter_Credentials), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Enter_Credentials), Toast.LENGTH_LONG).show();
                                 }
 
                             }
                         })
                 .setNegativeButton(R.string.Cancel,
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
+                            public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
                             }
                         });
@@ -845,6 +764,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void ErrorDialogBox(final String message) {
+        ErrorDialogBox(message,false);
+    }
+
+    public void ErrorDialogBox(final String message, final boolean critical) {
 
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(this);
@@ -857,7 +780,7 @@ public class MainActivity extends AppCompatActivity
         alertDialogBuilder.setView(promptsView);
 
         final TextView error = (TextView) promptsView.findViewById(R.id.error_message);
-        error.setText(message.toString());
+        error.setText(message);
 
         // set dialog message
         alertDialogBuilder
@@ -866,6 +789,8 @@ public class MainActivity extends AppCompatActivity
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
                                 dialog.cancel();
+                                if(critical)
+                                    finish();
                             }
                         });
         // create alert dialog
@@ -873,35 +798,6 @@ public class MainActivity extends AppCompatActivity
         alertDialog.show();
     }
 
-    public void ErrorDialogBox2() {
-
-        // get prompts.xml view
-        LayoutInflater li = LayoutInflater.from(this);
-        View promptsView = li.inflate(R.layout.error_message_dialog, null);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                this);
-
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-
-        final TextView error = (TextView) promptsView.findViewById(R.id.error_message);
-        error.setText(getResources().getString(R.string.CheckInternet));
-
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton(R.string.button_ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                                finish();
-                            }
-                        });
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
     public AlertDialog ShowComfirmationDialog() {
         return new AlertDialog.Builder(this)
                 .setMessage(getResources().getString(R.string.AreYouSure))
@@ -1220,23 +1116,24 @@ public class MainActivity extends AppCompatActivity
                     String error_message = null;
 
                     String functionName = "Claims/Controls";
-                    String content = toRestApi.getFromRestApi(functionName);
-
-                    JSONObject ob = null;
-                    JSONObject obContent = null;
                     try {
+                        String content = toRestApi.getFromRestApi(functionName);
+
+                        JSONObject ob = null;
+                        JSONObject obContent = null;
+
                         ob = new JSONObject(content);
                         error_occurred = ob.getString("error_occured");
-                        if(error_occurred.equals("false")){
+                        if (error_occurred.equals("false")) {
                             controls = ob.getString("controls");
                             sql.ClearAll("tblControls");
                             //Insert Diagnosese
                             JSONArray arrControls = null;
                             JSONObject objControls = null;
                             arrControls = new JSONArray(controls);
-                            for(int i=0; i < arrControls.length(); i++){
+                            for (int i = 0; i < arrControls.length(); i++) {
                                 objControls = arrControls.getJSONObject(i);
-                                sql.InsertControls(objControls.getString("fieldName").toString(),objControls.getString("adjustibility"));
+                                sql.InsertControls(objControls.getString("fieldName").toString(), objControls.getString("adjustibility"));
                             }
 
                             runOnUiThread(new Runnable() {
@@ -1247,15 +1144,16 @@ public class MainActivity extends AppCompatActivity
                             });
 
 
-                        }else {
+                        } else {
                             runOnUiThread(new Runnable() {
-                                public void run() {pd.dismiss();
+                                public void run() {
+                                    pd.dismiss();
                                 }
                             });
                             error_message = ob.getString("error_message");
                             ErrorDialogBox(error_message);
                         }
-                    } catch (JSONException e) {
+                    } catch (JSONException e ) {
                         e.printStackTrace();
                         runOnUiThread(new Runnable() {
                             public void run() {
@@ -1263,6 +1161,13 @@ public class MainActivity extends AppCompatActivity
                             }
                         });
 
+                    } catch ( IOException e ) {
+                        e.printStackTrace();
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                pd.dismiss();
+                            }
+                        });
                     }
                 }
             };
@@ -1285,32 +1190,33 @@ public class MainActivity extends AppCompatActivity
                     String error_message = null;
 
                     String functionName = "Claims/GetClaimAdmins";
-                    String content = toRestApi.getFromRestApi(functionName);
-
-                    JSONObject ob = null;
-                    JSONObject obContent = null;
                     try {
+                        String content = toRestApi.getFromRestApi(functionName);
+
+                        JSONObject ob = null;
+                        JSONObject obContent = null;
+
                         ob = new JSONObject(content);
                         //error_occurred = ob.getString("error_occured");
                         //if(error_occurred.equals("true")){
-                            controls = ob.getString("claim_admins");
-                            sql.ClearAll("tblAdministrators");
-                            //Insert Diagnosese
-                            JSONArray arrControls = null;
-                            JSONObject objControls = null;
-                            arrControls = new JSONArray(controls);
-                            for(int i=0; i < arrControls.length(); i++){
-                                objControls = arrControls.getJSONObject(i);
-                                String lastName = objControls.getString("lastName").toString();
-                                String otherNames = objControls.getString("otherNames").toString();
-                                String name = lastName+" "+otherNames;
-                                sql.InsertClaimAdmins(objControls.getString("claimAdminCode"),name);
-                            }
+                        controls = ob.getString("claim_admins");
+                        sql.ClearAll("tblClaimAdmins");
+                        //Insert Diagnosese
+                        JSONArray arrControls = null;
+                        JSONObject objControls = null;
+                        arrControls = new JSONArray(controls);
+                        for (int i = 0; i < arrControls.length(); i++) {
+                            objControls = arrControls.getJSONObject(i);
+                            String lastName = objControls.getString("lastName").toString();
+                            String otherNames = objControls.getString("otherNames").toString();
+                            String name = lastName + " " + otherNames;
+                            sql.InsertClaimAdmins(objControls.getString("claimAdminCode"), name);
+                        }
 
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 pd.dismiss();
-                                Toast.makeText(MainActivity.this,getResources().getString(R.string.initializing_complete),Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this, getResources().getString(R.string.initializing_complete), Toast.LENGTH_LONG).show();
                             }
                         });
                         /*}else {
@@ -1329,6 +1235,13 @@ public class MainActivity extends AppCompatActivity
                             }
                         });
 
+                    } catch ( IOException e) {
+                        e.printStackTrace();
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                pd.dismiss();
+                            }
+                        });
                     }
                 }
             };
