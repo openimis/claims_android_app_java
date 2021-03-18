@@ -566,4 +566,7 @@
   <string name="antenatalAmountLeft">AntenatalAmountLeft</string>
   <string name="deliveryAmountLeft">DeliveryAmountLeft</string>
   <string name="restoredClaimNoPrefix">@</string>
+  <string name="noControls">No controls data found.</string>
+  <string name="noAdmins">No administrators data found.</string>
+  <string name="provideExtractOrInternet">Provide phone extract or connect the phone to the internet.</string>
 </resources>

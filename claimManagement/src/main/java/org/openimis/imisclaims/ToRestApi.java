@@ -30,131 +30,93 @@ public class ToRestApi {
             "Claims/GetClaimAdmins";
 
     //Post without Token
-    public HttpResponse postToRestApi(final JSONObject object, final String functionName) {
+    public HttpResponse postToRestApi(final JSONObject object, final String functionName) throws IOException {
         setProperUri(functionName);
         HttpResponse response = null;
         HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(uri+functionName);
-        try {
-            StringEntity postingString = new StringEntity(object.toString());
-            httpPost.setEntity(postingString);
-            httpPost.setHeader("Content-type", "application/json");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        HttpPost httpPost = new HttpPost(uri + functionName);
 
-        try {
-            response = httpClient.execute(httpPost);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        StringEntity postingString = new StringEntity(object.toString());
+        httpPost.setEntity(postingString);
+        httpPost.setHeader("Content-type", "application/json");
+        response = httpClient.execute(httpPost);
+
         return response;
     }
 
     //Post with Token
-    public HttpResponse postToRestApiToken(final JSONObject object, final String functionName) {
+    public HttpResponse postToRestApiToken(final JSONObject object, final String functionName) throws IOException {
         setProperUri(functionName);
         HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(uri+functionName);
-        try {
-            StringEntity postingString = new StringEntity(object.toString());
-            httpPost.setEntity(postingString);
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setHeader("Authorization", "bearer "+tokenl.getTokenText());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        HttpPost httpPost = new HttpPost(uri + functionName);
+
+        StringEntity postingString = new StringEntity(object.toString());
+        httpPost.setEntity(postingString);
+        httpPost.setHeader("Content-type", "application/json");
+        httpPost.setHeader("Authorization", "bearer " + tokenl.getTokenText());
 
         HttpResponse response = null;
-        try {
-            response = httpClient.execute(httpPost);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        response = httpClient.execute(httpPost);
+
         return response;
     }
 
     // Post without Token, returned object
-    public String postObjectToRestApiObjectToken(final JSONObject object, final String functionName) {
+    public String postObjectToRestApiObjectToken(final JSONObject object, final String functionName) throws IOException {
         setProperUri(functionName);
-        final String[] content = {null};
+        String content = null;
         HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(uri+functionName);
-        try {
-            StringEntity postingString = new StringEntity(object.toString());
-            httpPost.setEntity(postingString);
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setHeader("Authorization", "bearer "+tokenl.getTokenText());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        HttpPost httpPost = new HttpPost(uri + functionName);
+
+        StringEntity postingString = new StringEntity(object.toString());
+        httpPost.setEntity(postingString);
+        httpPost.setHeader("Content-type", "application/json");
+        httpPost.setHeader("Authorization", "bearer " + tokenl.getTokenText());
 
         HttpResponse response = null;
-        try {
-            response = httpClient.execute(httpPost);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        response = httpClient.execute(httpPost);
 
-        HttpEntity respEntity = response.getEntity();
-        if (respEntity != null) {
-            try {
-                content[0] = EntityUtils.toString(respEntity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return content[0];
+        HttpEntity respEntity = (response!=null)?response.getEntity():null;
+
+        content = (respEntity!=null)?EntityUtils.toString(respEntity):null;
+
+        return content;
     }
 
     // Get without Token
-    public String getFromRestApi(final String functionName) {
-        setProperUri(functionName);
-        final String[] content = {null};
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(uri+functionName);
-        httpGet.setHeader("Content-type", "application/json");
-
-        HttpResponse response = null;
-        try {
-            response = httpClient.execute(httpGet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        HttpEntity respEntity = response.getEntity();
-        if (respEntity != null) {
-            try {
-                content[0] = EntityUtils.toString(respEntity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return content[0];
-    }
-
-    // Get with Token, returned object
-    public String getObjectFromRestApiToken(final String functionName) {
+    public String getFromRestApi(final String functionName) throws IOException {
         setProperUri(functionName);
         String content = null;
         HttpClient httpClient = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(uri+functionName);
         httpGet.setHeader("Content-type", "application/json");
-        httpGet.setHeader("Authorization", "bearer "+tokenl.getTokenText());
 
         HttpResponse response = null;
-        try {
-            response = httpClient.execute(httpGet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        HttpEntity respEntity = response.getEntity();
-        if (respEntity != null) {
-            try {
-                content = EntityUtils.toString(respEntity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        response = httpClient.execute(httpGet);
+
+        HttpEntity respEntity = (response!=null)?response.getEntity():null;
+
+        content = (respEntity!=null)?EntityUtils.toString(respEntity):null;
+
+        return content;
+    }
+
+    // Get with Token, returned object
+    public String getObjectFromRestApiToken(final String functionName) throws IOException{
+        setProperUri(functionName);
+        String content = null;
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(uri + functionName);
+        httpGet.setHeader("Content-type", "application/json");
+        httpGet.setHeader("Authorization", "bearer " + tokenl.getTokenText());
+
+        HttpResponse response = null;
+        response = httpClient.execute(httpGet);
+
+        HttpEntity respEntity = (response!=null)?response.getEntity():null;
+
+        content = (respEntity!=null)?EntityUtils.toString(respEntity):null;
+
         return content;
     }
 

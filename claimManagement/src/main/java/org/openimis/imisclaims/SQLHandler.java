@@ -215,21 +215,16 @@ public class SQLHandler extends SQLiteOpenHelper{
 		return adjustibility;
 	}
 
-	public String checkIfAny() {
-		String any = null;
+	public boolean checkIfAny(String table) {
+		boolean any = false;
 		try {
-			String query = "SELECT * FROM tblControls";
-			Cursor cursor1 = db.rawQuery(query, null);
-			// looping through all rows
-			if (cursor1.moveToFirst()) {
-				do {
-					any = cursor1.getString(0);
-				} while (cursor1.moveToNext());
-			}
+			Cursor c = db.query(table,null,null,null,null,null,null,"1");
+			any = c.getCount() > 0;
+			c.close();
 		}catch (Exception e){
+			e.printStackTrace();
 			return any;
 		}
-
 		return any;
 	}
 

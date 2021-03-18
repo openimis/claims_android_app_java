@@ -46,6 +46,7 @@ android {
         }
         mvDev {
             buildConfigField "String", "API_BASE_URL", '"http://imis-mv.swisstph-mis.ch/rest/"'
+            buildConfigField "String", "API_BASE_CHF_URL", '"http://imis-mv.swisstph-mis.ch/restapi/"'
             dimension 'std'
         }
         bephaDev {

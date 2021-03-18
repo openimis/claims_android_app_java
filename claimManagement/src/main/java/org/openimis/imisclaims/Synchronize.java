@@ -194,39 +194,35 @@ public class Synchronize extends AppCompatActivity {
                 .setCancelable(false)
                 .setPositiveButton(R.string.Ok,
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                if(!username.getText().toString().equals("") && !password.getText().toString().equals("")){
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (!username.getText().toString().equals("") && !password.getText().toString().equals("")) {
                                     pd = ProgressDialog.show(Synchronize.this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
 
                                     new Thread() {
                                         public void run() {
                                             Login login = new Login();
 
-                                            try {
-                                                isUserLogged = login.LoginToken(username.getText().toString(),password.getText().toString());
-                                                global.setIsLogged(isUserLogged);
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
+                                            isUserLogged = login.LoginToken(username.getText().toString(), password.getText().toString());
+                                            global.setIsLogged(isUserLogged);
 
                                             runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
                                                     pd.dismiss();
-                                                    if(isUserLogged){
-                                                        if(page.equals("Synchronize")){
+                                                    if (isUserLogged) {
+                                                        if (page.equals("Synchronize")) {
                                                             finish();
                                                             Intent intent = new Intent(Synchronize.this, Synchronize.class);
                                                             startActivity(intent);
-                                                            Toast.makeText(Synchronize.this,Synchronize.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
+                                                            Toast.makeText(Synchronize.this, Synchronize.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
                                                         }
-                                                    }else{
+                                                    } else {
                                                         pd.dismiss();
-                                                        if(!_General.isNetworkAvailable(Synchronize.this)){
+                                                        if (!_General.isNetworkAvailable(Synchronize.this)) {
                                                             LoginDialogBox(page);
                                                             ShowDialog(Synchronize.this.getResources().getString(R.string.CheckInternet));
-                                                        }else{
-                                                            Toast.makeText(Synchronize.this,Synchronize.this.getResources().getString(R.string.LoginFail),Toast.LENGTH_LONG).show();
+                                                        } else {
+                                                            Toast.makeText(Synchronize.this, Synchronize.this.getResources().getString(R.string.LoginFail), Toast.LENGTH_LONG).show();
                                                             LoginDialogBox(page);
                                                         }
                                                     }
@@ -236,16 +232,16 @@ public class Synchronize extends AppCompatActivity {
                                     }.start();
 
 
-                                }else{
+                                } else {
                                     LoginDialogBox(page);
-                                    Toast.makeText(Synchronize.this,Synchronize.this.getResources().getString(R.string.Enter_Credentials), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(Synchronize.this, Synchronize.this.getResources().getString(R.string.Enter_Credentials), Toast.LENGTH_LONG).show();
                                 }
 
                             }
                         })
                 .setNegativeButton(R.string.Cancel,
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
+                            public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
                             }
                         });

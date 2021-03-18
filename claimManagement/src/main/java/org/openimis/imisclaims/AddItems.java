@@ -251,7 +251,7 @@ public class AddItems extends AppCompatActivity {
 //		}
 //	});
 	    
-	lvItems.setOnItemLongClickListener(new onItemLongClickListener() {
+	lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 		@Override
         public boolean onItemLongClick(AdapterView<?> parent, View view,int position, long id) {
           try {
