@@ -181,18 +181,38 @@ public class ClaimActivity extends AppCompatActivity {
         tvItemTotal.setText("0");
         tvServiceTotal.setText("0");
 
+        Intent intent = getIntent();
+        String claim = intent.getStringExtra("claims");
 
-        if(sql.getAdjustibility("ClaimAdministrator").equals("N")){
-            etClaimAdmin.setVisibility(View.GONE);
-        }else{
-            Global global = new Global();
-            if(global.getOfficerCode() != null){
-                etClaimAdmin.setText(global.getOfficerCode().toString());
+        if(claim==null) {
+            if (sql.getAdjustibility("ClaimAdministrator").equals("N")) {
+                etClaimAdmin.setVisibility(View.GONE);
+            } else {
+                Global global = new Global();
+                if (global.getOfficerCode() != null) {
+                    etClaimAdmin.setText(global.getOfficerCode().toString());
+                }
             }
-        }
 
-        if(sql.getAdjustibility("GuaranteeNo").equals("N")){
-            etGuaranteeNo.setVisibility(View.GONE);
+            if (sql.getAdjustibility("GuaranteeNo").equals("N")) {
+                etGuaranteeNo.setVisibility(View.GONE);
+            }
+
+            //Fetch if Healthfacility code is available
+            SharedPreferences spHF = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+            String HF = spHF.getString("HF", "");
+            if (HF.length() > 0) {
+                etHealthFacility.setText(HF);
+                etClaimAdmin.requestFocus();
+            } else {
+                etHealthFacility.requestFocus();
+            }
+        } else {
+            try {
+                fillForm(new JSONObject(claim));
+            } catch ( JSONException e ) {
+                e.printStackTrace();
+            }
         }
 
         DiseaseAdapter adapter = new DiseaseAdapter(ClaimActivity.this,null);
@@ -215,17 +235,6 @@ public class ClaimActivity extends AppCompatActivity {
         etDiagnosis4.setAdapter(adapter);
         etDiagnosis4.setThreshold(1);
         etDiagnosis4.setOnItemClickListener(adapter);
-
-        //Fetch if Healthfacility code is available
-        SharedPreferences spHF = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
-        String HF = spHF.getString("HF", "");
-        if(HF.length() > 0) {
-            etHealthFacility.setText(HF);
-            etClaimAdmin.requestFocus();
-        }else{
-            etHealthFacility.requestFocus();
-        }
-
 
         etStartDate.setOnTouchListener(new View.OnTouchListener() {
 
@@ -279,11 +288,7 @@ public class ClaimActivity extends AppCompatActivity {
                 ShowDialog(getResources().getString(R.string.ClaimPosted));
             }
         });
-
-
     }
-
-
 
     public void makeImisDirectories(){
         File myDir = new File(Path);
@@ -533,6 +538,81 @@ public class ClaimActivity extends AppCompatActivity {
         etDiagnosis4.setText("");
         rgVisitType.clearCheck();
         etClaimAdmin.requestFocus();
+    }
+
+    private void fillForm(JSONObject obj)
+    {
+        try {
+            String newClaimNumber = getResources().getString(R.string.restoredClaimNoPrefix) + obj.getString("claim_number");
+            etClaimCode.setText(newClaimNumber);
+
+            etHealthFacility.setText(obj.getString("health_facility_code"));
+            etClaimAdmin.setText(new Global().getOfficerCode());
+
+            String guaranteeNumber = obj.getString("guarantee_number");
+            if(guaranteeNumber=="null") etGuaranteeNo.setText("");
+            else etGuaranteeNo.setText(guaranteeNumber);
+
+            etCHFID.setText(obj.getString("insurance_number"));
+            if(!obj.getString("claim_status").equals("Rejected"))
+                etCHFID.setText("");
+
+            etStartDate.setText(obj.getString("visit_date_from"));
+            etEndDate.setText(obj.getString("visit_date_to"));
+
+            etDiagnosis.setText(sql.getDiseaseCode(obj.getString("main_dg")));
+            etDiagnosis1.setText(sql.getDiseaseCode(obj.getString("sec_dg_1")));
+            etDiagnosis2.setText(sql.getDiseaseCode(obj.getString("sec_dg_2")));
+            etDiagnosis3.setText(sql.getDiseaseCode(obj.getString("sec_dg_3")));
+            etDiagnosis4.setText(sql.getDiseaseCode(obj.getString("sec_dg_4")));
+
+            switch (obj.getString("visit_type")) {
+                case "Emergency": rgVisitType.check(R.id.rbEmergency); break;
+                case "Referral": rgVisitType.check(R.id.rbReferral); break;
+                case "Other": rgVisitType.check(R.id.rbOther); break;
+                default: rgVisitType.clearCheck();
+            }
+
+            lvItemList.clear();
+            if(obj.has("items")) {
+                JSONArray items = obj.getJSONArray("items");
+                for (int i = 0; i < items.length(); i++) {
+                    HashMap<String, String> item = new HashMap<>();
+                    JSONObject itemJson = items.getJSONObject(i);
+
+                    item.put("Name", itemJson.getString("item"));
+                    item.put("Code", itemJson.getString("item_code"));
+                    item.put("Price", itemJson.getString("item_price"));
+                    item.put("Quantity", itemJson.getString("item_qty"));
+
+                    lvItemList.add(item);
+                }
+            }
+            tvItemTotal.setText(String.valueOf(lvItemList.size()));
+
+            lvServiceList.clear();
+            if(obj.has("services")) {
+                JSONArray services = obj.getJSONArray("services");
+                for (int i = 0; i < services.length(); i++) {
+                    HashMap<String, String> service = new HashMap<>();
+                    JSONObject serviceJson = services.getJSONObject(i);
+
+                    service.put("Name", serviceJson.getString("service"));
+                    service.put("Code", serviceJson.getString("service_code"));
+                    service.put("Price", serviceJson.getString("service_price"));
+                    service.put("Quantity", serviceJson.getString("service_qty"));
+
+                    lvServiceList.add(service);
+                }
+            }
+            tvServiceTotal.setText(String.valueOf(lvServiceList.size()));
+
+            TotalItemService = lvItemList.size()+lvServiceList.size();
+
+            etCHFID.requestFocus();
+        } catch ( JSONException e ) {
+            e.printStackTrace();
+        }
     }
 
     private int getTotalItem(){

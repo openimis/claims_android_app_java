@@ -8,8 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Iterator;
 
 /**
  * Created by Hiren on 06/09/2019.
@@ -19,6 +22,7 @@ public class ReviewFragment extends Fragment {
     TextView health_facility_code;
     TextView healthFacilityName;
     TextView PatientName;
+    TextView insuranceNumber;
     TextView ClaimCode;
     TextView MainDg;
     TextView SecDg1;
@@ -51,9 +55,11 @@ public class ReviewFragment extends Fragment {
         try {
 
                 JSONObject object = new JSONObject(c);
+                filterNull(object);
 
                 health_facility_code = (TextView) v.findViewById(R.id.healthFacilityCode);
                 healthFacilityName = (TextView) v.findViewById(R.id.healthFacilityName);
+                insuranceNumber = (TextView) v.findViewById(R.id.insuranceNo);
                 PatientName = (TextView) v.findViewById(R.id.PatientName);
                 ClaimCode = (TextView) v.findViewById(R.id.ClaimCode);
                 MainDg = (TextView) v.findViewById(R.id.MainDg);
@@ -77,6 +83,7 @@ public class ReviewFragment extends Fragment {
 
                 health_facility_code.setText(object.getString("health_facility_code"));
                 healthFacilityName.setText(object.getString("health_facility_name"));
+                insuranceNumber.setText(object.getString("insurance_number"));
                 PatientName.setText(object.getString("patient_name"));
                 ClaimCode.setText(object.getString("claim_number"));
                 MainDg.setText(object.getString("main_dg"));
@@ -101,5 +108,31 @@ public class ReviewFragment extends Fragment {
             e.printStackTrace();
         }
         return v;
+    }
+
+    public static JSONObject filterNull(JSONObject jsonObj) throws JSONException {
+        Iterator<String> it = jsonObj.keys();
+        Object obj = null;
+        String key = null;
+        while (it.hasNext()) {
+            key = it.next();
+            obj = jsonObj.get(key);
+            if (obj instanceof JSONObject) {
+                filterNull((JSONObject) obj);
+            }
+            if (obj instanceof JSONArray) {
+                JSONArray objArr = (JSONArray) obj;
+                for (int i = 0; i < objArr.length(); i++) {
+                    filterNull(objArr.getJSONObject(i));
+                }
+            }
+            if (obj == null) {
+                jsonObj.put(key, "");
+            }
+            if (obj.equals(null) || obj.equals(JSONObject.NULL)) {
+                jsonObj.put(key, "");
+            }
+        }
+        return jsonObj;
     }
 }

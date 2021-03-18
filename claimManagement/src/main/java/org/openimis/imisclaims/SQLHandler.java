@@ -156,6 +156,26 @@ public class SQLHandler extends SQLiteOpenHelper{
 		return c;
 	}
 
+	public String getDiseaseCode(String disease)
+	{
+		String code = "";
+		try {
+			String table = "tblReferences";
+			String[] columns = {"Code"};
+			String selection = "Type='D' and Name=?";
+			String[] selectionArgs = {disease};
+			String limit = "1";
+			Cursor c = db.query(table,columns,selection,selectionArgs,null,null,null,limit);
+			if(c.getCount()==1) {
+				c.moveToFirst();
+				code = c.getString(c.getColumnIndexOrThrow("Code"));
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+		return code;
+	}
+
 	public Cursor SearchItems(String InputText){
 		//Cursor c = db.rawQuery("SELECT Code as _id,Code, Name,Code + ' ' + Name AS Disease FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
 		Cursor c = dbMapping.rawQuery("SELECT Code as _id,Code, Name FROM tblMapping WHERE Type = 'I' ",null);
@@ -175,7 +195,6 @@ public class SQLHandler extends SQLiteOpenHelper{
 
 		return c;
 	}
-
 
 	//Created by Herman 27.03.2018
 	public String getAdjustibility(String FieldName) {

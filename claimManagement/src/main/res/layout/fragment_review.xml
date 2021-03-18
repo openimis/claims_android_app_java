@@ -61,6 +61,27 @@
             android:textSize="12dp"
             android:textStyle="bold"
             android:textColor="@color/Black"
+            android:text="@string/InsuranceNumber"/>
+        <TextView
+            android:id="@+id/insuranceNo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"
+            android:textColor="@color/Black"
+            android:text="@string/InsuranceNumber"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
             android:text="@string/PatientName"/>
         <TextView
             android:id="@+id/PatientName"

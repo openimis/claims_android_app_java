@@ -1199,6 +1199,7 @@ public class MainActivity extends AppCompatActivity
                         ob = new JSONObject(content);
                         //error_occurred = ob.getString("error_occured");
                         //if(error_occurred.equals("true")){
+
                         controls = ob.getString("claim_admins");
                         sql.ClearAll("tblClaimAdmins");
                         //Insert Diagnosese
