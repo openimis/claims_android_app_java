@@ -543,7 +543,7 @@ public class ClaimActivity extends AppCompatActivity {
     private void fillForm(JSONObject obj)
     {
         try {
-            String newClaimNumber = "@" + obj.getString("claim_number");
+            String newClaimNumber = getResources().getString(R.string.restoredClaimNoPrefix) + obj.getString("claim_number");
             etClaimCode.setText(newClaimNumber);
 
             etHealthFacility.setText(obj.getString("health_facility_code"));
