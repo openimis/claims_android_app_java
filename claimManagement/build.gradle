@@ -1,4 +1,13 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 apply plugin: 'com.android.application'
+
+static def getDate() {
+    LocalDateTime date = LocalDateTime.now()
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern('dd MMMM yyyy HH:mm').withLocale(Locale.UK)
+    return date.format(formatter)
+}
 
 android {
     compileSdkVersion 28
@@ -24,40 +33,41 @@ android {
     flavorDimensions 'std'
 
     productFlavors.all {
-        resValue "string", "app_name", "openIMIS Claims"
+        resValue "string", "app_name_claims", "openIMIS Claims"
+        resValue "string", "ReleaseDateValue", getDate()
     }
 
     productFlavors {
         demoProd {
             applicationIdSuffix ".demoProd"
-            resValue "string", "app_name", "Claims Demo"
+            resValue "string", "app_name_claims", "Claims Demo"
             dimension 'std'
         }
 
         demoRelease {
             applicationIdSuffix ".demoRelease"
-            resValue "string", "app_name", "Claims Release"
+            resValue "string", "app_name_claims", "Claims Release"
             dimension 'std'
         }
 
         chfDev {
             applicationIdSuffix ".chfDev"
-            resValue "string", "app_name", "Claims CHF"
+            resValue "string", "app_name_claims", "Claims CHF"
             dimension 'std'
         }
         mvDev {
             applicationIdSuffix ".mvDev"
-            resValue "string", "app_name", "Claims MV"
+            resValue "string", "app_name_claims", "Claims MV"
             dimension 'std'
         }
         bephaDev {
             applicationIdSuffix ".bephaDev"
-            resValue "string", "app_name", "Claims BEPHA"
+            resValue "string", "app_name_claims", "Claims BEPHA"
             dimension 'std'
         }
         local {
             applicationIdSuffix ".local"
-            resValue "string", "app_name", "Claims Local"
+            resValue "string", "app_name_claims", "Claims Local"
             dimension 'std'
         }
     }

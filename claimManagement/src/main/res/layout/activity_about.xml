@@ -1,38 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/side_nav_bar"
     android:orientation="vertical"
     android:padding="25dp"
-    android:background="@drawable/side_nav_bar"
     tools:context="org.openimis.imisclaims.About">
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:typeface="monospace"
+        android:layout_marginStart="10sp"
         android:fontFamily="sans-serif-light"
-        android:textSize="25dp"
+        android:text="@string/about"
         android:textColor="@color/white"
-        android:layout_marginLeft="10dp"
-        android:text="@string/about" />
+        android:textSize="25sp"
+        android:typeface="monospace" />
     <ImageView
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@mipmap/ic_launcher_round"/>
-    
-    <TextView
+        android:src="@mipmap/ic_launcher_round" />
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:typeface="monospace"
-        android:fontFamily="sans-serif-light"
-        android:textSize="15dp"
-        android:layout_marginLeft="10dp"
-        android:textColor="@color/white"
-        android:text="@string/release"
-        />
-
+        android:layout_height="25sp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/Version"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:typeface="monospace" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:fontFamily="sans-serif-light"
+            android:text="2.0.1"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:typeface="monospace" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="25sp"
+        android:layout_marginTop="5sp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/ReleaseDate"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:typeface="monospace" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/ReleaseDateValue"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:typeface="monospace" />
+    </LinearLayout>
 </LinearLayout>

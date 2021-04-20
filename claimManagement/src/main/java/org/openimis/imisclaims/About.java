@@ -15,8 +15,10 @@ public class About extends AppCompatActivity {
         setContentView(R.layout.activity_about);
 
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("");
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("");
+        }
     }
 
     public boolean onOptionsItemSelected(MenuItem item){
