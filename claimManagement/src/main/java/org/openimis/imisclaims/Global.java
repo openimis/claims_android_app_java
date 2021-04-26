@@ -26,6 +26,14 @@
 package org.openimis.imisclaims;
 
 import android.app.Application;
+import android.os.Environment;
+import android.util.Log;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.openimis.imisclaims.BuildConfig.APP_DIR;
 
 /**
  * Created by HP on 05/16/2017.
@@ -38,6 +46,9 @@ public class Global extends Application {
     private  int OfficerId;
     private String token;
     private boolean isLogged;
+
+    private String MainDirectory;
+    private Map<String, String> SubDirectories = new HashMap<>();
 
     private String ImageFolder;
 
@@ -98,5 +109,41 @@ public class Global extends Application {
     }
     public String getOfficeName(){
         return this.OfficerName;
+    }
+
+    private String createOrCheckDirectory(String path) {
+        File dir = new File(path);
+
+        if (dir.exists() || dir.mkdir()) {
+            return path;
+        } else {
+            return "";
+        }
+    }
+
+    public String getMainDirectory() {
+        if (MainDirectory == null) {
+            String documentsDir = createOrCheckDirectory(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString());
+            MainDirectory = createOrCheckDirectory(documentsDir + File.separator + APP_DIR);
+
+            if ("".equals(documentsDir) || "".equals(MainDirectory)) {
+                Log.w("DIRS", "Main directory could not be created");
+            }
+        }
+        return MainDirectory;
+    }
+
+    public String getSubdirectory(String subdirectory) {
+        if (!SubDirectories.containsKey(subdirectory)) {
+            String subDir = createOrCheckDirectory(getMainDirectory() + File.separator + subdirectory);
+
+            if ("".equals(subDir)) {
+                Log.w("DIRS", subdirectory + " directory could not be created");
+                return null;
+            } else {
+                SubDirectories.put(subdirectory, subDir);
+            }
+        }
+        return SubDirectories.get(subdirectory);
     }
 }

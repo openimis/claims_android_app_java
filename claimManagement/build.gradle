@@ -10,11 +10,12 @@ static def getDate() {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
+    buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "org.openimis.imisclaims"
         minSdkVersion 21
-        targetSdkVersion 27
+        targetSdkVersion 30
         versionCode 3
         versionName "2.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -33,6 +34,7 @@ android {
     flavorDimensions 'std'
 
     productFlavors.all {
+        buildConfigField "String", "APP_DIR", '"IMIS"'
         resValue "string", "app_name_claims", "openIMIS Claims"
         resValue "string", "ReleaseDateValue", getDate()
     }
@@ -40,12 +42,14 @@ android {
     productFlavors {
         demoProd {
             applicationIdSuffix ".demoProd"
+            buildConfigField "String", "APP_DIR", '"IMIS-DEMOPROD"'
             resValue "string", "app_name_claims", "Claims Demo"
             dimension 'std'
         }
 
         demoRelease {
             applicationIdSuffix ".demoRelease"
+            buildConfigField "String", "APP_DIR", '"IMIS-DEMORELEASE"'
             resValue "string", "app_name_claims", "Claims Release"
             dimension 'std'
         }
@@ -53,20 +57,24 @@ android {
         chfDev {
             applicationIdSuffix ".chfDev"
             resValue "string", "app_name_claims", "Claims CHF"
+            buildConfigField "String", "APP_DIR", '"IMIS-CHFDEV"'
             dimension 'std'
         }
         mvDev {
             applicationIdSuffix ".mvDev"
+            buildConfigField "String", "APP_DIR", '"IMIS-MVDEV"'
             resValue "string", "app_name_claims", "Claims MV"
             dimension 'std'
         }
         bephaDev {
             applicationIdSuffix ".bephaDev"
+            buildConfigField "String", "APP_DIR", '"IMIS-BEPHADEV"'
             resValue "string", "app_name_claims", "Claims BEPHA"
             dimension 'std'
         }
         local {
             applicationIdSuffix ".local"
+            buildConfigField "String", "APP_DIR", '"IMIS-LOCAL"'
             resValue "string", "app_name_claims", "Claims Local"
             dimension 'std'
         }

@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
@@ -50,11 +51,14 @@ import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION;
+
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     String Language;
     General _General = new General();
-    Global global = new Global();
+    static Global global = new Global();
     Token tokenl;
     SQLHandler sql;
     SQLiteDatabase db;
@@ -68,11 +72,11 @@ public class MainActivity extends AppCompatActivity
 
     TextView AdminName;
 
-    final static String Path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
-    String AcceptedFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/AcceptedClaims/";
-    String RejectedFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/RejectedClaims/";
-    String PendingFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
-    String TrashFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Trash";
+    static String Path = global.getMainDirectory();
+    String AcceptedFolder = global.getSubdirectory("AcceptedClaims");
+    String RejectedFolder = global.getSubdirectory("RejectedClaims");
+    String PendingFolder = global.getMainDirectory();
+    String TrashFolder = global.getSubdirectory("Trash");
 
     final String VersionField = "AppVersionEnquire";
     NotificationManager mNotificationManager;
@@ -477,22 +481,19 @@ public class MainActivity extends AppCompatActivity
         }
     }
     public void makeImisDirectories(){
-
-        String externalDirectory= Environment.getExternalStorageDirectory().toString();
-        File folder= new File(externalDirectory + "/IMIS");
+        File folder= new File(global.getMainDirectory());
         folder.mkdir();
 
-        String Path1 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
-        File myDir = new File(Path1);
+        File myDir = new File(global.getMainDirectory());
         myDir.mkdir();
 
-        File DirRejected = new File(Path1 + "RejectedClaims");
+        File DirRejected = new File(global.getSubdirectory("RejectedClaims"));
         DirRejected.mkdir();
 
-        File DirAccepted = new File(Path1 + "AcceptedClaims");
+        File DirAccepted = new File(global.getSubdirectory("AcceptedClaims"));
         DirAccepted.mkdir();
 
-        File DirTrash = new File(Path1 + "Trash");
+        File DirTrash = new File(global.getSubdirectory("Trash"));
         DirTrash.mkdir();
 
 /*        sql = new SQLHandler(this);
@@ -500,9 +501,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void CreateFolders(){
-        String MainPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
         //Here we are creating a directory
-        File MyDir = new File(MainPath);
+        File MyDir = new File(global.getMainDirectory());
         MyDir.mkdir();
     }
     private void isSDCardAvailable(){
@@ -915,9 +915,9 @@ public class MainActivity extends AppCompatActivity
 
     public void makeTrashFolder(){
 
-        File DirRejected = new File(Path + "AcceptedClaims");
-        File DirAccepted = new File(Path + "RejectedClaims");
-        File DirTrash = new File(Path + "Trash");
+        File DirRejected = new File(global.getSubdirectory("AcceptedClaims"));
+        File DirAccepted = new File(global.getSubdirectory("RejectedClaims"));
+        File DirTrash = new File(global.getSubdirectory("Trash"));
 
         DirAccepted.mkdir();
         DirRejected.mkdir();
@@ -1081,6 +1081,18 @@ public class MainActivity extends AppCompatActivity
         String[] PERMISSIONS = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
         if(!hasPermissions(this, PERMISSIONS)){
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+        }
+
+        // Ask for "Manage External Storage" permission, required in Android 11
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            String[] Android11Permissions = {Manifest.permission.MANAGE_EXTERNAL_STORAGE};
+            if(!hasPermissions(this, Android11Permissions)){
+                ActivityCompat.requestPermissions(this, Android11Permissions, PERMISSION_ALL);
+                if(!Environment.isExternalStorageManager()) {
+                    Intent intent = new Intent(ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                    startActivity(intent);
+                }
+            }
         }
     }
     public static boolean hasPermissions(Context context, String... permissions) {
@@ -1736,7 +1748,7 @@ public class MainActivity extends AppCompatActivity
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             //handle case of no SDCARD present
         } else {
-            String dir = Environment.getExternalStorageDirectory() + File.separator + "IMIS/Authentications/";
+            String dir = global.getSubdirectory("Authentications");
             //create folder
             File folder = new File(dir); //folder name
             folder.mkdirs();
@@ -1759,7 +1771,7 @@ public class MainActivity extends AppCompatActivity
     public String getLastUpdateDate(){
         String aBuffer = "";
         try {
-            String dir = Environment.getExternalStorageDirectory() + File.separator + "IMIS/Authentications/";
+            String dir = global.getSubdirectory("Authentications");
             File myFile = new File("/"+dir+"/last_update_date.txt");
             FileInputStream fIn = new FileInputStream(myFile);
             BufferedReader myReader = new BufferedReader(new InputStreamReader(fIn));
