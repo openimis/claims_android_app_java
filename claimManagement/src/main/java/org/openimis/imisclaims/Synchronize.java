@@ -69,8 +69,8 @@ public class Synchronize extends AppCompatActivity {
 
     private String salt;
 
-    String PendingFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
-    String TrashFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Trash";
+    String PendingFolder = MainActivity.global.getMainDirectory();
+    String TrashFolder = MainActivity.global.getSubdirectory("Trash");
 
     Runnable ChangeMessage = new Runnable() {
 
@@ -397,7 +397,7 @@ public class Synchronize extends AppCompatActivity {
     }
 
     public boolean UploadAllClaimsTrash(){
-        final String Path1 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Trash";
+        final String Path1 = MainActivity.global.getSubdirectory("Trash");
         //Get the total number of files to upload
         Claims = GetListOfJSONFiles(Path1,"Claim_");
         ClaimsJSON = GetListOfJSONFiles(ClaimActivity.Path,"ClaimJSON_");
@@ -554,17 +554,19 @@ public class Synchronize extends AppCompatActivity {
     private void MoveFile(File file){
         switch(result){
             case 1:
-                file.renameTo(new File(ClaimActivity.Path + "AcceptedClaims/" + file.getName()));
+                //file.renameTo(new File(ClaimActivity.Path + "AcceptedClaims/" + file.getName()));
+                file.renameTo(new File(global.getSubdirectory("AcceptedClaims"), file.getName()));
                 break;
             case 2:
-                file.renameTo(new File(ClaimActivity.Path + "RejectedClaims/" + file.getName()));
+                //file.renameTo(new File(ClaimActivity.Path + "RejectedClaims/" + file.getName()));
+                file.renameTo(new File(global.getSubdirectory("RejectedClaims"), file.getName()));
                 break;
         }
     }
     public String getClaimText(String fileName){
         String aBuffer = "";
         try {
-            String dir = Environment.getExternalStorageDirectory() + File.separator + "IMIS/";
+            String dir = MainActivity.global.getMainDirectory();
             File myFile = new File("/" + dir + "/" + fileName + "");//"/"+dir+"/MasterData.txt"
 //            BufferedReader myReader = new BufferedReader(
 //                    new InputStreamReader(
@@ -600,8 +602,8 @@ public class Synchronize extends AppCompatActivity {
         String d = format.format(cal.getTime());
         String dzip = formatZip.format(cal.getTime());
 
-        String targetPathClaims = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
-        String zipFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Claims_"+global.getOfficerCode()+"_"+dzip+".rar";
+        String targetPathClaims = MainActivity.global.getMainDirectory();
+        String zipFilePath = MainActivity.global.getSubdirectory("Claims") + "_" + global.getOfficerCode()+"_"+dzip+".rar";
         //String unzippedFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Photos_"+global.getOfficerCode()+"_"+d+"";
 
         String password = "";

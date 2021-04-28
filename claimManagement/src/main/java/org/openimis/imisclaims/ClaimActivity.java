@@ -72,7 +72,7 @@ public class ClaimActivity extends AppCompatActivity {
     final String VersionField = "AppVersionClaim";
     final String ApkFileLocation = _General.getDomain() + "/Apps/ClaimManagement.apk";
     final int SIMPLE_NOTIFICATION_ID = 98029;
-    final static String Path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
+    public static String Path;
 
     NotificationManager mNotificationManager;
     Vibrator vibrator;
@@ -122,6 +122,8 @@ public class ClaimActivity extends AppCompatActivity {
         }
     };
 
+    private Global globalConfig;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,6 +136,8 @@ public class ClaimActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle(getResources().getString(R.string.app_name_claim));
 
+        globalConfig = (Global) getApplicationContext();
+        Path = globalConfig.getMainDirectory();
 
         //Create folder if folder is not exists
         //makeImisDirectories();
@@ -294,10 +298,10 @@ public class ClaimActivity extends AppCompatActivity {
         File myDir = new File(Path);
         myDir.mkdir();
 
-        File DirRejected = new File(Path + "RejectedClaims");
+        File DirRejected = new File(globalConfig.getSubdirectory("RejectedClaims"));
         DirRejected.mkdir();
 
-        File DirAccepted = new File(Path + "AcceptedClaims");
+        File DirAccepted = new File(globalConfig.getSubdirectory("AcceptedClaims"));
         DirAccepted.mkdir();
 
         sql = new SQLHandler(this);
@@ -828,10 +832,10 @@ public class ClaimActivity extends AppCompatActivity {
         File MyDir = new File(Path);
         MyDir.mkdir();
 
-        File DirRejected = new File(Path + "RejectedClaims");
+        File DirRejected = new File(globalConfig.getSubdirectory("RejectedClaims"));
         DirRejected.mkdir();
 
-        File DirAccepted = new File(Path + "AcceptedClaims");
+        File DirAccepted = new File(globalConfig.getSubdirectory("AcceptedClaims"));
         DirAccepted.mkdir();
 
         //Create a file name
@@ -1053,7 +1057,7 @@ public class ClaimActivity extends AppCompatActivity {
         String d = format.format(cal.getTime());
 
         FileName = "ClaimJSON_" + etHealthFacility.getText().toString() + "_" + etClaimCode.getText().toString() + "_" + d + ".txt";
-        ClaimFile = new File(MyDir,FileName);
+        ClaimFile = new File(MyDir, FileName);
 
         //Get the selected radio button
         int SelectedId;
@@ -1157,8 +1161,8 @@ public class ClaimActivity extends AppCompatActivity {
             jsonObject.put("Claim",FullObject);
 
             try {
-                String dir = Environment.getExternalStorageDirectory() + File.separator + "IMIS/";
-                FileOutputStream fOut = new FileOutputStream(dir+FileName);
+                String dir = globalConfig.getMainDirectory();
+                FileOutputStream fOut = new FileOutputStream(ClaimFile);
                 OutputStreamWriter myOutWriter =new OutputStreamWriter(fOut);
                 myOutWriter.append(jsonObject.toString());
                 myOutWriter.close();
@@ -1181,7 +1185,7 @@ public class ClaimActivity extends AppCompatActivity {
     public String getClaimText(String fileName){
         String aBuffer = "";
         try {
-            String dir = Environment.getExternalStorageDirectory() + File.separator + "IMIS/";
+            String dir = globalConfig.getMainDirectory();
             File myFile = new File("/" + dir + "/" + fileName + "");//"/"+dir+"/MasterData.txt"
 //            BufferedReader myReader = new BufferedReader(
 //                    new InputStreamReader(
@@ -1207,10 +1211,10 @@ public class ClaimActivity extends AppCompatActivity {
     private void MoveFile(File file){
         switch(result){
             case 1:
-                file.renameTo(new File(Path + "AcceptedClaims/" + file.getName()));
+                file.renameTo(new File(globalConfig.getSubdirectory("AcceptedClaims"), file.getName()));
                 break;
             case 2:
-                file.renameTo(new File(Path + "RejectedClaims/" + file.getName()));
+                file.renameTo(new File(globalConfig.getSubdirectory("RejectedClaims"), file.getName()));
                 break;
         }
     }

@@ -18,10 +18,10 @@ public class Report extends AppCompatActivity {
     TextView pending_count;
 
 
-    String AcceptedFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/AcceptedClaims/";
-    String RejectedFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/RejectedClaims/";
-    String PendingFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
-    String TrashFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Trash";
+    String AcceptedFolder = MainActivity.global.getSubdirectory("AcceptedClaims");
+    String RejectedFolder = MainActivity.global.getSubdirectory("RejectedClaims");
+    String PendingFolder = MainActivity.global.getMainDirectory();
+    String TrashFolder = MainActivity.global.getSubdirectory("Trash");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

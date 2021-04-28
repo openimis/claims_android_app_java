@@ -518,7 +518,7 @@
   <string name="date_processed_to">Traitée au</string>
   <string name="search">Rechercher</string>
   <string name="HealthFacilityName">Établissement de santé</string>
-  <string name="InsureeNumber">Numéro d'assurance</string>
+  <string name="InsureeNumber">Numéro d assurance</string>
   <string name="date_claimed">Date de prestation</string>
   <string name="PatientName">Nom du patient</string>
   <string name="MainDg">Dg principale</string>
