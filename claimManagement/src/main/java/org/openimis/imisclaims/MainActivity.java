@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-
+        createFolders();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -500,11 +500,14 @@ public class MainActivity extends AppCompatActivity
         sql.onOpen(db);*/
     }
 
-    public void CreateFolders(){
-        //Here we are creating a directory
-        File MyDir = new File(global.getMainDirectory());
-        MyDir.mkdir();
+    public void createFolders() {
+        global.getMainDirectory();
+        String[] subdirectories = {"Enrolment", "Photos", "Database", "Authentications", "AcceptedClaims", "RejectedClaims", "Trash"};
+        for (String dir : subdirectories) {
+            global.getSubdirectory(dir);
+        }
     }
+
     private void isSDCardAvailable(){
 
         if (_General.isSDCardAvailable() == 0){
