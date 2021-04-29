@@ -554,11 +554,9 @@ public class Synchronize extends AppCompatActivity {
     private void MoveFile(File file){
         switch(result){
             case 1:
-                //file.renameTo(new File(ClaimActivity.Path + "AcceptedClaims/" + file.getName()));
                 file.renameTo(new File(global.getSubdirectory("AcceptedClaims"), file.getName()));
                 break;
             case 2:
-                //file.renameTo(new File(ClaimActivity.Path + "RejectedClaims/" + file.getName()));
                 file.renameTo(new File(global.getSubdirectory("RejectedClaims"), file.getName()));
                 break;
         }
