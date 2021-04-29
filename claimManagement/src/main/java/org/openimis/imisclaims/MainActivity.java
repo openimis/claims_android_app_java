@@ -72,11 +72,11 @@ public class MainActivity extends AppCompatActivity
 
     TextView AdminName;
 
-    static String Path = global.getMainDirectory();
-    String AcceptedFolder = global.getSubdirectory("AcceptedClaims");
-    String RejectedFolder = global.getSubdirectory("RejectedClaims");
-    String PendingFolder = global.getMainDirectory();
-    String TrashFolder = global.getSubdirectory("Trash");
+    static String Path;
+    String AcceptedFolder;
+    String RejectedFolder;
+    String PendingFolder;
+    String TrashFolder;
 
     final String VersionField = "AppVersionEnquire";
     NotificationManager mNotificationManager;
@@ -104,9 +104,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestPermision();
+
+        Path = global.getMainDirectory();
+        AcceptedFolder = global.getSubdirectory("AcceptedClaims");
+        RejectedFolder = global.getSubdirectory("RejectedClaims");
+        PendingFolder = global.getMainDirectory();
+        TrashFolder = global.getSubdirectory("Trash");
+
         setContentView(R.layout.activity_main);
 
-        requestPermision();
         toRestApi = new ToRestApi();
         tokenl = new Token();
 
