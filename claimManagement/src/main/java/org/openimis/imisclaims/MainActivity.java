@@ -123,26 +123,20 @@ public class MainActivity extends AppCompatActivity
 
         }.start();
 
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        //createFolders();
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        //makeTrashFolder();
 
         accepted_count = findViewById(R.id.accepted_count);
         rejected_count = findViewById(R.id.rejected_count);
         pending_count = findViewById(R.id.pending_count);
 
         AdminName = (TextView) findViewById(R.id.AdminName);
-
-
     }
 
 
@@ -360,9 +354,6 @@ public class MainActivity extends AppCompatActivity
     }
     private void initializeDb3File(SQLHandler sql) {
         if (checkDataBase()) {
-/*            sql = new SQLHandler(this);
-            sql.onOpen(db);*/
-            //if(sql.getAdjustibility("ClaimAdministrator").length() == 0){
             if (_General.isNetworkAvailable(this)) {
                 //DownloadMasterDialog();
                 if (getControls()) {
@@ -390,10 +381,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
 
-
-//            }else{
-//                ClaimAdminDialogBox();
-//            }
         }
     }
     public void makeImisDirectories(){
@@ -412,8 +399,6 @@ public class MainActivity extends AppCompatActivity
         File DirTrash = new File(global.getSubdirectory("Trash"));
         DirTrash.mkdir();
 
-/*        sql = new SQLHandler(this);
-        sql.onOpen(db);*/
     }
 
     public void createFolders() {

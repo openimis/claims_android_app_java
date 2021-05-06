@@ -115,7 +115,7 @@ public class Report extends AppCompatActivity {
             count_trash = 0;
         }
 
-        int total_pending = count_trash + count_pending;
+        int total_pending = count_pending;
 
         accepted_count.setText(String.valueOf(countAccepted));
         rejected_count.setText(String.valueOf(countRejected));
