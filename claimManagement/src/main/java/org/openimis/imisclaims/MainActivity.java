@@ -967,14 +967,26 @@ public class MainActivity extends AppCompatActivity
                     createFolders();
                     makeImisDirectories();
                     makeTrashFolder();
-                    sql = new SQLHandler(this);
-                    sql.onOpen(db);
-                    sql.createTables();
+
+                    //check if databases exist in phone
+                    File database = new File(global.getSubdirectory("Database") + "/" + "ImisData.db3");
+                    File databaseMapping = new File(global.getSubdirectory("Database") + "/" + "Mapping.db3");
+                    //if one of database not exist - then init it and fill master data etc
+                    if (!database.exists() || !databaseMapping.exists()) {
+                        sql = new SQLHandler(this);
+                        sql.onOpen(db);
+                        sql.createTables();
+                        initializeDb3File(sql);
+                    }
+                    else{
+                        //if databases exist: show only claim admin dialog box without init data
+                        sql = new SQLHandler(this);
+                        sql.onOpen(db);
+                        ClaimAdminDialogBox();
+                    }
                     refreshCont();
-                    initializeDb3File(sql);
 
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     //Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
@@ -1021,7 +1033,7 @@ public class MainActivity extends AppCompatActivity
     public boolean checkDataBase() {
         SQLiteDatabase checkDB = null;
         try {
-            checkDB = SQLiteDatabase.openDatabase(Path + "ImisData.db3", null,
+            checkDB = SQLiteDatabase.openDatabase(MainActivity.global.getSubdirectory("Database") + "/" + "ImisData.db3", null,
                     SQLiteDatabase.OPEN_READONLY);
         } catch (SQLiteException e) {
             // database doesn't exist yet.
