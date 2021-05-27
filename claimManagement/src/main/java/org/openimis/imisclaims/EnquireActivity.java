@@ -363,7 +363,7 @@ public class EnquireActivity extends AppCompatActivity {
 
             result = "[{";
 
-            db = openOrCreateDatabase(Path +"ImisData.db3",SQLiteDatabase.OPEN_READONLY, null);
+            db = openOrCreateDatabase(MainActivity.global.getSubdirectory("Database") + "/" +"ImisData.db3", SQLiteDatabase.OPEN_READONLY, null);
 
             String[] columns = {"CHFID" ,"Photo" , "InsureeName", "DOB", "Gender","ProductCode", "ProductName", "ExpiryDate", "Status", "DedType", "Ded1", "Ded2", "Ceiling1", "Ceiling2"};
 

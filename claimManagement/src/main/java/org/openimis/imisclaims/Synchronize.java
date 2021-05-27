@@ -294,7 +294,7 @@ public class Synchronize extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         boolean res1 = UploadAllClaims();
-                        boolean res2 = UploadAllClaimsTrash();
+                        //boolean res2 = UploadAllClaimsTrash();
 /*                        if(res1 == true || res2 == true){
                             reFreshCount();
 *//*                            finish();
@@ -400,7 +400,7 @@ public class Synchronize extends AppCompatActivity {
         final String Path1 = MainActivity.global.getSubdirectory("Trash");
         //Get the total number of files to upload
         Claims = GetListOfJSONFiles(Path1,"Claim_");
-        ClaimsJSON = GetListOfJSONFiles(ClaimActivity.Path,"ClaimJSON_");
+        ClaimsJSON = GetListOfJSONFiles(Path1,"ClaimJSON_");
         TotalClaims = Claims.length;
         int TotalClaimsTrash = Integer.parseInt(String.valueOf(GetListOfFiles(TrashFolder).length));
 
@@ -422,8 +422,8 @@ public class Synchronize extends AppCompatActivity {
 
         pd = ProgressDialog.show(this,"",getResources().getString(R.string.Uploading));
 
-        Claims = GetListOfJSONFiles(ClaimActivity.Path,"Claim_");
-        ClaimsJSON = GetListOfJSONFiles(ClaimActivity.Path,"ClaimJSON_");
+        Claims = GetListOfJSONFiles(Path1,"Claim_");
+        ClaimsJSON = GetListOfJSONFiles(Path1,"ClaimJSON_");
         TotalClaims = Claims.length;
 
         new Thread(){
@@ -643,10 +643,11 @@ public class Synchronize extends AppCompatActivity {
             }
 
             Compressor.zip(FilesToAdd, zipFilePath, password);
-
-            for(int i = 0; i< Claim.listFiles().length; i++){
-                if(Claim.listFiles()[i].isFile()){
-                    String fname = Claim.listFiles()[i].getName();
+            // list of files to process to  check move to trash
+            File[] listFilesToCheck = Claim.listFiles();
+            for(int i = 0; i< listFilesToCheck.length; i++){
+                if(listFilesToCheck[i].isFile()){
+                    String fname = listFilesToCheck[i].getName();
                     String str;
                     try{
                         str = fname.substring(0,6);
@@ -654,7 +655,10 @@ public class Synchronize extends AppCompatActivity {
                         continue;
                     }
                     if(str.equals("Claim_")){
-                        MoveFileToTrash(Claim.listFiles()[i]);
+                        MoveFileToTrash(listFilesToCheck[i]);
+                    }
+                    if(fname.startsWith("ClaimJSON_")){
+                        MoveFileToTrash(listFilesToCheck[i]);
                     }
                 }
             }
@@ -673,7 +677,7 @@ public class Synchronize extends AppCompatActivity {
     }
 
     private void MoveFileToTrash(File file){
-        file.renameTo(new File(ClaimActivity.Path + "Trash/" + file.getName()));
+        file.renameTo(new File(global.getSubdirectory("Trash"), file.getName()));
     }
 
     public void reFreshCount(){
@@ -718,7 +722,7 @@ public class Synchronize extends AppCompatActivity {
         }
 
 
-        int total_pending = count_trash + count_pending;
+        int total_pending = count_pending;
 
         tvUploadClaims.setText(String.valueOf(total_pending));
         tvZipClaims.setText(String.valueOf(count_pending));

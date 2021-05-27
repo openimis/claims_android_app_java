@@ -106,12 +106,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         requestPermision();
 
-        Path = global.getMainDirectory();
-        AcceptedFolder = global.getSubdirectory("AcceptedClaims");
-        RejectedFolder = global.getSubdirectory("RejectedClaims");
-        PendingFolder = global.getMainDirectory();
-        TrashFolder = global.getSubdirectory("Trash");
-
         setContentView(R.layout.activity_main);
 
         toRestApi = new ToRestApi();
@@ -129,118 +123,27 @@ public class MainActivity extends AppCompatActivity
 
         }.start();
 
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        createFolders();
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        makeTrashFolder();
 
         accepted_count = findViewById(R.id.accepted_count);
         rejected_count = findViewById(R.id.rejected_count);
         pending_count = findViewById(R.id.pending_count);
 
         AdminName = (TextView) findViewById(R.id.AdminName);
-
-
-        File acceptedClaims = new File(AcceptedFolder);
-        File rejectedClaims = new File(RejectedFolder);
-        File pendingFolder = new File(PendingFolder);
-        File trashFolder = new File(TrashFolder);
-
-        //Accepted & Rejected
-        int countAccepted = 0;
-        int countRejected = 0;
-        if(acceptedClaims.listFiles() != null){
-            for(int i = 0; i< acceptedClaims.listFiles().length; i++){
-                String fname = acceptedClaims.listFiles()[i].getName();
-                String str;
-                try{
-                    str = fname.substring(0,6);
-                }catch (StringIndexOutOfBoundsException e){
-                    continue;
-                }
-                if(str.equals("Claim_")){
-                    countAccepted++;
-                }
-            }
-        }else {
-            countAccepted = 0;
-        }
-
-        if(rejectedClaims.listFiles() != null){
-            for(int i = 0; i< rejectedClaims.listFiles().length; i++){
-                String fname = rejectedClaims.listFiles()[i].getName();
-                String str;
-                try{
-                    str = fname.substring(0,6);
-                }catch (StringIndexOutOfBoundsException e){
-                    continue;
-                }
-                if(str.equals("Claim_")){
-                    countRejected++;
-                }
-            }
-        }else {
-            countRejected = 0;
-        }
-        //Pending & Trash
-        int count_pending = 0;
-        int count_trash = 0;
-        if(pendingFolder.listFiles() != null){
-            for(int i = 0; i< pendingFolder.listFiles().length; i++){
-                String fname = pendingFolder.listFiles()[i].getName();
-                String str;
-                try{
-                    str = fname.substring(0,6);
-                }catch (StringIndexOutOfBoundsException e){
-                    continue;
-                }
-                if(str.equals("Claim_")){
-                    count_pending++;
-                }
-            }
-        }else {
-            count_pending = 0;
-        }
-
-        if(trashFolder.listFiles() != null){
-            for(int i = 0; i< trashFolder.listFiles().length; i++){
-                String fname = trashFolder.listFiles()[i].getName();
-                String str;
-                try{
-                    str = fname.substring(0,6);
-                }catch (StringIndexOutOfBoundsException e){
-                    continue;
-                }
-                if(str.equals("Claim_")){
-                    count_trash++;
-                }
-            }
-        }else {
-            count_trash = 0;
-        }
-
-        int total_pending = count_trash + count_pending;
-
-        accepted_count.setText(String.valueOf(countAccepted));
-        rejected_count.setText(String.valueOf(countRejected));
-        pending_count.setText(String.valueOf(total_pending));
-
-
     }
 
 
     @Override
     public void onResume() {
-        refreshCont();
         super.onResume();
+        refreshCont();
     }
 
     @Override
@@ -451,9 +354,6 @@ public class MainActivity extends AppCompatActivity
     }
     private void initializeDb3File(SQLHandler sql) {
         if (checkDataBase()) {
-/*            sql = new SQLHandler(this);
-            sql.onOpen(db);*/
-            //if(sql.getAdjustibility("ClaimAdministrator").length() == 0){
             if (_General.isNetworkAvailable(this)) {
                 //DownloadMasterDialog();
                 if (getControls()) {
@@ -481,10 +381,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
 
-
-//            }else{
-//                ClaimAdminDialogBox();
-//            }
         }
     }
     public void makeImisDirectories(){
@@ -503,8 +399,6 @@ public class MainActivity extends AppCompatActivity
         File DirTrash = new File(global.getSubdirectory("Trash"));
         DirTrash.mkdir();
 
-/*        sql = new SQLHandler(this);
-        sql.onOpen(db);*/
     }
 
     public void createFolders() {
@@ -934,84 +828,86 @@ public class MainActivity extends AppCompatActivity
         DirTrash.mkdir();
     }
     public void refreshCont(){
-        File acceptedClaims = new File(AcceptedFolder);
-        File rejectedClaims = new File(RejectedFolder);
-        File pendingFolder = new File(PendingFolder);
-        File trashFolder = new File(TrashFolder);
-
         int countAccepted = 0;
         int countRejected = 0;
-        if(acceptedClaims.listFiles() != null){
-            for(int i = 0; i< acceptedClaims.listFiles().length; i++){
-                String fname = acceptedClaims.listFiles()[i].getName();
-                String str;
-                try{
-                    str = fname.substring(0,6);
-                }catch (StringIndexOutOfBoundsException e){
-                    continue;
-                }
-                if(str.equals("Claim_")){
-                    countAccepted++;
-                }
-            }
-        }else {
-            countAccepted = 0;
-        }
-
-        if(rejectedClaims.listFiles() != null){
-            for(int i = 0; i< rejectedClaims.listFiles().length; i++){
-                String fname = rejectedClaims.listFiles()[i].getName();
-                String str;
-                try{
-                    str = fname.substring(0,6);
-                }catch (StringIndexOutOfBoundsException e){
-                    continue;
-                }
-                if(str.equals("Claim_")){
-                    countRejected++;
-                }
-            }
-        }else {
-            countRejected = 0;
-        }
-        //Pending & Trash
         int count_pending = 0;
         int count_trash = 0;
-        if(pendingFolder.listFiles() != null){
-            for(int i = 0; i< pendingFolder.listFiles().length; i++){
-                String fname = pendingFolder.listFiles()[i].getName();
-                String str;
-                try{
-                    str = fname.substring(0,6);
-                }catch (StringIndexOutOfBoundsException e){
-                    continue;
-                }
-                if(str.equals("Claim_")){
-                    count_pending++;
-                }
-            }
-        }else {
-            count_pending = 0;
-        }
 
-        if(trashFolder.listFiles() != null){
-            for(int i = 0; i< trashFolder.listFiles().length; i++){
-                String fname = trashFolder.listFiles()[i].getName();
-                String str;
-                try{
-                    str = fname.substring(0,6);
-                }catch (StringIndexOutOfBoundsException e){
-                    continue;
-                }
-                if(str.equals("Claim_")){
-                    count_trash++;
-                }
-            }
-        }else {
-            count_trash = 0;
-        }
+        if(AcceptedFolder != null && RejectedFolder != null && TrashFolder != null) {
+            File acceptedClaims = new File(AcceptedFolder);
+            File rejectedClaims = new File(RejectedFolder);
+            File pendingFolder = new File(PendingFolder);
+            File trashFolder = new File(TrashFolder);
 
-        int total_pending = count_trash + count_pending;
+            if (acceptedClaims.listFiles() != null) {
+                for (int i = 0; i < acceptedClaims.listFiles().length; i++) {
+                    String fname = acceptedClaims.listFiles()[i].getName();
+                    String str;
+                    try {
+                        str = fname.substring(0, 6);
+                    } catch (StringIndexOutOfBoundsException e) {
+                        continue;
+                    }
+                    if (str.equals("Claim_")) {
+                        countAccepted++;
+                    }
+                }
+            } else {
+                countAccepted = 0;
+            }
+
+            if (rejectedClaims.listFiles() != null) {
+                for (int i = 0; i < rejectedClaims.listFiles().length; i++) {
+                    String fname = rejectedClaims.listFiles()[i].getName();
+                    String str;
+                    try {
+                        str = fname.substring(0, 6);
+                    } catch (StringIndexOutOfBoundsException e) {
+                        continue;
+                    }
+                    if (str.equals("Claim_")) {
+                        countRejected++;
+                    }
+                }
+            } else {
+                countRejected = 0;
+            }
+
+            if (pendingFolder.listFiles() != null) {
+                for (int i = 0; i < pendingFolder.listFiles().length; i++) {
+                    String fname = pendingFolder.listFiles()[i].getName();
+                    String str;
+                    try {
+                        str = fname.substring(0, 6);
+                    } catch (StringIndexOutOfBoundsException e) {
+                        continue;
+                    }
+                    if (str.equals("Claim_")) {
+                        count_pending++;
+                    }
+                }
+            } else {
+                count_pending = 0;
+            }
+
+            if (trashFolder.listFiles() != null) {
+                for (int i = 0; i < trashFolder.listFiles().length; i++) {
+                    String fname = trashFolder.listFiles()[i].getName();
+                    String str;
+                    try {
+                        str = fname.substring(0, 6);
+                    } catch (StringIndexOutOfBoundsException e) {
+                        continue;
+                    }
+                    if (str.equals("Claim_")) {
+                        count_trash++;
+                    }
+                }
+            } else {
+                count_trash = 0;
+            }
+        }
+        int total_pending = count_pending;
 
         accepted_count.setText(String.valueOf(countAccepted));
         rejected_count.setText(String.valueOf(countRejected));
@@ -1063,15 +959,34 @@ public class MainActivity extends AppCompatActivity
                 if (grantResults.length > 0 && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                        makeImisDirectories();
+                    Path = global.getMainDirectory();
+                    AcceptedFolder = global.getSubdirectory("AcceptedClaims");
+                    RejectedFolder = global.getSubdirectory("RejectedClaims");
+                    PendingFolder = global.getMainDirectory();
+                    TrashFolder = global.getSubdirectory("Trash");
+                    createFolders();
+                    makeImisDirectories();
+                    makeTrashFolder();
+
+                    //check if databases exist in phone
+                    File database = new File(global.getSubdirectory("Database") + "/" + "ImisData.db3");
+                    File databaseMapping = new File(global.getSubdirectory("Database") + "/" + "Mapping.db3");
+                    //if one of database not exist - then init it and fill master data etc
+                    if (!database.exists() || !databaseMapping.exists()) {
                         sql = new SQLHandler(this);
                         sql.onOpen(db);
                         sql.createTables();
-
                         initializeDb3File(sql);
+                    }
+                    else{
+                        //if databases exist: show only claim admin dialog box without init data
+                        sql = new SQLHandler(this);
+                        sql.onOpen(db);
+                        ClaimAdminDialogBox();
+                    }
+                    refreshCont();
 
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     //Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
@@ -1088,7 +1003,7 @@ public class MainActivity extends AppCompatActivity
     //Ask for permission
     public void requestPermision(){
         int PERMISSION_ALL = 1;
-        String[] PERMISSIONS = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
+        String[] PERMISSIONS = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
         if(!hasPermissions(this, PERMISSIONS)){
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
@@ -1118,7 +1033,7 @@ public class MainActivity extends AppCompatActivity
     public boolean checkDataBase() {
         SQLiteDatabase checkDB = null;
         try {
-            checkDB = SQLiteDatabase.openDatabase(Path + "ImisData.db3", null,
+            checkDB = SQLiteDatabase.openDatabase(MainActivity.global.getSubdirectory("Database") + "/" + "ImisData.db3", null,
                     SQLiteDatabase.OPEN_READONLY);
         } catch (SQLiteException e) {
             // database doesn't exist yet.

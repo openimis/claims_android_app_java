@@ -17,15 +17,14 @@ import static android.database.DatabaseUtils.sqlEscapeString;
 
 public class SQLHandler extends SQLiteOpenHelper{
 
-	private static final String DB_NAME = MainActivity.Path + "Mapping.db3";
+	private static final String DB_NAME = MainActivity.global.getSubdirectory("Database") + "/" + "Mapping.db3";
 	private static final String CreateTable = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
 	private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName text, Adjustibility text);";
 	private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code text, Name text);";
 	private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code text, Name text, Type text, Price text);";
 	//private static final String CreateTableDateUpdates = "CREATE TABLE tblDateUpdates(Id INTEGER PRIMARY KEY AUTOINCREMENT, last_update_date text);";
 
-	SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(MainActivity.Path + "ImisData.db3",null);
-	//SQLiteDatabase dbMapping = SQLiteDatabase.openOrCreateDatabase(ClaimManagementActivity.Path + "Mapping.db3", null);
+	SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(MainActivity.global.getSubdirectory("Database") + "/" + "ImisData.db3",null);
 	SQLiteDatabase dbMapping = this.getWritableDatabase();
 
 	public SQLHandler(Context context) {
@@ -39,8 +38,6 @@ public class SQLHandler extends SQLiteOpenHelper{
 		// TODO Auto-generated method stub
 		checkDataBase();
 		db.execSQL(CreateTable);
-		//db.execSQL(CreateTableControls);
-		//db.execSQL(CreateTableDateUpdates);
 	}
 
 	@Override
@@ -52,7 +49,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	public boolean checkDataBase() {
 		SQLiteDatabase checkDB = null;
 		try {
-			checkDB = SQLiteDatabase.openDatabase(MainActivity.Path + "ImisData.db3", null,
+			checkDB = SQLiteDatabase.openDatabase(MainActivity.global.getSubdirectory("Database") + "/" + "ImisData.db3", null,
 					SQLiteDatabase.OPEN_READONLY);
 		} catch (SQLiteException e) {
 			// database doesn't exist yet.
@@ -75,7 +72,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	}
 
 	public Cursor getMapping(String Type){
-		String dbMappingPath = MainActivity.Path + "Mapping.db3";
+		String dbMappingPath = MainActivity.global.getSubdirectory("Database") + "/" + "Mapping.db3";
 
 		try {
 			db.execSQL("ATTACH DATABASE '"+ dbMappingPath +"' AS dbMapping1");
