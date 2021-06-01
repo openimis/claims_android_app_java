@@ -1,1 +1,1 @@
-include ':claimManagement', ':General'
+include ':claimManagement'

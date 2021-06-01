@@ -7,25 +7,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.client.android.Intents;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.openimis.CallSoap.CallSoap;
-import org.openimis.general.General;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,16 +26,9 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Random;
-import java.util.Set;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 
 public class Synchronize extends AppCompatActivity {
 
@@ -61,7 +47,6 @@ public class Synchronize extends AppCompatActivity {
     File[] ClaimsJSON;
     int TotalClaims,UploadCounter,TotalItemService;
     int result;
-    General _General = new General();
 
     ProgressDialog pd;
 
@@ -69,8 +54,7 @@ public class Synchronize extends AppCompatActivity {
 
     private String salt;
 
-    String PendingFolder = MainActivity.global.getMainDirectory();
-    String TrashFolder = MainActivity.global.getSubdirectory("Trash");
+    String PendingFolder,TrashFolder;
 
     Runnable ChangeMessage = new Runnable() {
 
@@ -90,6 +74,8 @@ public class Synchronize extends AppCompatActivity {
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         global = (Global)getApplication();
+        PendingFolder = global.getMainDirectory();
+        TrashFolder = global.getSubdirectory("Trash");
         toRestApi = new ToRestApi();
         tokenl = new Token();
 
@@ -218,7 +204,7 @@ public class Synchronize extends AppCompatActivity {
                                                         }
                                                     } else {
                                                         pd.dismiss();
-                                                        if (!_General.isNetworkAvailable(Synchronize.this)) {
+                                                        if (!global.isNetworkAvailable()) {
                                                             LoginDialogBox(page);
                                                             ShowDialog(Synchronize.this.getResources().getString(R.string.CheckInternet));
                                                         } else {
@@ -340,7 +326,7 @@ public class Synchronize extends AppCompatActivity {
             }
 
             //If internet is not available then give message and exit
-            if (!_General.isNetworkAvailable(this)){
+            if (!global.isNetworkAvailable()){
                 ShowDialog(getResources().getString(R.string.CheckInternet));
                 result = -1;
                 return false;
@@ -397,7 +383,7 @@ public class Synchronize extends AppCompatActivity {
     }
 
     public boolean UploadAllClaimsTrash(){
-        final String Path1 = MainActivity.global.getSubdirectory("Trash");
+        final String Path1 = global.getSubdirectory("Trash");
         //Get the total number of files to upload
         Claims = GetListOfJSONFiles(Path1,"Claim_");
         ClaimsJSON = GetListOfJSONFiles(Path1,"ClaimJSON_");
@@ -411,7 +397,7 @@ public class Synchronize extends AppCompatActivity {
         }
 
         //If internet is not available then give message and exit
-        if (!_General.isNetworkAvailable(this)){
+        if (!global.isNetworkAvailable()){
             ShowDialog(getResources().getString(R.string.CheckInternet));
             result = -1;
             return false;
@@ -564,7 +550,7 @@ public class Synchronize extends AppCompatActivity {
     public String getClaimText(String fileName){
         String aBuffer = "";
         try {
-            String dir = MainActivity.global.getMainDirectory();
+            String dir = global.getMainDirectory();
             File myFile = new File("/" + dir + "/" + fileName + "");//"/"+dir+"/MasterData.txt"
 //            BufferedReader myReader = new BufferedReader(
 //                    new InputStreamReader(
@@ -586,22 +572,17 @@ public class Synchronize extends AppCompatActivity {
         }
         return aBuffer;
     }
-    private int ServerResponse(){
-        CallSoap cs = new CallSoap();
-        cs.setFunctionName("isValidClaim");
-        return cs.isClaimAccepted(ClaimFile.getName().toString());
-    }
 
     public void zipFiles(){
-        Global global = new Global();
+        Global global = (Global) getApplicationContext();
         @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy-HH");
         @SuppressLint("SimpleDateFormat") SimpleDateFormat formatZip = new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss");
         Calendar cal = Calendar.getInstance();
         String d = format.format(cal.getTime());
         String dzip = formatZip.format(cal.getTime());
 
-        String targetPathClaims = MainActivity.global.getMainDirectory();
-        String zipFilePath = MainActivity.global.getSubdirectory("Claims") + "_" + global.getOfficerCode()+"_"+dzip+".rar";
+        String targetPathClaims = global.getMainDirectory();
+        String zipFilePath = global.getSubdirectory("Claims") + "_" + global.getOfficerCode()+"_"+dzip+".rar";
         //String unzippedFolderPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/Photos_"+global.getOfficerCode()+"_"+d+"";
 
         String password = "";
@@ -609,10 +590,10 @@ public class Synchronize extends AppCompatActivity {
             Settings settings = new Settings();
             SharedPreferences sharedPreferences = getSharedPreferences("MyPref", 0);
             if (!sharedPreferences.contains("rarPwd")){
-                password = General.getDefaultRarPassword();
+                password = global.getDefaultRarPassword();
             }
             else{
-                String encryptedRarPassword = sharedPreferences.getString("rarPwd", General.getDefaultRarPassword());
+                String encryptedRarPassword = sharedPreferences.getString("rarPwd", global.getDefaultRarPassword());
                 String trimEncryptedPassword = encryptedRarPassword.trim();
                 salt = sharedPreferences.getString("salt", null);
                 String trimSalt = salt.trim();

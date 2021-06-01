@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.nio.DoubleBuffer;
+
 import static android.database.DatabaseUtils.sqlEscapeString;
 
 /**
@@ -17,18 +19,22 @@ import static android.database.DatabaseUtils.sqlEscapeString;
 
 public class SQLHandler extends SQLiteOpenHelper{
 
-	private static final String DB_NAME = MainActivity.global.getSubdirectory("Database") + "/" + "Mapping.db3";
+	Global global;
+
+	public static final String DB_NAME_MAPPING = ((Global)Global.getContext()).getSubdirectory("Database") + "/" + "Mapping.db3";
+	public static final String DB_NAME_DATA = ((Global)Global.getContext()).getSubdirectory("Database") + "/" + "ImisData.db3";
 	private static final String CreateTable = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
 	private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName text, Adjustibility text);";
 	private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code text, Name text);";
 	private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code text, Name text, Type text, Price text);";
 	//private static final String CreateTableDateUpdates = "CREATE TABLE tblDateUpdates(Id INTEGER PRIMARY KEY AUTOINCREMENT, last_update_date text);";
 
-	SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(MainActivity.global.getSubdirectory("Database") + "/" + "ImisData.db3",null);
+	SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_NAME_DATA,null);
 	SQLiteDatabase dbMapping = this.getWritableDatabase();
 
 	public SQLHandler(Context context) {
-		super(context, DB_NAME, null, 3);
+		super(context, DB_NAME_MAPPING, null, 3);
+		global = (Global) context.getApplicationContext();
 		// TODO Auto-generated constructor stub
 	}
 
@@ -49,7 +55,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 	public boolean checkDataBase() {
 		SQLiteDatabase checkDB = null;
 		try {
-			checkDB = SQLiteDatabase.openDatabase(MainActivity.global.getSubdirectory("Database") + "/" + "ImisData.db3", null,
+			checkDB = SQLiteDatabase.openDatabase(DB_NAME_DATA, null,
 					SQLiteDatabase.OPEN_READONLY);
 		} catch (SQLiteException e) {
 			// database doesn't exist yet.
@@ -72,10 +78,8 @@ public class SQLHandler extends SQLiteOpenHelper{
 	}
 
 	public Cursor getMapping(String Type){
-		String dbMappingPath = MainActivity.global.getSubdirectory("Database") + "/" + "Mapping.db3";
-
 		try {
-			db.execSQL("ATTACH DATABASE '"+ dbMappingPath +"' AS dbMapping1");
+			db.execSQL("ATTACH DATABASE '"+ DB_NAME_MAPPING +"' AS dbMapping1");
 			Cursor c =  db.rawQuery("select I.code,I.name,M.Type AS isMapped FROM tblReferences I LEFT OUTER JOIN dbMapping1.tblMapping M ON I.Code = M.Code WHERE I.Type =?", new String[]{Type});
 			return c;
 		} catch (SQLException e) {

@@ -46,6 +46,8 @@ android {
         buildConfigField "String", "APP_DIR", '"IMIS"'
         resValue "string", "app_name_claims", "openIMIS Claims"
         resValue "string", "ReleaseDateValue", getDate()
+        buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
+        buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
     }
 
     productFlavors {
@@ -53,6 +55,7 @@ android {
             applicationIdSuffix ".demoProd"
             buildConfigField "String", "APP_DIR", '"IMIS-DEMOPROD"'
             resValue "string", "app_name_claims", "Claims Demo"
+            buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
             dimension 'std'
         }
 
@@ -60,6 +63,7 @@ android {
             applicationIdSuffix ".demoRelease"
             buildConfigField "String", "APP_DIR", '"IMIS-DEMORELEASE"'
             resValue "string", "app_name_claims", "Claims Release"
+            buildConfigField "String", "API_BASE_URL", '"http://release.openimis.org/rest/"'
             dimension 'std'
         }
 
@@ -67,24 +71,28 @@ android {
             applicationIdSuffix ".chfDev"
             resValue "string", "app_name_claims", "Claims CHF"
             buildConfigField "String", "APP_DIR", '"IMIS-CHFDEV"'
+            buildConfigField "String", "API_BASE_URL", '"http://chf-dev.swisstph-mis.ch/rest/"'
             dimension 'std'
         }
         mvDev {
             applicationIdSuffix ".mvDev"
             buildConfigField "String", "APP_DIR", '"IMIS-MVDEV"'
             resValue "string", "app_name_claims", "Claims MV"
+            buildConfigField "String", "API_BASE_URL", '"http://imis-mv.swisstph-mis.ch/rest/"'
             dimension 'std'
         }
         bephaDev {
             applicationIdSuffix ".bephaDev"
             buildConfigField "String", "APP_DIR", '"IMIS-BEPHADEV"'
             resValue "string", "app_name_claims", "Claims BEPHA"
+            buildConfigField "String", "API_BASE_URL", '"http://149.210.235.40/devupgrade/rest/"'
             dimension 'std'
         }
         local {
             applicationIdSuffix ".local"
             buildConfigField "String", "APP_DIR", '"IMIS-LOCAL"'
             resValue "string", "app_name_claims", "Claims Local"
+            buildConfigField "String", "API_BASE_URL", '"http://10.0.2.2:35787/"'
             dimension 'std'
         }
     }
@@ -127,7 +135,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation project(path: ':General')
     // https://mvnrepository.com/artifact/com.squareup.picasso/picasso
     implementation group: 'com.squareup.picasso', name: 'picasso', version: '2.5.2'
     // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j

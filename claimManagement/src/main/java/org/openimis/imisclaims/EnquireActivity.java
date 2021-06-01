@@ -32,8 +32,6 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
-import org.openimis.CallSoap.CallSoap;
-import org.openimis.general.General;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -47,9 +45,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class EnquireActivity extends AppCompatActivity {
-
-    General _General = new General();
-   // downloadFile df = new downloadFile();
 
     EditText etCHFID;
     TextView tvCHFID,tvName,tvGender,tvDOB;
@@ -65,14 +60,6 @@ public class EnquireActivity extends AppCompatActivity {
 
     static String Language;
     Bitmap theImage;
-
-    final String ApkFileLocation = _General.getDomain() + "/Apps/Enquire.apk";
-    final String VersionField = "AppVersionEnquire";
-    final String Path = MainActivity.global.getMainDirectory();
-    //final CharSequence[] lang = {"English","Swahili"};
-    final CharSequence[] lang = {"English","Francais"};
-    final int SIMPLE_NOTIFICATION_ID = 1;
-
 
     String result;
 
@@ -102,12 +89,12 @@ public class EnquireActivity extends AppCompatActivity {
         isSDCardAvailable();
 
         //Check if network available
-        if (_General.isNetworkAvailable(EnquireActivity.this)) {
+        if (((Global)getApplicationContext()).isNetworkAvailable()) {
 //			        	tvMode.setText(Html.fromHtml("<font color='green'>Online mode.</font>"));
 
         } else {
 //			        	tvMode.setText(Html.fromHtml("<font color='red'>Offline mode.</font>"));
-            setTitle(getResources().getString(R.string.app_name) + "-" + getResources().getString(R.string.OfflineMode));
+            setTitle(getResources().getString(R.string.app_name_claims) + "-" + getResources().getString(R.string.OfflineMode));
             setTitleColor(getResources().getColor(R.color.Red));
         }
 
@@ -313,13 +300,13 @@ public class EnquireActivity extends AppCompatActivity {
     }
 
     private void isSDCardAvailable(){
-
-        if (_General.isSDCardAvailable() == 0){
+        String status = ((Global)getApplicationContext()).getSDCardStatus();
+        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)){
             //Toast.makeText(this, "SD Card is in read only mode.", Toast.LENGTH_LONG);
             new AlertDialog.Builder(this)
-                    .setMessage(getResources().getString(R.string.ReadOnly))
+                    .setMessage(getResources().getString(R.string.SDCardReadOnly))
                     .setCancelable(false)
-                    .setPositiveButton(getResources().getString(R.string.ForceClose), new DialogInterface.OnClickListener() {
+                    .setPositiveButton("Force close", new DialogInterface.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -327,9 +314,9 @@ public class EnquireActivity extends AppCompatActivity {
                         }
                     }).show();
 
-        }else if(_General.isSDCardAvailable() == -1){
+        }else if(!Environment.MEDIA_MOUNTED.equals(status)){
             new AlertDialog.Builder(this)
-                    .setMessage(getResources().getString(R.string.NoSDCard))
+                    .setMessage(getResources().getString(R.string.SDCardMissing))
                     .setCancelable(false)
                     .setPositiveButton(getResources().getString(R.string.ForceClose), new DialogInterface.OnClickListener() {
 
@@ -338,8 +325,6 @@ public class EnquireActivity extends AppCompatActivity {
                             finish();
                         }
                     }).create().show();
-        }else{
-
         }
     }
 
@@ -363,7 +348,7 @@ public class EnquireActivity extends AppCompatActivity {
 
             result = "[{";
 
-            db = openOrCreateDatabase(MainActivity.global.getSubdirectory("Database") + "/" +"ImisData.db3", SQLiteDatabase.OPEN_READONLY, null);
+            db = openOrCreateDatabase(SQLHandler.DB_NAME_DATA, SQLiteDatabase.OPEN_READONLY, null);
 
             String[] columns = {"CHFID" ,"Photo" , "InsureeName", "DOB", "Gender","ProductCode", "ProductName", "ExpiryDate", "Status", "DedType", "Ded1", "Ded2", "Ceiling1", "Ceiling2"};
 
@@ -423,7 +408,7 @@ public class EnquireActivity extends AppCompatActivity {
         String chfid = etCHFID.getText().toString();
         result = "";
 
-        if(_General.isNetworkAvailable(this)){
+        if(((Global)getApplicationContext()).isNetworkAvailable()){
             try {
                 ToRestApi rest = new ToRestApi();
                 String res = rest.getObjectFromRestApiToken("insuree/" + chfid + "/enquire");
@@ -470,9 +455,9 @@ public class EnquireActivity extends AppCompatActivity {
 
 
 
-                        if (_General.isNetworkAvailable(EnquireActivity.this)){
+                        if (((Global)getApplicationContext()).isNetworkAvailable()){
 
-                            String photo_url_str =_General.getDomain() + "/" + jsonObject.getString("photoPath");
+                            String photo_url_str =((Global)getApplicationContext()).getDomain() + "/" + jsonObject.getString("photoPath");
 
                             iv.setImageResource(R.drawable.person);
                             Picasso.with(getApplicationContext())

@@ -26,13 +26,21 @@
 package org.openimis.imisclaims;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
+import static org.openimis.imisclaims.BuildConfig.API_BASE_URL;
+import static org.openimis.imisclaims.BuildConfig.RAR_PASSWORD;
 import static org.openimis.imisclaims.BuildConfig.APP_DIR;
 
 /**
@@ -40,70 +48,45 @@ import static org.openimis.imisclaims.BuildConfig.APP_DIR;
  */
 
 public class Global extends Application {
-    private static String OfficerCode;
+    private static Global instance;
+    private String OfficerCode;
     private String OfficerName;
-    private static int UserId;
-    private  int OfficerId;
+    private int UserId;
+    private int OfficerId;
     private String token;
     private boolean isLogged;
-
     private String MainDirectory;
     private Map<String, String> SubDirectories = new HashMap<>();
-
     private String ImageFolder;
+    private static final String _Domain = API_BASE_URL;
+    private static final String _DefaultRarPassword = RAR_PASSWORD;
 
+    public Global() { instance = this; }
+    public static Context getContext() { return instance; }
+    public String getDomain(){
+        return _Domain;
+    }
+    public String getDefaultRarPassword() {
+        return _DefaultRarPassword;
+    }
     public String getOfficerCode() {
         return OfficerCode;
     }
-
     public void setOfficerCode(String officerCode) {
         OfficerCode = officerCode;
     }
-
     public int getUserId() {
         return UserId;
     }
     public void setUserId(int userId) {
         UserId = userId;
     }
-
-    public int getOfficerId() {
-        return OfficerId;
-    }
-    public void setOfficerId(int officerId) {
-        OfficerId = officerId;
-    }
-
     public boolean getIslogged() {
         return isLogged;
     }
     public void setIsLogged(boolean logged) {
         isLogged = logged;
     }
-
-    public String getImageFolder() {
-        return ImageFolder;
-    }
-
-    public void setImageFolder(String imageFolder) {
-        ImageFolder = imageFolder;
-    }
-    public void setToken(String _token){token = _token;}
-
-    private String CurrentUrl;
-    public String getCurrentUrl() {
-        return CurrentUrl;
-    }
-    public String getToken(){return token;}
-
-    public void setCurrentUrl(String currentUrl) {
-        CurrentUrl = currentUrl;
-    }
-
-    public String getOfficerName() {
-        return OfficerName;
-    }
-
     public void setOfficerName(String officerName) {
         OfficerName = officerName;
     }
@@ -145,5 +128,29 @@ public class Global extends Application {
             }
         }
         return SubDirectories.get(subdirectory);
+    }
+
+    public boolean isNetworkAvailable(){
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+
+        return (ni != null && ni.isConnected());
+    }
+
+    public void ChangeLanguage(String Language){
+        Resources res = getResources();
+        DisplayMetrics dm = res.getDisplayMetrics();
+        android.content.res.Configuration config = res.getConfiguration();
+        config.locale = new Locale(Language.toLowerCase());
+        res.updateConfiguration(config, dm);
+    }
+
+    // ToDo: remove this method if published to Google Play
+    public boolean isNewVersionAvailable(String Field, String PackageName){
+        return false;
+    }
+
+    public String getSDCardStatus(){
+        return Environment.getExternalStorageState();
     }
 }
