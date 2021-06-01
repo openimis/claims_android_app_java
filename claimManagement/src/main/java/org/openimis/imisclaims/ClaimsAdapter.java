@@ -38,7 +38,7 @@ import static org.openimis.imisclaims.ClaimActivity.Path;
 //Please see claimsData and query to check Insuaree numbers
 public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends RecyclerView.Adapter {
 
-    Global global = new Global();
+    Global global;
 
     private JSONArray claims;
     private JSONArray claimsData;
@@ -67,6 +67,7 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
     public ClaimsAdapter(Context rContext, JSONArray _claims){
         _context = rContext;
         claims = _claims;
+        global = (Global)rContext.getApplicationContext();
 
         try {
             for (int i = 0; i < _claims.length(); i++) {

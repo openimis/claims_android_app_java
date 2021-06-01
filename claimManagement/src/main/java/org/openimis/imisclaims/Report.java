@@ -17,11 +17,9 @@ public class Report extends AppCompatActivity {
     TextView rejected_count;
     TextView pending_count;
 
+    Global global;
 
-    String AcceptedFolder = MainActivity.global.getSubdirectory("AcceptedClaims");
-    String RejectedFolder = MainActivity.global.getSubdirectory("RejectedClaims");
-    String PendingFolder = MainActivity.global.getMainDirectory();
-    String TrashFolder = MainActivity.global.getSubdirectory("Trash");
+    String AcceptedFolder,RejectedFolder,PendingFolder,TrashFolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +31,16 @@ public class Report extends AppCompatActivity {
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        global = (Global)getApplicationContext();
+
         accepted_count = findViewById(R.id.valueAccepted);
         rejected_count = findViewById(R.id.valueRejected);
         pending_count = findViewById(R.id.valuePending);
 
+        String AcceptedFolder = global.getSubdirectory("AcceptedClaims");
+        String RejectedFolder = global.getSubdirectory("RejectedClaims");
+        String PendingFolder = global.getMainDirectory();
+        String TrashFolder = global.getSubdirectory("Trash");
 
         File acceptedClaims = new File(AcceptedFolder);
         File rejectedClaims = new File(RejectedFolder);

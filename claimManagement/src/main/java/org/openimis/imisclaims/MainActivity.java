@@ -32,8 +32,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.openimis.general.General;
-
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.util.EntityUtils;
@@ -57,8 +55,7 @@ import static android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSIO
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     String Language;
-    General _General = new General();
-    static Global global = new Global();
+    Global global;
     Token tokenl;
     SQLHandler sql;
     SQLiteDatabase db;
@@ -108,6 +105,7 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
 
+        global = (Global) getApplicationContext();
         toRestApi = new ToRestApi();
         tokenl = new Token();
 
@@ -180,7 +178,7 @@ public class MainActivity extends AppCompatActivity
                         //if (lang[which].toString() == "English")Language="en";else Language="sw";
                         if (lang[which].toString() == "English")Language="en";else Language="fr";
 
-                        _General.ChangeLanguage(MainActivity.this, Language);
+                        global.ChangeLanguage(Language);
                         isSDCardAvailable();
                         finish();
                         Intent intent = new Intent(MainActivity.this, MainActivity.class);
@@ -192,20 +190,15 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
         if (id == R.id.login_logout) {
-            Global global = new Global();
-
             if(tokenl.getTokenText().length() <= 0){
                 LoginDialogBox("MainActivity");
-            }else{
+            }else {
                 global.setUserId(0);
                 item.setTitle("Login");
-                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Logout_Successful),Toast.LENGTH_LONG).show();
-
-
+                Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Logout_Successful), Toast.LENGTH_LONG).show();
             }
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -220,7 +213,7 @@ public class MainActivity extends AppCompatActivity
 //            startActivity(intent);
         }
         if (id == R.id.nav_enquire) {
-            if(!_General.isNetworkAvailable(MainActivity.this)){
+            if(!global.isNetworkAvailable()){
                 pd.dismiss();
                 Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
                 return false;
@@ -241,12 +234,11 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
         }
         if (id == R.id.nav_Refresh_Map) {
-            if(!_General.isNetworkAvailable(MainActivity.this)){
+            if(!global.isNetworkAvailable()){
                 Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
                 return false;
             }
             //Are you sure dialog
-            Global global = new Global();
             int userid = global.getUserId();
             if(tokenl.getTokenText().length() > 0){
                 ShowComfirmationDialog();
@@ -285,7 +277,7 @@ public class MainActivity extends AppCompatActivity
                 return true;*/
 
         } else if (id == R.id.nav_Sync) {
-            if(!_General.isNetworkAvailable(MainActivity.this)){
+            if(!global.isNetworkAvailable()){
                 Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
                 return false;
             }
@@ -298,7 +290,7 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, About.class);
             startActivity(intent);
         } else if (id == R.id.nav_Retrieve) {
-            if(!_General.isNetworkAvailable(MainActivity.this)){
+            if(!global.isNetworkAvailable()){
                 Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
                 return false;
             }
@@ -335,7 +327,6 @@ public class MainActivity extends AppCompatActivity
                 .setPositiveButton(R.string.Yes,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                Global global = new Global();
                                 global.setOfficerCode("");
                                 dialog.cancel();
                                 finish();
@@ -354,7 +345,7 @@ public class MainActivity extends AppCompatActivity
     }
     private void initializeDb3File(SQLHandler sql) {
         if (checkDataBase()) {
-            if (_General.isNetworkAvailable(this)) {
+            if (global.isNetworkAvailable()) {
                 //DownloadMasterDialog();
                 if (getControls()) {
                     try {
@@ -383,23 +374,6 @@ public class MainActivity extends AppCompatActivity
 
         }
     }
-    public void makeImisDirectories(){
-        File folder= new File(global.getMainDirectory());
-        folder.mkdir();
-
-        File myDir = new File(global.getMainDirectory());
-        myDir.mkdir();
-
-        File DirRejected = new File(global.getSubdirectory("RejectedClaims"));
-        DirRejected.mkdir();
-
-        File DirAccepted = new File(global.getSubdirectory("AcceptedClaims"));
-        DirAccepted.mkdir();
-
-        File DirTrash = new File(global.getSubdirectory("Trash"));
-        DirTrash.mkdir();
-
-    }
 
     public void createFolders() {
         global.getMainDirectory();
@@ -410,8 +384,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void isSDCardAvailable(){
-
-        if (_General.isSDCardAvailable() == 0){
+        String status = global.getSDCardStatus();
+        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)){
             //Toast.makeText(this, "SD Card is in read only mode.", Toast.LENGTH_LONG);
             new AlertDialog.Builder(this)
                     .setMessage(getResources().getString(R.string.SDCardReadOnly))
@@ -424,7 +398,7 @@ public class MainActivity extends AppCompatActivity
                         }
                     }).show();
 
-        }else if(_General.isSDCardAvailable() == -1){
+        }else if(!Environment.MEDIA_MOUNTED.equals(status)){
             new AlertDialog.Builder(this)
                     .setMessage(getResources().getString(R.string.SDCardMissing))
                     .setCancelable(false)
@@ -435,16 +409,12 @@ public class MainActivity extends AppCompatActivity
                             finish();
                         }
                     }).create().show();
-        }else{
-
         }
     }
 
     public void LoginDialogBox(final String page) {
 
         final int[] userid = {0};
-
-        Global global = new Global();
 
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(this);
@@ -466,7 +436,7 @@ public class MainActivity extends AppCompatActivity
                 .setPositiveButton(getResources().getString(R.string.Ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                if (_General.isNetworkAvailable(MainActivity.this)) {
+                                if (global.isNetworkAvailable()) {
                                     if (!username.getText().toString().equals("") && !password.getText().toString().equals("")) {
                                         pd = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
 
@@ -553,8 +523,6 @@ public class MainActivity extends AppCompatActivity
     public void LoginDialogBoxServices(final String page) {
 
         final int[] userid = {0};
-
-        final Global global = new Global();
 
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(this);
@@ -773,8 +741,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void CheckForUpdates(){
-        if(_General.isNetworkAvailable(MainActivity.this)){
-            if(_General.isNewVersionAvailable(VersionField,MainActivity.this,getApplicationContext().getPackageName())){
+        if(global.isNetworkAvailable()){
+            if(global.isNewVersionAvailable(VersionField,getApplicationContext().getPackageName())){
                 //Show notification bar
                 mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
@@ -811,10 +779,6 @@ public class MainActivity extends AppCompatActivity
                 vibrator.vibrate(500);
             }
         }
-    }
-    private void updateMenuTitlesLogout() {
-        MenuItem login_logout = menu.findItem(R.id.login_logout);
-        login_logout.setTitle(R.string.Logout);
     }
 
     public void makeTrashFolder(){
@@ -915,42 +879,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
-    public void requestPermisionWRITE_EXTERNAL_STORAGE(){
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                1);
-    }
-    public void requestPermisionINTERNET(){
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.INTERNET},
-                1);
-    }
-    public void requestPermisionVIBRATE(){
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.VIBRATE},
-                1);
-    }
-    public void requestPermisionCAMERA(){
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.CAMERA},
-                1);
-    }
-    public void requestPermisionACCESS_NETWORK_STATE(){
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.ACCESS_NETWORK_STATE},
-                1);
-    }
-    public void requestPermisionCHANGE_WIFI_STATE(){
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.CHANGE_WIFI_STATE},
-                1);
-    }
-    public void requestPermisionACCESS_WIFI_STATE(){
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.ACCESS_WIFI_STATE},
-                1);
-    }
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -965,7 +893,6 @@ public class MainActivity extends AppCompatActivity
                     PendingFolder = global.getMainDirectory();
                     TrashFolder = global.getSubdirectory("Trash");
                     createFolders();
-                    makeImisDirectories();
                     makeTrashFolder();
 
                     //check if databases exist in phone
@@ -1033,7 +960,7 @@ public class MainActivity extends AppCompatActivity
     public boolean checkDataBase() {
         SQLiteDatabase checkDB = null;
         try {
-            checkDB = SQLiteDatabase.openDatabase(MainActivity.global.getSubdirectory("Database") + "/" + "ImisData.db3", null,
+            checkDB = SQLiteDatabase.openDatabase(global.getSubdirectory("Database") + "/" + "ImisData.db3", null,
                     SQLiteDatabase.OPEN_READONLY);
         } catch (SQLiteException e) {
             // database doesn't exist yet.
@@ -1043,7 +970,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public boolean getControls(){
-        if(_General.isNetworkAvailable(this)){
+        if(global.isNetworkAvailable()){
             String progress_message = getResources().getString(R.string.getControls);
             pd = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
             Thread thread = new Thread(){
@@ -1117,7 +1044,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public boolean getClaimAdmins(){
-        if(_General.isNetworkAvailable(this)){
+        if(global.isNetworkAvailable()){
             String progress_message = getResources().getString(R.string.application);
             pd = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
             Thread thread = new Thread(){
@@ -1202,7 +1129,6 @@ public class MainActivity extends AppCompatActivity
                 ClaimAdminDialogBox();
             }else{
                 if(!sql.getAdjustibility("ClaimAdministrator").equals("N")){
-                    Global global = new Global();
                     global.setOfficerCode(ClaimCode);
                     global.setOfficerName(ClaimName);
                     AdminName = (TextView) findViewById(R.id.AdminName);
@@ -1231,7 +1157,6 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                 }else{
-                    Global global = new Global();
                     sql = new SQLHandler(MainActivity.this);
                     Cursor c = sql.getMapping("I");
                     if(c.getCount() == 0){
@@ -1263,7 +1188,7 @@ public class MainActivity extends AppCompatActivity
 
         final String[] content = new String[1];
         final HttpResponse[] resp = {null};
-        if(_General.isNetworkAvailable(this)){
+        if(global.isNetworkAvailable()){
             String progress_message = getResources().getString(R.string.Diagnoses)+", "+getResources().getString(R.string.Services)+", "+getResources().getString(R.string.Items)+"...";
             pd = ProgressDialog.show(this, getResources().getString(R.string.Checking_For_Updates), progress_message);
             Thread thread = new Thread(){
@@ -1403,7 +1328,7 @@ public class MainActivity extends AppCompatActivity
 
         final String[] content = new String[1];
         final HttpResponse[] resp = {null};
-        if(_General.isNetworkAvailable(this)){
+        if(global.isNetworkAvailable()){
             String progress_message = getResources().getString(R.string.refresh_mapping);
             pd = ProgressDialog.show(this, getResources().getString(R.string.Checking_For_Updates), progress_message);
             Thread thread = new Thread(){
@@ -1476,7 +1401,6 @@ public class MainActivity extends AppCompatActivity
                                         pd.dismiss();
                                         Toast.makeText(MainActivity.this,getResources().getString(R.string.installed_updates),Toast.LENGTH_LONG).show();
 
-                                        Global global = new Global();
                                         JSONObject object = new JSONObject();
                                         try {
                                             object.put("claim_administrator_code",global.getOfficerCode());
@@ -1553,7 +1477,7 @@ public class MainActivity extends AppCompatActivity
 
     private void DownLoadServicesItemsPriceList(final JSONObject object, final  SQLHandler sql) throws IOException {
         final HttpResponse[] resp = {null};
-        if(_General.isNetworkAvailable(this)){
+        if(global.isNetworkAvailable()){
             String progress_message = getResources().getString(R.string.Services)+", "+getResources().getString(R.string.Items)+"...";
             pd = ProgressDialog.show(this, getResources().getString(R.string.mapping), progress_message);
             Thread thread = new Thread() {

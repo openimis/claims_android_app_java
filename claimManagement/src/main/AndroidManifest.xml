@@ -61,10 +61,6 @@
             android:name="org.openimis.imisclaims.MapServices"
             android:label="@string/MapServices"
             android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="org.openimis.imisclaims.Statistics"
-            android:label="@string/GetStats"
-            android:windowSoftInputMode="stateHidden" />
         <activity android:name="org.openimis.imisclaims.Synchronize" />
         <activity android:name="org.openimis.imisclaims.About" />
         <activity android:name="org.openimis.imisclaims.Settings"/>

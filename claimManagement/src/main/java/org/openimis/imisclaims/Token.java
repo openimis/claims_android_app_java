@@ -20,7 +20,7 @@ public class Token {
             //handle case of no SDCARD present
         } else {
             //create folder
-            Global global = new Global();
+            Global global = (Global)Global.getContext();
             String dir = global.getSubdirectory("Authentications");
 
             //create file
@@ -45,7 +45,7 @@ public class Token {
     public String getTokenText(){
         String aBuffer = "";
         try {
-            Global global = new Global();
+            Global global = (Global)Global.getContext();
             String dir = global.getSubdirectory("Authentications");
             File myFile = new File(dir, "token.txt");
             if (myFile.exists()) {

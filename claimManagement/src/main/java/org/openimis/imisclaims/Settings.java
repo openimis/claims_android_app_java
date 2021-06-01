@@ -12,8 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import org.openimis.general.General;
-
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -27,6 +25,7 @@ public class Settings extends AppCompatActivity {
     EditText etRarPassword;
     private String salt, password;
     public static String generatedSalt;
+    Global global;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +35,8 @@ public class Settings extends AppCompatActivity {
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Settings");
+
+        global = (Global)getApplicationContext();
 
         btnSaveRarPwd = (Button)findViewById(R.id.btnSaveRarPwd);
         etRarPassword = (EditText)findViewById(R.id.rarPassword);
@@ -60,7 +61,7 @@ public class Settings extends AppCompatActivity {
         btnDefaultRarPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                password = General.getDefaultRarPassword();
+                password = global.getDefaultRarPassword();
                 saveRarPassword(password);
                 ShowDialog("Password has been changed to the default rar password");
             }

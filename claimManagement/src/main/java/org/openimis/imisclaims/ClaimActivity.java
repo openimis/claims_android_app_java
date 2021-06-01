@@ -4,16 +4,12 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Vibrator;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
@@ -32,23 +28,15 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import org.openimis.CallSoap.CallSoap;
-import org.openimis.general.General;
-import org.openimis.uploadfile.UploadFile;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlSerializer;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,42 +49,22 @@ public class ClaimActivity extends AppCompatActivity {
 
     SQLiteDatabase db;
     SQLHandler sql;
-    String Language;
-    General _General = new General();
-    UploadFile uf = new UploadFile();
 
     public static final String PREFS_NAME = "CMPref";
-    //final CharSequence[] lang = {"English","Swahili"};
-    final CharSequence[] lang = {"English","Francais"};
-
-    final String VersionField = "AppVersionClaim";
-    final String ApkFileLocation = _General.getDomain() + "/Apps/ClaimManagement.apk";
-    final int SIMPLE_NOTIFICATION_ID = 98029;
     public static String Path;
-
-    NotificationManager mNotificationManager;
-    Vibrator vibrator;
 
     static final int StartDate_Dialog_ID = 0;
     static final int EndDate_Dialog_ID = 1;
 
     final Calendar cal = Calendar.getInstance();
 
-    ArrayList<HashMap<String,String>> Disease = new ArrayList<HashMap<String,String>>();
     public static ArrayList<HashMap<String,String>> lvItemList;
     public static ArrayList<HashMap<String,String>> lvServiceList;
-
 
     private int year, month, day;
     String FileName;
     File ClaimFile;
-    File ClaimFileJSON;
-    File[] Claims;
-    File[] ClaimsJSON;
-    int TotalClaims,UploadCounter,TotalItemService;
-    int result;
-    //1 = Data uploaded on server and accepted
-    //2 = Data uploaded but rejected
+    int TotalItemService;
 
     EditText etStartDate, etEndDate,etHealthFacility,etClaimCode, etCHFID,etClaimAdmin, etGuaranteeNo;
     AutoCompleteTextView etDiagnosis,etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4;
@@ -105,24 +73,8 @@ public class ClaimActivity extends AppCompatActivity {
     RadioButton rbEmergency, rbReferral, rbOther;
     RadioGroup rgVisitType;
     ImageButton btnScan;
-    ProgressDialog pd;
 
-    //For autoComplete
-    private DiseaseAdapter adapter;
-    private Cursor mDiseaseCursor;
-
-
-    Runnable ChangeMessage = new Runnable() {
-
-        @Override
-        public void run() {
-            //Change progress dialog message here
-            pd.setMessage(UploadCounter + " " + getResources().getString(R.string.Of) + " " + TotalClaims + " " + getResources().getString(R.string.Uploading));
-
-        }
-    };
-
-    private Global globalConfig;
+    private Global global;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,22 +88,19 @@ public class ClaimActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle(getResources().getString(R.string.app_name_claim));
 
-        globalConfig = (Global) getApplicationContext();
-        Path = globalConfig.getMainDirectory();
+        global = (Global) getApplicationContext();
+        Path = global.getMainDirectory();
 
-        //Create folder if folder is not exists
-        //makeImisDirectories();
-        //connection db
 
         isSDCardAvailable();
 
         //Check if network available
-        if (_General.isNetworkAvailable(ClaimActivity.this)){
+        if (global.isNetworkAvailable()){
 //			        	tvMode.setText(Html.fromHtml("<font color='green'>Online mode.</font>"));
 
         }else{
 //			        	tvMode.setText(Html.fromHtml("<font color='red'>Offline mode.</font>"));
-            setTitle(getResources().getString(R.string.app_name) + "-" + getResources().getString(R.string.OfflineMode));
+            setTitle(getResources().getString(R.string.app_name_claims) + "-" + getResources().getString(R.string.OfflineMode));
             setTitleColor(getResources().getColor(R.color.Red));
         }
 
@@ -192,7 +141,6 @@ public class ClaimActivity extends AppCompatActivity {
             if (sql.getAdjustibility("ClaimAdministrator").equals("N")) {
                 etClaimAdmin.setVisibility(View.GONE);
             } else {
-                Global global = new Global();
                 if (global.getOfficerCode() != null) {
                     etClaimAdmin.setText(global.getOfficerCode().toString());
                 }
@@ -263,7 +211,7 @@ public class ClaimActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                if (Float.valueOf(TotalItemService)>0){
+                if (TotalItemService>0){
                     ConfirmDialog(getResources().getString(R.string.ConfirmDiscard));
                 }else{
                     ClearForm();
@@ -294,24 +242,9 @@ public class ClaimActivity extends AppCompatActivity {
         });
     }
 
-    public void makeImisDirectories(){
-        File myDir = new File(Path);
-        myDir.mkdir();
-
-        File DirRejected = new File(globalConfig.getSubdirectory("RejectedClaims"));
-        DirRejected.mkdir();
-
-        File DirAccepted = new File(globalConfig.getSubdirectory("AcceptedClaims"));
-        DirAccepted.mkdir();
-
-        sql = new SQLHandler(this);
-        sql.onOpen(db);
-    }
-
-
     private void isSDCardAvailable(){
-
-        if (_General.isSDCardAvailable() == 0){
+        String status = global.getSDCardStatus();
+        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)){
             //Toast.makeText(this, "SD Card is in read only mode.", Toast.LENGTH_LONG);
             new AlertDialog.Builder(this)
                     .setMessage(getResources().getString(R.string.SDCardReadOnly))
@@ -324,7 +257,7 @@ public class ClaimActivity extends AppCompatActivity {
                         }
                     }).show();
 
-        }else if(_General.isSDCardAvailable() == -1){
+        }else if(!Environment.MEDIA_MOUNTED.equals(status)){
             new AlertDialog.Builder(this)
                     .setMessage(getResources().getString(R.string.SDCardMissing))
                     .setCancelable(false)
@@ -335,8 +268,6 @@ public class ClaimActivity extends AppCompatActivity {
                             finish();
                         }
                     }).create().show();
-        }else{
-
         }
     }
 
@@ -365,93 +296,6 @@ public class ClaimActivity extends AppCompatActivity {
                 Intent AddServices = new Intent(ClaimActivity.this,AddServices.class);
                 ClaimActivity.this.startActivity(AddServices);
                 return true;
-/*            case R.id.mnuMapItems:
-                Intent MapItem = new Intent(ClaimActivity.this,MapItems.class);
-                ClaimActivity.this.startActivity(MapItem);
-                return true;
-            case R.id.mnuMapServices:
-                Intent MapService = new Intent(ClaimActivity.this,MapServices.class);
-                ClaimActivity.this.startActivity(MapService);
-                return true;*/
-            case R.id.mnuUploadClaim:
-                //Get the total number of files to upload
-                Claims = GetListOfFiles(Path);
-                ClaimsJSON = GetListOfJSONFiles(Path);
-                TotalClaims = Claims.length;
-
-                //If there are no files to upload give the message and exit
-                if (TotalClaims == 0){
-                    ShowDialog(getResources().getString(R.string.NoClaim));
-                    return false;
-                }
-
-                //If internet is not available then give message and exit
-                if (!_General.isNetworkAvailable(this)){
-                    ShowDialog(getResources().getString(R.string.CheckInternet));
-                    result = -1;
-                    return false;
-                }
-
-                pd = new ProgressDialog(this);
-                pd.setCancelable(false);
-
-                pd = ProgressDialog.show(this,"",getResources().getString(R.string.Uploading));
-
-                new Thread(){
-                    public void run(){
-                        //Check if valid ftp credentials are available
-                        //Start Uploading images
-                        UploadAllJSONClaims();
-
-                        runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                switch(result){
-                                    case -1:
-                                        ShowDialog(getResources().getString(R.string.FTPConnectionFailed));
-                                        break;
-                                    case -2:
-                                        ShowDialog(getResources().getString(R.string.SomethingWentWrongServer));
-                                        break;
-                                    case -3:
-                                        ShowDialog(getResources().getString(R.string.FailToUpload));
-                                        break;
-                                    default:
-                                        ShowDialog(getResources().getString(R.string.BulkUpload));
-                                }
-                            }
-                        });
-
-                        pd.dismiss();
-                    }
-
-                }.start();
-
-                return true;
-
-/*            case R.id.mnuStatistics:
-
-                if(!_General.isNetworkAvailable(ClaimActivity.this)){
-                    ShowDialog(getResources().getString(R.string.InternetRequired));
-                    return false;
-                }
-
-                if(etHealthFacility.getText().length() == 0){
-                    ShowDialog(etHealthFacility,getResources().getString(R.string.MissingHealthFacility));
-                    return false;
-                }
-                if(etClaimAdmin.getText().length() == 0){
-                    ShowDialog(etClaimAdmin,getResources().getString(R.string.MissingClaimAdmin));
-                    return false;
-                }
-
-                Intent Stats = new Intent(ClaimActivity.this,Statistics.class);
-                Stats.putExtra("HFCode",etHealthFacility.getText());
-                Stats.putExtra("ClaimAdmin",etClaimAdmin.getText());
-                ClaimActivity.this.startActivity(Stats);
-                return true;*/
-
             default:
                 onBackPressed();
                 return true;
@@ -551,10 +395,10 @@ public class ClaimActivity extends AppCompatActivity {
             etClaimCode.setText(newClaimNumber);
 
             etHealthFacility.setText(obj.getString("health_facility_code"));
-            etClaimAdmin.setText(new Global().getOfficerCode());
+            etClaimAdmin.setText(global.getOfficerCode());
 
             String guaranteeNumber = obj.getString("guarantee_number");
-            if(guaranteeNumber=="null") etGuaranteeNo.setText("");
+            if(null == guaranteeNumber || "null".equals(guaranteeNumber)) etGuaranteeNo.setText("");
             else etGuaranteeNo.setText(guaranteeNumber);
 
             etCHFID.setText(obj.getString("insurance_number"));
@@ -802,6 +646,7 @@ public class ClaimActivity extends AppCompatActivity {
                     }
                 }).show();
     }
+
     protected AlertDialog ConfirmDialog(String msg){
         return new AlertDialog.Builder(this)
                 .setMessage(msg)
@@ -827,16 +672,7 @@ public class ClaimActivity extends AppCompatActivity {
 
     }
     private void WriteXML(){
-
-        //Create all the directories required
         File MyDir = new File(Path);
-        MyDir.mkdir();
-
-        File DirRejected = new File(globalConfig.getSubdirectory("RejectedClaims"));
-        DirRejected.mkdir();
-
-        File DirAccepted = new File(globalConfig.getSubdirectory("AcceptedClaims"));
-        DirAccepted.mkdir();
 
         //Create a file name
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
@@ -1161,7 +997,7 @@ public class ClaimActivity extends AppCompatActivity {
             jsonObject.put("Claim",FullObject);
 
             try {
-                String dir = globalConfig.getMainDirectory();
+                String dir = global.getMainDirectory();
                 FileOutputStream fOut = new FileOutputStream(ClaimFile);
                 OutputStreamWriter myOutWriter =new OutputStreamWriter(fOut);
                 myOutWriter.append(jsonObject.toString());
@@ -1181,122 +1017,6 @@ public class ClaimActivity extends AppCompatActivity {
 
     }
 
-
-    public String getClaimText(String fileName){
-        String aBuffer = "";
-        try {
-            String dir = globalConfig.getMainDirectory();
-            File myFile = new File("/" + dir + "/" + fileName + "");//"/"+dir+"/MasterData.txt"
-//            BufferedReader myReader = new BufferedReader(
-//                    new InputStreamReader(
-//                            new FileInputStream(myFile), "UTF32"));
-            FileInputStream fIn = new FileInputStream(myFile);
-            BufferedReader myReader = new BufferedReader(new InputStreamReader(fIn));
-            aBuffer = myReader.readLine();
-
-            myReader.close();
-/*            Scanner in = new Scanner(new FileReader("/"+dir+"/MasterData.txt"));
-            StringBuilder sb = new StringBuilder();
-            while(in.hasNext()) {
-                sb.append(in.next());
-            }
-            in.close();
-            aBuffer = sb.toString();*/
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return aBuffer;
-    }
-
-    private void MoveFile(File file){
-        switch(result){
-            case 1:
-                file.renameTo(new File(globalConfig.getSubdirectory("AcceptedClaims"), file.getName()));
-                break;
-            case 2:
-                file.renameTo(new File(globalConfig.getSubdirectory("RejectedClaims"), file.getName()));
-                break;
-        }
-    }
-    private boolean ConnectsFTP(){
-        return true;
-        //return uf.isValidFTPCredentials();
-
-    }
-    private File[] GetListOfFiles(String DirectoryPath){
-        File Directory = new File(DirectoryPath);
-        FilenameFilter filter = new FilenameFilter() {
-
-            @Override
-            public boolean accept(File dir, String filename) {
-                return filename.startsWith("Claim_");
-            }
-        };
-        return Directory.listFiles(filter);
-    }
-    private File[] GetListOfJSONFiles(String DirectoryPath){
-        File Directory = new File(DirectoryPath);
-        FilenameFilter filter = new FilenameFilter() {
-
-            @Override
-            public boolean accept(File dir, String filename) {
-                return filename.startsWith("ClaimJSON_");
-            }
-        };
-        return Directory.listFiles(filter);
-    }
-    private void UploadAllJSONClaims(){
-        CallSoap cs = new CallSoap();
-        cs.setFunctionName("UploadClaim");
-        for(int i=0;i<ClaimsJSON.length;i++){
-            UploadCounter = i + 1;
-            runOnUiThread(ChangeMessage);
-            String claim = getClaimText(ClaimsJSON[i].getName());
-            if(cs.UploadClaim(claim,Claims[i].getName())){
-                ClaimFile = Claims[i];
-                ClaimFileJSON = ClaimsJSON[i];
-                int res = ServerResponse();
-                if(res == 1){
-                    result = 1;
-                } else if(res == 0){
-                    result = 2;
-                }else if(res == 2){
-                    result = -2;
-                }else{
-                    result = -3;
-                }
-                MoveFile(ClaimFile);
-                MoveFile(ClaimFileJSON);
-            }else{
-                result = -2;
-            }
-        }
-    }
-/*private void UploadAllClaims(){
-	   for(int i=0;i<Claims.length;i++){
-		   UploadCounter = i + 1;
-		   runOnUiThread(ChangeMessage);
-		   if(uf.uploadFileToServer(this,Claims[i])){
-			  ClaimFile = Claims[i];
-			  if(ServerResponse()){
-				  result = 1;
-			  } else{
-				  result = 2;
-			  }
-			  MoveFile(ClaimFile);
-		   }else{
-			   result = -2;
-		   }
-	   }
- }*/
-
-    private int ServerResponse(){
-        CallSoap cs = new CallSoap();
-        cs.setFunctionName("isValidClaim");
-        return cs.isClaimAccepted(ClaimFile.getName().toString());
-    }
-
-
     @Override
     protected void onStop() {
         // TODO Auto-generated method stub
@@ -1308,16 +1028,9 @@ public class ClaimActivity extends AppCompatActivity {
         editor.commit();
         //}
     }
-/*    public boolean onOptionsItemSelected(MenuItem item){
-        Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivityForResult(myIntent, 0);
-        return true;
 
-    }*/
     @Override
     public void onBackPressed() {
         super.onBackPressed();
     }
-
-
 }

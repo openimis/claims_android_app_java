@@ -5,8 +5,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import org.openimis.imisclaims.R;
-
 public class About extends AppCompatActivity {
 
     @Override

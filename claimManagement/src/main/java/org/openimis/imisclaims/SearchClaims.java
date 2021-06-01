@@ -26,7 +26,6 @@ import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.openimis.general.General;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -43,7 +42,6 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
 
     ProgressDialog pd;
 
-    General _General;
     ToRestApi toRestApi;
     Token tokenl;
 
@@ -62,7 +60,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
     private int year, month, day;
     final Calendar cal = Calendar.getInstance();
 
-    Global global = new Global();
+    Global global;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +70,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
         pd = new ProgressDialog(this);
         pd.setCancelable(false);
 
-        _General = new General();
+        global = (Global)getApplicationContext();
 
         toRestApi = new ToRestApi();
         tokenl = new Token();
@@ -167,7 +165,6 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                     LoginDialogBox();
                 }else{
                     JSONObject object = new JSONObject();
-                        Global global = new Global();
                     try {
                         //object.put("userName",username.getText().toString());
                         object.put("claim_administrator_code",global.getOfficerCode().toString());
@@ -389,7 +386,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
         String content = null;
 
         final HttpResponse[] resp = {null};
-        if(_General.isNetworkAvailable(this)){
+        if(global.isNetworkAvailable()){
             String progress_message = getResources().getString(R.string.getClaims)+"...";
             pd = ProgressDialog.show(this, getResources().getString(R.string.DownLoad), progress_message);
             Thread thread = new Thread() {
@@ -631,8 +628,6 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
 
         final int[] userid = {0};
 
-        Global global = new Global();
-
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(this);
         View promptsView = li.inflate(R.layout.login_dialog, null);
@@ -653,7 +648,7 @@ public class SearchClaims extends AppCompatActivity implements AdapterView.OnIte
                 .setPositiveButton(getResources().getString(R.string.Ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
-                                if(_General.isNetworkAvailable(SearchClaims.this)){
+                                if(global.isNetworkAvailable()){
                                     if(!username.getText().toString().equals("") && !password.getText().toString().equals("")){
                                         pd = ProgressDialog.show(SearchClaims.this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
 
