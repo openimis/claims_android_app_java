@@ -21,8 +21,8 @@ public class SQLHandler extends SQLiteOpenHelper{
 
 	Global global;
 
-	public static final String DB_NAME_MAPPING = ((Global)Global.getContext()).getSubdirectory("Database") + "/" + "Mapping.db3";
-	public static final String DB_NAME_DATA = ((Global)Global.getContext()).getSubdirectory("Database") + "/" + "ImisData.db3";
+	public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Database") + "/" + "Mapping.db3";
+	public static final String DB_NAME_DATA = Global.getGlobal().getSubdirectory("Database") + "/" + "ImisData.db3";
 	private static final String CreateTable = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
 	private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName text, Adjustibility text);";
 	private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code text, Name text);";
@@ -35,20 +35,17 @@ public class SQLHandler extends SQLiteOpenHelper{
 	public SQLHandler(Context context) {
 		super(context, DB_NAME_MAPPING, null, 3);
 		global = (Global) context.getApplicationContext();
-		// TODO Auto-generated constructor stub
 	}
 
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		// TODO Auto-generated method stub
 		checkDataBase();
 		db.execSQL(CreateTable);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Auto-generated method stub
 
 	}
 

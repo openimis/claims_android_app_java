@@ -1,8 +1,8 @@
 package org.openimis.imisclaims;
 
-import cz.msebera.android.httpclient.HttpEntity;
-import cz.msebera.android.httpclient.HttpResponse;
-import cz.msebera.android.httpclient.util.EntityUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,14 +10,14 @@ import java.io.IOException;
 
 public class Login {
 
-    Token tokenl;
+    Token token;
 
-    public Login(){
-        tokenl = new Token();
+    public Login() {
+        token = Global.getGlobal().getJWTToken();
     }
 
     // Login to API and get Token JWT
-    public boolean LoginToken(final String Username, final String Password){
+    public boolean LoginToken(final String Username, final String Password) {
         ToRestApi rest = new ToRestApi();
 
         JSONObject object = new JSONObject();
@@ -30,31 +30,25 @@ public class Login {
 
         String functionName = "login";
 
-        HttpResponse response = null;
+        HttpResponse response;
+        String content;
 
-        String content = null;
+        response = rest.postToRestApi(object, functionName);
+        content = rest.getContent(response);
 
-        try {
-            response = rest.postToRestApi(object, functionName);
-            HttpEntity respEntity = (response != null) ? response.getEntity() : null;
-            content = (respEntity != null) ? EntityUtils.toString(respEntity) : null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-
-        if (response!=null && response.getStatusLine().getStatusCode() == 200) {
-            JSONObject ob = null;
-            String jwt = null;
+        if (response != null && response.getStatusLine().getStatusCode() == 200 && content != null) {
+            JSONObject ob;
+            String jwt = "";
+            String validTo = "";
             try {
                 ob = new JSONObject(content);
                 jwt = ob.getString("access_token");
+                validTo = ob.getString("expires_on");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            tokenl.saveTokenText(jwt);
+            token.saveTokenText(jwt, validTo);
 
             return true;
         }

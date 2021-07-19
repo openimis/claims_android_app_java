@@ -1,6 +1,7 @@
 package org.openimis.imisclaims;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -19,7 +20,7 @@ import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-public class Settings extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     Button btnSaveRarPwd, btnDefaultRarPassword;
     EditText etRarPassword;
@@ -42,29 +43,23 @@ public class Settings extends AppCompatActivity {
         etRarPassword = (EditText)findViewById(R.id.rarPassword);
         btnDefaultRarPassword = (Button) findViewById(R.id.btnDefaultRarPassword);
 
-        btnSaveRarPwd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(etRarPassword.getText().length() == 0){
-                   ShowDialog("Rar password required");
-                }
-                else {
-                    password = etRarPassword.getText().toString();
-                    saveRarPassword(password);
-                    ShowDialog("Password has been changed");
-                    etRarPassword.setText("");
-                }
-
+        btnSaveRarPwd.setOnClickListener(view -> {
+            if(etRarPassword.getText().length() == 0){
+               ShowDialog("Rar password required");
             }
+            else {
+                password = etRarPassword.getText().toString();
+                saveRarPassword(password);
+                ShowDialog("Password has been changed");
+                etRarPassword.setText("");
+            }
+
         });
 
-        btnDefaultRarPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                password = global.getDefaultRarPassword();
-                saveRarPassword(password);
-                ShowDialog("Password has been changed to the default rar password");
-            }
+        btnDefaultRarPassword.setOnClickListener(view -> {
+            password = global.getDefaultRarPassword();
+            saveRarPassword(password);
+            ShowDialog("Password has been changed to the default rar password");
         });
 
     }
@@ -142,13 +137,9 @@ public class Settings extends AppCompatActivity {
         return new AlertDialog.Builder(this)
                 .setMessage(msg)
                 .setCancelable(false)
-                .setPositiveButton(getResources().getString(R.string.Ok), new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //et.requestFocus();
-                        return;
-                    }
+                .setPositiveButton(getResources().getString(R.string.Ok), (dialog, which) -> {
+                    //et.requestFocus();
+                    return;
                 }).show();
     }
 }

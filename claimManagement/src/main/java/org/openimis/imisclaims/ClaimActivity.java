@@ -188,45 +188,30 @@ public class ClaimActivity extends AppCompatActivity {
         etDiagnosis4.setThreshold(1);
         etDiagnosis4.setOnItemClickListener(adapter);
 
-        etStartDate.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                showDialog(StartDate_Dialog_ID);
-                return false;
-            }
+        etStartDate.setOnTouchListener((v, event) -> {
+            showDialog(StartDate_Dialog_ID);
+            return false;
         });
 
-        etEndDate.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                showDialog(EndDate_Dialog_ID);
-                return false;
-            }
+        etEndDate.setOnTouchListener((v, event) -> {
+            showDialog(EndDate_Dialog_ID);
+            return false;
         });
 
 
-        btnNew.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if (TotalItemService>0){
-                    ConfirmDialog(getResources().getString(R.string.ConfirmDiscard));
-                }else{
-                    ClearForm();
-                }
+        btnNew.setOnClickListener(v -> {
+            if (TotalItemService>0){
+                ConfirmDialog(getResources().getString(R.string.ConfirmDiscard));
+            }else{
+                ClearForm();
             }
         });
 
-        btnScan.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-                intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-                startActivityForResult(intent, 1);
-            }
+        btnScan.setOnClickListener(v -> {
+            Intent scanIntent = new Intent(this,com.google.zxing.client.android.CaptureActivity.class);
+            scanIntent.setAction("com.google.zxing.client.android.SCAN");
+            scanIntent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+            startActivityForResult(scanIntent, 1);
         });
 
         btnPost.setOnClickListener(new View.OnClickListener() {
