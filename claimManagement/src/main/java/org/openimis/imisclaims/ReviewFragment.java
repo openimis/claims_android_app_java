@@ -101,7 +101,7 @@ public class ReviewFragment extends Fragment {
                 Approved.setText(object.getString("approved"));
                 Adjusted.setText(object.getString("adjusted"));
                 ClaimStatus.setText(object.getString("claim_status"));
-                Explanation.setText(object.getString("explination"));
+                Explanation.setText(object.getString("explanation"));
                 Adjustment.setText(object.getString("adjustment"));
 
         } catch (JSONException e) {

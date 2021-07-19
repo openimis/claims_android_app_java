@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -16,12 +15,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -32,67 +31,64 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cz.msebera.android.httpclient.HttpEntity;
-import cz.msebera.android.httpclient.HttpResponse;
-import cz.msebera.android.httpclient.util.EntityUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import static android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION;
 
-
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends ImisActivity {
+    ArrayList<String> broadcastList;
+    final CharSequence[] lang = {"English", "Francais"};
     String Language;
-    Global global;
-    Token tokenl;
+
     SQLHandler sql;
     SQLiteDatabase db;
     ToRestApi toRestApi;
-    TextView progressBarinsideText;
-    boolean isUserLogged;
 
     TextView accepted_count;
     TextView rejected_count;
     TextView pending_count;
-
     TextView AdminName;
+    DrawerLayout drawer;
+    ProgressDialog pd;
 
+    Menu menu;
     static String Path;
-    String AcceptedFolder;
-    String RejectedFolder;
-    String PendingFolder;
-    String TrashFolder;
 
     final String VersionField = "AppVersionEnquire";
     NotificationManager mNotificationManager;
     final int SIMPLE_NOTIFICATION_ID = 1;
     Vibrator vibrator;
 
-    ProgressDialog pd;
+    @Override
+    protected void onBroadcastReceived(Context context, Intent intent) {
+        String action = intent.getAction();
+        if (SynchronizeService.ACTION_CLAIM_COUNT_RESULT.equals(action)) {
+            accepted_count.setText(String.valueOf(intent.getIntExtra(SynchronizeService.EXTRA_CLAIM_COUNT_ACCEPTED, 0)));
+            rejected_count.setText(String.valueOf(intent.getIntExtra(SynchronizeService.EXTRA_CLAIM_COUNT_REJECTED, 0)));
+            pending_count.setText(String.valueOf(intent.getIntExtra(SynchronizeService.EXTRA_CLAIM_COUNT_PENDING, 0)));
+        }
+    }
 
-    Menu menu;
-
-    public static final String PREFS_NAME = "CMPref";
-    //final CharSequence[] lang = {"English","Swahili"};
-    final CharSequence[] lang = {"English","Francais"};
-
+    @Override
+    protected ArrayList<String> getBroadcastList() {
+        return broadcastList;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -101,52 +97,55 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestPermision();
-
         setContentView(R.layout.activity_main);
 
-        global = (Global) getApplicationContext();
+        requestPermissions();
+        isSDCardAvailable();
+
+        broadcastList = new ArrayList<>();
+        broadcastList.add(SynchronizeService.ACTION_CLAIM_COUNT_RESULT);
+
         toRestApi = new ToRestApi();
-        tokenl = new Token();
 
         pd = new ProgressDialog(this);
         pd.setCancelable(false);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        new Thread() {
-            public void run() {
-                CheckForUpdates();
-            }
+        actionBar = getSupportActionBar();
 
-        }.start();
+        new Thread(this::checkForUpdates).start();
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this::onNavigationItemSelected);
 
         accepted_count = findViewById(R.id.accepted_count);
         rejected_count = findViewById(R.id.rejected_count);
         pending_count = findViewById(R.id.pending_count);
 
-        AdminName = (TextView) findViewById(R.id.AdminName);
+        accepted_count.setText("0");
+        rejected_count.setText("0");
+        pending_count.setText("0");
+
+        AdminName = findViewById(R.id.AdminName);
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
-        refreshCont();
+        SynchronizeService.getClaimCount(this);
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -156,193 +155,102 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.change_language) {
-                    new AlertDialog.Builder(this)
-                .setTitle(getResources().getString(R.string.Select_Language))
-                .setCancelable(false)
-                .setNegativeButton(getResources().getString(R.string.button_cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                })
-                .setItems(lang,new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+            showSelectDialog(
+                    getResources().getString(R.string.Select_Language),
+                    lang,
+                    (dialog, which) -> {
                         //if (lang[which].toString() == "English")Language="en";else Language="sw";
-                        if (lang[which].toString() == "English")Language="en";else Language="fr";
-
+                        if (lang[which].toString().equals("English")) Language = "en";
+                        else Language = "fr";
                         global.ChangeLanguage(Language);
-                        isSDCardAvailable();
-                        finish();
-                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                        startActivity(intent);
-
-                    }
-
-                }).show();
+                        refresh();
+                    },
+                    null
+            );
             return true;
-        }
-        if (id == R.id.login_logout) {
-            if(tokenl.getTokenText().length() <= 0){
-                LoginDialogBox("MainActivity");
-            }else {
-                global.setUserId(0);
-                item.setTitle("Login");
-                Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Logout_Successful), Toast.LENGTH_LONG).show();
-            }
+        } else if (id == R.id.login_logout) {
+//            if(tokenl.getTokenText().length() <= 0){
+//                LoginDialogBox("MainActivity");
+//            }else {
+//                global.setUserId(0);
+//                item.setTitle("Login");
+//                Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Logout_Successful), Toast.LENGTH_LONG).show();
+//            }
             return true;
-        }
-        return super.onOptionsItemSelected(item);
+        } else
+            return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-//            Intent intent = new Intent(this, MainActivity.class);
-//            startActivity(intent);
-        }
-        if (id == R.id.nav_enquire) {
-            if(!global.isNetworkAvailable()){
-                pd.dismiss();
-                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
-                return false;
-            }
-            if(isUserLogged){
+            return true;
+        } else if (id == R.id.nav_enquire) {
+            doLoggedIn(() -> {
                 Intent intent = new Intent(this, EnquireActivity.class);
                 startActivity(intent);
-            }else{
-                LoginDialogBoxServices("Enquire");
-            }
-        }
-        if (id == R.id.nav_Map_Items) {
+            });
+        } else if (id == R.id.nav_Map_Items) {
             Intent intent = new Intent(this, MapItems.class);
             startActivity(intent);
-        }
-        if (id == R.id.nav_Map_Services) {
+        } else if (id == R.id.nav_Map_Services) {
             Intent intent = new Intent(this, MapServices.class);
             startActivity(intent);
-        }
-        if (id == R.id.nav_Refresh_Map) {
-            if(!global.isNetworkAvailable()){
-                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
-                return false;
-            }
-            //Are you sure dialog
-            int userid = global.getUserId();
-            if(tokenl.getTokenText().length() > 0){
-                ShowComfirmationDialog();
-                //Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.Login_Successful),Toast.LENGTH_LONG).show();
-
-            }else{
-                LoginDialogBox("refresh_map");
-            }
-        }
-        if (id == R.id.nav_claim) {
+        } else if (id == R.id.nav_Refresh_Map) {
+            confirmRefreshMap();
+        } else if (id == R.id.nav_claim) {
             Intent intent = new Intent(this, ClaimActivity.class);
             startActivity(intent);
-        }
-        if (id == R.id.nav_Reports) {
+        } else if (id == R.id.nav_Reports) {
             Intent intent = new Intent(getApplicationContext(), Report.class);
             startActivity(intent);
-/*
-                if(!_General.isNetworkAvailable(ClaimActivity.this)){
-                    ShowDialog(getResources().getString(R.string.InternetRequired));
-                    return false;
-                }
-
-                if(etHealthFacility.getText().length() == 0){
-                    ShowDialog(etHealthFacility,getResources().getString(R.string.MissingHealthFacility));
-                    return false;
-                }
-                if(etClaimAdmin.getText().length() == 0){
-                    ShowDialog(etClaimAdmin,getResources().getString(R.string.MissingClaimAdmin));
-                    return false;
-                }
-
-                Intent Stats = new Intent(ClaimActivity.this,Statistics.class);
-                Stats.putExtra("HFCode",etHealthFacility.getText());
-                Stats.putExtra("ClaimAdmin",etClaimAdmin.getText());
-                ClaimActivity.this.startActivity(Stats);
-                return true;*/
-
         } else if (id == R.id.nav_Sync) {
-            if(!global.isNetworkAvailable()){
-                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
-                return false;
-            }
-            Intent intent = new Intent(getApplicationContext(), Synchronize.class);
+            Intent intent = new Intent(getApplicationContext(), SynchronizeActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_quit) {
-            QuitConfirmDialogBox();
-
-        }else if (id == R.id.nav_about) {
+            showDialog(
+                    getResources().getString(R.string.AreYouSure),
+                    (dialog, i) -> {
+                        global.setOfficerCode("");
+                        finish();
+                    },
+                    (dialog, i) -> dialog.cancel()
+            );
+        } else if (id == R.id.nav_about) {
             Intent intent = new Intent(this, About.class);
             startActivity(intent);
         } else if (id == R.id.nav_Retrieve) {
-            if(!global.isNetworkAvailable()){
-                Toast.makeText(MainActivity.this,MainActivity.this.getResources().getString(R.string.InternetRequired),Toast.LENGTH_LONG).show();
-                return false;
-            }
-            if (tokenl.getTokenText().length() <= 0) {
-                LoginDialogBox("search_claims");
-            } else {
-                Intent intent = new Intent(this, SearchClaims.class);
+            doLoggedIn(() -> {
+                Intent intent = new Intent(this, SearchClaimsActivity.class);
                 startActivity(intent);
-            }
+            });
         } else if (id == R.id.nav_settings) {
-            Intent intent = new Intent(this, Settings.class);
+            Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void QuitConfirmDialogBox() {
 
-        // get prompts.xml view
-        LayoutInflater li = LayoutInflater.from(this);
-        View promptsView = li.inflate(R.layout.quit_dialog, null);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                this);
-
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton(R.string.Yes,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                global.setOfficerCode("");
-                                dialog.cancel();
-                                finish();
-                            }
-                        })
-                .setNegativeButton(R.string.No,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+    public AlertDialog confirmRefreshMap() {
+        return showDialog(
+                getResources().getString(R.string.AreYouSure),
+                (dialog, i) -> {
+                    try {
+                        JSONObject object1 = new JSONObject();
+                        object1.put("last_update_date", new SimpleDateFormat("yyyy/MM/dd", Locale.US).format(new Date(0)));
+                        DownLoadDiagnosesServicesItemsAgain(object1, sql);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
     }
+
     private void initializeDb3File(SQLHandler sql) {
         if (checkDataBase()) {
             if (global.isNetworkAvailable()) {
@@ -363,10 +271,10 @@ public class MainActivity extends AppCompatActivity
                 }
             } else {
                 if (!sql.checkIfAny("tblControls")) {
-                    ErrorDialogBox(getResources().getString(R.string.noControls) + " " + getResources().getString(R.string.provideExtractOrInternet),true);
+                    CriticalErrorDialogBox(getResources().getString(R.string.noControls) + " " + getResources().getString(R.string.provideExtractOrInternet));
                 } else if (!sql.checkIfAny("tblClaimAdmins")) {
                     if (sql.getAdjustibility("ClaimAdministrator").equals("M"))
-                        ErrorDialogBox(getResources().getString(R.string.noAdmins) + " " + getResources().getString(R.string.provideExtractOrInternet),true);
+                        CriticalErrorDialogBox(getResources().getString(R.string.noAdmins) + " " + getResources().getString(R.string.provideExtractOrInternet));
                 } else {
                     ClaimAdminDialogBox();
                 }
@@ -383,380 +291,82 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void isSDCardAvailable(){
+    private void isSDCardAvailable() {
         String status = global.getSDCardStatus();
-        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)){
+        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)) {
             //Toast.makeText(this, "SD Card is in read only mode.", Toast.LENGTH_LONG);
             new AlertDialog.Builder(this)
                     .setMessage(getResources().getString(R.string.SDCardReadOnly))
                     .setCancelable(false)
-                    .setPositiveButton("Force close", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("Force close", (dialog, which) -> finish()).show();
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    }).show();
-
-        }else if(!Environment.MEDIA_MOUNTED.equals(status)){
+        } else if (!Environment.MEDIA_MOUNTED.equals(status)) {
             new AlertDialog.Builder(this)
                     .setMessage(getResources().getString(R.string.SDCardMissing))
                     .setCancelable(false)
-                    .setPositiveButton(getResources().getString(R.string.ForceClose), new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    }).create().show();
+                    .setPositiveButton(getResources().getString(R.string.ForceClose), (dialog, which) -> finish()).show();
         }
     }
 
-    public void LoginDialogBox(final String page) {
-
-        final int[] userid = {0};
-
-        // get prompts.xml view
-        LayoutInflater li = LayoutInflater.from(this);
-        View promptsView = li.inflate(R.layout.login_dialog, null);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                this);
-
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-
-        final TextView username = (TextView) promptsView.findViewById(R.id.UserName);
-        final TextView password = (TextView) promptsView.findViewById(R.id.Password);
-        String officer_code = global.getOfficerCode();
-        username.setText(String.valueOf(officer_code));
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton(getResources().getString(R.string.Ok),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                if (global.isNetworkAvailable()) {
-                                    if (!username.getText().toString().equals("") && !password.getText().toString().equals("")) {
-                                        pd = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
-
-                                        new Thread() {
-                                            public void run() {
-                                                isUserLogged = new Login().LoginToken(username.getText().toString(), password.getText().toString());
-
-                                                if (!isUserLogged) {
-                                                    runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            pd.dismiss();
-                                                            //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
-                                                            Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.LoginFail), Toast.LENGTH_LONG).show();
-                                                            LoginDialogBox(page);
-                                                        }
-                                                    });
-
-                                                } else {
-                                                    final String finalToken = tokenl.getTokenText();
-                                                    runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            if (finalToken.length() > 0) {
-                                                                pd.dismiss();
-                                                                //updateMenuTitlesLogout();
-                                                                if (page.equals("MainActivity")) {
-/*                                                            Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                                                            startActivity(intent);*/
-                                                                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
-                                                                }
-                                                                if (page.equals("Enquire")) {
-                                                                    Intent intent = new Intent(MainActivity.this, EnquireActivity.class);
-                                                                    startActivity(intent);
-                                                                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
-                                                                }
-                                                                if (page.equals("refresh_map")) {
-                                                                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
-                                                                    ShowComfirmationDialog();
-                                                                }
-                                                                if(page.equals("search_claims")) {
-                                                                    Intent intent = new Intent(MainActivity.this, SearchClaims.class);
-                                                                    startActivity(intent);
-                                                                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
-                                                                }
-                                                            } else {
-                                                                pd.dismiss();
-                                                                //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
-                                                                Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.LoginFail), Toast.LENGTH_LONG).show();
-                                                                LoginDialogBox(page);
-                                                            }
-                                                        }
-                                                    });
-                                                }
-
-
-                                            }
-                                        }.start();
-
-
-                                    } else {
-                                        LoginDialogBox(page);
-                                        Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Enter_Credentials), Toast.LENGTH_LONG).show();
-                                    }
-                                } else {
-                                    ErrorDialogBox(getResources().getString(R.string.CheckInternet));
-                                }
-
-
-                            }
-                        })
-                .setNegativeButton(R.string.Cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
-
-    public void LoginDialogBoxServices(final String page) {
-
-        final int[] userid = {0};
-
-        // get prompts.xml view
-        LayoutInflater li = LayoutInflater.from(this);
-        View promptsView = li.inflate(R.layout.login_dialog, null);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                this);
-
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-
-        final TextView username = (TextView) promptsView.findViewById(R.id.UserName);
-        final TextView password = (TextView) promptsView.findViewById(R.id.Password);
-        String officer_code = global.getOfficerCode();
-        username.setText(String.valueOf(officer_code));
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton(getResources().getString(R.string.Ok),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                if (!username.getText().toString().equals("") && !password.getText().toString().equals("")) {
-                                    pd = ProgressDialog.show(MainActivity.this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
-
-                                    new Thread() {
-                                        public void run() {
-                                            isUserLogged = new Login().LoginToken(username.getText().toString(), password.getText().toString());
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    if (isUserLogged) {
-                                                        pd.dismiss();
-                                                        //updateMenuTitlesLogout();
-                                                        if (page.equals("MainActivity")) {
-/*                                                            Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                                                            startActivity(intent);*/
-                                                            Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
-                                                        }
-                                                        if (page.equals("Enquire")) {
-                                                            Intent intent = new Intent(MainActivity.this, EnquireActivity.class);
-                                                            startActivity(intent);
-                                                            Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Login_Successful), Toast.LENGTH_LONG).show();
-                                                        }
-
-                                                    } else {
-                                                        pd.dismiss();
-                                                        //ShowDialog(MainActivity.this.getResources().getString(R.string.LoginFail));
-                                                        Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.LoginFail), Toast.LENGTH_LONG).show();
-                                                        LoginDialogBoxServices(page);
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }.start();
-
-
-                                } else {
-                                    LoginDialogBox(page);
-                                    Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.Enter_Credentials), Toast.LENGTH_LONG).show();
-                                }
-
-                            }
-                        })
-                .setNegativeButton(R.string.Cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
-
     public void ClaimAdminDialogBox() {
-
-        // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(this);
         View promptsView = li.inflate(R.layout.claim_code_dialog, null);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                this);
-
-        // set prompts.xml to alertdialog builder
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setView(promptsView);
 
-        final EditText claim_code = (EditText) promptsView.findViewById(R.id.ClaimCode);
+        final EditText claim_code = promptsView.findViewById(R.id.ClaimCode);
 
-        // set dialog message
         alertDialogBuilder
                 .setCancelable(false)
                 .setPositiveButton(R.string.Continue,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                validateClaimAdminCode(claim_code.getText().toString());
-                                dialog.cancel();
-                            }
-                        })
+                        (dialog, id) -> validateClaimAdminCode(claim_code.getText().toString()))
                 .setNegativeButton(R.string.Cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                                finish();
-                            }
-                        });
-
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+                        (dialog, id) -> finish())
+                .show();
     }
 
     public void ErrorDialogBox(final String message) {
-        ErrorDialogBox(message,false);
+        showDialog(message);
     }
 
-    public void ErrorDialogBox(final String message, final boolean critical) {
-
-        // get prompts.xml view
-        LayoutInflater li = LayoutInflater.from(this);
-        View promptsView = li.inflate(R.layout.error_message_dialog, null);
-
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                this);
-
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(promptsView);
-
-        final TextView error = (TextView) promptsView.findViewById(R.id.error_message);
-        error.setText(message);
-
-        // set dialog message
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton(R.string.button_ok,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                                if(critical)
-                                    finish();
-                            }
-                        });
-        // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
-
-    public AlertDialog ShowComfirmationDialog() {
-        return new AlertDialog.Builder(this)
-                .setMessage(getResources().getString(R.string.AreYouSure))
-                .setCancelable(false)
-
-                .setPositiveButton(R.string.Ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        JSONObject l = null;
-                        try {
-
-/*                            if(!getLastUpdateDate().equals("")){
-                                //String date = getLastUpdateDate().substring(0, getLastUpdateDate().indexOf("."));
-                                object.put("last_update_date",getLastUpdateDate());
-                            }*/
-                            JSONObject object1 = new JSONObject();
-                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
-                            String dateS = formatter.format(new Date(0));
-                            object1.put("last_update_date",dateS);
-
-                            DownLoadDiagnosesServicesItemsAgain(object1, sql);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                })
-                .setNegativeButton(R.string.Cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                            }
-                })
-                .show();
+    public void CriticalErrorDialogBox(final String message) {
+        showDialog(message, (dialog, i) -> finish());
     }
 
     public AlertDialog DownloadMasterDialog() {
-        return new AlertDialog.Builder(this)
-                .setMessage(getResources().getString(R.string.getMasterData))
-                .setCancelable(false)
-
-                .setPositiveButton(R.string.Ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if(getControls()){
-                            try{
-                                if(global.getOfficerCode() == null || global.getOfficerCode().equals("")){
-                                    if(!sql.getAdjustibility("ClaimAdministrator").equals("N")){
-                                        ClaimAdminDialogBox();
-                                    }
+        return showDialog(getResources().getString(R.string.getMasterData),
+                (dialogInterface, i) -> {
+                    if (getControls()) {
+                        try {
+                            if (global.getOfficerCode() == null || global.getOfficerCode().equals("")) {
+                                if (!sql.getAdjustibility("ClaimAdministrator").equals("N")) {
+                                    ClaimAdminDialogBox();
                                 }
-                            }catch (Exception e){
-                                e.printStackTrace();
-                                DownloadMasterDialog();
                             }
-                        }else{
+                        } catch (Exception e) {
+                            e.printStackTrace();
                             DownloadMasterDialog();
                         }
+                    } else {
+                        DownloadMasterDialog();
                     }
-                })
-                .setNegativeButton(R.string.Cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
-                                dialog.cancel();
-                                finish();
-                            }
-                        })
-                .show();
+                },
+                (dialog, id) -> finish()
+        );
     }
 
-    private void CheckForUpdates(){
-        if(global.isNetworkAvailable()){
-            if(global.isNewVersionAvailable(VersionField,getApplicationContext().getPackageName())){
+    private void checkForUpdates() {
+        if (global.isNetworkAvailable()) {
+            if (global.isNewVersionAvailable(VersionField, getApplicationContext().getPackageName())) {
                 //Show notification bar
-                mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+                mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-                //final Notification NotificationDetails = new Notification(R.drawable.ic_launcher, getResources().getString(R.string.NotificationAlertText), System.currentTimeMillis());
-                //NotificationDetails.flags = Notification.FLAG_SHOW_LIGHTS | Notification.FLAG_AUTO_CANCEL | Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE;
-                //NotificationDetails.setLatestEventInfo(context, ContentTitle, ContentText, intent);
-                //mNotificationManager.notify(SIMPLE_NOTFICATION_ID, NotificationDetails);
-                Context context = getApplicationContext();
                 CharSequence ContentTitle = getResources().getString(R.string.ContentTitle);
                 CharSequence ContentText = getResources().getString(R.string.ContentText);
 
                 Intent NotifyIntent = new Intent(this, MainActivity.class);
 
-                PendingIntent intent = PendingIntent.getActivity(this, 0, NotifyIntent,PendingIntent.FLAG_CANCEL_CURRENT);
+                PendingIntent intent = PendingIntent.getActivity(this, 0, NotifyIntent, PendingIntent.FLAG_CANCEL_CURRENT);
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "Notification1");
                 builder.setAutoCancel(false);
                 builder.setContentTitle(ContentTitle);
@@ -764,189 +374,73 @@ public class MainActivity extends AppCompatActivity
                 builder.setSmallIcon(R.mipmap.ic_launcher_round);
                 builder.setContentIntent(intent);
                 builder.setOngoing(false);
-/*				String s = "ring";
-				int res_sound_id = context.getResources().getIdentifier(s, "raw", context.getPackageName());
-				Uri u = Uri.parse("android.resource://" + context.getPackageName() + "/" + res_sound_id);
-				builder.setSound(u);*/
 
-                try{
+                try {
                     mNotificationManager.notify(SIMPLE_NOTIFICATION_ID, builder.build());
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
-                vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
+                vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
                 vibrator.vibrate(500);
             }
         }
     }
 
-    public void makeTrashFolder(){
-
-        File DirRejected = new File(global.getSubdirectory("AcceptedClaims"));
-        File DirAccepted = new File(global.getSubdirectory("RejectedClaims"));
-        File DirTrash = new File(global.getSubdirectory("Trash"));
-
-        DirAccepted.mkdir();
-        DirRejected.mkdir();
-        DirTrash.mkdir();
-    }
-    public void refreshCont(){
-        int countAccepted = 0;
-        int countRejected = 0;
-        int count_pending = 0;
-        int count_trash = 0;
-
-        if(AcceptedFolder != null && RejectedFolder != null && TrashFolder != null) {
-            File acceptedClaims = new File(AcceptedFolder);
-            File rejectedClaims = new File(RejectedFolder);
-            File pendingFolder = new File(PendingFolder);
-            File trashFolder = new File(TrashFolder);
-
-            if (acceptedClaims.listFiles() != null) {
-                for (int i = 0; i < acceptedClaims.listFiles().length; i++) {
-                    String fname = acceptedClaims.listFiles()[i].getName();
-                    String str;
-                    try {
-                        str = fname.substring(0, 6);
-                    } catch (StringIndexOutOfBoundsException e) {
-                        continue;
-                    }
-                    if (str.equals("Claim_")) {
-                        countAccepted++;
-                    }
-                }
-            } else {
-                countAccepted = 0;
-            }
-
-            if (rejectedClaims.listFiles() != null) {
-                for (int i = 0; i < rejectedClaims.listFiles().length; i++) {
-                    String fname = rejectedClaims.listFiles()[i].getName();
-                    String str;
-                    try {
-                        str = fname.substring(0, 6);
-                    } catch (StringIndexOutOfBoundsException e) {
-                        continue;
-                    }
-                    if (str.equals("Claim_")) {
-                        countRejected++;
-                    }
-                }
-            } else {
-                countRejected = 0;
-            }
-
-            if (pendingFolder.listFiles() != null) {
-                for (int i = 0; i < pendingFolder.listFiles().length; i++) {
-                    String fname = pendingFolder.listFiles()[i].getName();
-                    String str;
-                    try {
-                        str = fname.substring(0, 6);
-                    } catch (StringIndexOutOfBoundsException e) {
-                        continue;
-                    }
-                    if (str.equals("Claim_")) {
-                        count_pending++;
-                    }
-                }
-            } else {
-                count_pending = 0;
-            }
-
-            if (trashFolder.listFiles() != null) {
-                for (int i = 0; i < trashFolder.listFiles().length; i++) {
-                    String fname = trashFolder.listFiles()[i].getName();
-                    String str;
-                    try {
-                        str = fname.substring(0, 6);
-                    } catch (StringIndexOutOfBoundsException e) {
-                        continue;
-                    }
-                    if (str.equals("Claim_")) {
-                        count_trash++;
-                    }
-                }
-            } else {
-                count_trash = 0;
-            }
-        }
-        int total_pending = count_pending;
-
-        accepted_count.setText(String.valueOf(countAccepted));
-        rejected_count.setText(String.valueOf(countRejected));
-        pending_count.setText(String.valueOf(total_pending));
-
+    public void refreshCount() {
+        SynchronizeService.getClaimCount(this);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    Path = global.getMainDirectory();
-                    AcceptedFolder = global.getSubdirectory("AcceptedClaims");
-                    RejectedFolder = global.getSubdirectory("RejectedClaims");
-                    PendingFolder = global.getMainDirectory();
-                    TrashFolder = global.getSubdirectory("Trash");
-                    createFolders();
-                    makeTrashFolder();
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1) {// If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+                createFolders();
 
-                    //check if databases exist in phone
-                    File database = new File(global.getSubdirectory("Database") + "/" + "ImisData.db3");
-                    File databaseMapping = new File(global.getSubdirectory("Database") + "/" + "Mapping.db3");
-                    //if one of database not exist - then init it and fill master data etc
-                    if (!database.exists() || !databaseMapping.exists()) {
-                        sql = new SQLHandler(this);
-                        sql.onOpen(db);
-                        sql.createTables();
-                        initializeDb3File(sql);
-                    }
-                    else{
-                        //if databases exist: show only claim admin dialog box without init data
-                        sql = new SQLHandler(this);
-                        sql.onOpen(db);
-                        ClaimAdminDialogBox();
-                    }
-                    refreshCont();
-
+                //check if databases exist in phone
+                File database = new File(global.getSubdirectory("Database") + "/" + "ImisData.db3");
+                File databaseMapping = new File(global.getSubdirectory("Database") + "/" + "Mapping.db3");
+                //if one of database not exist - then init it and fill master data etc
+                if (!database.exists() || !databaseMapping.exists()) {
+                    sql = new SQLHandler(this);
+                    sql.onOpen(db);
+                    sql.createTables();
+                    initializeDb3File(sql);
                 } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    //Toast.makeText(MainActivity.this, MainActivity.this.getResources().getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
+                    //if databases exist: show only claim admin dialog box without init data
+                    sql = new SQLHandler(this);
+                    sql.onOpen(db);
+                    ClaimAdminDialogBox();
                 }
-                return;
+                refreshCount();
+
+            } else {
+                // permission denied
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
-
     }
 
     //Ask for permission
-    public void requestPermision(){
+    public void requestPermissions() {
         int PERMISSION_ALL = 1;
         String[] PERMISSIONS = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
-        if(!hasPermissions(this, PERMISSIONS)){
+        if (!hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
 
         // Ask for "Manage External Storage" permission, required in Android 11
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             String[] Android11Permissions = {Manifest.permission.MANAGE_EXTERNAL_STORAGE};
-            if(!hasPermissions(this, Android11Permissions)){
+            if (!hasPermissions(this, Android11Permissions)) {
                 ActivityCompat.requestPermissions(this, Android11Permissions, PERMISSION_ALL);
-                if(!Environment.isExternalStorageManager()) {
+                if (!Environment.isExternalStorageManager()) {
                     Intent intent = new Intent(ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                     startActivity(intent);
                 }
             }
         }
     }
+
     public static boolean hasPermissions(Context context, String... permissions) {
         if (context != null && permissions != null) {
             for (String permission : permissions) {
@@ -957,6 +451,7 @@ public class MainActivity extends AppCompatActivity
         }
         return true;
     }
+
     public boolean checkDataBase() {
         SQLiteDatabase checkDB = null;
         try {
@@ -969,22 +464,21 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public boolean getControls(){
-        if(global.isNetworkAvailable()){
+    public boolean getControls() {
+        if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.getControls);
             pd = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
-            Thread thread = new Thread(){
+            Thread thread = new Thread() {
                 public void run() {
                     String controls = null;
                     String error_occurred = null;
                     String error_message = null;
 
-                    String functionName = "Claims/Controls";
+                    String functionName = "claim/Claims/Controls";
                     try {
                         String content = toRestApi.getFromRestApi(functionName);
 
-                        JSONObject ob = null;
-                        JSONObject obContent = null;
+                        JSONObject ob;
 
                         ob = new JSONObject(content);
                         error_occurred = ob.getString("error_occured");
@@ -992,150 +486,104 @@ public class MainActivity extends AppCompatActivity
                             controls = ob.getString("controls");
                             sql.ClearAll("tblControls");
                             //Insert Diagnosese
-                            JSONArray arrControls = null;
-                            JSONObject objControls = null;
+                            JSONArray arrControls;
+                            JSONObject objControls;
                             arrControls = new JSONArray(controls);
                             for (int i = 0; i < arrControls.length(); i++) {
                                 objControls = arrControls.getJSONObject(i);
-                                sql.InsertControls(objControls.getString("fieldName").toString(), objControls.getString("adjustibility"));
+                                sql.InsertControls(objControls.getString("fieldName"), objControls.getString("adjustibility"));
                             }
 
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    pd.dismiss();
-                                    getClaimAdmins();
-                                }
+                            runOnUiThread(() -> {
+                                pd.dismiss();
+                                getClaimAdmins();
                             });
 
 
                         } else {
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    pd.dismiss();
-                                }
-                            });
+                            runOnUiThread(() -> pd.dismiss());
                             error_message = ob.getString("error_message");
                             ErrorDialogBox(error_message);
                         }
-                    } catch (JSONException e ) {
+                    } catch (JSONException e) {
                         e.printStackTrace();
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                pd.dismiss();
-                            }
-                        });
-
-                    } catch ( IOException e ) {
-                        e.printStackTrace();
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                pd.dismiss();
-                            }
-                        });
+                        runOnUiThread(() -> pd.dismiss());
                     }
                 }
             };
             thread.start();
-        }else{
+        } else {
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
             return false;
         }
         return true;
     }
 
-    public boolean getClaimAdmins(){
-        if(global.isNetworkAvailable()){
+    public boolean getClaimAdmins() {
+        if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.application);
             pd = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
-            Thread thread = new Thread(){
+            Thread thread = new Thread() {
                 public void run() {
-                    String controls = null;
-                    String error_occurred = null;
-                    String error_message = null;
+                    String controls;
 
-                    String functionName = "Claims/GetClaimAdmins";
+                    String functionName = "claim/Claims/GetClaimAdmins";
                     try {
                         String content = toRestApi.getFromRestApi(functionName);
 
-                        JSONObject ob = null;
-                        JSONObject obContent = null;
+                        JSONObject ob;
 
                         ob = new JSONObject(content);
-                        //error_occurred = ob.getString("error_occured");
-                        //if(error_occurred.equals("true")){
-
                         controls = ob.getString("claim_admins");
                         sql.ClearAll("tblClaimAdmins");
                         //Insert Diagnosese
-                        JSONArray arrControls = null;
-                        JSONObject objControls = null;
+                        JSONArray arrControls;
+                        JSONObject objControls;
                         arrControls = new JSONArray(controls);
                         for (int i = 0; i < arrControls.length(); i++) {
                             objControls = arrControls.getJSONObject(i);
-                            String lastName = objControls.getString("lastName").toString();
-                            String otherNames = objControls.getString("otherNames").toString();
+                            String lastName = objControls.getString("lastName");
+                            String otherNames = objControls.getString("otherNames");
                             String name = lastName + " " + otherNames;
                             sql.InsertClaimAdmins(objControls.getString("claimAdminCode"), name);
                         }
 
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                pd.dismiss();
-                                Toast.makeText(MainActivity.this, getResources().getString(R.string.initializing_complete), Toast.LENGTH_LONG).show();
-                            }
+                        runOnUiThread(() -> {
+                            pd.dismiss();
+                            showToast(getResources().getString(R.string.initializing_complete));
                         });
-                        /*}else {
-                            runOnUiThread(new Runnable() {
-                                public void run() {pd.dismiss();
-                                }
-                            });
-                            error_message = ob.getString("error_message");
-                            ErrorDialogBox(error_message);
-                        }*/
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                pd.dismiss();
-                            }
-                        });
-
-                    } catch ( IOException e) {
-                        e.printStackTrace();
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                pd.dismiss();
-                            }
-                        });
+                        runOnUiThread(() -> pd.dismiss());
                     }
                 }
             };
             thread.start();
-        }else{
+        } else {
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
             return false;
         }
         return true;
     }
 
-    public void validateClaimAdminCode(final String ClaimCode){
-        if(ClaimCode.equals("")){
+    public void validateClaimAdminCode(final String ClaimCode) {
+        if (ClaimCode.equals("")) {
             Toast.makeText(getBaseContext(), R.string.MissingClaimCode, Toast.LENGTH_LONG).show();
             ClaimAdminDialogBox();
-        }else{
+        } else {
             String ClaimName = sql.getClaimAdmin(ClaimCode);
-            if(ClaimName.equals("")){
-                Toast.makeText(MainActivity.this,getResources().getString(R.string.invalid_code),Toast.LENGTH_LONG).show();
+            if (ClaimName.equals("")) {
+                Toast.makeText(MainActivity.this, getResources().getString(R.string.invalid_code), Toast.LENGTH_LONG).show();
                 ClaimAdminDialogBox();
-            }else{
-                if(!sql.getAdjustibility("ClaimAdministrator").equals("N")){
+            } else {
+                if (!sql.getAdjustibility("ClaimAdministrator").equals("N")) {
                     global.setOfficerCode(ClaimCode);
                     global.setOfficerName(ClaimName);
                     AdminName = (TextView) findViewById(R.id.AdminName);
                     AdminName.setText(global.getOfficeName());
                     sql = new SQLHandler(MainActivity.this);
                     Cursor c = sql.getMapping("I");
-                    if(c.getCount() == 0){
+                    if (c.getCount() == 0) {
                         try {
                                 /* if(!getLastUpdateDate().equals("")){
                                      //String date = getLastUpdateDate().substring(0, getLastUpdateDate().indexOf("."));
@@ -1146,7 +594,7 @@ public class MainActivity extends AppCompatActivity
                             JSONObject object = new JSONObject();
                             SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
                             String dateS = formatter.format(new Date(0));
-                            object.put("last_update_date",dateS);
+                            object.put("last_update_date", dateS);
                             try {
                                 DownLoadDiagnosesServicesItems(object, sql);
                             } catch (IOException e) {
@@ -1156,10 +604,10 @@ public class MainActivity extends AppCompatActivity
                             e.printStackTrace();
                         }
                     }
-                }else{
+                } else {
                     sql = new SQLHandler(MainActivity.this);
                     Cursor c = sql.getMapping("I");
-                    if(c.getCount() == 0){
+                    if (c.getCount() == 0) {
                         try {
                                 /* if(!getLastUpdateDate().equals("")){
                                      //String date = getLastUpdateDate().substring(0, getLastUpdateDate().indexOf("."));
@@ -1170,7 +618,7 @@ public class MainActivity extends AppCompatActivity
                             JSONObject object = new JSONObject();
                             SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
                             String dateS = formatter.format(new Date(0));
-                            object.put("last_update_date",dateS);
+                            object.put("last_update_date", dateS);
                             try {
                                 DownLoadDiagnosesServicesItems(object, sql);
                             } catch (IOException e) {
@@ -1184,14 +632,15 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
     public void DownLoadDiagnosesServicesItems(final JSONObject object, final SQLHandler sql) throws IOException {
 
         final String[] content = new String[1];
         final HttpResponse[] resp = {null};
-        if(global.isNetworkAvailable()){
-            String progress_message = getResources().getString(R.string.Diagnoses)+", "+getResources().getString(R.string.Services)+", "+getResources().getString(R.string.Items)+"...";
+        if (global.isNetworkAvailable()) {
+            String progress_message = getResources().getString(R.string.Diagnoses) + ", " + getResources().getString(R.string.Services) + ", " + getResources().getString(R.string.Items) + "...";
             pd = ProgressDialog.show(this, getResources().getString(R.string.Checking_For_Updates), progress_message);
-            Thread thread = new Thread(){
+            Thread thread = new Thread() {
                 public void run() {
                     String diagnoses = null;
                     String services = null;
@@ -1200,10 +649,10 @@ public class MainActivity extends AppCompatActivity
                     String error_occurred = null;
                     String error_message = null;
 
-                    String functionName = "GetDiagnosesServicesItems";
+                    String functionName = "claim/GetDiagnosesServicesItems";
 
                     try {
-                        HttpResponse response = toRestApi.postToRestApi(object,functionName);
+                        HttpResponse response = toRestApi.postToRestApi(object, functionName);
                         resp[0] = response;
                         HttpEntity respEntity = response.getEntity();
                         if (respEntity != null) {
@@ -1217,7 +666,7 @@ public class MainActivity extends AppCompatActivity
                         JSONObject ob = null;
                         try {
                             ob = new JSONObject(content[0]);
-                            if(String.valueOf(response.getStatusLine().getStatusCode()).equals("200")){
+                            if (String.valueOf(response.getStatusLine().getStatusCode()).equals("200")) {
                                 diagnoses = ob.getString("diagnoses");
                                 services = ob.getString("services");
                                 items = ob.getString("items");
@@ -1231,94 +680,77 @@ public class MainActivity extends AppCompatActivity
                                 JSONArray arrDiagnoses = null;
                                 JSONObject objDiagnoses = null;
                                 arrDiagnoses = new JSONArray(diagnoses);
-                                for(int i=0; i < arrDiagnoses.length(); i++){
+                                for (int i = 0; i < arrDiagnoses.length(); i++) {
                                     objDiagnoses = arrDiagnoses.getJSONObject(i);
-                                    sql.InsertReferences(objDiagnoses.getString("code").toString(),objDiagnoses.getString("name").toString(),"D","");
+                                    sql.InsertReferences(objDiagnoses.getString("code"), objDiagnoses.getString("name"), "D", "");
                                 }
 
                                 //Insert Services
                                 JSONArray arrServices = null;
                                 JSONObject objServices = null;
                                 arrServices = new JSONArray(services);
-                                for(int i=0; i < arrServices.length(); i++){
+                                for (int i = 0; i < arrServices.length(); i++) {
                                     objServices = arrServices.getJSONObject(i);
-                                    sql.InsertReferences(objServices.getString("code").toString(),objServices.getString("name").toString(),"S",objServices.getString("price").toString());
-                                    sql.InsertMapping(objServices.getString("code").toString(),objServices.getString("name").toString(),"S");
+                                    sql.InsertReferences(objServices.getString("code"), objServices.getString("name"), "S", objServices.getString("price"));
+                                    sql.InsertMapping(objServices.getString("code"), objServices.getString("name"), "S");
                                 }
 
                                 //Insert Items
                                 JSONArray arrItems = null;
                                 JSONObject objItems = null;
                                 arrItems = new JSONArray(items);
-                                for(int i=0; i < arrItems.length(); i++){
+                                for (int i = 0; i < arrItems.length(); i++) {
                                     objItems = arrItems.getJSONObject(i);
-                                    sql.InsertReferences(objItems.getString("code").toString(),objItems.getString("name").toString(),"I",objItems.getString("price").toString());
-                                    sql.InsertMapping(objItems.getString("code").toString(),objItems.getString("name").toString(),"I");
+                                    sql.InsertReferences(objItems.getString("code"), objItems.getString("name"), "I", objItems.getString("price"));
+                                    sql.InsertMapping(objItems.getString("code"), objItems.getString("name"), "I");
                                 }
 
-                                runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        pd.dismiss();
-                                        Toast.makeText(MainActivity.this,getResources().getString(R.string.installed_updates),Toast.LENGTH_LONG).show();
-                                    }
+                                runOnUiThread(() -> {
+                                    pd.dismiss();
+                                    Toast.makeText(MainActivity.this, getResources().getString(R.string.installed_updates), Toast.LENGTH_LONG).show();
                                 });
 
-                            }else {
+                            } else {
                                 error_occurred = ob.getString("error_occured");
-                                if(error_occurred.equals("true")){
+                                if (error_occurred.equals("true")) {
                                     error_message = ob.getString("error_message");
 
                                     final String finalError_message = error_message;
-                                    runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            pd.dismiss();
-                                            Toast.makeText(MainActivity.this,finalError_message,Toast.LENGTH_LONG).show();
-                                            ClaimAdminDialogBox();
-                                        }
+                                    runOnUiThread(() -> {
+                                        pd.dismiss();
+                                        Toast.makeText(MainActivity.this, finalError_message, Toast.LENGTH_LONG).show();
+                                        ClaimAdminDialogBox();
                                     });
-                                }else {
-                                    runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            pd.dismiss();
-                                            Toast.makeText(MainActivity.this,getResources().getString(R.string.SomethingWentWrongServer),Toast.LENGTH_LONG).show();
-                                            ClaimAdminDialogBox();
-                                        }
+                                } else {
+                                    runOnUiThread(() -> {
+                                        pd.dismiss();
+                                        Toast.makeText(MainActivity.this, getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
+                                        ClaimAdminDialogBox();
                                     });
-
                                 }
-
                             }
-
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    pd.dismiss();
-                                    ClaimAdminDialogBox();
-                                }
+                            runOnUiThread(() -> {
+                                pd.dismiss();
+                                ClaimAdminDialogBox();
                             });
-                            Toast.makeText(MainActivity.this,String.valueOf(e),Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, String.valueOf(e), Toast.LENGTH_LONG).show();
 
                         }
-                    }catch (Exception e){
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                pd.dismiss();
-                                Toast.makeText(MainActivity.this,resp[0].getStatusLine().getStatusCode()+"-"+getResources().getString(R.string.SomethingWentWrongServer),Toast.LENGTH_LONG).show();
-                                ClaimAdminDialogBox();
-                            }
+                    } catch (Exception e) {
+                        runOnUiThread(() -> {
+                            pd.dismiss();
+                            Toast.makeText(MainActivity.this, resp[0].getStatusLine().getStatusCode() + "-" + getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
+                            ClaimAdminDialogBox();
                         });
                     }
                 }
             };
 
             thread.start();
-        }else{
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    pd.dismiss();
-                }
-            });
+        } else {
+            runOnUiThread(() -> pd.dismiss());
             ClaimAdminDialogBox();
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
         }
@@ -1328,10 +760,10 @@ public class MainActivity extends AppCompatActivity
 
         final String[] content = new String[1];
         final HttpResponse[] resp = {null};
-        if(global.isNetworkAvailable()){
+        if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.refresh_mapping);
             pd = ProgressDialog.show(this, getResources().getString(R.string.Checking_For_Updates), progress_message);
-            Thread thread = new Thread(){
+            Thread thread = new Thread() {
                 public void run() {
                     String diagnoses = null;
                     String services = null;
@@ -1340,24 +772,23 @@ public class MainActivity extends AppCompatActivity
                     String error_occurred = null;
                     String error_message = null;
 
-                    String functionName = "GetDiagnosesServicesItems";
+                    String functionName = "claim/GetDiagnosesServicesItems";
 
                     try {
-                        HttpResponse response = toRestApi.postToRestApi(object,functionName);
+                        HttpResponse response = toRestApi.postToRestApi(object, functionName);
                         resp[0] = response;
                         HttpEntity respEntity = response.getEntity();
                         if (respEntity != null) {
-                            final String[] code = {null};
                             // EntityUtils to get the response content
 
                             content[0] = EntityUtils.toString(respEntity);
 
                         }
 
-                        JSONObject ob = null;
+                        JSONObject ob;
                         try {
                             ob = new JSONObject(content[0]);
-                            if(String.valueOf(response.getStatusLine().getStatusCode()).equals("200")){
+                            if (String.valueOf(response.getStatusLine().getStatusCode()).equals("200")) {
                                 diagnoses = ob.getString("diagnoses");
                                 services = ob.getString("services");
                                 items = ob.getString("items");
@@ -1368,72 +799,64 @@ public class MainActivity extends AppCompatActivity
                                 sql.ClearMapping("S");
                                 sql.ClearMapping("I");
                                 //Insert Diagnosese
-                                JSONArray arrDiagnoses = null;
-                                JSONObject objDiagnoses = null;
+                                JSONArray arrDiagnoses;
+                                JSONObject objDiagnoses;
                                 arrDiagnoses = new JSONArray(diagnoses);
-                                for(int i=0; i < arrDiagnoses.length(); i++){
+                                for (int i = 0; i < arrDiagnoses.length(); i++) {
                                     objDiagnoses = arrDiagnoses.getJSONObject(i);
-                                    sql.InsertReferences(objDiagnoses.getString("code").toString(),objDiagnoses.getString("name").toString(),"D","");
+                                    sql.InsertReferences(objDiagnoses.getString("code"), objDiagnoses.getString("name"), "D", "");
                                 }
 
                                 //Insert Services
-                                JSONArray arrServices = null;
-                                JSONObject objServices = null;
+                                JSONArray arrServices;
+                                JSONObject objServices;
                                 arrServices = new JSONArray(services);
-                                for(int i=0; i < arrServices.length(); i++){
+                                for (int i = 0; i < arrServices.length(); i++) {
                                     objServices = arrServices.getJSONObject(i);
-                                    sql.InsertReferences(objServices.getString("code").toString(),objServices.getString("name").toString(),"S",objServices.getString("price").toString());
-                                    sql.InsertMapping(objServices.getString("code").toString(),objServices.getString("name").toString(),"S");
+                                    sql.InsertReferences(objServices.getString("code"), objServices.getString("name"), "S", objServices.getString("price"));
+                                    sql.InsertMapping(objServices.getString("code"), objServices.getString("name"), "S");
                                 }
 
                                 //Insert Items
-                                JSONArray arrItems = null;
-                                JSONObject objItems = null;
+                                JSONArray arrItems;
+                                JSONObject objItems;
                                 arrItems = new JSONArray(items);
-                                for(int i=0; i < arrItems.length(); i++){
+                                for (int i = 0; i < arrItems.length(); i++) {
                                     objItems = arrItems.getJSONObject(i);
-                                    sql.InsertReferences(objItems.getString("code").toString(),objItems.getString("name").toString(),"I",objItems.getString("price").toString());
-                                    sql.InsertMapping(objItems.getString("code").toString(),objItems.getString("name").toString(),"I");
+                                    sql.InsertReferences(objItems.getString("code"), objItems.getString("name"), "I", objItems.getString("price"));
+                                    sql.InsertMapping(objItems.getString("code"), objItems.getString("name"), "I");
                                 }
 
-                                runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        pd.dismiss();
-                                        Toast.makeText(MainActivity.this,getResources().getString(R.string.installed_updates),Toast.LENGTH_LONG).show();
+                                runOnUiThread(() -> {
+                                    pd.dismiss();
+                                    Toast.makeText(MainActivity.this, getResources().getString(R.string.installed_updates), Toast.LENGTH_LONG).show();
 
-                                        JSONObject object = new JSONObject();
-                                        try {
-                                            object.put("claim_administrator_code",global.getOfficerCode());
-                                            DownLoadServicesItemsPriceList(object, sql);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-
+                                    JSONObject object1 = new JSONObject();
+                                    try {
+                                        object1.put("claim_administrator_code", global.getOfficerCode());
+                                        DownLoadServicesItemsPriceList(object1, sql);
+                                    } catch (JSONException | IOException e) {
+                                        e.printStackTrace();
                                     }
+
                                 });
 
-                            }else {
+                            } else {
                                 error_occurred = ob.getString("error_occured");
-                                if(error_occurred.equals("true")){
+                                if (error_occurred.equals("true")) {
                                     error_message = ob.getString("error_message");
 
                                     final String finalError_message = error_message;
-                                    runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            pd.dismiss();
-                                            Toast.makeText(MainActivity.this,finalError_message,Toast.LENGTH_LONG).show();
-                                            ClaimAdminDialogBox();
-                                        }
+                                    runOnUiThread(() -> {
+                                        pd.dismiss();
+                                        Toast.makeText(MainActivity.this, finalError_message, Toast.LENGTH_LONG).show();
+                                        ClaimAdminDialogBox();
                                     });
-                                }else {
-                                    runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            pd.dismiss();
-                                            Toast.makeText(MainActivity.this,getResources().getString(R.string.SomethingWentWrongServer),Toast.LENGTH_LONG).show();
-                                            ClaimAdminDialogBox();
-                                        }
+                                } else {
+                                    runOnUiThread(() -> {
+                                        pd.dismiss();
+                                        Toast.makeText(MainActivity.this, getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
+                                        ClaimAdminDialogBox();
                                     });
 
                                 }
@@ -1442,43 +865,35 @@ public class MainActivity extends AppCompatActivity
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            runOnUiThread(new Runnable() {
-                                public void run() {
-                                    pd.dismiss();
-                                    ClaimAdminDialogBox();
-                                }
+                            runOnUiThread(() -> {
+                                pd.dismiss();
+                                ClaimAdminDialogBox();
                             });
-                            Toast.makeText(MainActivity.this,String.valueOf(e),Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, String.valueOf(e), Toast.LENGTH_LONG).show();
 
                         }
-                    }catch (Exception e){
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                pd.dismiss();
-                                Toast.makeText(MainActivity.this,resp[0].getStatusLine().getStatusCode()+"-"+getResources().getString(R.string.SomethingWentWrongServer),Toast.LENGTH_LONG).show();
-                                ClaimAdminDialogBox();
-                            }
+                    } catch (Exception e) {
+                        runOnUiThread(() -> {
+                            pd.dismiss();
+                            Toast.makeText(MainActivity.this, resp[0].getStatusLine().getStatusCode() + "-" + getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
+                            ClaimAdminDialogBox();
                         });
                     }
                 }
             };
 
             thread.start();
-        }else{
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    pd.dismiss();
-                }
-            });
+        } else {
+            runOnUiThread(() -> pd.dismiss());
             //ClaimAdminDialogBox();
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
         }
     }
 
-    private void DownLoadServicesItemsPriceList(final JSONObject object, final  SQLHandler sql) throws IOException {
+    private void DownLoadServicesItemsPriceList(final JSONObject object, final SQLHandler sql) throws IOException {
         final HttpResponse[] resp = {null};
-        if(global.isNetworkAvailable()){
-            String progress_message = getResources().getString(R.string.Services)+", "+getResources().getString(R.string.Items)+"...";
+        if (global.isNetworkAvailable()) {
+            String progress_message = getResources().getString(R.string.Services) + ", " + getResources().getString(R.string.Items) + "...";
             pd = ProgressDialog.show(this, getResources().getString(R.string.mapping), progress_message);
             Thread thread = new Thread() {
                 public void run() {
@@ -1490,9 +905,9 @@ public class MainActivity extends AppCompatActivity
                     String last_update_date = null;
                     String content = null;
 
-                    String functionName = "getpaymentlists";
-                    try{
-                        HttpResponse response = toRestApi.postToRestApiToken(object,functionName);
+                    String functionName = "claim/getpaymentlists";
+                    try {
+                        HttpResponse response = toRestApi.postToRestApiToken(object, functionName);
                         resp[0] = response;
                         HttpEntity respEntity = response.getEntity();
                         if (respEntity != null) {
@@ -1509,7 +924,7 @@ public class MainActivity extends AppCompatActivity
                         JSONObject ob = null;
                         try {
                             ob = new JSONObject(content);
-                            if(String.valueOf(code).equals("200")){
+                            if (String.valueOf(code).equals("200")) {
                                 services = ob.getString("pricelist_services");
                                 items = ob.getString("pricelist_items");
                                 last_update_date = ob.getString("update_since_last");
@@ -1526,7 +941,7 @@ public class MainActivity extends AppCompatActivity
                                 for (int i = 0; i < arrServices.length(); i++) {
                                     objServices = arrServices.getJSONObject(i);
                                     //sql.InsertReferences(objServices.getString("code").toString(), objServices.getString("name").toString(), "S", objServices.getString("price").toString());
-                                    sql.InsertMapping(objServices.getString("code").toString(),objServices.getString("name").toString(),"S");
+                                    sql.InsertMapping(objServices.getString("code"), objServices.getString("name"), "S");
                                 }
 
                                 //Insert Items
@@ -1536,100 +951,52 @@ public class MainActivity extends AppCompatActivity
                                 for (int i = 0; i < arrItems.length(); i++) {
                                     objItems = arrItems.getJSONObject(i);
                                     //sql.InsertReferences(objItems.getString("code").toString(), objItems.getString("name").toString(), "I", objItems.getString("price").toString());
-                                    sql.InsertMapping(objItems.getString("code").toString(),objItems.getString("name").toString(),"I");
+                                    sql.InsertMapping(objItems.getString("code"), objItems.getString("name"), "I");
                                 }
-                                runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        pd.dismiss();
-                                        Toast.makeText(MainActivity.this,getResources().getString(R.string.MapSuccessful),Toast.LENGTH_LONG).show();
-                                    }
+                                runOnUiThread(() -> {
+                                    pd.dismiss();
+                                    Toast.makeText(MainActivity.this, getResources().getString(R.string.MapSuccessful), Toast.LENGTH_LONG).show();
                                 });
-                            }else{
+                            } else {
                                 error_occurred = ob.getString("error_occured");
-                                if(error_occurred.equals("true")){
-                                    if(code >= 400){
-                                        runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                pd.dismiss();
-                                                LoginDialogBox("refresh_map");
-                                            }
+                                if (error_occurred.equals("true")) {
+                                    if (code >= 400) {
+                                        runOnUiThread(() -> {
+                                            pd.dismiss();
+                                            confirmRefreshMap();
                                         });
-                                    }else{
+                                    } else {
                                         error_message = ob.getString("error_message");
                                         final String finalError_message = error_message;
-                                        runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                pd.dismiss();
-                                            }
-                                        });
+                                        runOnUiThread(() -> pd.dismiss());
                                         ErrorDialogBox(finalError_message);
                                     }
                                 }
                             }
                         } catch (JSONException e) {
-                            runOnUiThread(new Runnable() {
-                                public void run() {pd.dismiss();}});
-                            Toast.makeText(MainActivity.this,String.valueOf(e),Toast.LENGTH_LONG).show();
+                            runOnUiThread(() -> pd.dismiss());
+                            Toast.makeText(MainActivity.this, String.valueOf(e), Toast.LENGTH_LONG).show();
                         }
-                    }catch (Exception e){
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                pd.dismiss();
-                                Toast.makeText(MainActivity.this,resp[0].getStatusLine().getStatusCode() +"-"+getResources().getString(R.string.AccessDenied),Toast.LENGTH_LONG).show();
-                            }
+                    } catch (Exception e) {
+                        runOnUiThread(() -> {
+                            pd.dismiss();
+                            Toast.makeText(MainActivity.this, resp[0].getStatusLine().getStatusCode() + "-" + getResources().getString(R.string.AccessDenied), Toast.LENGTH_LONG).show();
                         });
                     }
-
                 }
             };
             thread.start();
-        }else{
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    pd.dismiss();
-                }
-            });
+        } else {
+            runOnUiThread(() -> pd.dismiss());
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
         }
 
     }
-    public void saveLastUpdateDate(String last_update_date) {
-        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            //handle case of no SDCARD present
-        } else {
+
+    public void saveLastUpdateDate(String lastUpdateDate) {
+        if (global.getSDCardStatus().equals(Environment.MEDIA_MOUNTED)) {
             String dir = global.getSubdirectory("Authentications");
-            //create folder
-            File folder = new File(dir); //folder name
-            folder.mkdirs();
-
-            //create file
-            File file = new File(dir, "last_update_date.txt");
-            try {
-                file.createNewFile();
-                FileOutputStream fOut = new FileOutputStream(file);
-                OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-                myOutWriter.append(last_update_date);
-                myOutWriter.close();
-                fOut.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            global.writeText(dir, "last_update_date.txt", lastUpdateDate);
         }
     }
-    public String getLastUpdateDate(){
-        String aBuffer = "";
-        try {
-            String dir = global.getSubdirectory("Authentications");
-            File myFile = new File("/"+dir+"/last_update_date.txt");
-            FileInputStream fIn = new FileInputStream(myFile);
-            BufferedReader myReader = new BufferedReader(new InputStreamReader(fIn));
-            aBuffer = myReader.readLine();
-            myReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return aBuffer;
-    }
-
 }
