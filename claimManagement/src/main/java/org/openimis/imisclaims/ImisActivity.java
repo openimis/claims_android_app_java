@@ -111,7 +111,7 @@ public abstract class ImisActivity extends AppCompatActivity {
         if (cancelCallback != null) {
             builder.setNegativeButton(R.string.Cancel, cancelCallback);
         } else {
-            builder.setPositiveButton(R.string.Ok, ((dialog, which) -> dialog.cancel()));
+            builder.setNegativeButton(R.string.Cancel, ((dialog, which) -> dialog.cancel()));
         }
 
         return builder.show();
