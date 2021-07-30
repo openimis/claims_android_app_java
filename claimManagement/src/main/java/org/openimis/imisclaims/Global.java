@@ -32,7 +32,6 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -44,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -68,7 +68,7 @@ public class Global extends Application {
     private static final String _DefaultRarPassword = RAR_PASSWORD;
     private Token JWTToken;
 
-    private final List<String> ProtectedDirectories = Arrays.asList("Authentications");
+    private final List<String> ProtectedDirectories = Arrays.asList("Authentications", "Databases");
 
 
     public Global() {
@@ -283,7 +283,7 @@ public class Global extends Application {
 
     private SecretKeySpec generateKey(String encPassword) throws Exception {
         final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] bytes = encPassword.getBytes("UTF-8");
+        byte[] bytes = encPassword.getBytes(StandardCharsets.UTF_8);
         digest.update(bytes, 0, bytes.length);
         byte[] key = digest.digest();
         return new SecretKeySpec(key, "AES");

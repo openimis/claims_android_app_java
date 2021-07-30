@@ -9,8 +9,6 @@ import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.nio.DoubleBuffer;
-
 import static android.database.DatabaseUtils.sqlEscapeString;
 
 /**
@@ -18,11 +16,9 @@ import static android.database.DatabaseUtils.sqlEscapeString;
  */
 
 public class SQLHandler extends SQLiteOpenHelper{
-
 	Global global;
-
-	public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Database") + "/" + "Mapping.db3";
-	public static final String DB_NAME_DATA = Global.getGlobal().getSubdirectory("Database") + "/" + "ImisData.db3";
+	public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Databases") + "/" + "Mapping.db3";
+	public static final String DB_NAME_DATA = Global.getGlobal().getSubdirectory("Databases") + "/" + "ImisData.db3";
 	private static final String CreateTable = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
 	private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName text, Adjustibility text);";
 	private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code text, Name text);";
@@ -60,7 +56,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 		}
 		return true;
 	}
-	public Cursor getData(String Table,String Columns[],String Criteria){
+	public Cursor getData(String Table, String[] Columns, String Criteria){
 		try {
 			//db = SQLiteDatabase.openDatabase(ClaimManagementActivity.Path + "ImisData.db3", null,SQLiteDatabase.OPEN_READONLY);
 
@@ -95,6 +91,7 @@ public class SQLHandler extends SQLiteOpenHelper{
 		}
 		return true;
 	}
+
 	public void InsertReferences(String Code,String Name,String Type, String Price){
 		try {
 			String sSQL = "";
@@ -244,35 +241,6 @@ public class SQLHandler extends SQLiteOpenHelper{
 		return Name;
 	}
 
-	public int getAllAdjustibility() {
-		int count = 0;
-		try {
-			String query = "SELECT * FROM tblControls";
-			Cursor cursor1 = db.rawQuery(query, null);
-			count = cursor1.getColumnCount();
-			// looping through all rows
-		}catch (Exception e){
-			return count;
-		}
-		return count;
-	}
-
-	public int getMaxId() {
-		int id = 1;
-		try {
-			String query = "SELECT MAX(Id) FROM tblDateUpdates";
-			Cursor cursor1 = db.rawQuery(query, null);
-			if (cursor1.moveToFirst()) {
-				do {
-					id = cursor1.getInt(0);
-				} while (cursor1.moveToNext());
-			}
-		}catch (Exception e){
-			return id;
-		}
-		return id;
-	}
-
 	public void createTables(){
 		try {
 			db.execSQL(CreateTableControls);
@@ -282,11 +250,4 @@ public class SQLHandler extends SQLiteOpenHelper{
 			e.printStackTrace();
 		}
 	}
-	public void getTables(){
-		Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'",null);
-		if (c != null){
-			c.moveToFirst();
-		}
-	}
-
 }

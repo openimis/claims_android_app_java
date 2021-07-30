@@ -30,8 +30,6 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.openimis.imisclaims.R;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -378,8 +376,6 @@ public class MapItems extends AppCompatActivity {
 			}
 		}
 	}
-
-
-	}
+}
 
 
