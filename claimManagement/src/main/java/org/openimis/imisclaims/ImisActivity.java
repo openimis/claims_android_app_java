@@ -172,18 +172,18 @@ public abstract class ImisActivity extends AppCompatActivity {
 
                                     if (isUserLogged) {
                                         runOnUiThread(() -> {
-                                            showToast(getResources().getString(R.string.Login_Successful));
+                                            showToast(R.string.Login_Successful);
                                             onLoggedIn.run();
                                         });
                                     } else {
                                         runOnUiThread(() -> {
-                                            showToast(getResources().getString(R.string.LoginFail));
+                                            showToast(R.string.LoginFail);
                                             showLoginDialogBox(onLoggedIn, onCancel);
                                         });
                                     }
                                 }).start();
                             } else {
-                                showToast(getResources().getString(R.string.Enter_Credentials));
+                                showToast(R.string.Enter_Credentials);
                                 dialog.dismiss();
                                 showLoginDialogBox(onLoggedIn, onCancel);
                             }
@@ -200,29 +200,67 @@ public abstract class ImisActivity extends AppCompatActivity {
 
     /**
      * Execute the task if internet is available and the user is logged in.
-     * If there is no network or the the user cancels login the task is canceled
+     * If there is no network or the the user cancels login the task is canceled.
      *
-     * @param task Task to do when the user is logged in
+     * @param task     Task to do when the user is logged in.
+     * @param onCancel Task to do when the initial task is canceled by rhe user or there is no internet.
      */
     protected void doLoggedIn(Runnable task, Runnable onCancel) {
-        if (global.isNetworkAvailable()) {
-            if (global.isLoggedIn()) {
-                task.run();
-            } else {
-                showLoginDialogBox(task, onCancel);
-            }
-        } else {
-            showToast(getResources().getString(R.string.InternetRequired));
-            onCancel.run();
-        }
+        doInOnlineMode(
+                () -> {
+                    if (global.isLoggedIn()) {
+                        task.run();
+                    } else {
+                        showLoginDialogBox(task, onCancel);
+                    }
+                },
+                () -> {
+                    showToast(R.string.InternetRequired);
+                    onCancel.run();
+                }
+        );
     }
 
+    /**
+     * Execute the task if internet is available and the user is logged in.
+     * If there is no network or the the user cancels login the task is canceled.
+     *
+     * @param task Task to do when the user is logged in.
+     */
     protected void doLoggedIn(Runnable task) {
         doLoggedIn(task, () -> {
         });
     }
 
+    /**
+     * Execute the task if internet is available
+     *
+     * @param task         Task to do in online mode
+     * @param onNoInternet Task to do, if there is no internet
+     */
+    protected void doInOnlineMode(Runnable task, Runnable onNoInternet) {
+        if (global.isNetworkAvailable()) {
+            task.run();
+        } else {
+            onNoInternet.run();
+        }
+    }
+
+    /**
+     * Execute the task if internet is available
+     *
+     * @param task Task to do in online mode
+     */
+    protected void doInOnlineMode(Runnable task) {
+        doInOnlineMode(task, () -> {
+        });
+    }
+
     protected void showToast(String message) {
         runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
+    }
+
+    protected void showToast(int resourceId) {
+        showToast(getResources().getString(resourceId));
     }
 }

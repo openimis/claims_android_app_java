@@ -197,4 +197,11 @@
   <string name="initializing">Initializing…</string>
   <string name="initializing_complete">Initializing Complete</string>
   <string name="application">Application</string>
+  <string name="masterData">Master Data</string>
+  <string name="downloadMasterData">Download Master Data</string>
+  <string name="importMasterData">Import Master Data</string>
+  <string name="importMasterDataCanceled">Import canceled</string>
+  <string name="importMasterDataFailed">Import failed</string>
+  <string name="Processing">Processing…</string>
+  <string name="importMasterDataSuccess">Master Data imported successfully</string>
 </resources>

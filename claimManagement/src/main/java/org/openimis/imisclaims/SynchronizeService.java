@@ -1,8 +1,10 @@
 package org.openimis.imisclaims;
 
-import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v4.app.JobIntentService;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,7 +12,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,7 +21,10 @@ import java.util.Locale;
 
 import org.apache.http.HttpResponse;
 
-public class SynchronizeService extends IntentService {
+public class SynchronizeService extends JobIntentService {
+    private static final int JOB_ID = 6541259; //Random unique Job id
+    private static final String LOG_TAG = "SYNCSERVICE";
+
     private static final String ACTION_UPLOAD_CLAIMS = "SynchronizeService.ACTION_UPLOAD_CLAIMS";
     private static final String ACTION_EXPORT_CLAIMS = "SynchronizeService.ACTION_EXPORT_CLAIMS";
     private static final String ACTION_CLAIM_COUNT = "SynchronizeService.ACTION_CLAIM_COUNT";
@@ -47,55 +51,50 @@ public class SynchronizeService extends IntentService {
     }
 
     Global global;
-
-    public SynchronizeService() {
-        super("SynchronizeService");
-    }
+    String lastAction;
+    ToRestApi toRestApi;
 
     @Override
     public void onCreate() {
         super.onCreate();
         global = (Global) getApplicationContext();
+        toRestApi = new ToRestApi();
     }
 
     public static void uploadClaims(Context context) {
-        Intent intent = new Intent(context, SynchronizeService.class);
+        Intent intent = new Intent();
         intent.setAction(ACTION_UPLOAD_CLAIMS);
-        context.startService(intent);
+        enqueueWork(context,SynchronizeService.class,JOB_ID,intent);
     }
 
     public static void exportClaims(Context context) {
-        Intent intent = new Intent(context, SynchronizeService.class);
+        Intent intent = new Intent();
         intent.setAction(ACTION_EXPORT_CLAIMS);
-        context.startService(intent);
+        enqueueWork(context,SynchronizeService.class,JOB_ID,intent);
     }
 
     public static void getClaimCount(Context context) {
-        Intent intent = new Intent(context, SynchronizeService.class);
+        Intent intent = new Intent();
         intent.setAction(ACTION_CLAIM_COUNT);
-        context.startService(intent);
+        enqueueWork(context,SynchronizeService.class,JOB_ID,intent);
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
-            final String action = intent.getAction();
-            if (ACTION_UPLOAD_CLAIMS.equals(action)) {
-                handleUploadClaims();
-            } else if (ACTION_EXPORT_CLAIMS.equals(action)) {
-                handleExportClaims();
-            } else if (ACTION_CLAIM_COUNT.equals(action)) {
-                handleGetClaimCount();
-            }
+    protected void onHandleWork(@NonNull Intent intent) {
+        lastAction = intent.getAction();
+        if (ACTION_UPLOAD_CLAIMS.equals(lastAction)) {
+            handleUploadClaims();
+        } else if (ACTION_EXPORT_CLAIMS.equals(lastAction)) {
+            handleExportClaims();
+        } else if (ACTION_CLAIM_COUNT.equals(lastAction)) {
+            handleGetClaimCount();
         }
     }
 
     private void handleUploadClaims() {
-        ToRestApi toRestApi = new ToRestApi();
         String errorMessage;
 
         File pendingDirectory = new File(global.getMainDirectory());
-
         ArrayList<File> jsonClaims = new ArrayList<>(Arrays.asList(getListOfFilesPrefix(pendingDirectory, claimJsonPrefix)));
 
         if (jsonClaims.size() < 1) {
@@ -262,12 +261,14 @@ public class SynchronizeService extends IntentService {
     private void broadcastSuccess(String action) {
         Intent successIntent = new Intent(action);
         sendBroadcast(successIntent);
+        Log.i(LOG_TAG, String.format("%s finished with %s",lastAction,action));
     }
 
     private void broadcastError(String action, String errorMessage) {
         Intent errorIntent = new Intent(action);
         errorIntent.putExtra(EXTRA_ERROR_MESSAGE, errorMessage);
         sendBroadcast(errorIntent);
+        Log.i(LOG_TAG,String.format("%s finished with %s, error message: %s",lastAction,action,errorMessage));
     }
 
     private void broadcastClaimCount(int pending, int accepted, int rejected, int pendingXml) {
@@ -277,5 +278,6 @@ public class SynchronizeService extends IntentService {
         resultIntent.putExtra(EXTRA_CLAIM_COUNT_REJECTED, rejected);
         resultIntent.putExtra(EXTRA_CLAIM_COUNT_PENDING_XML, pendingXml);
         sendBroadcast(resultIntent);
+        Log.i(LOG_TAG,String.format("%s finished with %s, result:  p: %d,a: %d,r: %d,pxml: %d",lastAction,ACTION_CLAIM_COUNT_RESULT,pending,accepted,rejected,pendingXml));
     }
 }

@@ -136,7 +136,6 @@ public class MainActivity extends ImisActivity {
         AdminName = findViewById(R.id.AdminName);
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -283,14 +282,6 @@ public class MainActivity extends ImisActivity {
         }
     }
 
-    public void createFolders() {
-        global.getMainDirectory();
-        String[] subdirectories = {"Enrolment", "Photos", "Database", "Authentications", "AcceptedClaims", "RejectedClaims", "Trash"};
-        for (String dir : subdirectories) {
-            global.getSubdirectory(dir);
-        }
-    }
-
     private void isSDCardAvailable() {
         String status = global.getSDCardStatus();
         if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)) {
@@ -395,11 +386,10 @@ public class MainActivity extends ImisActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 1) {// If request is cancelled, the result arrays are empty.
             if (grantResults.length > 0 && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                createFolders();
 
                 //check if databases exist in phone
-                File database = new File(global.getSubdirectory("Database") + "/" + "ImisData.db3");
-                File databaseMapping = new File(global.getSubdirectory("Database") + "/" + "Mapping.db3");
+                File database = new File(SQLHandler.DB_NAME_DATA);
+                File databaseMapping = new File(SQLHandler.DB_NAME_MAPPING);
                 //if one of database not exist - then init it and fill master data etc
                 if (!database.exists() || !databaseMapping.exists()) {
                     sql = new SQLHandler(this);
@@ -423,20 +413,22 @@ public class MainActivity extends ImisActivity {
     //Ask for permission
     public void requestPermissions() {
         int PERMISSION_ALL = 1;
-        String[] PERMISSIONS = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
-        if (!hasPermissions(this, PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+        String[] permissions;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE, Manifest.permission.MANAGE_EXTERNAL_STORAGE};
+        } else {
+            permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
+        }
+        if (!hasPermissions(this, permissions)) {
+            ActivityCompat.requestPermissions(this, permissions, PERMISSION_ALL);
         }
 
         // Ask for "Manage External Storage" permission, required in Android 11
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            String[] Android11Permissions = {Manifest.permission.MANAGE_EXTERNAL_STORAGE};
-            if (!hasPermissions(this, Android11Permissions)) {
-                ActivityCompat.requestPermissions(this, Android11Permissions, PERMISSION_ALL);
-                if (!Environment.isExternalStorageManager()) {
+            if (!Environment.isExternalStorageManager()) {
                     Intent intent = new Intent(ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
                     startActivity(intent);
-                }
             }
         }
     }
@@ -455,7 +447,7 @@ public class MainActivity extends ImisActivity {
     public boolean checkDataBase() {
         SQLiteDatabase checkDB = null;
         try {
-            checkDB = SQLiteDatabase.openDatabase(global.getSubdirectory("Database") + "/" + "ImisData.db3", null,
+            checkDB = SQLiteDatabase.openDatabase(SQLHandler.DB_NAME_DATA, null,
                     SQLiteDatabase.OPEN_READONLY);
         } catch (SQLiteException e) {
             // database doesn't exist yet.
@@ -550,7 +542,7 @@ public class MainActivity extends ImisActivity {
 
                         runOnUiThread(() -> {
                             pd.dismiss();
-                            showToast(getResources().getString(R.string.initializing_complete));
+                            showToast(R.string.initializing_complete);
                         });
                     } catch (JSONException e) {
                         e.printStackTrace();
