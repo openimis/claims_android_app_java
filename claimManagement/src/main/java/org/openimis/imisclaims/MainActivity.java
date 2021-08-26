@@ -466,7 +466,7 @@ public class MainActivity extends ImisActivity {
                     String error_occurred = null;
                     String error_message = null;
 
-                    String functionName = "claim/Claims/Controls";
+                    String functionName = "claim/Controls";
                     try {
                         String content = toRestApi.getFromRestApi(functionName);
 
@@ -519,7 +519,7 @@ public class MainActivity extends ImisActivity {
                 public void run() {
                     String controls;
 
-                    String functionName = "claim/Claims/GetClaimAdmins";
+                    String functionName = "claim/GetClaimAdmins";
                     try {
                         String content = toRestApi.getFromRestApi(functionName);
 
