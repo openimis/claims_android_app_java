@@ -68,18 +68,6 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         _context = rContext;
         claims = _claims;
         global = (Global)rContext.getApplicationContext();
-
-        try {
-            for (int i = 0; i < _claims.length(); i++) {
-                JSONObject claim = claims.getJSONObject(i);
-                claim.put("date_claimed", parseDate(claims.getJSONObject(i).getString("date_claimed")));
-                claim.put("visit_date_from", parseDate(claims.getJSONObject(i).getString("visit_date_from")));
-                claim.put("visit_date_to", parseDate(claims.getJSONObject(i).getString("visit_date_to")));
-            }
-        } catch ( JSONException e )
-        {
-            e.printStackTrace();
-        }
     }
 
 
@@ -224,19 +212,16 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
             super(itemView);
 
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    try {
-                       obj = claims.getJSONObject(getAdapterPosition());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Intent intent = new Intent(_context, ClaimReview.class);
-                    intent.putExtra("claims", String.valueOf(obj));
-                    _context.startActivity(intent);
-
+            itemView.setOnClickListener(view -> {
+                try {
+                   obj = claims.getJSONObject(getAdapterPosition());
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+                Intent intent = new Intent(_context, ClaimReview.class);
+                intent.putExtra("claims", String.valueOf(obj));
+                _context.startActivity(intent);
+
             });
 
             claimNo = (TextView) itemView.findViewById(R.id.claimNo);
@@ -254,28 +239,9 @@ public class ClaimsAdapter<VH extends TrackSelectionAdapter.ViewHolder> extends 
         return new AlertDialog.Builder(_context)
                 .setMessage(msg)
                 .setCancelable(false)
-                .setPositiveButton(_context.getResources().getString(R.string.Ok), new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //et.requestFocus();
-                        return;
-                    }
+                .setPositiveButton(_context.getResources().getString(R.string.Ok), (dialog, which) -> {
+                    //et.requestFocus();
+                    return;
                 }).show();
-    }
-
-    private String parseDate(String date)
-    {
-        SimpleDateFormat fromApiFormat = new SimpleDateFormat("yyyy/MM/dd");
-        SimpleDateFormat databaseFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String parsedDate = null;
-
-        try {
-            parsedDate = databaseFormat.format(fromApiFormat.parse(date));
-        } catch ( ParseException e ) {
-            e.printStackTrace();
-            parsedDate = date;
-        }
-        return parsedDate;
     }
 }

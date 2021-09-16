@@ -242,7 +242,7 @@ public class MainActivity extends ImisActivity {
                 (dialog, i) -> {
                     try {
                         JSONObject object1 = new JSONObject();
-                        object1.put("last_update_date", new SimpleDateFormat("yyyy/MM/dd", Locale.US).format(new Date(0)));
+                        object1.put("last_update_date", new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date(0)));
                         DownLoadDiagnosesServicesItemsAgain(object1, sql);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -584,7 +584,7 @@ public class MainActivity extends ImisActivity {
 
                             pd.dismiss();
                             JSONObject object = new JSONObject();
-                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
                             String dateS = formatter.format(new Date(0));
                             object.put("last_update_date", dateS);
                             try {
@@ -608,7 +608,7 @@ public class MainActivity extends ImisActivity {
 
                             pd.dismiss();
                             JSONObject object = new JSONObject();
-                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
                             String dateS = formatter.format(new Date(0));
                             object.put("last_update_date", dateS);
                             try {

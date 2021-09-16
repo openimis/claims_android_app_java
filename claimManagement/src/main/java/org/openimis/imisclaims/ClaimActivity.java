@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class ClaimActivity extends AppCompatActivity {
 
@@ -317,8 +318,8 @@ public class ClaimActivity extends AppCompatActivity {
             year = Selectedyear;
             month = SelectedMonth;
             day = SelectedDay;
-
-            etStartDate.setText(new StringBuilder().append(day).append("/").append(month + 1).append("/").append(year));
+            Date date = new Date(year-1900,month,day);
+            etStartDate.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date));
 
             if(etEndDate.getText().length()==0){
                 etEndDate.setText(etStartDate.getText().toString());
@@ -333,8 +334,8 @@ public class ClaimActivity extends AppCompatActivity {
             year = SelectedYear;
             month = SelectedMonth;
             day = SelectedDay;
-
-            etEndDate.setText(new StringBuilder().append(day).append("/").append(month + 1).append("/").append(year));
+            Date date = new Date(year-1900,month,day);
+            etEndDate.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date));
         }
     };
 
@@ -538,18 +539,18 @@ public class ClaimActivity extends AppCompatActivity {
         String StartDate;
         String EndDate;
         String CurrentDate1;
-        String pattern = "dd/MM/yyyy";
+        String pattern = "yyyy-MM-dd";
 
         Date Current_date = null;
         Date Start_date = null;
         Date End_date = null;
 
-        SimpleDateFormat format = new SimpleDateFormat(pattern);
+        SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.US);
 
         //CurrentDate = Date.parse(CurrentDate1);
         //StartDate = Date.parse(etStartDate.getText().toString());
         //EndDate = Date.parse(etEndDate.getText().toString());
-        CurrentDate1 = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+        CurrentDate1 = format.format(new Date());
         StartDate = etStartDate.getText().toString();
         EndDate = etEndDate.getText().toString();
 
@@ -589,7 +590,7 @@ public class ClaimActivity extends AppCompatActivity {
                 return false;
             }
             //if(tvTotal.getText().length() == 0) tvTotal.setText("0");
-            if (Float.valueOf(tvItemTotal.getText().toString()) + Float.valueOf(tvServiceTotal.getText().toString()) == 0) {
+            if (Float.parseFloat(tvItemTotal.getText().toString()) + Float.parseFloat(tvServiceTotal.getText().toString()) == 0) {
                 ShowDialog(tvItemTotal, getResources().getString(R.string.MissingClaim));
                 return false;
             }
@@ -660,7 +661,7 @@ public class ClaimActivity extends AppCompatActivity {
         File MyDir = new File(Path);
 
         //Create a file name
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         Calendar cal = Calendar.getInstance();
         String d = format.format(cal.getTime());
 
@@ -682,7 +683,7 @@ public class ClaimActivity extends AppCompatActivity {
 
             serializer.setOutput(fos, "UTF-8");
 
-            serializer.startDocument(null, Boolean.valueOf(true));
+            serializer.startDocument(null, true);
 
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
 
@@ -694,7 +695,7 @@ public class ClaimActivity extends AppCompatActivity {
 
             //ClaimDate
             serializer.startTag(null, "ClaimDate");
-            format = new SimpleDateFormat("dd/MM/yyyy");
+            format = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
             d = format.format(cal.getTime());
             serializer.text(d);
             serializer.endTag(null, "ClaimDate");
@@ -873,7 +874,7 @@ public class ClaimActivity extends AppCompatActivity {
         sql.onOpen(db);
 
         //Create a file name
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         Calendar cal = Calendar.getInstance();
         String d = format.format(cal.getTime());
 
@@ -892,8 +893,6 @@ public class ClaimActivity extends AppCompatActivity {
             JSONObject FullObject = new JSONObject();
             JSONObject ClaimObject = new JSONObject();
 
-
-            format = new SimpleDateFormat("dd/MM/yyyy");
             d = format.format(cal.getTime());
             //ClaimDate
             ClaimObject.put("ClaimDate", d);
