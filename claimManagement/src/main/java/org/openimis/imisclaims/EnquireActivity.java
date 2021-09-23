@@ -301,7 +301,7 @@ public class EnquireActivity extends AppCompatActivity {
                     tvGender.setText(jsonObject.getString("gender"));
 
                     if (global.isNetworkAvailable()) {
-                        if (jsonObject.has("photoBase64")) {
+                        if (jsonObject.has("photoBase64") && !jsonObject.isNull("photoBase64") && !"null".equals(jsonObject.getString("photoBase64"))) {
                             try {
                                 byte[] imageBytes = Base64.decode(jsonObject.getString("photoBase64").getBytes(), Base64.DEFAULT);
                                 Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
@@ -310,13 +310,15 @@ public class EnquireActivity extends AppCompatActivity {
                                 Log.e(LOG_TAG, "Error while processing Base64 image", e);
                                 iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
                             }
-                        } else if (jsonObject.has("photoPath")) {
+                        } else if (jsonObject.has("photoPath") && !jsonObject.isNull("photoPath") && !"null".equals(jsonObject.getString("photoPath"))) {
                             String photo_url_str = API_BASE_URL + jsonObject.getString("photoPath");
                             iv.setImageResource(R.drawable.person);
                             Picasso.with(getApplicationContext())
                                     .load(photo_url_str)
                                     .placeholder(R.drawable.person)
                                     .error(R.drawable.person).into(iv);
+                        } else {
+                            iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
                         }
                     } else {
                         if (theImage != null) {
