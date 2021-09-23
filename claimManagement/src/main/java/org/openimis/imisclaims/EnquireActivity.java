@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,8 +40,13 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class EnquireActivity extends AppCompatActivity {
+import static org.openimis.imisclaims.BuildConfig.API_BASE_URL;
 
+public class EnquireActivity extends AppCompatActivity {
+    public static final String LOG_TAG = "ENQUIRE";
+    public static final int REQUEST_QR_SCAN_CODE = 1;
+
+    Global global;
     EditText etCHFID;
     TextView tvCHFID, tvName, tvGender, tvDOB;
     ImageButton btnGo, btnScan;
@@ -61,34 +67,36 @@ public class EnquireActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        global = (Global) getApplicationContext();
+
         setContentView(R.layout.activity_enquire);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle(getResources().getString(R.string.app_name_enquire));
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
+        if (actionBar != null) {
+            actionBar.setTitle(getResources().getString(R.string.app_name_enquire));
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         isSDCardAvailable();
 
         //Check if network available
-        if (!((Global) getApplicationContext()).isNetworkAvailable()) {
+        if (!global.isNetworkAvailable()) {
             setTitle(getResources().getString(R.string.app_name_claims) + "-" + getResources().getString(R.string.OfflineMode));
             setTitleColor(getResources().getColor(R.color.Red));
         }
 
-        etCHFID = (EditText) findViewById(R.id.etCHFID);
-        tvCHFID = (TextView) findViewById(R.id.tvCHFID);
-        tvName = (TextView) findViewById(R.id.tvName);
-        tvDOB = (TextView) findViewById(R.id.tvDOB);
-        tvGender = (TextView) findViewById(R.id.tvGender);
-        iv = (ImageView) findViewById(R.id.imageView);
-        btnGo = (ImageButton) findViewById(R.id.btnGo);
-        btnScan = (ImageButton) findViewById(R.id.btnScan);
-        lv = (ListView) findViewById(R.id.listView1);
-        ll = (LinearLayout) findViewById(R.id.llListView);
-
+        etCHFID = findViewById(R.id.etCHFID);
+        tvCHFID = findViewById(R.id.tvCHFID);
+        tvName = findViewById(R.id.tvName);
+        tvDOB = findViewById(R.id.tvDOB);
+        tvGender = findViewById(R.id.tvGender);
+        iv = findViewById(R.id.imageView);
+        btnGo = findViewById(R.id.btnGo);
+        btnScan = findViewById(R.id.btnScan);
+        lv = findViewById(R.id.listView1);
+        ll = findViewById(R.id.llListView);
 
         iv.setOnClickListener(v -> {
             if (ZoomOut) {
@@ -126,8 +134,7 @@ public class EnquireActivity extends AppCompatActivity {
             Intent intent = new Intent(this, com.google.zxing.client.android.CaptureActivity.class);
             intent.setAction("com.google.zxing.client.android.SCAN");
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-            startActivityForResult(intent, 1);
-
+            startActivityForResult(intent, REQUEST_QR_SCAN_CODE);
             ClearForm();
         });
 
@@ -138,13 +145,10 @@ public class EnquireActivity extends AppCompatActivity {
                 if (!escape.CheckCHFID(etCHFID.getText().toString())) return false;
 
                 pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
-                new Thread() {
-                    public void run() {
-                        getInsureeInfo();
-
-                        pd.dismiss();
-                    }
-                }.start();
+                new Thread(() -> {
+                    getInsureeInfo();
+                    pd.dismiss();
+                }).start();
             }
             return false;
         });
@@ -152,27 +156,22 @@ public class EnquireActivity extends AppCompatActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        try {
-            switch (requestCode) {
-                case 1:
-                    if (resultCode == RESULT_OK) {
-                        String CHFID = data.getStringExtra("SCAN_RESULT");
-                        etCHFID.setText(CHFID);
+        switch (requestCode) {
+            case REQUEST_QR_SCAN_CODE:
+                if (resultCode == RESULT_OK) {
+                    String CHFID = data.getStringExtra("SCAN_RESULT");
+                    etCHFID.setText(CHFID);
 
-                        Escape escape = new Escape();
-                        if (!escape.CheckCHFID(etCHFID.getText().toString())) return;
+                    Escape escape = new Escape();
+                    if (!escape.CheckCHFID(etCHFID.getText().toString())) return;
 
-                        pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
-                        new Thread(() -> {
-                            getInsureeInfo();
-
-                            pd.dismiss();
-                        }).start();
-                    }
-                    break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+                    pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
+                    new Thread(() -> {
+                        getInsureeInfo();
+                        pd.dismiss();
+                    }).start();
+                }
+                break;
         }
     }
 
@@ -251,6 +250,7 @@ public class EnquireActivity extends AppCompatActivity {
             builder.append("]}]");
 
         } catch (Exception e) {
+            Log.e(LOG_TAG, "Parsing offline enquire failed", e);
             builder = new StringBuilder(e.toString());
         }
 
@@ -271,7 +271,7 @@ public class EnquireActivity extends AppCompatActivity {
 
                 result = arr.toString();
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Fetching online enquire failed", e);
             }
         } else {
             //TODO: yet to be done
@@ -300,15 +300,26 @@ public class EnquireActivity extends AppCompatActivity {
                     tvDOB.setText(jsonObject.getString("dob"));//Adjust
                     tvGender.setText(jsonObject.getString("gender"));
 
-                    if (((Global) getApplicationContext()).isNetworkAvailable()) {
-
-                        String photo_url_str = "/" + jsonObject.getString("photoPath"); //TODO prepare new method to get Image on enquiring
-
-                        iv.setImageResource(R.drawable.person);
-                        Picasso.with(getApplicationContext())
-                                .load(photo_url_str)
-                                .placeholder(R.drawable.person)
-                                .error(R.drawable.person).into(iv);
+                    if (global.isNetworkAvailable()) {
+                        if (jsonObject.has("photoBase64") && !jsonObject.isNull("photoBase64") && !"null".equals(jsonObject.getString("photoBase64"))) {
+                            try {
+                                byte[] imageBytes = Base64.decode(jsonObject.getString("photoBase64").getBytes(), Base64.DEFAULT);
+                                Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                                iv.setImageBitmap(image);
+                            } catch (Exception e) {
+                                Log.e(LOG_TAG, "Error while processing Base64 image", e);
+                                iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
+                            }
+                        } else if (jsonObject.has("photoPath") && !jsonObject.isNull("photoPath") && !"null".equals(jsonObject.getString("photoPath"))) {
+                            String photo_url_str = API_BASE_URL + jsonObject.getString("photoPath");
+                            iv.setImageResource(R.drawable.person);
+                            Picasso.with(getApplicationContext())
+                                    .load(photo_url_str)
+                                    .placeholder(R.drawable.person)
+                                    .error(R.drawable.person).into(iv);
+                        } else {
+                            iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
+                        }
                     } else {
                         if (theImage != null) {
                             iv.setImageBitmap(theImage);
@@ -451,9 +462,10 @@ public class EnquireActivity extends AppCompatActivity {
 
                 lv.setAdapter(adapter);
             } catch (JSONException e) {
-                result = "Exception occurred:" + e.toString();
+                Log.e("Error", "JSON related error when parsing enquiry response", e);
+                result = "";
             } catch (Exception e) {
-                Log.e("Error", e.toString());
+                Log.e("Error", "Unknown error when parsing enquiry response", e);
                 result = "";
             }
         });
