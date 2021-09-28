@@ -242,7 +242,6 @@ public class MainActivity extends ImisActivity {
                 (dialog, i) -> {
                     try {
                         JSONObject object1 = new JSONObject();
-                        object1.put("last_update_date", new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date(0)));
                         DownLoadDiagnosesServicesItemsAgain(object1, sql);
                     } catch (Exception e) {
                         e.printStackTrace();
