@@ -1,7 +1,6 @@
 package org.openimis.imisclaims;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,8 +9,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,333 +16,181 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
-import org.openimis.imisclaims.R;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AddServices extends AppCompatActivity {
+    ListView lvServices;
+    TextView tvCode, tvName;
+    EditText etSQuantity, etSAmount;
+    Button btnAdd;
+    AutoCompleteTextView etServices;
+    SQLHandler sqlHandler;
 
-	//Spinner spServices;
-	ListView lvServices;
-	TextView tvCode,tvName;
-	EditText etSQuantity, etSAmount;
-	Button btnAdd;
-	SQLiteDatabase db;
-	AutoCompleteTextView etServices;
+    int Pos;
 
-	int Pos;
+    HashMap<String, String> oService;
+    SimpleAdapter alAdapter;
 
-	ArrayList<HashMap<String, String>> ServiceList = new ArrayList<HashMap<String,String>>();
-	//ArrayList<HashMap<String,String>> lvItemList;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.addservices);
 
-	HashMap<String, String> oService;
-	SimpleAdapter alAdapter;
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(getResources().getString(R.string.app_name_claim));
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
+        sqlHandler = new SQLHandler(this);
 
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-	    super.onCreate(savedInstanceState);
-	    
-	    setContentView(R.layout.addservices);
-		final ActionBar actionBar = getSupportActionBar();
-		actionBar.setTitle(getResources().getString(R.string.app_name_claim));
-		actionBar.setDisplayHomeAsUpEnabled(true);
-
-
-	    //spServices = (Spinner)findViewById(R.id.spServices);
-	    lvServices = (ListView)findViewById(R.id.lvServices);
-	    tvCode = (TextView)findViewById(R.id.tvCode);
-	    tvName =  (TextView)findViewById(R.id.tvName);
-	    //tvPrice = (TextView)findViewById(R.id.tvPrice);
-	    etSQuantity = (EditText)findViewById(R.id.etSQuantity);
-	    etSAmount = (EditText)findViewById(R.id.etSAmount);
-        etServices = (AutoCompleteTextView)findViewById(R.id.etService);
+        lvServices = findViewById(R.id.lvServices);
+        tvCode = findViewById(R.id.tvCode);
+        tvName = findViewById(R.id.tvName);
+        etSQuantity = findViewById(R.id.etSQuantity);
+        etSAmount = findViewById(R.id.etSAmount);
+        etServices = findViewById(R.id.etService);
 
         ServiceAdapter serviceAdapter = new ServiceAdapter(AddServices.this, null);
 
         etServices.setAdapter(serviceAdapter);
         etServices.setThreshold(1);
-        etServices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        etServices.setOnItemClickListener((parent, view, position, l) -> {
+            if (position >= 0) {
+
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                final int itemColumnIndex = cursor.getColumnIndexOrThrow("Code");
+                final int descColumnIndex = cursor.getColumnIndexOrThrow("Name");
+                String Code = cursor.getString(itemColumnIndex);
+                String Name = cursor.getString(descColumnIndex);
+
+                oService = new HashMap<>();
+                oService.put("Code", Code);
+                oService.put("Name", Name);
+
+                etSQuantity.setText("1");
+                etSAmount.setText(sqlHandler.getServicePrice(Code));
+            }
+        });
+
+        etServices.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long l) {
-                if (position >= 0){
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                btnAdd.setEnabled(s != null && s.toString().trim().length() != 0
+                        && etSQuantity.getText().toString().trim().length() != 0
+                        && etSAmount.getText().toString().trim().length() != 0);
+            }
 
-                    Cursor cursor = (Cursor)parent.getItemAtPosition(position);
-                    final int itemColumnIndex = cursor.getColumnIndexOrThrow("Code");
-                    final int descColumnIndex = cursor.getColumnIndexOrThrow("Name");
-                    String Code = cursor.getString(itemColumnIndex);
-                    String Name = cursor.getString(descColumnIndex);
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-                    oService = new HashMap<String, String>();
-                    oService.put("Code",Code);
-                    oService.put("Name",Name);
-
-
-//					etAmount.setText(oItem.get("Price"));
-                    etSQuantity.setText("1");
-                    etSAmount.setText("0");
-                }
+            @Override
+            public void afterTextChanged(Editable s) {
             }
         });
 
-		etServices.addTextChangedListener(new TextWatcher() {
+        etSQuantity.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                btnAdd.setEnabled(s != null && s.toString().trim().length() != 0
+                        && etServices.getText().toString().trim().length() != 0
+                        && etSAmount.getText().toString().trim().length() != 0);
+            }
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-				if(s == null || s.toString().trim().length() == 0
-						|| etSQuantity.getText().toString().trim().length() == 0
-						|| etSAmount.getText().toString().trim().length() == 0){
-					btnAdd.setEnabled(false);
-				} else {
-					btnAdd.setEnabled(true);
-				}
-			}
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-										  int after) {
-				// TODO Auto-generated method stub
-			}
+        etSAmount.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                btnAdd.setEnabled(s != null && s.toString().trim().length() != 0
+                        && etSQuantity.getText().toString().trim().length() != 0
+                        && etServices.getText().toString().trim().length() != 0);
+            }
 
-			@Override
-			public void afterTextChanged(Editable s) {
-				// TODO Auto-generated method stub
-			}
-		});
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-		etSQuantity.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
+        alAdapter = new SimpleAdapter(AddServices.this, ClaimActivity.lvServiceList, R.layout.lvitem,
+                new String[]{"Code", "Name", "Price", "Quantity"},
+                new int[]{R.id.tvLvCode, R.id.tvLvName, R.id.tvLvPrice, R.id.tvLvQuantity});
 
-				if(s == null || s.toString().trim().length() == 0
-						|| etServices.getText().toString().trim().length() == 0
-						|| etSAmount.getText().toString().trim().length() == 0){
-					btnAdd.setEnabled(false);
-				} else {
-					btnAdd.setEnabled(true);
-				}
-			}
+        lvServices.setAdapter(alAdapter);
 
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-										  int after) {
-				// TODO Auto-generated method stub
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				// TODO Auto-generated method stub
-			}
-		});
-
-		etSAmount.addTextChangedListener(new TextWatcher() {
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-				if(s == null || s.toString().trim().length() == 0
-						|| etSQuantity.getText().toString().trim().length() == 0
-						|| etServices.getText().toString().trim().length() == 0){
-					btnAdd.setEnabled(false);
-				} else {
-					btnAdd.setEnabled(true);
-				}
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-										  int after) {
-				// TODO Auto-generated method stub
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				// TODO Auto-generated method stub
-			}
-		});
-	    
-	    //ClaimActivity.lvItemList = new ArrayList<HashMap<String, String>>();
-
-	    alAdapter = new SimpleAdapter(AddServices.this,ClaimActivity.lvServiceList, R.layout.lvitem,
-				new String[]{"Code","Name","Price","Quantity"},
-				new int[]{R.id.tvLvCode, R.id.tvLvName, R.id.tvLvPrice, R.id.tvLvQuantity});
-	    
-	    
-	  
-	    lvServices.setAdapter(alAdapter);
-	    
-	    btnAdd = (Button)findViewById(R.id.btnAdd);
-
+        btnAdd = findViewById(R.id.btnAdd);
         btnAdd.setEnabled(false);
+        btnAdd.setOnClickListener(v -> {
+            try {
 
-	    btnAdd.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				try {
+                if (oService == null) return;
 
-					if(oService == null) return;
+                String Amount, Quantity;
 
-					String Amount,Quantity = "1";
-					
-					HashMap<String,String> lvService = new HashMap<String,String>();
-					lvService.put("Code", oService.get("Code"));
-					lvService.put("Name",oService.get("Name"));
-					Amount = etSAmount.getText().toString(); 
-					lvService.put("Price", Amount);
-					if(etSQuantity.getText().toString().length() == 0) Quantity = "1"; else Quantity = etSQuantity.getText().toString();
-					lvService.put("Quantity", Quantity);
-					ClaimActivity.lvServiceList.add(lvService);
-					
-					alAdapter.notifyDataSetChanged();
+                HashMap<String, String> lvService = new HashMap<>();
+                lvService.put("Code", oService.get("Code"));
+                lvService.put("Name", oService.get("Name"));
+                Amount = etSAmount.getText().toString();
+                lvService.put("Price", Amount);
+                if (etSQuantity.getText().toString().length() == 0) Quantity = "1";
+                else Quantity = etSQuantity.getText().toString();
+                lvService.put("Quantity", Quantity);
+                ClaimActivity.lvServiceList.add(lvService);
 
-                    etServices.setText("");
-                    etSAmount.setText("");
-                    etSQuantity.setText("");
-					
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					Log.d("AddLvError", e.getMessage());
-                }
+                alAdapter.notifyDataSetChanged();
+
+                etServices.setText("");
+                etSAmount.setText("");
+                etSQuantity.setText("");
+
+            } catch (Exception e) {
+                Log.d("AddLvError", e.getMessage());
             }
         });
 
-	    
-	    //BindSpServices();
-	    
-//	   spServices.setOnItemSelectedListener(new SpinnerOnItemSelected() {
-//
-//		@Override
-//		public void onItemSelected(AdapterView<?> parent, View view,int position, long id) {
-//
-//			try {
-//				if (position >= 0){
-//					oService = (HashMap<String, String>)parent.getItemAtPosition(position);
-//
-//					etSAmount.setText(oService.get("Price"));
-//					etSQuantity.setText("1");
-//					etSAmount.setText("0");
-//				}
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				Log.d("onSelectedError", e.getMessage());
-//			}
-//
-//		}
-		   
-//		@Override
-//		public void onNothingSelected(AdapterView<?> arg0) {
-//			// TODO Auto-generated method stub
-//
-//		}
-//	});
-	    
-	lvServices.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-		@Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view,int position, long id) {
-          try {
-        	  
-        	  Pos = position;
-        	  HideAllDeleteButtons();
-        	  
-        	  	Button d = (Button)view.findViewById(R.id.btnDelete);
-        	  	d.setVisibility(View.VISIBLE); 
-        	  	
-        	  	d.setOnClickListener(new OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						// TODO Auto-generated method stub
-						ClaimActivity.lvServiceList.remove(Pos);
-						HideAllDeleteButtons();
-						alAdapter.notifyDataSetChanged();
-					}
-				});
-        	  	
-			    
-		} catch (Exception e) {
-			Log.d("ErrorOnLongClick", e.getMessage());
-		}
-		return true;
-        }
-	});   
-	   
-	
-	
-	}
-	
-	private void HideAllDeleteButtons(){
-		for(int i=0;i<=lvServices.getLastVisiblePosition();i++){
-	  		Button Delete = (Button)lvServices.getChildAt(i).findViewById(R.id.btnDelete);
-	  		Delete.setVisibility(View.GONE);
-	  }
-	}
-	
-//	private void BindSpServices(){
-//		//List<String> Items = new ArrayList<String>();
-//
-//		SQLHandler sql = new SQLHandler(this);
-//		String Table = "tblMapping";
-//		String Columns[] = {"Code","Name","Type"};
-//		String Criteria = "Type='S'";
-//
-//		//db = openOrCreateDatabase(ClaimActivity.Path + "ImisData.db3", SQLiteDatabase.OPEN_READONLY, null);
-//
-//		Cursor c = sql.getData(Table, Columns, Criteria);
-//
-//		if (c.getCount()==0 || c == null){
-//
-//			new AlertDialog.Builder(this)
-//			.setMessage(getResources().getString(R.string.MappedServiceMissing))
-//			.setCancelable(false)
-//			.setTitle(getResources().getString(R.string.NoServiceMapped))
-//			.setPositiveButton(getResources().getString(R.string.Ok), new android.content.DialogInterface.OnClickListener() {
-//
-//				@Override
-//				public void onClick(DialogInterface dialog, int which) {
-//					finish();
-//				}
-//			}).create().show();
-//
-//		}
-//
-//		//Cursor c = db.query(Table, Columns, Criteria, null, null, null, null);
-//
-//		for(c.moveToFirst();!c.isAfterLast();c.moveToNext()){
-//			//Items.add(c.getString(0));
-//			HashMap<String, String> Service = new HashMap<String, String>();
-//
-//			Service.put("Code", c.getString(0));
-//			Service.put("Name", c.getString(1));
-//			ServiceList.add(Service);
-//		}
-//
-//		//ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinneritem, R.id.tvCode);
-//
-//
-//		SimpleAdapter adapter = new SimpleAdapter(AddServices.this,ServiceList,R.layout.spinneritem,
-//				new String[]{"Code","Name"},
-//				new int[]{R.id.tvCode,R.id.tvName});
-//
-//		try {
-//			spServices.setAdapter(adapter);
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//	}
-    public boolean onOptionsItemSelected(MenuItem item){
-		onBackPressed();
-        return true;
+        lvServices.setOnItemLongClickListener((parent, view, position, id) -> {
+            try {
+                Pos = position;
+                HideAllDeleteButtons();
+
+                Button d = view.findViewById(R.id.btnDelete);
+                d.setVisibility(View.VISIBLE);
+
+                d.setOnClickListener(v -> {
+                    ClaimActivity.lvServiceList.remove(Pos);
+                    HideAllDeleteButtons();
+                    alAdapter.notifyDataSetChanged();
+                });
+            } catch (Exception e) {
+                Log.d("ErrorOnLongClick", e.getMessage());
+            }
+            return true;
+        });
+
+
     }
 
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-	}
+    private void HideAllDeleteButtons() {
+        for (int i = 0; i <= lvServices.getLastVisiblePosition(); i++) {
+            Button Delete = lvServices.getChildAt(i).findViewById(R.id.btnDelete);
+            Delete.setVisibility(View.GONE);
+        }
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        onBackPressed();
+        return true;
+    }
 }
