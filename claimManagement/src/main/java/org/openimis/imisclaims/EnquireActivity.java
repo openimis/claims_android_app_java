@@ -42,11 +42,10 @@ import java.util.HashMap;
 
 import static org.openimis.imisclaims.BuildConfig.API_BASE_URL;
 
-public class EnquireActivity extends AppCompatActivity {
+public class EnquireActivity extends ImisActivity {
     public static final String LOG_TAG = "ENQUIRE";
     public static final int REQUEST_QR_SCAN_CODE = 1;
 
-    Global global;
     EditText etCHFID;
     TextView tvCHFID, tvName, tvGender, tvDOB;
     ImageButton btnGo, btnScan;
@@ -67,7 +66,6 @@ public class EnquireActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        global = (Global) getApplicationContext();
 
         setContentView(R.layout.activity_enquire);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -261,7 +259,7 @@ public class EnquireActivity extends AppCompatActivity {
         String chfid = etCHFID.getText().toString();
         result = "";
 
-        if (((Global) getApplicationContext()).isNetworkAvailable()) {
+        if (global.isNetworkAvailable()) {
             try {
                 ToRestApi rest = new ToRestApi();
                 String res = rest.getFromRestApiToken("insuree/" + chfid + "/enquire");
@@ -506,15 +504,5 @@ public class EnquireActivity extends AppCompatActivity {
         String control = sqlHandler.getAdjustibility(FieldName);
         sqlHandler.close();
         return control;
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        onBackPressed();
-        return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 }

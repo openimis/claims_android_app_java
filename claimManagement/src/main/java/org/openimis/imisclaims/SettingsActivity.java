@@ -1,15 +1,9 @@
 package org.openimis.imisclaims;
 
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -20,7 +14,7 @@ import java.util.Random;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends ImisActivity {
 
     Button btnSaveRarPwd, btnDefaultRarPassword;
     EditText etRarPassword;
@@ -33,11 +27,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Settings");
-
-        global = (Global)getApplicationContext();
 
         btnSaveRarPwd = (Button)findViewById(R.id.btnSaveRarPwd);
         etRarPassword = (EditText)findViewById(R.id.rarPassword);
@@ -66,16 +56,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     public static String getGeneratedSalt() {
         return generatedSalt;
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item){
-        onBackPressed();
-        return true;
-
-    }
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
     }
 
     private SecretKeySpec generateKey(String encPassword) throws Exception {
@@ -118,7 +98,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void saveRarPassword(String password){
         try {
-            SharedPreferences sharedPreferences = getSharedPreferences("MyPref", 0);
+            SharedPreferences sharedPreferences = global.getDefaultSharedPreferences();
             SharedPreferences.Editor editor = sharedPreferences.edit();
             salt = generateSalt();
             String trimSalt = salt.trim();

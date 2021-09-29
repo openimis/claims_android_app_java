@@ -18,16 +18,13 @@ import android.widget.TextView;
 
 import java.util.HashMap;
 
-public class AddServices extends AppCompatActivity {
+public class AddServices extends ImisActivity {
     ListView lvServices;
     TextView tvCode, tvName;
     EditText etSQuantity, etSAmount;
     Button btnAdd;
     AutoCompleteTextView etServices;
-    SQLHandler sqlHandler;
-
     int Pos;
-
     HashMap<String, String> oService;
     SimpleAdapter alAdapter;
 
@@ -36,13 +33,9 @@ public class AddServices extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.addservices);
 
-        final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(getResources().getString(R.string.app_name_claim));
-            actionBar.setDisplayHomeAsUpEnabled(true);
         }
-
-        sqlHandler = new SQLHandler(this);
 
         lvServices = findViewById(R.id.lvServices);
         tvCode = findViewById(R.id.tvCode);
@@ -187,10 +180,5 @@ public class AddServices extends AppCompatActivity {
             Button Delete = lvServices.getChildAt(i).findViewById(R.id.btnDelete);
             Delete.setVisibility(View.GONE);
         }
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        onBackPressed();
-        return true;
     }
 }

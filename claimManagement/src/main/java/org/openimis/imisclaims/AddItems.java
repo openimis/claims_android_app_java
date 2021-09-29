@@ -1,14 +1,10 @@
 package org.openimis.imisclaims;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -19,13 +15,12 @@ import android.widget.TextView;
 
 import java.util.HashMap;
 
-public class AddItems extends AppCompatActivity {
+public class AddItems extends ImisActivity {
     ListView lvItems;
     TextView tvCode, tvName;
     EditText etQuantity, etAmount;
     Button btnAdd;
     AutoCompleteTextView etItems;
-    SQLHandler sqlHandler;
 
     int Pos;
 
@@ -37,13 +32,9 @@ public class AddItems extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.additems);
 
-        final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(getResources().getString(R.string.app_name_claim));
-            actionBar.setDisplayHomeAsUpEnabled(true);
         }
-
-        sqlHandler = new SQLHandler(this);
 
         lvItems = findViewById(R.id.lvItems);
         tvCode = findViewById(R.id.tvCode);
@@ -196,10 +187,4 @@ public class AddItems extends AppCompatActivity {
             Delete.setVisibility(View.GONE);
         }
     }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        onBackPressed();
-        return true;
-    }
-
 }
