@@ -48,12 +48,11 @@ import java.util.Locale;
 import static android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION;
 
 public class MainActivity extends ImisActivity {
+    private static final int REQUEST_PERMISSIONS_CODE = 1;
     ArrayList<String> broadcastList;
     final CharSequence[] lang = {"English", "Francais"};
     String Language;
 
-    SQLHandler sql;
-    SQLiteDatabase db;
     ToRestApi toRestApi;
 
     TextView accepted_count;
@@ -61,7 +60,6 @@ public class MainActivity extends ImisActivity {
     TextView pending_count;
     TextView AdminName;
     DrawerLayout drawer;
-    ProgressDialog pd;
 
     Menu menu;
     static String Path;
@@ -107,8 +105,8 @@ public class MainActivity extends ImisActivity {
 
         toRestApi = new ToRestApi();
 
-        pd = new ProgressDialog(this);
-        pd.setCancelable(false);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -188,10 +186,7 @@ public class MainActivity extends ImisActivity {
         if (id == R.id.nav_home) {
             return true;
         } else if (id == R.id.nav_enquire) {
-            doLoggedIn(() -> {
-                Intent intent = new Intent(this, EnquireActivity.class);
-                startActivity(intent);
-            });
+            doLoggedIn(() -> startActivity(new Intent(this, EnquireActivity.class)));
         } else if (id == R.id.nav_Map_Items) {
             Intent intent = new Intent(this, MapItems.class);
             startActivity(intent);
@@ -207,8 +202,7 @@ public class MainActivity extends ImisActivity {
             Intent intent = new Intent(getApplicationContext(), Report.class);
             startActivity(intent);
         } else if (id == R.id.nav_Sync) {
-            Intent intent = new Intent(getApplicationContext(), SynchronizeActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(getApplicationContext(), SynchronizeActivity.class));
         } else if (id == R.id.nav_quit) {
             showDialog(
                     getResources().getString(R.string.AreYouSure),
@@ -241,7 +235,7 @@ public class MainActivity extends ImisActivity {
                 (dialog, i) -> {
                     try {
                         JSONObject object1 = new JSONObject();
-                        DownLoadDiagnosesServicesItemsAgain(object1, sql);
+                        DownLoadDiagnosesServicesItemsAgain(object1);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -328,7 +322,7 @@ public class MainActivity extends ImisActivity {
                     if (getControls()) {
                         try {
                             if (global.getOfficerCode() == null || global.getOfficerCode().equals("")) {
-                                if (!sql.getAdjustibility("ClaimAdministrator").equals("N")) {
+                                if (!sqlHandler.getAdjustibility("ClaimAdministrator").equals("N")) {
                                     ClaimAdminDialogBox();
                                 }
                             }
@@ -382,35 +376,23 @@ public class MainActivity extends ImisActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1) {// If request is cancelled, the result arrays are empty.
+        if (requestCode == 1) {
             if (grantResults.length > 0 && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-
-                //check if databases exist in phone
-                File database = new File(SQLHandler.DB_NAME_DATA);
-                File databaseMapping = new File(SQLHandler.DB_NAME_MAPPING);
-                //if one of database not exist - then init it and fill master data etc
-                if (!database.exists() || !databaseMapping.exists()) {
-                    sql = new SQLHandler(this);
-                    sql.onOpen(db);
-                    sql.createTables();
-                    initializeDb3File(sql);
+                boolean isAppInitialized = sqlHandler.checkIfAny("tblClaimAdmins");
+                if (!isAppInitialized) {
+                    sqlHandler.createTables();
+                    initializeDb3File(sqlHandler);
                 } else {
-                    //if databases exist: show only claim admin dialog box without init data
-                    sql = new SQLHandler(this);
-                    sql.onOpen(db);
                     ClaimAdminDialogBox();
                 }
                 refreshCount();
-
             } else {
-                // permission denied
             }
         }
     }
 
     //Ask for permission
     public void requestPermissions() {
-        int PERMISSION_ALL = 1;
         String[] permissions;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -419,7 +401,7 @@ public class MainActivity extends ImisActivity {
             permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
         }
         if (!hasPermissions(this, permissions)) {
-            ActivityCompat.requestPermissions(this, permissions, PERMISSION_ALL);
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSIONS_CODE);
         }
 
         // Ask for "Manage External Storage" permission, required in Android 11
@@ -457,7 +439,7 @@ public class MainActivity extends ImisActivity {
     public boolean getControls() {
         if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.getControls);
-            pd = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
+            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
             Thread thread = new Thread() {
                 public void run() {
                     String controls = null;
@@ -474,30 +456,30 @@ public class MainActivity extends ImisActivity {
                         error_occurred = ob.getString("error_occured");
                         if (error_occurred.equals("false")) {
                             controls = ob.getString("controls");
-                            sql.ClearAll("tblControls");
+                            sqlHandler.ClearAll("tblControls");
                             //Insert Diagnosese
                             JSONArray arrControls;
                             JSONObject objControls;
                             arrControls = new JSONArray(controls);
                             for (int i = 0; i < arrControls.length(); i++) {
                                 objControls = arrControls.getJSONObject(i);
-                                sql.InsertControls(objControls.getString("fieldName"), objControls.getString("adjustibility"));
+                                sqlHandler.InsertControls(objControls.getString("fieldName"), objControls.getString("adjustibility"));
                             }
 
                             runOnUiThread(() -> {
-                                pd.dismiss();
+                                progressDialog.dismiss();
                                 getClaimAdmins();
                             });
 
 
                         } else {
-                            runOnUiThread(() -> pd.dismiss());
+                            runOnUiThread(() -> progressDialog.dismiss());
                             error_message = ob.getString("error_message");
                             ErrorDialogBox(error_message);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        runOnUiThread(() -> pd.dismiss());
+                        runOnUiThread(() -> progressDialog.dismiss());
                     }
                 }
             };
@@ -512,7 +494,7 @@ public class MainActivity extends ImisActivity {
     public boolean getClaimAdmins() {
         if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.application);
-            pd = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
+            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
             Thread thread = new Thread() {
                 public void run() {
                     String controls;
@@ -525,7 +507,7 @@ public class MainActivity extends ImisActivity {
 
                         ob = new JSONObject(content);
                         controls = ob.getString("claim_admins");
-                        sql.ClearAll("tblClaimAdmins");
+                        sqlHandler.ClearAll("tblClaimAdmins");
                         //Insert Diagnosese
                         JSONArray arrControls;
                         JSONObject objControls;
@@ -535,16 +517,16 @@ public class MainActivity extends ImisActivity {
                             String lastName = objControls.getString("lastName");
                             String otherNames = objControls.getString("otherNames");
                             String name = lastName + " " + otherNames;
-                            sql.InsertClaimAdmins(objControls.getString("claimAdminCode"), name);
+                            sqlHandler.InsertClaimAdmins(objControls.getString("claimAdminCode"), name);
                         }
 
                         runOnUiThread(() -> {
-                            pd.dismiss();
+                            progressDialog.dismiss();
                             showToast(R.string.initializing_complete);
                         });
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        runOnUiThread(() -> pd.dismiss());
+                        runOnUiThread(() -> progressDialog.dismiss());
                     }
                 }
             };
@@ -561,18 +543,17 @@ public class MainActivity extends ImisActivity {
             Toast.makeText(getBaseContext(), R.string.MissingClaimCode, Toast.LENGTH_LONG).show();
             ClaimAdminDialogBox();
         } else {
-            String ClaimName = sql.getClaimAdmin(ClaimCode);
+            String ClaimName = sqlHandler.getClaimAdmin(ClaimCode);
             if (ClaimName.equals("")) {
                 Toast.makeText(MainActivity.this, getResources().getString(R.string.invalid_code), Toast.LENGTH_LONG).show();
                 ClaimAdminDialogBox();
             } else {
-                if (!sql.getAdjustibility("ClaimAdministrator").equals("N")) {
+                if (!sqlHandler.getAdjustibility("ClaimAdministrator").equals("N")) {
                     global.setOfficerCode(ClaimCode);
                     global.setOfficerName(ClaimName);
                     AdminName = (TextView) findViewById(R.id.AdminName);
                     AdminName.setText(global.getOfficeName());
-                    sql = new SQLHandler(MainActivity.this);
-                    Cursor c = sql.getMapping("I");
+                    Cursor c = sqlHandler.getMapping("I");
                     if (c.getCount() == 0) {
                         try {
                                 /* if(!getLastUpdateDate().equals("")){
@@ -580,13 +561,13 @@ public class MainActivity extends ImisActivity {
                                        object.put("last_update_date",getLastUpdateDate());
                                 }*///object.put("last_update_date","2019/02/12");
 
-                            pd.dismiss();
+                            progressDialog.dismiss();
                             JSONObject object = new JSONObject();
                             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
                             String dateS = formatter.format(new Date(0));
                             object.put("last_update_date", dateS);
                             try {
-                                DownLoadDiagnosesServicesItems(object, sql);
+                                DownLoadDiagnosesServicesItems(object);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -595,8 +576,7 @@ public class MainActivity extends ImisActivity {
                         }
                     }
                 } else {
-                    sql = new SQLHandler(MainActivity.this);
-                    Cursor c = sql.getMapping("I");
+                    Cursor c = sqlHandler.getMapping("I");
                     if (c.getCount() == 0) {
                         try {
                                 /* if(!getLastUpdateDate().equals("")){
@@ -604,13 +584,13 @@ public class MainActivity extends ImisActivity {
                                        object.put("last_update_date",getLastUpdateDate());
                                 }*///object.put("last_update_date","2019/02/12");
 
-                            pd.dismiss();
+                            progressDialog.dismiss();
                             JSONObject object = new JSONObject();
                             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
                             String dateS = formatter.format(new Date(0));
                             object.put("last_update_date", dateS);
                             try {
-                                DownLoadDiagnosesServicesItems(object, sql);
+                                DownLoadDiagnosesServicesItems(object);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -623,13 +603,13 @@ public class MainActivity extends ImisActivity {
         }
     }
 
-    public void DownLoadDiagnosesServicesItems(final JSONObject object, final SQLHandler sql) throws IOException {
+    public void DownLoadDiagnosesServicesItems(final JSONObject object) throws IOException {
 
         final String[] content = new String[1];
         final HttpResponse[] resp = {null};
         if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.Diagnoses) + ", " + getResources().getString(R.string.Services) + ", " + getResources().getString(R.string.Items) + "...";
-            pd = ProgressDialog.show(this, getResources().getString(R.string.Checking_For_Updates), progress_message);
+            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.Checking_For_Updates), progress_message);
             Thread thread = new Thread() {
                 public void run() {
                     String diagnoses = null;
@@ -663,16 +643,16 @@ public class MainActivity extends ImisActivity {
                                 last_update_date = ob.getString("update_since_last");
                                 saveLastUpdateDate(last_update_date);
 
-                                sql.ClearAll("tblReferences");
-                                sql.ClearMapping("S");
-                                sql.ClearMapping("I");
+                                sqlHandler.ClearAll("tblReferences");
+                                sqlHandler.ClearMapping("S");
+                                sqlHandler.ClearMapping("I");
                                 //Insert Diagnosese
                                 JSONArray arrDiagnoses = null;
                                 JSONObject objDiagnoses = null;
                                 arrDiagnoses = new JSONArray(diagnoses);
                                 for (int i = 0; i < arrDiagnoses.length(); i++) {
                                     objDiagnoses = arrDiagnoses.getJSONObject(i);
-                                    sql.InsertReferences(objDiagnoses.getString("code"), objDiagnoses.getString("name"), "D", "");
+                                    sqlHandler.InsertReferences(objDiagnoses.getString("code"), objDiagnoses.getString("name"), "D", "");
                                 }
 
                                 //Insert Services
@@ -681,8 +661,8 @@ public class MainActivity extends ImisActivity {
                                 arrServices = new JSONArray(services);
                                 for (int i = 0; i < arrServices.length(); i++) {
                                     objServices = arrServices.getJSONObject(i);
-                                    sql.InsertReferences(objServices.getString("code"), objServices.getString("name"), "S", objServices.getString("price"));
-                                    sql.InsertMapping(objServices.getString("code"), objServices.getString("name"), "S");
+                                    sqlHandler.InsertReferences(objServices.getString("code"), objServices.getString("name"), "S", objServices.getString("price"));
+                                    sqlHandler.InsertMapping(objServices.getString("code"), objServices.getString("name"), "S");
                                 }
 
                                 //Insert Items
@@ -691,12 +671,12 @@ public class MainActivity extends ImisActivity {
                                 arrItems = new JSONArray(items);
                                 for (int i = 0; i < arrItems.length(); i++) {
                                     objItems = arrItems.getJSONObject(i);
-                                    sql.InsertReferences(objItems.getString("code"), objItems.getString("name"), "I", objItems.getString("price"));
-                                    sql.InsertMapping(objItems.getString("code"), objItems.getString("name"), "I");
+                                    sqlHandler.InsertReferences(objItems.getString("code"), objItems.getString("name"), "I", objItems.getString("price"));
+                                    sqlHandler.InsertMapping(objItems.getString("code"), objItems.getString("name"), "I");
                                 }
 
                                 runOnUiThread(() -> {
-                                    pd.dismiss();
+                                    progressDialog.dismiss();
                                     Toast.makeText(MainActivity.this, getResources().getString(R.string.installed_updates), Toast.LENGTH_LONG).show();
                                 });
 
@@ -707,13 +687,13 @@ public class MainActivity extends ImisActivity {
 
                                     final String finalError_message = error_message;
                                     runOnUiThread(() -> {
-                                        pd.dismiss();
+                                        progressDialog.dismiss();
                                         Toast.makeText(MainActivity.this, finalError_message, Toast.LENGTH_LONG).show();
                                         ClaimAdminDialogBox();
                                     });
                                 } else {
                                     runOnUiThread(() -> {
-                                        pd.dismiss();
+                                        progressDialog.dismiss();
                                         Toast.makeText(MainActivity.this, getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
                                         ClaimAdminDialogBox();
                                     });
@@ -722,7 +702,7 @@ public class MainActivity extends ImisActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                             runOnUiThread(() -> {
-                                pd.dismiss();
+                                progressDialog.dismiss();
                                 ClaimAdminDialogBox();
                             });
                             Toast.makeText(MainActivity.this, String.valueOf(e), Toast.LENGTH_LONG).show();
@@ -730,7 +710,7 @@ public class MainActivity extends ImisActivity {
                         }
                     } catch (Exception e) {
                         runOnUiThread(() -> {
-                            pd.dismiss();
+                            progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, resp[0].getStatusLine().getStatusCode() + "-" + getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
                             ClaimAdminDialogBox();
                         });
@@ -740,19 +720,19 @@ public class MainActivity extends ImisActivity {
 
             thread.start();
         } else {
-            runOnUiThread(() -> pd.dismiss());
+            runOnUiThread(() -> progressDialog.dismiss());
             ClaimAdminDialogBox();
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
         }
     }
 
-    public void DownLoadDiagnosesServicesItemsAgain(final JSONObject object, final SQLHandler sql) throws IOException {
+    public void DownLoadDiagnosesServicesItemsAgain(final JSONObject object) throws IOException {
 
         final String[] content = new String[1];
         final HttpResponse[] resp = {null};
         if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.refresh_mapping);
-            pd = ProgressDialog.show(this, getResources().getString(R.string.Checking_For_Updates), progress_message);
+            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.Checking_For_Updates), progress_message);
             Thread thread = new Thread() {
                 public void run() {
                     String diagnoses = null;
@@ -785,16 +765,16 @@ public class MainActivity extends ImisActivity {
                                 last_update_date = ob.getString("update_since_last");
                                 saveLastUpdateDate(last_update_date);
 
-                                sql.ClearAll("tblReferences");
-                                sql.ClearMapping("S");
-                                sql.ClearMapping("I");
+                                sqlHandler.ClearAll("tblReferences");
+                                sqlHandler.ClearMapping("S");
+                                sqlHandler.ClearMapping("I");
                                 //Insert Diagnosese
                                 JSONArray arrDiagnoses;
                                 JSONObject objDiagnoses;
                                 arrDiagnoses = new JSONArray(diagnoses);
                                 for (int i = 0; i < arrDiagnoses.length(); i++) {
                                     objDiagnoses = arrDiagnoses.getJSONObject(i);
-                                    sql.InsertReferences(objDiagnoses.getString("code"), objDiagnoses.getString("name"), "D", "");
+                                    sqlHandler.InsertReferences(objDiagnoses.getString("code"), objDiagnoses.getString("name"), "D", "");
                                 }
 
                                 //Insert Services
@@ -803,8 +783,8 @@ public class MainActivity extends ImisActivity {
                                 arrServices = new JSONArray(services);
                                 for (int i = 0; i < arrServices.length(); i++) {
                                     objServices = arrServices.getJSONObject(i);
-                                    sql.InsertReferences(objServices.getString("code"), objServices.getString("name"), "S", objServices.getString("price"));
-                                    sql.InsertMapping(objServices.getString("code"), objServices.getString("name"), "S");
+                                    sqlHandler.InsertReferences(objServices.getString("code"), objServices.getString("name"), "S", objServices.getString("price"));
+                                    sqlHandler.InsertMapping(objServices.getString("code"), objServices.getString("name"), "S");
                                 }
 
                                 //Insert Items
@@ -813,18 +793,18 @@ public class MainActivity extends ImisActivity {
                                 arrItems = new JSONArray(items);
                                 for (int i = 0; i < arrItems.length(); i++) {
                                     objItems = arrItems.getJSONObject(i);
-                                    sql.InsertReferences(objItems.getString("code"), objItems.getString("name"), "I", objItems.getString("price"));
-                                    sql.InsertMapping(objItems.getString("code"), objItems.getString("name"), "I");
+                                    sqlHandler.InsertReferences(objItems.getString("code"), objItems.getString("name"), "I", objItems.getString("price"));
+                                    sqlHandler.InsertMapping(objItems.getString("code"), objItems.getString("name"), "I");
                                 }
 
                                 runOnUiThread(() -> {
-                                    pd.dismiss();
+                                    progressDialog.dismiss();
                                     Toast.makeText(MainActivity.this, getResources().getString(R.string.installed_updates), Toast.LENGTH_LONG).show();
 
                                     JSONObject object1 = new JSONObject();
                                     try {
                                         object1.put("claim_administrator_code", global.getOfficerCode());
-                                        DownLoadServicesItemsPriceList(object1, sql);
+                                        DownLoadServicesItemsPriceList(object1);
                                     } catch (JSONException | IOException e) {
                                         e.printStackTrace();
                                     }
@@ -838,13 +818,13 @@ public class MainActivity extends ImisActivity {
 
                                     final String finalError_message = error_message;
                                     runOnUiThread(() -> {
-                                        pd.dismiss();
+                                        progressDialog.dismiss();
                                         Toast.makeText(MainActivity.this, finalError_message, Toast.LENGTH_LONG).show();
                                         ClaimAdminDialogBox();
                                     });
                                 } else {
                                     runOnUiThread(() -> {
-                                        pd.dismiss();
+                                        progressDialog.dismiss();
                                         Toast.makeText(MainActivity.this, getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
                                         ClaimAdminDialogBox();
                                     });
@@ -856,7 +836,7 @@ public class MainActivity extends ImisActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                             runOnUiThread(() -> {
-                                pd.dismiss();
+                                progressDialog.dismiss();
                                 ClaimAdminDialogBox();
                             });
                             Toast.makeText(MainActivity.this, String.valueOf(e), Toast.LENGTH_LONG).show();
@@ -864,7 +844,7 @@ public class MainActivity extends ImisActivity {
                         }
                     } catch (Exception e) {
                         runOnUiThread(() -> {
-                            pd.dismiss();
+                            progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, resp[0].getStatusLine().getStatusCode() + "-" + getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
                             ClaimAdminDialogBox();
                         });
@@ -874,17 +854,17 @@ public class MainActivity extends ImisActivity {
 
             thread.start();
         } else {
-            runOnUiThread(() -> pd.dismiss());
+            runOnUiThread(() -> progressDialog.dismiss());
             //ClaimAdminDialogBox();
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
         }
     }
 
-    private void DownLoadServicesItemsPriceList(final JSONObject object, final SQLHandler sql) throws IOException {
+    private void DownLoadServicesItemsPriceList(final JSONObject object) throws IOException {
         final HttpResponse[] resp = {null};
         if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.Services) + ", " + getResources().getString(R.string.Items) + "...";
-            pd = ProgressDialog.show(this, getResources().getString(R.string.mapping), progress_message);
+            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.mapping), progress_message);
             Thread thread = new Thread() {
                 public void run() {
 
@@ -921,8 +901,8 @@ public class MainActivity extends ImisActivity {
                                 saveLastUpdateDate(last_update_date);
 
                                 //sql.ClearReferencesSI();
-                                sql.ClearMapping("S");
-                                sql.ClearMapping("I");
+                                sqlHandler.ClearMapping("S");
+                                sqlHandler.ClearMapping("I");
 
                                 //Insert Services
                                 JSONArray arrServices = null;
@@ -931,7 +911,7 @@ public class MainActivity extends ImisActivity {
                                 for (int i = 0; i < arrServices.length(); i++) {
                                     objServices = arrServices.getJSONObject(i);
                                     //sql.InsertReferences(objServices.getString("code").toString(), objServices.getString("name").toString(), "S", objServices.getString("price").toString());
-                                    sql.InsertMapping(objServices.getString("code"), objServices.getString("name"), "S");
+                                    sqlHandler.InsertMapping(objServices.getString("code"), objServices.getString("name"), "S");
                                 }
 
                                 //Insert Items
@@ -941,10 +921,10 @@ public class MainActivity extends ImisActivity {
                                 for (int i = 0; i < arrItems.length(); i++) {
                                     objItems = arrItems.getJSONObject(i);
                                     //sql.InsertReferences(objItems.getString("code").toString(), objItems.getString("name").toString(), "I", objItems.getString("price").toString());
-                                    sql.InsertMapping(objItems.getString("code"), objItems.getString("name"), "I");
+                                    sqlHandler.InsertMapping(objItems.getString("code"), objItems.getString("name"), "I");
                                 }
                                 runOnUiThread(() -> {
-                                    pd.dismiss();
+                                    progressDialog.dismiss();
                                     Toast.makeText(MainActivity.this, getResources().getString(R.string.MapSuccessful), Toast.LENGTH_LONG).show();
                                 });
                             } else {
@@ -952,24 +932,24 @@ public class MainActivity extends ImisActivity {
                                 if (error_occurred.equals("true")) {
                                     if (code >= 400) {
                                         runOnUiThread(() -> {
-                                            pd.dismiss();
+                                            progressDialog.dismiss();
                                             confirmRefreshMap();
                                         });
                                     } else {
                                         error_message = ob.getString("error_message");
                                         final String finalError_message = error_message;
-                                        runOnUiThread(() -> pd.dismiss());
+                                        runOnUiThread(() -> progressDialog.dismiss());
                                         ErrorDialogBox(finalError_message);
                                     }
                                 }
                             }
                         } catch (JSONException e) {
-                            runOnUiThread(() -> pd.dismiss());
+                            runOnUiThread(() -> progressDialog.dismiss());
                             Toast.makeText(MainActivity.this, String.valueOf(e), Toast.LENGTH_LONG).show();
                         }
                     } catch (Exception e) {
                         runOnUiThread(() -> {
-                            pd.dismiss();
+                            progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, resp[0].getStatusLine().getStatusCode() + "-" + getResources().getString(R.string.AccessDenied), Toast.LENGTH_LONG).show();
                         });
                     }
@@ -977,7 +957,7 @@ public class MainActivity extends ImisActivity {
             };
             thread.start();
         } else {
-            runOnUiThread(() -> pd.dismiss());
+            runOnUiThread(() -> progressDialog.dismiss());
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
         }
 

@@ -44,8 +44,7 @@ public class AddServices extends ImisActivity {
         etSAmount = findViewById(R.id.etSAmount);
         etServices = findViewById(R.id.etService);
 
-        ServiceAdapter serviceAdapter = new ServiceAdapter(AddServices.this, null);
-
+        ServiceAdapter serviceAdapter = new ServiceAdapter(this, sqlHandler);
         etServices.setAdapter(serviceAdapter);
         etServices.setThreshold(1);
         etServices.setOnItemClickListener((parent, view, position, l) -> {

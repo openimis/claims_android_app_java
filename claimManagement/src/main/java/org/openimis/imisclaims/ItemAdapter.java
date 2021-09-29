@@ -9,52 +9,39 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-import org.openimis.imisclaims.R;
-
 public class ItemAdapter extends CursorAdapter {
-    SQLHandler sql;
+    SQLHandler sqlHandler;
     SQLiteDatabase db;
 
-    public ItemAdapter(Context context, Cursor c) {
-        super(context,null);
-        sql = new SQLHandler(context);
-        sql.onOpen(db);
+    public ItemAdapter(Context context, SQLHandler sqlHandler) {
+        super(context, null, 0);
+        this.sqlHandler = sqlHandler;
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        final LayoutInflater inflater = LayoutInflater.from(context);
-        final View view = inflater.inflate(R.layout.spinneritem,parent, false);
-        return view;
+        return LayoutInflater.from(context).inflate(R.layout.spinneritem, parent, false);
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        final int itemColumnIndex = cursor.getColumnIndexOrThrow("Code");
-        final int descColumnIndex = cursor.getColumnIndexOrThrow("Name");
-        String Code = cursor.getString(itemColumnIndex);
         TextView tvCode = (TextView) view.findViewById(R.id.tvCode);
-        tvCode.setText(Code);
+        tvCode.setText(cursor.getString(cursor.getColumnIndexOrThrow("Code")));
 
-        String Name = cursor.getString(descColumnIndex);
         TextView tvName = (TextView) view.findViewById(R.id.tvName);
-        tvName.setText(Name);
+        tvName.setText(cursor.getString(cursor.getColumnIndexOrThrow("Name")));
     }
 
     @Override
     public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
-        if(getFilterQueryProvider() != null){
+        if (getFilterQueryProvider() != null) {
             return getFilterQueryProvider().runQuery(constraint);
         }
-        Cursor cursor = sql.SearchItems((constraint != null ? constraint.toString() : ""));
-
-        return cursor;
+        return sqlHandler.searchItems((constraint != null ? constraint.toString() : ""));
     }
 
     @Override
     public CharSequence convertToString(Cursor cursor) {
-        final  int columnIndex = cursor.getColumnIndexOrThrow("Code");
-        final String str = cursor.getString(columnIndex);
-        return  str;
+        return cursor.getString(cursor.getColumnIndexOrThrow("Code"));
     }
 }

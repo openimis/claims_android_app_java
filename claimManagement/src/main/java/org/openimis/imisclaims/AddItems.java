@@ -47,7 +47,7 @@ public class AddItems extends ImisActivity {
                 new String[]{"Code", "Name", "Price", "Quantity"},
                 new int[]{R.id.tvLvCode, R.id.tvLvName, R.id.tvLvPrice, R.id.tvLvQuantity});
 
-        ItemAdapter itemAdapter = new ItemAdapter(AddItems.this, null);
+        ItemAdapter itemAdapter = new ItemAdapter(this, sqlHandler);
         etItems.setAdapter(itemAdapter);
         etItems.setThreshold(1);
 
@@ -64,8 +64,6 @@ public class AddItems extends ImisActivity {
                 oItem.put("Code", Code);
                 oItem.put("Name", Name);
 
-
-//					etAmount.setText(oItem.get("Price"));
                 etQuantity.setText("1");
                 etAmount.setText(sqlHandler.getItemPrice(Code));
             }
