@@ -4,20 +4,16 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.util.Xml;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -46,90 +42,74 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class ClaimActivity extends AppCompatActivity {
-
-    SQLiteDatabase db;
-    SQLHandler sql;
-
-    public static final String PREFS_NAME = "CMPref";
-    public static String Path;
-
+public class ClaimActivity extends ImisActivity {
+    private static final int REQUEST_QR_SCAN_CODE = 1;
     static final int StartDate_Dialog_ID = 0;
     static final int EndDate_Dialog_ID = 1;
 
+    SQLiteDatabase db;
+    public static String Path;
+
     final Calendar cal = Calendar.getInstance();
 
-    public static ArrayList<HashMap<String,String>> lvItemList;
-    public static ArrayList<HashMap<String,String>> lvServiceList;
+    public static ArrayList<HashMap<String, String>> lvItemList;
+    public static ArrayList<HashMap<String, String>> lvServiceList;
 
     private int year, month, day;
     String FileName;
     File ClaimFile;
     int TotalItemService;
 
-    EditText etStartDate, etEndDate,etHealthFacility,etClaimCode, etCHFID,etClaimAdmin, etGuaranteeNo;
-    AutoCompleteTextView etDiagnosis,etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4;
-    TextView tvItemTotal,tvServiceTotal;
-    Button btnPost,btnNew;
+    EditText etStartDate, etEndDate, etHealthFacility, etClaimCode, etCHFID, etClaimAdmin, etGuaranteeNo;
+    AutoCompleteTextView etDiagnosis, etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4;
+    TextView tvItemTotal, tvServiceTotal;
+    Button btnPost, btnNew;
     RadioButton rbEmergency, rbReferral, rbOther;
     RadioGroup rgVisitType;
     ImageButton btnScan;
-
-    private Global global;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_claim);
 
-        sql = new SQLHandler(this);
-        sql.onOpen(db);
+        sqlHandler.onOpen(db);
 
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle(getResources().getString(R.string.app_name_claim));
 
-        global = (Global) getApplicationContext();
         Path = global.getMainDirectory();
-
 
         isSDCardAvailable();
 
-        //Check if network available
-        if (global.isNetworkAvailable()){
-//			        	tvMode.setText(Html.fromHtml("<font color='green'>Online mode.</font>"));
-
-        }else{
-//			        	tvMode.setText(Html.fromHtml("<font color='red'>Offline mode.</font>"));
+        if (!global.isNetworkAvailable()) {
             setTitle(getResources().getString(R.string.app_name_claims) + "-" + getResources().getString(R.string.OfflineMode));
             setTitleColor(getResources().getColor(R.color.Red));
         }
 
+        lvItemList = new ArrayList<>();
+        lvServiceList = new ArrayList<>();
 
-        lvItemList = new ArrayList<HashMap<String, String>>();
-        lvServiceList = new ArrayList<HashMap<String, String>>();
-
-        etStartDate = (EditText)findViewById(R.id.etStartDate);
-        etEndDate  = (EditText)findViewById(R.id.etEndDate);
-        etDiagnosis = (AutoCompleteTextView)findViewById(R.id.etDiagnosis);
-        btnNew = (Button)findViewById(R.id.btnNew);
-        btnPost = (Button)findViewById(R.id.btnPost);
-        btnScan = (ImageButton)findViewById(R.id.btnScan);
-        etHealthFacility = (EditText)findViewById(R.id.etHealthFacility);
-        etClaimAdmin = (EditText)findViewById(R.id.etClaimAdmin);
-        etGuaranteeNo = (EditText)findViewById(R.id.etGuaranteeNo);
-        etClaimCode = (EditText)findViewById(R.id.etClaimCode);
-        etCHFID = (EditText)findViewById(R.id.etCHFID);
-        tvItemTotal =(TextView)findViewById(R.id.tvItemTotal);
-        tvServiceTotal = (TextView)findViewById(R.id.tvServiceTotal);
-        etDiagnosis1 = (AutoCompleteTextView)findViewById(R.id.etDiagnosis1);
-        etDiagnosis2 = (AutoCompleteTextView)findViewById(R.id.etDiagnosis2);
-        etDiagnosis3 = (AutoCompleteTextView)findViewById(R.id.etDiagnosis3);
-        etDiagnosis4 = (AutoCompleteTextView)findViewById(R.id.etDiagnosis4);
-        rbEmergency = (RadioButton)findViewById(R.id.rbEmergency);
-        rbReferral = (RadioButton)findViewById(R.id.rbReferral);
-        rbOther = (RadioButton)findViewById(R.id.rbOther);
-        rgVisitType = (RadioGroup)findViewById(R.id.rgVisitType);
+        etStartDate = (EditText) findViewById(R.id.etStartDate);
+        etEndDate = (EditText) findViewById(R.id.etEndDate);
+        etDiagnosis = (AutoCompleteTextView) findViewById(R.id.etDiagnosis);
+        btnNew = (Button) findViewById(R.id.btnNew);
+        btnPost = (Button) findViewById(R.id.btnPost);
+        btnScan = (ImageButton) findViewById(R.id.btnScan);
+        etHealthFacility = (EditText) findViewById(R.id.etHealthFacility);
+        etClaimAdmin = (EditText) findViewById(R.id.etClaimAdmin);
+        etGuaranteeNo = (EditText) findViewById(R.id.etGuaranteeNo);
+        etClaimCode = (EditText) findViewById(R.id.etClaimCode);
+        etCHFID = (EditText) findViewById(R.id.etCHFID);
+        tvItemTotal = (TextView) findViewById(R.id.tvItemTotal);
+        tvServiceTotal = (TextView) findViewById(R.id.tvServiceTotal);
+        etDiagnosis1 = (AutoCompleteTextView) findViewById(R.id.etDiagnosis1);
+        etDiagnosis2 = (AutoCompleteTextView) findViewById(R.id.etDiagnosis2);
+        etDiagnosis3 = (AutoCompleteTextView) findViewById(R.id.etDiagnosis3);
+        etDiagnosis4 = (AutoCompleteTextView) findViewById(R.id.etDiagnosis4);
+        rbEmergency = (RadioButton) findViewById(R.id.rbEmergency);
+        rbReferral = (RadioButton) findViewById(R.id.rbReferral);
+        rbOther = (RadioButton) findViewById(R.id.rbOther);
+        rgVisitType = (RadioGroup) findViewById(R.id.rgVisitType);
 
 
         tvItemTotal.setText("0");
@@ -138,21 +118,21 @@ public class ClaimActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String claim = intent.getStringExtra("claims");
 
-        if(claim==null) {
-            if (sql.getAdjustibility("ClaimAdministrator").equals("N")) {
+        if (claim == null) {
+            if (sqlHandler.getAdjustibility("ClaimAdministrator").equals("N")) {
                 etClaimAdmin.setVisibility(View.GONE);
             } else {
                 if (global.getOfficerCode() != null) {
-                    etClaimAdmin.setText(global.getOfficerCode().toString());
+                    etClaimAdmin.setText(global.getOfficerCode());
                 }
             }
 
-            if (sql.getAdjustibility("GuaranteeNo").equals("N")) {
+            if (sqlHandler.getAdjustibility("GuaranteeNo").equals("N")) {
                 etGuaranteeNo.setVisibility(View.GONE);
             }
 
             //Fetch if Healthfacility code is available
-            SharedPreferences spHF = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+            SharedPreferences spHF = global.getDefaultSharedPreferences();
             String HF = spHF.getString("HF", "");
             if (HF.length() > 0) {
                 etHealthFacility.setText(HF);
@@ -163,12 +143,12 @@ public class ClaimActivity extends AppCompatActivity {
         } else {
             try {
                 fillForm(new JSONObject(claim));
-            } catch ( JSONException e ) {
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
-        DiseaseAdapter adapter = new DiseaseAdapter(ClaimActivity.this,null);
+        DiseaseAdapter adapter = new DiseaseAdapter(ClaimActivity.this, null);
         etDiagnosis.setAdapter(adapter);
         etDiagnosis.setThreshold(1);
         etDiagnosis.setOnItemClickListener(adapter);
@@ -201,69 +181,53 @@ public class ClaimActivity extends AppCompatActivity {
 
 
         btnNew.setOnClickListener(v -> {
-            if (TotalItemService>0){
+            if (TotalItemService > 0) {
                 ConfirmDialog(getResources().getString(R.string.ConfirmDiscard));
-            }else{
+            } else {
                 ClearForm();
             }
         });
 
         btnScan.setOnClickListener(v -> {
-            Intent scanIntent = new Intent(this,com.google.zxing.client.android.CaptureActivity.class);
+            Intent scanIntent = new Intent(this, com.google.zxing.client.android.CaptureActivity.class);
             scanIntent.setAction("com.google.zxing.client.android.SCAN");
             scanIntent.putExtra("SCAN_MODE", "QR_CODE_MODE");
             startActivityForResult(scanIntent, 1);
         });
 
-        btnPost.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if(!isValidData())return;
-                WriteJSON();
-                WriteXML();
-                ClearForm();
-                ShowDialog(getResources().getString(R.string.ClaimPosted));
-            }
+        btnPost.setOnClickListener(v -> {
+            if (!isValidData()) return;
+            WriteJSON();
+            WriteXML();
+            ClearForm();
+            ShowDialog(getResources().getString(R.string.ClaimPosted));
         });
     }
 
-    private void isSDCardAvailable(){
+    private void isSDCardAvailable() {
         String status = global.getSDCardStatus();
-        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)){
+        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)) {
             //Toast.makeText(this, "SD Card is in read only mode.", Toast.LENGTH_LONG);
             new AlertDialog.Builder(this)
                     .setMessage(getResources().getString(R.string.SDCardReadOnly))
                     .setCancelable(false)
-                    .setPositiveButton("Force close", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("Force close", (dialog, which) -> finish()).show();
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    }).show();
-
-        }else if(!Environment.MEDIA_MOUNTED.equals(status)){
+        } else if (!Environment.MEDIA_MOUNTED.equals(status)) {
             new AlertDialog.Builder(this)
                     .setMessage(getResources().getString(R.string.SDCardMissing))
                     .setCancelable(false)
-                    .setPositiveButton(getResources().getString(R.string.ForceClose), new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    }).create().show();
+                    .setPositiveButton(getResources().getString(R.string.ForceClose), (dialog, which) -> finish()).create().show();
         }
     }
 
 
     @SuppressLint("RestrictedApi")
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater mif = getMenuInflater();
         mif.inflate(R.menu.menu, menu);
-        if(menu instanceof MenuBuilder){
+        if (menu instanceof MenuBuilder) {
             MenuBuilder m = (MenuBuilder) menu;
             //noinspection RestrictedApi
             m.setOptionalIconsVisible(true);
@@ -272,14 +236,14 @@ public class ClaimActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch(item.getItemId()){
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.mnuAddItems:
-                Intent AddItems = new Intent(ClaimActivity.this,AddItems.class);
+                Intent AddItems = new Intent(ClaimActivity.this, AddItems.class);
                 ClaimActivity.this.startActivity(AddItems);
                 return true;
             case R.id.mnuAddServices:
-                Intent AddServices = new Intent(ClaimActivity.this,AddServices.class);
+                Intent AddServices = new Intent(ClaimActivity.this, AddServices.class);
                 ClaimActivity.this.startActivity(AddServices);
                 return true;
             default:
@@ -290,8 +254,8 @@ public class ClaimActivity extends AppCompatActivity {
 
 
     @Override
-    protected Dialog onCreateDialog(int id){
-        switch(id){
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
 
             case StartDate_Dialog_ID:
 
@@ -318,10 +282,10 @@ public class ClaimActivity extends AppCompatActivity {
             year = Selectedyear;
             month = SelectedMonth;
             day = SelectedDay;
-            Date date = new Date(year-1900,month,day);
+            Date date = new Date(year - 1900, month, day);
             etStartDate.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date));
 
-            if(etEndDate.getText().length()==0){
+            if (etEndDate.getText().length() == 0) {
                 etEndDate.setText(etStartDate.getText().toString());
             }
         }
@@ -334,7 +298,7 @@ public class ClaimActivity extends AppCompatActivity {
             year = SelectedYear;
             month = SelectedMonth;
             day = SelectedDay;
-            Date date = new Date(year-1900,month,day);
+            Date date = new Date(year - 1900, month, day);
             etEndDate.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date));
         }
     };
@@ -353,7 +317,8 @@ public class ClaimActivity extends AppCompatActivity {
         tvServiceTotal.setText(String.valueOf(TotalService));
 
     }
-    private void ClearForm(){
+
+    private void ClearForm() {
         etClaimCode.setText("");
         etClaimAdmin.setText("");
         etGuaranteeNo.setText("");
@@ -374,8 +339,7 @@ public class ClaimActivity extends AppCompatActivity {
         etClaimAdmin.requestFocus();
     }
 
-    private void fillForm(JSONObject obj)
-    {
+    private void fillForm(JSONObject obj) {
         try {
             String newClaimNumber = getResources().getString(R.string.restoredClaimNoPrefix) + obj.getString("claim_number");
             etClaimCode.setText(newClaimNumber);
@@ -384,31 +348,39 @@ public class ClaimActivity extends AppCompatActivity {
             etClaimAdmin.setText(global.getOfficerCode());
 
             String guaranteeNumber = obj.getString("guarantee_number");
-            if(null == guaranteeNumber || "null".equals(guaranteeNumber)) etGuaranteeNo.setText("");
+            if (null == guaranteeNumber || "null".equals(guaranteeNumber))
+                etGuaranteeNo.setText("");
             else etGuaranteeNo.setText(guaranteeNumber);
 
             etCHFID.setText(obj.getString("insurance_number"));
-            if(!obj.getString("claim_status").equals("Rejected"))
+            if (!obj.getString("claim_status").equals("Rejected"))
                 etCHFID.setText("");
 
             etStartDate.setText(obj.getString("visit_date_from"));
             etEndDate.setText(obj.getString("visit_date_to"));
 
-            etDiagnosis.setText(sql.getDiseaseCode(obj.getString("main_dg")));
-            etDiagnosis1.setText(sql.getDiseaseCode(obj.getString("sec_dg_1")));
-            etDiagnosis2.setText(sql.getDiseaseCode(obj.getString("sec_dg_2")));
-            etDiagnosis3.setText(sql.getDiseaseCode(obj.getString("sec_dg_3")));
-            etDiagnosis4.setText(sql.getDiseaseCode(obj.getString("sec_dg_4")));
+            etDiagnosis.setText(sqlHandler.getDiseaseCode(obj.getString("main_dg")));
+            etDiagnosis1.setText(sqlHandler.getDiseaseCode(obj.getString("sec_dg_1")));
+            etDiagnosis2.setText(sqlHandler.getDiseaseCode(obj.getString("sec_dg_2")));
+            etDiagnosis3.setText(sqlHandler.getDiseaseCode(obj.getString("sec_dg_3")));
+            etDiagnosis4.setText(sqlHandler.getDiseaseCode(obj.getString("sec_dg_4")));
 
             switch (obj.getString("visit_type")) {
-                case "Emergency": rgVisitType.check(R.id.rbEmergency); break;
-                case "Referral": rgVisitType.check(R.id.rbReferral); break;
-                case "Other": rgVisitType.check(R.id.rbOther); break;
-                default: rgVisitType.clearCheck();
+                case "Emergency":
+                    rgVisitType.check(R.id.rbEmergency);
+                    break;
+                case "Referral":
+                    rgVisitType.check(R.id.rbReferral);
+                    break;
+                case "Other":
+                    rgVisitType.check(R.id.rbOther);
+                    break;
+                default:
+                    rgVisitType.clearCheck();
             }
 
             lvItemList.clear();
-            if(obj.has("items")) {
+            if (obj.has("items")) {
                 JSONArray items = obj.getJSONArray("items");
                 for (int i = 0; i < items.length(); i++) {
                     HashMap<String, String> item = new HashMap<>();
@@ -425,7 +397,7 @@ public class ClaimActivity extends AppCompatActivity {
             tvItemTotal.setText(String.valueOf(lvItemList.size()));
 
             lvServiceList.clear();
-            if(obj.has("services")) {
+            if (obj.has("services")) {
                 JSONArray services = obj.getJSONArray("services");
                 for (int i = 0; i < services.length(); i++) {
                     HashMap<String, String> service = new HashMap<>();
@@ -441,39 +413,28 @@ public class ClaimActivity extends AppCompatActivity {
             }
             tvServiceTotal.setText(String.valueOf(lvServiceList.size()));
 
-            TotalItemService = lvItemList.size()+lvServiceList.size();
+            TotalItemService = lvItemList.size() + lvServiceList.size();
 
             etCHFID.requestFocus();
-        } catch ( JSONException e ) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    private int getTotalItem(){
-        int total = 0;
-        total = lvItemList.size();
-//	for(int i=0;i< lvItemList.size();i++){
-//		total = total +  Float.valueOf(lvItemList.get(i).get("Price"));
-//	}
-        return total;
+    private int getTotalItem() {
+        return lvItemList.size();
     }
 
-    private int getTotalService(){
-        int total = 0;
-        total = lvServiceList.size();
-//	for(int i=0;i< lvServiceList.size();i++){
-//		total = total +  Float.valueOf(lvServiceList.get(i).get("Price"));
-//	}
-        return total;
+    private int getTotalService() {
+        return lvServiceList.size();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // TODO Auto-generated method stub
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
-            case 1:
-                if (resultCode == RESULT_OK){
+        switch (requestCode) {
+            case REQUEST_QR_SCAN_CODE:
+                if (resultCode == RESULT_OK) {
                     String CHFID = data.getStringExtra("SCAN_RESULT");
                     etCHFID.setText(CHFID);
                 }
@@ -481,61 +442,45 @@ public class ClaimActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isValidData(){
+    private boolean isValidData() {
 
-        if(etHealthFacility.getText().length()==0){
+        if (etHealthFacility.getText().length() == 0) {
             ShowDialog(etHealthFacility, getResources().getString(R.string.MissingHealthFacility));
             return false;
         }
-        if(sql.getAdjustibility("ClaimAdministrator").equals("M")){
-            if(etClaimAdmin.getText().length()==0){
+        if (sqlHandler.getAdjustibility("ClaimAdministrator").equals("M")) {
+            if (etClaimAdmin.getText().length() == 0) {
                 ShowDialog(etClaimAdmin, getResources().getString(R.string.MissingClaimAdmin));
                 return false;
             }
         }
 
-/*        if(sql.getAdjustibility("GuaranteeNo").equals("M")){
-            if(etGuaranteeNo.getText().length()==0){
-                ShowDialog(etGuaranteeNo, getResources().getString(R.string.MissingGuaranteeNo));
-                return false;
-            }
-        }*/
-
-        if(etClaimCode.getText().length()==0){
+        if (etClaimCode.getText().length() == 0) {
             ShowDialog(etClaimCode, getResources().getString(R.string.MissingClaimCode));
             return false;
         }
 
-        if(etCHFID.getText().length()==0){
+        if (etCHFID.getText().length() == 0) {
             ShowDialog(etCHFID, getResources().getString(R.string.MissingCHFID));
             return false;
         }
 
-        if(!isValidCHFID()){
+        if (!isValidCHFID()) {
             ShowDialog(etCHFID, getResources().getString(R.string.InvalidCHFID));
             return false;
         }
 
-        if(etStartDate.getText().length()==0){
+        if (etStartDate.getText().length() == 0) {
             ShowDialog(etStartDate, getResources().getString(R.string.MissingStartDate));
             return false;
         }
 
 
-        if(etEndDate.getText().length()==0){
+        if (etEndDate.getText().length() == 0) {
             ShowDialog(etEndDate, getResources().getString(R.string.MissingEndDate));
             return false;
         }
 
-        //long CurrentDate;
-        //long StartDate;
-        //long EndDate;
-
-        //CurrentDate = Date.parse(CurrentDate1);
-        //StartDate = Date.parse(etStartDate.getText().toString());
-        //EndDate = Date.parse(etEndDate.getText().toString());
-
-//SOLVED BY HERMAN 14/11/2017
         String StartDate;
         String EndDate;
         String CurrentDate1;
@@ -547,9 +492,6 @@ public class ClaimActivity extends AppCompatActivity {
 
         SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.US);
 
-        //CurrentDate = Date.parse(CurrentDate1);
-        //StartDate = Date.parse(etStartDate.getText().toString());
-        //EndDate = Date.parse(etEndDate.getText().toString());
         CurrentDate1 = format.format(new Date());
         StartDate = etStartDate.getText().toString();
         EndDate = etEndDate.getText().toString();
@@ -562,24 +504,14 @@ public class ClaimActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-/*	if(EndDate - CurrentDate > 0){
-		ShowDialog(etEndDate,getResources().getString(R.string.AfterCurrentDate));
-		return false;
-	}
 
-	if(StartDate - EndDate > 0){
-		ShowDialog(etEndDate, getResources().getString(R.string.BiggerDate));
-   		return false;
-	}
-*/
         if (End_date.after(Current_date)) {
             ShowDialog(etEndDate, getResources().getString(R.string.AfterCurrentDate));
             return false;
-        }else {
+        } else {
             if (Start_date.after(End_date)) {
                 ShowDialog(etEndDate, getResources().getString(R.string.BiggerDate));
                 return false;
-//SOLVED BY HERMAN 14/11/2017
             }
             if (etDiagnosis.getText().length() == 0) {
                 ShowDialog(etDiagnosis, getResources().getString(R.string.MissingDisease));
@@ -598,66 +530,40 @@ public class ClaimActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isValidCHFID(){
+    private boolean isValidCHFID() {
         Escape escape = new Escape();
         return escape.CheckCHFID(etCHFID.getText().toString());
     }
 
-    protected AlertDialog ShowDialog(final Object tv,String msg){
+    protected AlertDialog ShowDialog(final Object tv, String msg) {
         return new AlertDialog.Builder(this)
                 .setMessage(msg)
                 .setCancelable(false)
-                .setPositiveButton(R.string.Ok, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (tv instanceof EditText) {
-                            EditText temp = (EditText) tv;
-                            temp.requestFocus();
-                        }
-                    }
-
-                }).show();
-    }
-    protected AlertDialog ShowDialog(String msg){
-        return new AlertDialog.Builder(this)
-                .setMessage(msg)
-                .setCancelable(false)
-                .setPositiveButton(getResources().getString(R.string.Ok), new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //et.requestFocus();
-                        return;
+                .setPositiveButton(R.string.Ok, (dialog, which) -> {
+                    if (tv instanceof EditText) {
+                        EditText temp = (EditText) tv;
+                        temp.requestFocus();
                     }
                 }).show();
     }
 
-    protected AlertDialog ConfirmDialog(String msg){
+    protected AlertDialog ShowDialog(String msg) {
+        return new AlertDialog.Builder(this)
+                .setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton(getResources().getString(R.string.Ok), (dialog, which) -> {}).show();
+    }
+
+    protected AlertDialog ConfirmDialog(String msg) {
         return new AlertDialog.Builder(this)
                 .setMessage(msg)
                 .setCancelable(true)
-                .setPositiveButton(getResources().getString(R.string.Yes), new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ClearForm();
-                        dialog.dismiss();
-                    }
-
-
-                })
-                .setNegativeButton(getResources().getString(R.string.No), new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // TODO Auto-generated method stub
-                        dialog.dismiss();
-                    }
-                }).show();
+                .setPositiveButton(getResources().getString(R.string.Yes), (dialog, which) -> ClearForm())
+                .setNegativeButton(getResources().getString(R.string.No), (dialog, which) -> dialog.dismiss()).show();
 
     }
-    private void WriteXML(){
+
+    private void WriteXML() {
         File MyDir = new File(Path);
 
         //Create a file name
@@ -667,14 +573,14 @@ public class ClaimActivity extends AppCompatActivity {
 
         FileName = "Claim_" + etHealthFacility.getText().toString() + "_" + etClaimCode.getText().toString() + "_" + d + ".xml";
 
-        ClaimFile = new File(MyDir,FileName);
+        ClaimFile = new File(MyDir, FileName);
 
         //Get the selected radio button
         int SelectedId;
         SelectedId = rgVisitType.getCheckedRadioButtonId();
 
         RadioButton Rb;
-        Rb = (RadioButton)findViewById(SelectedId);
+        Rb = (RadioButton) findViewById(SelectedId);
 
         try {
             FileOutputStream fos = new FileOutputStream(ClaimFile);
@@ -746,9 +652,9 @@ public class ClaimActivity extends AppCompatActivity {
             serializer.endTag(null, "Comment");
 
             //Total
-            serializer.startTag(null,"Total");
+            serializer.startTag(null, "Total");
             serializer.text(" ");
-            serializer.endTag(null,"Total");
+            serializer.endTag(null, "Total");
 
             //Diagnosis1
             serializer.startTag(null, "ICDCode1");
@@ -782,9 +688,9 @@ public class ClaimActivity extends AppCompatActivity {
             //<Items>
             serializer.startTag(null, "Items");
 
-            for(int i=0;i<lvItemList.size();i++){
+            for (int i = 0; i < lvItemList.size(); i++) {
                 //<Item>
-                serializer.startTag(null,"Item");
+                serializer.startTag(null, "Item");
 
                 //Code
                 serializer.startTag(null, "ItemCode");
@@ -801,7 +707,7 @@ public class ClaimActivity extends AppCompatActivity {
                 serializer.text(lvItemList.get(i).get("Quantity"));
                 serializer.endTag(null, "ItemQuantity");
 
-                serializer.endTag(null,"Item");
+                serializer.endTag(null, "Item");
                 //</Item>
             }
 
@@ -812,7 +718,7 @@ public class ClaimActivity extends AppCompatActivity {
             //<Services>
             serializer.startTag(null, "Services");
 
-            for(int i=0;i<lvServiceList.size();i++){
+            for (int i = 0; i < lvServiceList.size(); i++) {
 
                 //<Service>
                 serializer.startTag(null, "Service");
@@ -864,14 +770,9 @@ public class ClaimActivity extends AppCompatActivity {
 
 
     }
-    private void WriteJSON(){
 
-        //Create all the directories required
+    private void WriteJSON() {
         File MyDir = new File(Path);
-        MyDir.mkdir();
-
-        sql = new SQLHandler(this);
-        sql.onOpen(db);
 
         //Create a file name
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
@@ -886,7 +787,7 @@ public class ClaimActivity extends AppCompatActivity {
         SelectedId = rgVisitType.getCheckedRadioButtonId();
 
         RadioButton Rb;
-        Rb = (RadioButton)findViewById(SelectedId);
+        Rb = (RadioButton) findViewById(SelectedId);
 
         try {
             JSONObject jsonObject = new JSONObject();
@@ -928,7 +829,7 @@ public class ClaimActivity extends AppCompatActivity {
             ClaimObject.put("VisitType", Rb.getTag().toString());
 
 
-            FullObject.put("Details",ClaimObject);
+            FullObject.put("Details", ClaimObject);
             //</Details>
 
             //Items
@@ -937,22 +838,22 @@ public class ClaimActivity extends AppCompatActivity {
 
             JSONArray ItemsArray = new JSONArray();
 
-            for(int i=0;i<lvItemList.size();i++){
+            for (int i = 0; i < lvItemList.size(); i++) {
                 JSONObject SubObjectItems = new JSONObject();
                 JSONObject ItemObject = new JSONObject();
                 //Code
-                ItemObject.put("ItemCode",lvItemList.get(i).get("Code"));
+                ItemObject.put("ItemCode", lvItemList.get(i).get("Code"));
                 //Price
-                ItemObject.put("ItemPrice",lvItemList.get(i).get("Price"));
+                ItemObject.put("ItemPrice", lvItemList.get(i).get("Price"));
                 //Quantity
-                ItemObject.put("ItemQuantity",lvItemList.get(i).get("Quantity"));
-                SubObjectItems.put("Item",ItemObject);
+                ItemObject.put("ItemQuantity", lvItemList.get(i).get("Quantity"));
+                SubObjectItems.put("Item", ItemObject);
 
                 ItemsArray.put(SubObjectItems);
 
             }
             //</Items>
-            FullObject.put("Items",ItemsArray);
+            FullObject.put("Items", ItemsArray);
 
 
             //<Services>
@@ -960,30 +861,30 @@ public class ClaimActivity extends AppCompatActivity {
 
             JSONArray ServicesArray = new JSONArray();
 
-            for(int i=0;i<lvServiceList.size();i++){
+            for (int i = 0; i < lvServiceList.size(); i++) {
                 JSONObject SubObjectServices = new JSONObject();
                 JSONObject ServiceObject = new JSONObject();
                 //Code
-                ServiceObject.put("ServiceCode",lvServiceList.get(i).get("Code"));
+                ServiceObject.put("ServiceCode", lvServiceList.get(i).get("Code"));
                 //Price
-                ServiceObject.put("ServicePrice",lvServiceList.get(i).get("Price"));
+                ServiceObject.put("ServicePrice", lvServiceList.get(i).get("Price"));
                 //Quantity
-                ServiceObject.put("ServiceQuantity",lvServiceList.get(i).get("Quantity"));
+                ServiceObject.put("ServiceQuantity", lvServiceList.get(i).get("Quantity"));
                 //</Service>
-                SubObjectServices.put("Service",ServiceObject);
+                SubObjectServices.put("Service", ServiceObject);
 
                 ServicesArray.put(SubObjectServices);
             }
             //</Services>
-            FullObject.put("Services",ServicesArray);
+            FullObject.put("Services", ServicesArray);
 
             //</Claim>
-            jsonObject.put("Claim",FullObject);
+            jsonObject.put("Claim", FullObject);
 
             try {
                 String dir = global.getMainDirectory();
                 FileOutputStream fOut = new FileOutputStream(ClaimFile);
-                OutputStreamWriter myOutWriter =new OutputStreamWriter(fOut);
+                OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
                 myOutWriter.append(jsonObject.toString());
                 myOutWriter.close();
                 fOut.close();
@@ -991,7 +892,7 @@ public class ClaimActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-        }catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (JSONException e) {
@@ -1003,18 +904,10 @@ public class ClaimActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        // TODO Auto-generated method stub
         super.onStop();
-        //if(etHealthFacility.getText().length() > 0){
-        SharedPreferences HF = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences HF = global.getDefaultSharedPreferences();
         SharedPreferences.Editor editor = HF.edit();
         editor.putString("HF", etHealthFacility.getText().toString());
-        editor.commit();
-        //}
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+        editor.apply();
     }
 }

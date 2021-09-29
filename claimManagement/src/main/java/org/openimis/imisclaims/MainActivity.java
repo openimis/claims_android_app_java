@@ -161,10 +161,9 @@ public class MainActivity extends ImisActivity {
                     getResources().getString(R.string.Select_Language),
                     lang,
                     (dialog, which) -> {
-                        //if (lang[which].toString() == "English")Language="en";else Language="sw";
                         if (lang[which].toString().equals("English")) Language = "en";
                         else Language = "fr";
-                        global.ChangeLanguage(Language);
+                        global.setSavedLanguage(Language);
                         refresh();
                     },
                     null

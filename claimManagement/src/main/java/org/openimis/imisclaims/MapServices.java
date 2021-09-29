@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -29,353 +27,341 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.openimis.imisclaims.R;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MapServices extends AppCompatActivity {
+public class MapServices extends ImisActivity {
+    ListView lvMapServices;
+    CheckBox chkAll, chk;
+    EditText etSearchServices;
 
-SQLHandler sql; 
-	
-	ListView lvMapServices;
-	CheckBox chkAll,chk;
-	EditText etSearchServices;
+    ArrayList<HashMap<String, Object>> ServiceList = new ArrayList<>();
 
-	ArrayList<HashMap<String, Object>> ServiceList = new ArrayList<HashMap<String, Object>>();
-	
-	HashMap<String, Object> oService;
-	ServiceAdapter alAdapter;
-	ProgressDialog pd;
-	
-	@Override
-		protected void onCreate(Bundle savedInstanceState) {
-			// TODO Auto-generated method stub
-			super.onCreate(savedInstanceState);
-			setContentView(R.layout.mapservices);
+    HashMap<String, Object> oService;
+    ServiceAdapter alAdapter;
 
-		final ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
-		actionBar.setTitle(getResources().getString(R.string.app_name_claim));
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.mapservices);
 
-			lvMapServices = (ListView)findViewById(R.id.lvMapServices);
-		    chkAll = (CheckBox)findViewById(R.id.chkAllServices);
-		    chk = (CheckBox)findViewById(R.id.chkMap);
-			etSearchServices = (EditText)findViewById(R.id.etSearchServices);
-			
-			etSearchServices.addTextChangedListener(new TextWatcher() {
-				@Override
-				public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        actionBar.setTitle(getResources().getString(R.string.app_name_claim));
 
-				}
+        lvMapServices = (ListView) findViewById(R.id.lvMapServices);
+        chkAll = (CheckBox) findViewById(R.id.chkAllServices);
+        chk = (CheckBox) findViewById(R.id.chkMap);
+        etSearchServices = (EditText) findViewById(R.id.etSearchServices);
 
-				@Override
-				public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-					if(alAdapter != null){
-						alAdapter.getFilter().filter(charSequence.toString());
-					}
+        etSearchServices.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-				}
+            }
 
-				@Override
-				public void afterTextChanged(Editable editable) {
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (alAdapter != null) {
+                    alAdapter.getFilter().filter(charSequence.toString());
+                }
 
-				}
-			});
+            }
 
-		    lvMapServices.setOnItemClickListener(new ListView.OnItemClickListener(){
-				
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-					// TODO Auto-generated method stub
-					oService = (HashMap<String,Object>)parent.getItemAtPosition(position);
-					boolean checked = (Boolean) oService.get("isMapped");
-					oService.put("isMapped", !checked);
-					ServiceList.set(position, oService);
-					alAdapter.notifyDataSetChanged();
-					
-					if (checked){
-						chkAll.setChecked(false);
-					}
-					
-				}
-			});
-		    
-		    chkAll.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					
-					CheckUncheckAll(chkAll.isChecked());
-				
-				}
-			});
-		   
-			try{
-				BindItemList();
-			}
-			catch(Exception e){
-				Toast.makeText(this, getResources().getString(R.string.NoStatFound), Toast.LENGTH_LONG).show();
-			}
-		   
-		   
-		}
-		    
-		public void BindItemList(){
-			//String[] Items = {"Item1","Item2","Item3","Item4","Item5"};
-			  
-			//SQLHandler sql = new SQLHandler(null, null, null, 3);
-			SQLHandler sql = new SQLHandler(this);
-			
-			Cursor c = sql.getMapping("S");
-			boolean isMapped=false;
-			for(c.moveToFirst();!c.isAfterLast();c.moveToNext()){
-				HashMap<String,Object> item = new HashMap<String,Object>();
-				item.put("Code", c.getString(0));
-				item.put("Name", c.getString(1));
-				if((c.getString(2))==null)isMapped = false;else isMapped = true;
-				item.put("isMapped", isMapped);
-				ServiceList.add(item);
-				
-			}
+            @Override
+            public void afterTextChanged(Editable editable) {
 
-			 alAdapter = new ServiceAdapter(MapServices.this,ServiceList, R.layout.mappinglist,
-					 	new String[]{"Code","Name","isMapped"},
-					 	new int[]{R.id.tvMapCode, R.id.tvMapName, R.id.chkMap});
+            }
+        });
 
-			 
-			 	//lvMapServices.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice,Items));
-			    
-			    
-			 try {
-				lvMapServices.setAdapter(alAdapter);
-				lvMapServices.setItemsCanFocus(false);
-			    lvMapServices.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-			}
-		}
-		
-		private void CheckUncheckAll(boolean isChecked){
-			for(int i=0;i<ServiceList.size();i++){
-				oService = (HashMap<String,Object>)ServiceList.get(i);
-				oService.put("isMapped", isChecked);
-				ServiceList.set(i, oService);
-				alAdapter.notifyDataSetChanged();
-			}
-		}
+        lvMapServices.setOnItemClickListener(new ListView.OnItemClickListener() {
 
-	@SuppressLint("RestrictedApi")
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu){
-		MenuInflater mif = getMenuInflater();
-		mif.inflate(R.menu.mapping, menu);
-		if(menu instanceof MenuBuilder){
-			MenuBuilder m = (MenuBuilder) menu;
-			//noinspection RestrictedApi
-			m.setOptionalIconsVisible(true);
-		}
-		return true;
-	}
-		
-		@Override
-		public boolean onOptionsItemSelected(MenuItem item) {
-			switch(item.getItemId()){
-			case R.id.mnuSave:
-				pd = new ProgressDialog(this);
-				pd.setCancelable(false);
-				pd = ProgressDialog.show(this, "", getResources().getString(R.string.Saving));
-				new Thread(){
-					public void run(){
-						int save = Save();
-						if(save == 2){
-							runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									ShowDialog(getResources().getString(R.string.MemoryFull));
-								}
-							});
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // TODO Auto-generated method stub
+                oService = (HashMap<String, Object>) parent.getItemAtPosition(position);
+                boolean checked = (Boolean) oService.get("isMapped");
+                oService.put("isMapped", !checked);
+                ServiceList.set(position, oService);
+                alAdapter.notifyDataSetChanged();
 
-						} else if(save == 1){
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								ShowDialog(getResources().getString(R.string.SelectItems));
-							}
-						});
-					}else{
-							runOnUiThread(new Runnable() {
-								@Override
-								public void run() {ShowDialog(getResources().getString(R.string.saved_successfully));
-								}
-							});
-						}
-					pd.dismiss();
-					}
-				}.start();
-				
-				return true;
-			case R.id.mnuCancel:
-				finish();
-				return true;
-			default:
-				onBackPressed();
-				return true;
-			}
-		}
-		
-		private int Save(){
-			int count = 0;
-			sql = new SQLHandler(this);
-			sql.ClearMapping("S");
-			for(int i=0;i<ServiceList.size();i++){
-				oService = (HashMap<String,Object>)ServiceList.get(i);
-				boolean checked = (Boolean) oService.get("isMapped");
-					if (checked){
-						count++;
-						if(!sql.InsertMapping(oService.get("Code").toString(), oService.get("Name").toString(), "S")){
-							return 2;
-						}
+                if (checked) {
+                    chkAll.setChecked(false);
+                }
 
-					}
-				}
-			if(count == 0){
-				return 1;
-			}
-			return 0;
-		}
+            }
+        });
 
-	protected AlertDialog ShowDialog(String msg){
-		return new AlertDialog.Builder(this)
-				.setMessage(msg)
-				.setCancelable(false)
-				.setPositiveButton(getResources().getString(R.string.Ok), new DialogInterface.OnClickListener() {
+        chkAll.setOnClickListener(new OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						//et.requestFocus();
-						return;
-					}
-				}).show();
-	}
-	private class ServiceAdapter extends SimpleAdapter{
+            @Override
+            public void onClick(View v) {
 
-		private ArrayList<HashMap<String, Object>> OriginalList,FilteredList;
-		private ArrayList<HashMap<String, Object>> ItemList;
-		private HashMap<String, Object> TempData;
-		private ItemFilter filter;
-		//private Context cntx;
+                CheckUncheckAll(chkAll.isChecked());
+
+            }
+        });
+
+        try {
+            BindItemList();
+        } catch (Exception e) {
+            Toast.makeText(this, getResources().getString(R.string.NoStatFound), Toast.LENGTH_LONG).show();
+        }
 
 
-		public ServiceAdapter(Context context, List<? extends Map<String, ?>> ItemList, int resource, String[] from, int[] to) {
-			super(context, ItemList, resource, from, to);
-			//this.cntx = context;
-			this.ItemList = new ArrayList<HashMap<String, Object>>();
-			this.ItemList.addAll((Collection<? extends HashMap<String, Object>>) ItemList);
-			this.OriginalList =  new ArrayList<HashMap<String, Object>>();
-			this.OriginalList.addAll((Collection<? extends HashMap<String, Object>>) ItemList);
+    }
 
-		}
+    public void BindItemList() {
+        //String[] Items = {"Item1","Item2","Item3","Item4","Item5"};
 
-		@Override
-		public Filter getFilter() {
-			if(filter == null){
-				filter = new ItemFilter();
-			}
-			return filter;
-		}
+        //SQLHandler sql = new SQLHandler(null, null, null, 3);
+        SQLHandler sql = new SQLHandler(this);
 
-		private class ViewHolder{
-			TextView Code;
-			TextView Name;
-			CheckBox isMapped;
-		}
+        Cursor c = sql.getMapping("S");
+        boolean isMapped = false;
+        for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            HashMap<String, Object> item = new HashMap<String, Object>();
+            item.put("Code", c.getString(0));
+            item.put("Name", c.getString(1));
+            if ((c.getString(2)) == null) isMapped = false;
+            else isMapped = true;
+            item.put("isMapped", isMapped);
+            ServiceList.add(item);
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-			Log.v("ConvertView", String.valueOf(position));
-			if(convertView == null){
-				LayoutInflater vi = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				convertView = vi.inflate(R.layout.mappinglist,null);
+        }
 
-				holder = new ViewHolder();
-				holder.Code = (TextView) convertView.findViewById(R.id.tvMapCode);
-				holder.Name = (TextView)convertView.findViewById(R.id.tvMapName);
-				holder.isMapped = (CheckBox)convertView.findViewById(R.id.chkMap);
+        alAdapter = new ServiceAdapter(MapServices.this, ServiceList, R.layout.mappinglist,
+                new String[]{"Code", "Name", "isMapped"},
+                new int[]{R.id.tvMapCode, R.id.tvMapName, R.id.chkMap});
 
-				convertView.setTag(holder);
 
-			}
-			else{
-				holder = (ViewHolder)convertView.getTag();
-			}
+        //lvMapServices.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_multiple_choice,Items));
 
-			if (position > ItemList.size())
-				return convertView;
 
-			TempData = ItemList.get(position);
-			holder.Code.setText((String) TempData.get("Code"));
-			holder.Name.setText((String) TempData.get("Name"));
-			holder.isMapped.setChecked((Boolean) TempData.get("isMapped"));
+        try {
+            lvMapServices.setAdapter(alAdapter);
+            lvMapServices.setItemsCanFocus(false);
+            lvMapServices.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
 
-			return  convertView;
-		}
+    private void CheckUncheckAll(boolean isChecked) {
+        for (int i = 0; i < ServiceList.size(); i++) {
+            oService = (HashMap<String, Object>) ServiceList.get(i);
+            oService.put("isMapped", isChecked);
+            ServiceList.set(i, oService);
+            alAdapter.notifyDataSetChanged();
+        }
+    }
 
-		private class ItemFilter extends Filter{
+    @SuppressLint("RestrictedApi")
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater mif = getMenuInflater();
+        mif.inflate(R.menu.mapping, menu);
+        if (menu instanceof MenuBuilder) {
+            MenuBuilder m = (MenuBuilder) menu;
+            //noinspection RestrictedApi
+            m.setOptionalIconsVisible(true);
+        }
+        return true;
+    }
 
-			@Override
-			protected FilterResults performFiltering(CharSequence constraint) {
-				constraint = constraint.toString().toLowerCase();
-				FilterResults results = new FilterResults();
-				ArrayList<HashMap<String, Object>> FilteredItems = new ArrayList<HashMap<String, Object>>();;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.mnuSave:
+                progressDialog = new ProgressDialog(this);
+                progressDialog.setCancelable(false);
+                progressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.Saving));
+                new Thread() {
+                    public void run() {
+                        int save = Save();
+                        if (save == 2) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ShowDialog(getResources().getString(R.string.MemoryFull));
+                                }
+                            });
 
-				if(constraint != null && constraint.toString().length() > 0){
+                        } else if (save == 1) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ShowDialog(getResources().getString(R.string.SelectItems));
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ShowDialog(getResources().getString(R.string.saved_successfully));
+                                }
+                            });
+                        }
+                        progressDialog.dismiss();
+                    }
+                }.start();
 
-					for(int i = 0;i < OriginalList.size(); i++){
-						HashMap<String, Object> oItem  = OriginalList.get(i);
-						if( oItem.get("Code").toString().toLowerCase().contains(constraint) || oItem.get("Name").toString().toLowerCase().contains(constraint)){
-							FilteredItems.add(oItem);
-						}
-						results.count = FilteredItems.size();
-						results.values = FilteredItems;
-					}
-				}else{
-					synchronized (this){
-						results.values = OriginalList;
-						results.count = OriginalList.size();
-					}
+                return true;
+            case R.id.mnuCancel:
+                finish();
+                return true;
+            default:
+                onBackPressed();
+                return true;
+        }
+    }
 
-				}
-				return results;
-			}
+    private int Save() {
+        int count = 0;
+        sqlHandler = new SQLHandler(this);
+        sqlHandler.ClearMapping("S");
+        for (int i = 0; i < ServiceList.size(); i++) {
+            oService = (HashMap<String, Object>) ServiceList.get(i);
+            boolean checked = (Boolean) oService.get("isMapped");
+            if (checked) {
+                count++;
+                if (!sqlHandler.InsertMapping(oService.get("Code").toString(), oService.get("Name").toString(), "S")) {
+                    return 2;
+                }
 
-			@SuppressWarnings("unchecked")
-			@Override
-			protected void publishResults(CharSequence constraint, FilterResults results) {
-				ItemList = (ArrayList<HashMap<String, Object>>) results.values;
-				notifyDataSetChanged();
+            }
+        }
+        if (count == 0) {
+            return 1;
+        }
+        return 0;
+    }
 
-				MapServices.this.ServiceList.clear();
+    protected AlertDialog ShowDialog(String msg) {
+        return new AlertDialog.Builder(this)
+                .setMessage(msg)
+                .setCancelable(false)
+                .setPositiveButton(getResources().getString(R.string.Ok), new DialogInterface.OnClickListener() {
 
-				//FilteredList = new ArrayList<HashMap<String, Object>>();
-				//FilteredList.clear();
-				for(int i = 0;i < ItemList.size(); i++){
-					MapServices.this.ServiceList.add(ItemList.get(i));
-					notifyDataSetInvalidated();
-				}
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //et.requestFocus();
+                        return;
+                    }
+                }).show();
+    }
 
-			}
-		}
-	}
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-	}
+    private class ServiceAdapter extends SimpleAdapter {
+
+        private ArrayList<HashMap<String, Object>> OriginalList, FilteredList;
+        private ArrayList<HashMap<String, Object>> ItemList;
+        private HashMap<String, Object> TempData;
+        private ItemFilter filter;
+        //private Context cntx;
+
+
+        public ServiceAdapter(Context context, List<? extends Map<String, ?>> ItemList, int resource, String[] from, int[] to) {
+            super(context, ItemList, resource, from, to);
+            //this.cntx = context;
+            this.ItemList = new ArrayList<HashMap<String, Object>>();
+            this.ItemList.addAll((Collection<? extends HashMap<String, Object>>) ItemList);
+            this.OriginalList = new ArrayList<HashMap<String, Object>>();
+            this.OriginalList.addAll((Collection<? extends HashMap<String, Object>>) ItemList);
+
+        }
+
+        @Override
+        public Filter getFilter() {
+            if (filter == null) {
+                filter = new ItemFilter();
+            }
+            return filter;
+        }
+
+        private class ViewHolder {
+            TextView Code;
+            TextView Name;
+            CheckBox isMapped;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder;
+            Log.v("ConvertView", String.valueOf(position));
+            if (convertView == null) {
+                LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = vi.inflate(R.layout.mappinglist, null);
+
+                holder = new ViewHolder();
+                holder.Code = (TextView) convertView.findViewById(R.id.tvMapCode);
+                holder.Name = (TextView) convertView.findViewById(R.id.tvMapName);
+                holder.isMapped = (CheckBox) convertView.findViewById(R.id.chkMap);
+
+                convertView.setTag(holder);
+
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+            if (position > ItemList.size())
+                return convertView;
+
+            TempData = ItemList.get(position);
+            holder.Code.setText((String) TempData.get("Code"));
+            holder.Name.setText((String) TempData.get("Name"));
+            holder.isMapped.setChecked((Boolean) TempData.get("isMapped"));
+
+            return convertView;
+        }
+
+        private class ItemFilter extends Filter {
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                constraint = constraint.toString().toLowerCase();
+                FilterResults results = new FilterResults();
+                ArrayList<HashMap<String, Object>> FilteredItems = new ArrayList<HashMap<String, Object>>();
+                ;
+
+                if (constraint != null && constraint.toString().length() > 0) {
+
+                    for (int i = 0; i < OriginalList.size(); i++) {
+                        HashMap<String, Object> oItem = OriginalList.get(i);
+                        if (oItem.get("Code").toString().toLowerCase().contains(constraint) || oItem.get("Name").toString().toLowerCase().contains(constraint)) {
+                            FilteredItems.add(oItem);
+                        }
+                        results.count = FilteredItems.size();
+                        results.values = FilteredItems;
+                    }
+                } else {
+                    synchronized (this) {
+                        results.values = OriginalList;
+                        results.count = OriginalList.size();
+                    }
+
+                }
+                return results;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                ItemList = (ArrayList<HashMap<String, Object>>) results.values;
+                notifyDataSetChanged();
+
+                MapServices.this.ServiceList.clear();
+
+                //FilteredList = new ArrayList<HashMap<String, Object>>();
+                //FilteredList.clear();
+                for (int i = 0; i < ItemList.size(); i++) {
+                    MapServices.this.ServiceList.add(ItemList.get(i));
+                    notifyDataSetInvalidated();
+                }
+
+            }
+        }
+    }
 }
 
 

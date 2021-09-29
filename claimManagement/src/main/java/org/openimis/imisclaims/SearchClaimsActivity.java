@@ -206,15 +206,4 @@ public class SearchClaimsActivity extends ImisActivity {
         intent.putExtra("claims", claims);
         startActivity(intent);
     }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
 }

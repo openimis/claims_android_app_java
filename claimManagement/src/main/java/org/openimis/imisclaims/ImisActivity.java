@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -25,12 +26,19 @@ public abstract class ImisActivity extends AppCompatActivity {
     protected ProgressDialog progressDialog;
     protected ActionBar actionBar;
     protected Global global;
+    protected SQLHandler sqlHandler;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        actionBar = getSupportActionBar();
+
         global = (Global) getApplicationContext();
+        global.setLanguage(this, global.getSavedLanguage());
+
+        actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -38,6 +46,8 @@ public abstract class ImisActivity extends AppCompatActivity {
                 onBroadcastReceived(context, intent);
             }
         };
+
+        sqlHandler = new SQLHandler(this);
     }
 
     @Override
@@ -73,6 +83,12 @@ public abstract class ImisActivity extends AppCompatActivity {
         }
 
         registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     /**

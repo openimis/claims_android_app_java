@@ -58,6 +58,9 @@ import static org.openimis.imisclaims.BuildConfig.RAR_PASSWORD;
 import static org.openimis.imisclaims.BuildConfig.APP_DIR;
 
 public class Global extends Application {
+    private static final String SHPREF_NAME = "SHPref";
+    private static final String SHPREF_LANGUAGE = "language";
+    private static final String DEFAULT_LANGUAGE_CODE = "en";
     private static Global instance;
     private String OfficerCode;
     private String OfficerName;
@@ -237,8 +240,8 @@ public class Global extends Application {
         return (ni != null && ni.isConnected());
     }
 
-    public void ChangeLanguage(String Language) {
-        Resources res = getResources();
+    public void setLanguage(Context c, String Language) {
+        Resources res = c.getResources();
         DisplayMetrics dm = res.getDisplayMetrics();
         android.content.res.Configuration config = res.getConfiguration();
         config.locale = new Locale(Language.toLowerCase());
@@ -255,7 +258,7 @@ public class Global extends Application {
 
     public String getRarPwd() {
         String password = "";
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPref", 0);
+        SharedPreferences sharedPreferences = getDefaultSharedPreferences();
         if (!sharedPreferences.contains("rarPwd")) {
             password = getDefaultRarPassword();
         } else {
@@ -287,5 +290,21 @@ public class Global extends Application {
         digest.update(bytes, 0, bytes.length);
         byte[] key = digest.digest();
         return new SecretKeySpec(key, "AES");
+    }
+
+    public SharedPreferences getDefaultSharedPreferences() {
+        return this.getSharedPreferences(SHPREF_NAME, MODE_PRIVATE);
+    }
+
+    public String getSavedLanguage() {
+        SharedPreferences sp = getDefaultSharedPreferences();
+        return sp.getString(SHPREF_LANGUAGE, DEFAULT_LANGUAGE_CODE);
+    }
+
+    public void setSavedLanguage(String languageCode) {
+        SharedPreferences sp = getDefaultSharedPreferences();
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(SHPREF_LANGUAGE, languageCode);
+        editor.apply();
     }
 }
