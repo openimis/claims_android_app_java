@@ -17,7 +17,6 @@ import static android.database.DatabaseUtils.sqlEscapeString;
  */
 
 public class SQLHandler extends SQLiteOpenHelper {
-    Global global;
     public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Databases") + "/" + "Mapping.db3";
     public static final String DB_NAME_DATA = Global.getGlobal().getSubdirectory("Databases") + "/" + "ImisData.db3";
     private static final String CreateTable = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
@@ -26,50 +25,28 @@ public class SQLHandler extends SQLiteOpenHelper {
     private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code text, Name text, Type text, Price text);";
     //private static final String CreateTableDateUpdates = "CREATE TABLE tblDateUpdates(Id INTEGER PRIMARY KEY AUTOINCREMENT, last_update_date text);";
 
-    SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_NAME_DATA, null);
-    SQLiteDatabase dbMapping = this.getWritableDatabase();
+    Global global;
+    SQLiteDatabase db;
+    SQLiteDatabase dbMapping;
 
     public SQLHandler(Context context) {
         super(context, DB_NAME_MAPPING, null, 3);
         global = (Global) context.getApplicationContext();
+        db = SQLiteDatabase.openOrCreateDatabase(DB_NAME_DATA, null);
+        dbMapping = SQLiteDatabase.openOrCreateDatabase(DB_NAME_MAPPING, null);
     }
 
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        checkDataBase();
+        db = SQLiteDatabase.openOrCreateDatabase(DB_NAME_DATA, null);
+        dbMapping = SQLiteDatabase.openOrCreateDatabase(DB_NAME_MAPPING, null);
         db.execSQL(CreateTable);
     }
 
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-    }
-
-    public boolean checkDataBase() {
-        SQLiteDatabase checkDB = null;
-        try {
-            checkDB = SQLiteDatabase.openDatabase(DB_NAME_DATA, null,
-                    SQLiteDatabase.OPEN_READONLY);
-        } catch (SQLiteException e) {
-            // database doesn't exist yet.
-            return false;
-        }
-        return true;
-    }
-
-    public Cursor getData(String Table, String[] Columns, String Criteria) {
-        try {
-            //db = SQLiteDatabase.openDatabase(ClaimManagementActivity.Path + "ImisData.db3", null,SQLiteDatabase.OPEN_READONLY);
-
-            Cursor c = dbMapping.query(Table, Columns, Criteria, null, null, null, null);
-
-            return c;
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            Log.d("ErrorOnFetchingData", e.getMessage());
-            return null;
-        }
     }
 
     public Cursor getMapping(String Type) {
@@ -201,9 +178,16 @@ public class SQLHandler extends SQLiteOpenHelper {
         return code;
     }
 
-    public Cursor SearchItems(String InputText) {
-        //Cursor c = db.rawQuery("SELECT Code as _id,Code, Name,Code + ' ' + Name AS Disease FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
-        Cursor c = dbMapping.rawQuery("SELECT Code as _id,Code, Name FROM tblMapping WHERE Type = 'I' ", null);
+    public Cursor filterItemsServices(String nameFilter, String typeFilter) {
+        String wildcardNameFilter = "%" + nameFilter + "%";
+        Cursor c = dbMapping.query("tblMapping",
+                new String[]{"Code AS _id", "Code", "Name"},
+                "type = ? AND (Code LIKE ? OR Name LIKE ?)",
+                new String[]{typeFilter, wildcardNameFilter, wildcardNameFilter},
+                null,
+                null,
+                null);
+
         if (c != null) {
             c.moveToFirst();
         }
@@ -211,30 +195,32 @@ public class SQLHandler extends SQLiteOpenHelper {
         return c;
     }
 
-    public Cursor SearchServices(String InputText) {
-        //Cursor c = db.rawQuery("SELECT Code as _id,Code, Name,Code + ' ' + Name AS Disease FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
-        Cursor c = dbMapping.rawQuery("SELECT Code as _id,Code, Name FROM tblMapping WHERE Type = 'S' AND (Code LIKE '%" + InputText + "%' OR Name LIKE '%" + InputText + "%')", null);
-        if (c != null) {
-            c.moveToFirst();
-        }
-
-        return c;
+    public Cursor searchItems(String filter) {
+        return filterItemsServices(filter, "I");
     }
 
-    //Created by Herman 27.03.2018
+    public Cursor searchServices(String filter) {
+        return filterItemsServices(filter, "S");
+    }
+
     public String getAdjustibility(String FieldName) {
         String adjustibility = "M";
+        Cursor cursor = null;
         try {
             String query = "SELECT Adjustibility FROM tblControls WHERE FieldName = '" + FieldName + "'";
-            Cursor cursor1 = db.rawQuery(query, null);
+            cursor = db.rawQuery(query, null);
             // looping through all rows
-            if (cursor1.moveToFirst()) {
+            if (cursor.moveToFirst()) {
                 do {
-                    adjustibility = cursor1.getString(0);
-                } while (cursor1.moveToNext());
+                    adjustibility = cursor.getString(0);
+                } while (cursor.moveToNext());
             }
         } catch (Exception e) {
             return adjustibility;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return adjustibility;
@@ -279,5 +265,10 @@ public class SQLHandler extends SQLiteOpenHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void closeDatabases() {
+        db.close();
+        dbMapping.close();
     }
 }

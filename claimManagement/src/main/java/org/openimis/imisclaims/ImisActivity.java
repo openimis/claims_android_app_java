@@ -51,6 +51,12 @@ public abstract class ImisActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        sqlHandler.closeDatabases();
+    }
+
+    @Override
     public void onBackPressed() {
         super.onBackPressed();
     }
