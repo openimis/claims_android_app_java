@@ -128,8 +128,8 @@ public class MapServices extends ImisActivity {
             else isMapped = true;
             item.put("isMapped", isMapped);
             ServiceList.add(item);
-
         }
+        c.close();
 
         alAdapter = new ServiceAdapter(MapServices.this, ServiceList, R.layout.mappinglist,
                 new String[]{"Code", "Name", "isMapped"},
@@ -219,7 +219,6 @@ public class MapServices extends ImisActivity {
 
     private int Save() {
         int count = 0;
-        sqlHandler = new SQLHandler(this);
         sqlHandler.ClearMapping("S");
         for (int i = 0; i < ServiceList.size(); i++) {
             oService = (HashMap<String, Object>) ServiceList.get(i);

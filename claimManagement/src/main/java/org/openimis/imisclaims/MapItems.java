@@ -131,8 +131,9 @@ public class MapItems extends ImisActivity {
             else isMapped = true;
             item.put("isMapped", isMapped);
             ItemsList.add(item);
-
         }
+
+        c.close();
 
         alAdapter = new ItemAdapter(MapItems.this, ItemsList, R.layout.mappinglist,
                 new String[]{"Code", "Name", "isMapped"},
@@ -224,7 +225,6 @@ public class MapItems extends ImisActivity {
 
     private int Save() {
         int count = 0;
-        sqlHandler = new SQLHandler(this);
         sqlHandler.ClearMapping("I");
         for (int i = 0; i < ItemsList.size(); i++) {
             oItem = (HashMap<String, Object>) ItemsList.get(i);

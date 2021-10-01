@@ -10,21 +10,18 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-import org.openimis.imisclaims.R;
-
 public class DiseaseAdapter extends CursorAdapter implements AdapterView.OnItemClickListener {
-    SQLHandler sql;
+    SQLHandler sqlHandler;
     SQLiteDatabase db;
-    public DiseaseAdapter(Context context, Cursor cursor){
-        super(context,null);
-        sql = new SQLHandler(context);
-        sql.onOpen(db);
+
+    public DiseaseAdapter(Context context, SQLHandler sqlHandler) {
+        super(context, null, 0);
+        this.sqlHandler = sqlHandler;
     }
+
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        final LayoutInflater inflater = LayoutInflater.from(context);
-        final View view = inflater.inflate(R.layout.disease_list,parent, false);
-        return view;
+        return LayoutInflater.from(context).inflate(R.layout.disease_list, parent, false);
     }
 
     @Override
@@ -32,7 +29,7 @@ public class DiseaseAdapter extends CursorAdapter implements AdapterView.OnItemC
         final int itemColumnIndex = cursor.getColumnIndexOrThrow("Code");
         final int descColumnIndex = cursor.getColumnIndexOrThrow("Name");
         String Suggestion = cursor.getString(itemColumnIndex) + " " + cursor.getString(descColumnIndex);
-        TextView text1 = (TextView) view.findViewById(R.id.text1);
+        TextView text1 = view.findViewById(R.id.text1);
         text1.setText(Suggestion);
 
     }
@@ -42,28 +39,18 @@ public class DiseaseAdapter extends CursorAdapter implements AdapterView.OnItemC
         if (getFilterQueryProvider() != null) {
             return getFilterQueryProvider().runQuery(constraint);
         }
-        Cursor cursor = sql.SearchDisease(
-                (constraint != null ? constraint.toString() : ""));
 
-        return cursor;
+        return sqlHandler.SearchDisease((constraint != null ? constraint.toString() : ""));
     }
 
     @Override
-    public CharSequence convertToString(Cursor cursor) {
-        final int columnIndex = cursor.getColumnIndexOrThrow("Code");
-        final String str = cursor.getString(columnIndex);
-        return str;
+    public CharSequence convertToString(Cursor c) {
+        return c.getString(c.getColumnIndexOrThrow("Code"));
     }
 
 
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-//        Cursor cursor = (Cursor) listView.getItemAtPosition(position);
-//
-//        // Get the Item Number from this row in the database.
-//        String itemNumber = cursor.getString(cursor.getColumnIndexOrThrow("Code"));
-
-
     }
 }
 

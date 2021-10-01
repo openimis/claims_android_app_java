@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -55,7 +56,9 @@ public class SynchronizeActivity extends ImisActivity {
         zipClaims.setOnClickListener(view -> confirmXMLCreation());
 
         importMasterData.setOnClickListener(view -> requestPickDatabase());
-        importMasterData.setOnClickListener(view -> {}); //TODO Not yet implemented
+        downloadMasterData.setOnClickListener(view -> {
+        }); //TODO Not yet implemented
+        downloadMasterData.setVisibility(View.GONE);
 
     }
 
@@ -95,9 +98,9 @@ public class SynchronizeActivity extends ImisActivity {
                 break;
         }
 
-        if(pd!=null && pd.isShowing()) pd.dismiss();
+        if (pd != null && pd.isShowing()) pd.dismiss();
 
-        if(!SynchronizeService.ACTION_CLAIM_COUNT_RESULT.equals(action)) {
+        if (!SynchronizeService.ACTION_CLAIM_COUNT_RESULT.equals(action)) {
             SynchronizeService.getClaimCount(this);
         }
     }

@@ -38,7 +38,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -378,6 +377,7 @@ public class MainActivity extends ImisActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 1) {
             if (grantResults.length > 0 && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+                sqlHandler.createOrOpenDatabases();
                 boolean isAppInitialized = sqlHandler.checkIfAny("tblClaimAdmins");
                 if (!isAppInitialized) {
                     sqlHandler.createTables();
@@ -407,8 +407,8 @@ public class MainActivity extends ImisActivity {
         // Ask for "Manage External Storage" permission, required in Android 11
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
-                    Intent intent = new Intent(ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                    startActivity(intent);
+                Intent intent = new Intent(ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivity(intent);
             }
         }
     }
@@ -425,15 +425,7 @@ public class MainActivity extends ImisActivity {
     }
 
     public boolean checkDataBase() {
-        SQLiteDatabase checkDB = null;
-        try {
-            checkDB = SQLiteDatabase.openDatabase(SQLHandler.DB_NAME_DATA, null,
-                    SQLiteDatabase.OPEN_READONLY);
-        } catch (SQLiteException e) {
-            // database doesn't exist yet.
-            return false;
-        }
-        return true;
+        return sqlHandler.checkDatabase();
     }
 
     public boolean getControls() {
@@ -575,6 +567,7 @@ public class MainActivity extends ImisActivity {
                             e.printStackTrace();
                         }
                     }
+                    c.close();
                 } else {
                     Cursor c = sqlHandler.getMapping("I");
                     if (c.getCount() == 0) {
@@ -598,6 +591,7 @@ public class MainActivity extends ImisActivity {
                             e.printStackTrace();
                         }
                     }
+                    c.close();
                 }
             }
         }
