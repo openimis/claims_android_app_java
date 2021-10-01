@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
@@ -19,7 +18,7 @@ import static android.database.DatabaseUtils.sqlEscapeString;
 public class SQLHandler extends SQLiteOpenHelper {
     public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Databases") + "/" + "Mapping.db3";
     public static final String DB_NAME_DATA = Global.getGlobal().getSubdirectory("Databases") + "/" + "ImisData.db3";
-    private static final String CreateTable = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
+    private static final String CreateTableMapping = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
     private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName text, Adjustibility text);";
     private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code text, Name text);";
     private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code text, Name text, Type text, Price text);";
@@ -32,16 +31,20 @@ public class SQLHandler extends SQLiteOpenHelper {
     public SQLHandler(Context context) {
         super(context, DB_NAME_MAPPING, null, 3);
         global = (Global) context.getApplicationContext();
-        db = SQLiteDatabase.openOrCreateDatabase(DB_NAME_DATA, null);
-        dbMapping = SQLiteDatabase.openOrCreateDatabase(DB_NAME_MAPPING, null);
+        createOrOpenDatabases();
     }
 
+    public void createOrOpenDatabases() {
+        if (!checkDatabase()) {
+            db = SQLiteDatabase.openOrCreateDatabase(DB_NAME_DATA, null);
+        }
+        if (!checkMapping()) {
+            dbMapping = SQLiteDatabase.openOrCreateDatabase(DB_NAME_MAPPING, null);
+        }
+    }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db = SQLiteDatabase.openOrCreateDatabase(DB_NAME_DATA, null);
-        dbMapping = SQLiteDatabase.openOrCreateDatabase(DB_NAME_MAPPING, null);
-        db.execSQL(CreateTable);
     }
 
 
@@ -227,11 +230,21 @@ public class SQLHandler extends SQLiteOpenHelper {
     }
 
     public boolean checkIfAny(String table) {
+        boolean tableExists = false;
         boolean any = false;
         try {
-            Cursor c = db.query(table, null, null, null, null, null, null, "1");
-            any = c.getCount() > 0;
+            Cursor c;
+            c = db.query(true, "sqlite_master", new String[]{"tbl_name"}, "tbl_name = ?", new String[]{table},
+                    null, null, null, "1");
+
+            tableExists = c.getCount() > 0;
             c.close();
+
+            if (tableExists) {
+                c = db.query(table, null, null, null, null, null, null, "1");
+                any = c.getCount() > 0;
+                c.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return any;
@@ -262,6 +275,7 @@ public class SQLHandler extends SQLiteOpenHelper {
             db.execSQL(CreateTableControls);
             db.execSQL(CreateTableReferences);
             db.execSQL(CreateTableClaimAdmins);
+            dbMapping.execSQL(CreateTableMapping);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -270,5 +284,13 @@ public class SQLHandler extends SQLiteOpenHelper {
     public void closeDatabases() {
         db.close();
         dbMapping.close();
+    }
+
+    public boolean checkDatabase() {
+        return db != null && db.isOpen();
+    }
+
+    public boolean checkMapping() {
+        return dbMapping != null && dbMapping.isOpen();
     }
 }

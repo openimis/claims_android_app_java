@@ -148,7 +148,7 @@ public class ClaimActivity extends ImisActivity {
             }
         }
 
-        DiseaseAdapter adapter = new DiseaseAdapter(ClaimActivity.this, null);
+        DiseaseAdapter adapter = new DiseaseAdapter(ClaimActivity.this, sqlHandler);
         etDiagnosis.setAdapter(adapter);
         etDiagnosis.setThreshold(1);
         etDiagnosis.setOnItemClickListener(adapter);
@@ -551,7 +551,8 @@ public class ClaimActivity extends ImisActivity {
         return new AlertDialog.Builder(this)
                 .setMessage(msg)
                 .setCancelable(false)
-                .setPositiveButton(getResources().getString(R.string.Ok), (dialog, which) -> {}).show();
+                .setPositiveButton(getResources().getString(R.string.Ok), (dialog, which) -> {
+                }).show();
     }
 
     protected AlertDialog ConfirmDialog(String msg) {
@@ -893,7 +894,6 @@ public class ClaimActivity extends ImisActivity {
             }
 
         } catch (IllegalStateException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
