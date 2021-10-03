@@ -99,6 +99,12 @@ android {
             buildConfigField "String", "APP_DIR", '"IMIS-NIGER"'
             resValue "string", "app_name_claims", "Claims Niger"
             buildConfigField "String", "API_BASE_URL", '"http://oiniger.bluesquare.org/rest/"'
+		}
+        tchadDev {
+            applicationIdSuffix ".tchadDev"
+            buildConfigField "String", "API_BASE_URL", '"http://imis-tchad-dev.swisstph-mis.ch/rest/"'
+            buildConfigField "String", "APP_DIR", '"IMIS-TCHADDEV"'
+            resValue "string", "app_name_claims", "Claims TCHAD DEV"
             dimension 'std'
         }
         local {
@@ -135,6 +141,8 @@ android {
 
         niger.java.srcDir 'src/niger/java'
         niger.res.srcDir 'src/niger/res'
+
+        tchadDev.java.srcDir 'src/tchad/java'
 
         local.java.srcDir 'src/local/java'
         local.res.srcDir 'src/local/res'
