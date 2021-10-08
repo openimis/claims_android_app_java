@@ -78,3 +78,6 @@ fastlane/readme.md
 .vscode/
 
 release/
+
+# Custom product flavours
+*custom-flavours.gradle

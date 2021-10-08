@@ -469,7 +469,7 @@ public class MainActivity extends ImisActivity {
                             error_message = ob.getString("error_message");
                             ErrorDialogBox(error_message);
                         }
-                    } catch (JSONException e) {
+                    } catch (JSONException | NullPointerException e) {
                         e.printStackTrace();
                         runOnUiThread(() -> progressDialog.dismiss());
                     }
@@ -487,41 +487,39 @@ public class MainActivity extends ImisActivity {
         if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.application);
             progressDialog = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
-            Thread thread = new Thread() {
-                public void run() {
-                    String controls;
+            Thread thread = new Thread(() -> {
+                String controls;
 
-                    String functionName = "claim/GetClaimAdmins";
-                    try {
-                        String content = toRestApi.getFromRestApi(functionName);
+                String functionName = "claim/GetClaimAdmins";
+                try {
+                    String content = toRestApi.getFromRestApi(functionName);
 
-                        JSONObject ob;
+                    JSONObject ob;
 
-                        ob = new JSONObject(content);
-                        controls = ob.getString("claim_admins");
-                        sqlHandler.ClearAll("tblClaimAdmins");
-                        //Insert Diagnosese
-                        JSONArray arrControls;
-                        JSONObject objControls;
-                        arrControls = new JSONArray(controls);
-                        for (int i = 0; i < arrControls.length(); i++) {
-                            objControls = arrControls.getJSONObject(i);
-                            String lastName = objControls.getString("lastName");
-                            String otherNames = objControls.getString("otherNames");
-                            String name = lastName + " " + otherNames;
-                            sqlHandler.InsertClaimAdmins(objControls.getString("claimAdminCode"), name);
-                        }
-
-                        runOnUiThread(() -> {
-                            progressDialog.dismiss();
-                            showToast(R.string.initializing_complete);
-                        });
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        runOnUiThread(() -> progressDialog.dismiss());
+                    ob = new JSONObject(content);
+                    controls = ob.getString("claim_admins");
+                    sqlHandler.ClearAll("tblClaimAdmins");
+                    //Insert Diagnosese
+                    JSONArray arrControls;
+                    JSONObject objControls;
+                    arrControls = new JSONArray(controls);
+                    for (int i = 0; i < arrControls.length(); i++) {
+                        objControls = arrControls.getJSONObject(i);
+                        String lastName = objControls.getString("lastName");
+                        String otherNames = objControls.getString("otherNames");
+                        String name = lastName + " " + otherNames;
+                        sqlHandler.InsertClaimAdmins(objControls.getString("claimAdminCode"), name);
                     }
+
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        showToast(R.string.initializing_complete);
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> progressDialog.dismiss());
                 }
-            };
+            });
             thread.start();
         } else {
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
