@@ -320,7 +320,6 @@ public class ClaimActivity extends ImisActivity {
 
     private void ClearForm() {
         etClaimCode.setText("");
-        etClaimAdmin.setText("");
         etGuaranteeNo.setText("");
         etCHFID.setText("");
         etStartDate.setText("");
@@ -792,98 +791,53 @@ public class ClaimActivity extends ImisActivity {
 
         try {
             JSONObject jsonObject = new JSONObject();
-            JSONObject FullObject = new JSONObject();
             JSONObject ClaimObject = new JSONObject();
 
             d = format.format(cal.getTime());
-            //ClaimDate
+
             ClaimObject.put("ClaimDate", d);
-            //HFCOde
             ClaimObject.put("HFCode", etHealthFacility.getText().toString());
-            //Claim Admin
             ClaimObject.put("ClaimAdmin", etClaimAdmin.getText().toString());
-            //ClaimCode
             ClaimObject.put("ClaimCode", etClaimCode.getText().toString());
-            //GuaranteeNo
             ClaimObject.put("GuaranteeNo", etGuaranteeNo.getText().toString());
-            //CHFID
             ClaimObject.put("CHFID", etCHFID.getText().toString());
-            //StartDate
             ClaimObject.put("StartDate", etStartDate.getText().toString());
-            //EndDate
             ClaimObject.put("EndDate", etEndDate.getText().toString());
-            //ICDCode
             ClaimObject.put("ICDCode", etDiagnosis.getText().toString());
-            //Comment
             ClaimObject.put("Comment", "");
-            //Total
             ClaimObject.put("Total", "");
-            //Diagnosis1
             ClaimObject.put("ICDCode1", etDiagnosis1.getText().toString());
-            //Diagnosis2
             ClaimObject.put("ICDCode2", etDiagnosis2.getText().toString());
-            //Diagnosis3
             ClaimObject.put("ICDCode3", etDiagnosis3.getText().toString());
-            //Diagnosis4
             ClaimObject.put("ICDCode4", etDiagnosis4.getText().toString());
-            //VisitType
             ClaimObject.put("VisitType", Rb.getTag().toString());
 
-
-            FullObject.put("Details", ClaimObject);
-            //</Details>
-
-            //Items
-            ClaimObject = new JSONObject();
-
+            jsonObject.put("details", ClaimObject);
 
             JSONArray ItemsArray = new JSONArray();
-
             for (int i = 0; i < lvItemList.size(); i++) {
-                JSONObject SubObjectItems = new JSONObject();
                 JSONObject ItemObject = new JSONObject();
-                //Code
                 ItemObject.put("ItemCode", lvItemList.get(i).get("Code"));
-                //Price
                 ItemObject.put("ItemPrice", lvItemList.get(i).get("Price"));
-                //Quantity
                 ItemObject.put("ItemQuantity", lvItemList.get(i).get("Quantity"));
-                SubObjectItems.put("Item", ItemObject);
 
-                ItemsArray.put(SubObjectItems);
-
+                ItemsArray.put(ItemObject);
             }
-            //</Items>
-            FullObject.put("Items", ItemsArray);
+            jsonObject.put("items", ItemsArray);
 
-
-            //<Services>
-            ClaimObject = new JSONObject();
 
             JSONArray ServicesArray = new JSONArray();
-
             for (int i = 0; i < lvServiceList.size(); i++) {
-                JSONObject SubObjectServices = new JSONObject();
                 JSONObject ServiceObject = new JSONObject();
-                //Code
                 ServiceObject.put("ServiceCode", lvServiceList.get(i).get("Code"));
-                //Price
                 ServiceObject.put("ServicePrice", lvServiceList.get(i).get("Price"));
-                //Quantity
                 ServiceObject.put("ServiceQuantity", lvServiceList.get(i).get("Quantity"));
-                //</Service>
-                SubObjectServices.put("Service", ServiceObject);
 
-                ServicesArray.put(SubObjectServices);
+                ServicesArray.put(ServiceObject);
             }
-            //</Services>
-            FullObject.put("Services", ServicesArray);
-
-            //</Claim>
-            jsonObject.put("Claim", FullObject);
+            jsonObject.put("services", ServicesArray);
 
             try {
-                String dir = global.getMainDirectory();
                 FileOutputStream fOut = new FileOutputStream(ClaimFile);
                 OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
                 myOutWriter.append(jsonObject.toString());
@@ -893,13 +847,9 @@ public class ClaimActivity extends ImisActivity {
                 e.printStackTrace();
             }
 
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IllegalStateException | JSONException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Override
