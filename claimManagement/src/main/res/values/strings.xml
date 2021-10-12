@@ -204,4 +204,5 @@
   <string name="importMasterDataFailed">Import failed</string>
   <string name="Processing">Processing…</string>
   <string name="importMasterDataSuccess">Master Data imported successfully</string>
+  <string name="invalidClaimAdminCode">Invalid Claim Admin Code</string>
 </resources>
