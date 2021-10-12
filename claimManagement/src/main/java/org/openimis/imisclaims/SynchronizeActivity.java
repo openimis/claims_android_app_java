@@ -7,14 +7,19 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.ArrayList;
 
 public class SynchronizeActivity extends ImisActivity {
+    private static final String LOG_TAG = "SYNCACTIVITY";
     private static final int PICK_FILE_REQUEST_CODE = 1;
     ArrayList<String> broadcastList;
 
@@ -82,7 +87,23 @@ public class SynchronizeActivity extends ImisActivity {
                 showDialog(getResources().getString(R.string.ZipXMLCreated));
                 break;
             case SynchronizeService.ACTION_SYNC_SUCCESS:
-                showDialog(getResources().getString(R.string.BulkUpload));
+                try {
+                    JSONArray result = new JSONArray(intent.getStringExtra(SynchronizeService.EXTRA_CLAIM_RESPONSE));
+                    int resultLength = result.length();
+                    if (resultLength > 0) {
+                        StringBuilder builder = new StringBuilder();
+                        for (int i = 0; i < resultLength; i++) {
+                            String message = result.getString(i);
+                            builder.append(message).append("\n");
+                            Log.i(LOG_TAG, message);
+                        }
+                        showDialog(builder.toString());
+                    } else {
+                        showDialog(getResources().getString(R.string.BulkUpload));
+                    }
+                } catch (JSONException e) {
+                    Log.e(LOG_TAG, "Error while processing claim response", e);
+                }
                 break;
             case SynchronizeService.ACTION_EXPORT_ERROR:
             case SynchronizeService.ACTION_SYNC_ERROR:

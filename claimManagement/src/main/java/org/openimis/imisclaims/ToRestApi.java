@@ -48,7 +48,7 @@ public class ToRestApi {
         }
     }
 
-    public HttpResponse postToRestApi(JSONObject object, String functionName, boolean addToken) {
+    public HttpResponse postToRestApi(Object object, String functionName, boolean addToken) {
         HttpClient httpClient = new DefaultHttpClient();
 
         HttpPost httpPost = new HttpPost(uri + functionName);
@@ -71,11 +71,11 @@ public class ToRestApi {
         }
     }
 
-    public HttpResponse postToRestApi(JSONObject object, String functionName) {
+    public HttpResponse postToRestApi(Object object, String functionName) {
         return postToRestApi(object, functionName, false);
     }
 
-    public HttpResponse postToRestApiToken(JSONObject object, String functionName) {
+    public HttpResponse postToRestApiToken(Object object, String functionName) {
         return postToRestApi(object, functionName, true);
     }
 
