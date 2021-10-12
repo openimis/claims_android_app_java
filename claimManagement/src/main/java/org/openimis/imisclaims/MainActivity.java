@@ -193,7 +193,7 @@ public class MainActivity extends ImisActivity {
             Intent intent = new Intent(this, MapServices.class);
             startActivity(intent);
         } else if (id == R.id.nav_Refresh_Map) {
-            confirmRefreshMap();
+            doLoggedIn(this::confirmRefreshMap);
         } else if (id == R.id.nav_claim) {
             Intent intent = new Intent(this, ClaimActivity.class);
             startActivity(intent);
@@ -238,7 +238,8 @@ public class MainActivity extends ImisActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                });
+                },
+                (dialog, i)-> dialog.cancel());
     }
 
     private void initializeDb3File(SQLHandler sql) {
