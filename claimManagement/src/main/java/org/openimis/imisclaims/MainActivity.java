@@ -530,12 +530,12 @@ public class MainActivity extends ImisActivity {
 
     public void validateClaimAdminCode(final String ClaimCode) {
         if (ClaimCode.equals("")) {
-            Toast.makeText(getBaseContext(), R.string.MissingClaimCode, Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), R.string.MissingClaimAdmin, Toast.LENGTH_LONG).show();
             ClaimAdminDialogBox();
         } else {
             String ClaimName = sqlHandler.getClaimAdmin(ClaimCode);
             if (ClaimName.equals("")) {
-                Toast.makeText(MainActivity.this, getResources().getString(R.string.invalid_code), Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, getResources().getString(R.string.invalidClaimAdminCode), Toast.LENGTH_LONG).show();
                 ClaimAdminDialogBox();
             } else {
                 if (!sqlHandler.getAdjustibility("ClaimAdministrator").equals("N")) {
