@@ -225,7 +225,7 @@ public abstract class ImisActivity extends AppCompatActivity {
      * If there is no network or the the user cancels login the task is canceled.
      *
      * @param task     Task to do when the user is logged in.
-     * @param onCancel Task to do when the initial task is canceled by rhe user or there is no internet.
+     * @param onCancel Task to do when the initial task is canceled by the user or there is no internet.
      */
     protected void doLoggedIn(Runnable task, Runnable onCancel) {
         doInOnlineMode(

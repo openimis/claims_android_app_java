@@ -84,9 +84,8 @@ public class ToRestApi {
         return getContent(response);
     }
 
-    public String getFromRestApiToken(String functionName) {
-        HttpResponse response = getFromRestApi(functionName, true);
-        return getContent(response);
+    public HttpResponse getFromRestApiToken(String functionName) {
+        return getFromRestApi(functionName, true);
 
     }
 
