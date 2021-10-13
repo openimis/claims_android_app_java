@@ -23,11 +23,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +61,7 @@ public class MainActivity extends ImisActivity {
     TextView pending_count;
     TextView AdminName;
     DrawerLayout drawer;
+    TextView loginText;
 
     Menu menu;
     static String Path;
@@ -121,6 +124,12 @@ public class MainActivity extends ImisActivity {
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this::onNavigationItemSelected);
+
+        View header = navigationView.getHeaderView(0);
+        loginText = header.findViewById(R.id.LoginText);
+        loginText.setText(global.isLoggedIn() ? R.string.Logout : R.string.Login);
+        RelativeLayout loginButton = header.findViewById(R.id.LoginButton);
+        loginButton.setOnClickListener((view) -> changeLoginState());
 
         accepted_count = findViewById(R.id.accepted_count);
         rejected_count = findViewById(R.id.rejected_count);
@@ -239,7 +248,19 @@ public class MainActivity extends ImisActivity {
                         e.printStackTrace();
                     }
                 },
-                (dialog, i)-> dialog.cancel());
+                (dialog, i) -> dialog.cancel());
+    }
+
+    public void changeLoginState() {
+        if (global.isLoggedIn()) {
+            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.Logout), getResources().getString(R.string.InProgress));
+            loginText.setText(R.string.Login);
+            runOnNewThread(() -> global.getJWTToken().clearToken(),
+                    () -> progressDialog.dismiss(),
+                    500);
+        } else {
+            doLoggedIn(() -> loginText.setText(R.string.Logout));
+        }
     }
 
     private void initializeDb3File(SQLHandler sql) {

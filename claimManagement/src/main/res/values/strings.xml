@@ -205,4 +205,5 @@
   <string name="Processing">Processing…</string>
   <string name="importMasterDataSuccess">Master Data imported successfully</string>
   <string name="invalidClaimAdminCode">Invalid Claim Admin Code</string>
+  <string name="Logout">Logout</string>
 </resources>
