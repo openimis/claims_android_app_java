@@ -94,11 +94,25 @@ android {
             buildConfigField "String", "API_BASE_URL", '"http://149.210.235.40/devupgrade/rest/"'
             dimension 'std'
         }
+        niger {
+            applicationIdSuffix ".niger"
+            buildConfigField "String", "APP_DIR", '"IMIS-NIGER"'
+            resValue "string", "app_name_claims", "Claims Niger"
+            buildConfigField "String", "API_BASE_URL", '"http://oiniger.bluesquare.org/rest/"'
+            dimension 'std'
+        }
         local {
             applicationIdSuffix ".local"
             buildConfigField "String", "APP_DIR", '"IMIS-LOCAL"'
             resValue "string", "app_name_claims", "Claims Local"
             buildConfigField "String", "API_BASE_URL", '"http://10.0.2.2:35787/"'
+            dimension 'std'
+        }
+        cli {
+            applicationIdSuffix System.getenv("APPLICATION_ID_SUFFIX") ?: ".cli"
+            buildConfigField "String", "APP_DIR", '"' + (System.getenv("CLI_APP_DIR") ?: 'IMIS-CLI') + '"'
+            resValue "string", "app_name_claims", System.getenv("CLI_APP_NAME") ?: "Claims CLI"
+            buildConfigField "String", "API_BASE_URL", '"' + (System.getenv("API_BASE_URL") ?: 'http://10.0.2.2:35787/') + '"'
             dimension 'std'
         }
     }
@@ -119,8 +133,14 @@ android {
         bephaDev.java.srcDir 'src/bephaDev/java'
         bephaDev.res.srcDir 'src/bephaDev/res'
 
+        niger.java.srcDir 'src/niger/java'
+        niger.res.srcDir 'src/niger/res'
+
         local.java.srcDir 'src/local/java'
         local.res.srcDir 'src/local/res'
+
+        cli.java.srcDir System.getenv("CLI_JAVA_DIR") ?: 'src/demoProd/java'
+        cli.res.srcDir System.getenv("CLI_RES_DIR") ?: 'src/demoProd/res'
     }
 
     packagingOptions {
