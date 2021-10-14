@@ -186,24 +186,23 @@ public abstract class ImisActivity extends AppCompatActivity {
                             if (!(username.getText().length() == 0) && !(password.getText().length() == 0)) {
                                 progressDialog = ProgressDialog.show(this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
 
-                                new Thread(() -> {
-                                    Login login = new Login();
-
-                                    boolean isUserLogged = login.LoginToken(username.getText().toString(), password.getText().toString());
-                                    progressDialog.dismiss();
-
-                                    if (isUserLogged) {
-                                        runOnUiThread(() -> {
-                                            showToast(R.string.Login_Successful);
-                                            onLoggedIn.run();
-                                        });
-                                    } else {
-                                        runOnUiThread(() -> {
-                                            showToast(R.string.LoginFail);
-                                            showLoginDialogBox(onLoggedIn, onCancel);
-                                        });
-                                    }
-                                }).start();
+                                runOnNewThread(
+                                        () -> new Login().LoginToken(username.getText().toString(), password.getText().toString()),
+                                        () -> {
+                                            progressDialog.dismiss();
+                                            if (global.isLoggedIn()) {
+                                                runOnUiThread(() -> {
+                                                    showToast(R.string.Login_Successful);
+                                                    onLoggedIn.run();
+                                                });
+                                            } else {
+                                                runOnUiThread(() -> {
+                                                    showToast(R.string.LoginFail);
+                                                    showLoginDialogBox(onLoggedIn, onCancel);
+                                                });
+                                            }
+                                        },
+                                        500);
                             } else {
                                 showToast(R.string.Enter_Credentials);
                                 dialog.dismiss();
@@ -284,5 +283,44 @@ public abstract class ImisActivity extends AppCompatActivity {
 
     protected void showToast(int resourceId) {
         showToast(getResources().getString(resourceId));
+    }
+
+    /**
+     * @param task           Task to run on a new thread
+     * @param onTaskFinished Task to run after the initial task was finished
+     * @param taskMinLength  Minimum amount of time between start of a task and start of onTaskFinished.
+     *                       This can be used to prevent fast flashing of ui elements modified by the task.
+     */
+    protected void runOnNewThread(Runnable task, Runnable onTaskFinished, long taskMinLength) {
+        new Thread(() -> {
+            long start = System.currentTimeMillis();
+            task.run();
+            long length = System.currentTimeMillis() - start;
+            if (taskMinLength > 0) {
+                try { //This prevents fast flashing
+                    Thread.sleep(length >= taskMinLength ? 0 : taskMinLength - length);
+                } catch (Exception e) {
+                    //Nothing to do
+                }
+            }
+            onTaskFinished.run();
+        }).start();
+    }
+
+    /**
+     * @param task           Task to run on a new thread
+     * @param onTaskFinished Task to run after the initial task was finished
+     */
+    protected void runOnNewThread(Runnable task, Runnable onTaskFinished) {
+        runOnNewThread(task, onTaskFinished, 0);
+    }
+
+
+    /**
+     * @param task Task to run on a new thread
+     */
+    protected void runOnNewThread(Runnable task) {
+        runOnNewThread(task, () -> {
+        }, 0);
     }
 }
