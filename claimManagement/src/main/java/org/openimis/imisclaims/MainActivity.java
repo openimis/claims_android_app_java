@@ -9,13 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
@@ -23,7 +22,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,6 +48,7 @@ import static android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSIO
 
 public class MainActivity extends ImisActivity {
     private static final int REQUEST_PERMISSIONS_CODE = 1;
+    private static final int REQUEST_ALL_FILES_ACCESS_CODE = 2;
     ArrayList<String> broadcastList;
     final CharSequence[] lang = {"English", "Francais"};
     String Language;
@@ -99,7 +98,6 @@ public class MainActivity extends ImisActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        requestPermissions();
         isSDCardAvailable();
 
         broadcastList = new ArrayList<>();
@@ -140,6 +138,10 @@ public class MainActivity extends ImisActivity {
         pending_count.setText("0");
 
         AdminName = findViewById(R.id.AdminName);
+
+        if (checkRequirements()) {
+            onAllRequirementsMet();
+        }
     }
 
     @Override
@@ -237,6 +239,24 @@ public class MainActivity extends ImisActivity {
         return true;
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_PERMISSIONS_CODE) {
+            if (checkRequirements()) {
+                onAllRequirementsMet();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == REQUEST_ALL_FILES_ACCESS_CODE) {
+            if (checkRequirements()) {
+                onAllRequirementsMet();
+            }
+        }
+    }
+
     public AlertDialog confirmRefreshMap() {
         return showDialog(
                 getResources().getString(R.string.AreYouSure),
@@ -266,21 +286,7 @@ public class MainActivity extends ImisActivity {
     private void initializeDb3File(SQLHandler sql) {
         if (checkDataBase()) {
             if (global.isNetworkAvailable()) {
-                //DownloadMasterDialog();
-                if (getControls()) {
-                    try {
-                        if (global.getOfficerCode() == null || global.getOfficerCode().equals("")) {
-                            if (!sql.getAdjustibility("ClaimAdministrator").equals("N")) {
-                                ClaimAdminDialogBox();
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        DownloadMasterDialog();
-                    }
-                } else {
-                    DownloadMasterDialog();
-                }
+                getControls();
             } else {
                 if (!sql.checkIfAny("tblControls")) {
                     CriticalErrorDialogBox(getResources().getString(R.string.noControls) + " " + getResources().getString(R.string.provideExtractOrInternet));
@@ -395,57 +401,6 @@ public class MainActivity extends ImisActivity {
         SynchronizeService.getClaimCount(this);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1) {
-            if (grantResults.length > 0 && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                sqlHandler.createOrOpenDatabases();
-                boolean isAppInitialized = sqlHandler.checkIfAny("tblClaimAdmins");
-                if (!isAppInitialized) {
-                    sqlHandler.createTables();
-                    initializeDb3File(sqlHandler);
-                } else {
-                    ClaimAdminDialogBox();
-                }
-                refreshCount();
-            } else {
-            }
-        }
-    }
-
-    //Ask for permission
-    public void requestPermissions() {
-        String[] permissions;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE, Manifest.permission.MANAGE_EXTERNAL_STORAGE};
-        } else {
-            permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
-        }
-        if (!hasPermissions(this, permissions)) {
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSIONS_CODE);
-        }
-
-        // Ask for "Manage External Storage" permission, required in Android 11
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                Intent intent = new Intent(ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                startActivity(intent);
-            }
-        }
-    }
-
-    public static boolean hasPermissions(Context context, String... permissions) {
-        if (context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     public boolean checkDataBase() {
         return sqlHandler.checkDatabase();
     }
@@ -536,6 +491,11 @@ public class MainActivity extends ImisActivity {
                     runOnUiThread(() -> {
                         progressDialog.dismiss();
                         showToast(R.string.initializing_complete);
+                    });
+                    runOnUiThread(() -> {
+                        if (checkRequirements()) {
+                            onAllRequirementsMet();
+                        }
                     });
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -982,5 +942,92 @@ public class MainActivity extends ImisActivity {
             String dir = global.getSubdirectory("Authentications");
             global.writeText(dir, "last_update_date.txt", lastUpdateDate);
         }
+    }
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED
+                        && !permission.equals(Manifest.permission.MANAGE_EXTERNAL_STORAGE)) {
+                    // MANAGE_EXTERNAL_STORAGE always report as denied by design
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void externalStorageAccessDialog() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this)
+                .setTitle(R.string.ExternalStorageAccess)
+                .setMessage(getResources().getString(R.string.ExternalStorageAccessInfo, getResources().getString(R.string.app_name_claims)))
+                .setCancelable(false)
+                .setPositiveButton(R.string.Ok,
+                        (dialog, id) -> {
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                                Intent intent = new Intent(ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                                startActivityForResult(intent, REQUEST_ALL_FILES_ACCESS_CODE);
+                            }
+                        })
+                .setNegativeButton(R.string.ForceClose,
+                        (dialog, id) -> {
+                            dialog.cancel();
+                            finish();
+                        });
+
+        alertDialogBuilder.show();
+    }
+
+    public void permissionsDialog() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this)
+                .setTitle(R.string.Permissions)
+                .setMessage(getResources().getString(R.string.PermissionsInfo, getResources().getString(R.string.app_name_claims)))
+                .setCancelable(false)
+                .setPositiveButton(R.string.Ok,
+                        (dialog, id) -> ActivityCompat.requestPermissions(this, global.getPermissions(), REQUEST_PERMISSIONS_CODE))
+                .setNegativeButton(R.string.ForceClose,
+                        (dialog, id) -> {
+                            dialog.cancel();
+                            finish();
+                        });
+
+        alertDialogBuilder.show();
+    }
+
+    public boolean checkRequirements() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                externalStorageAccessDialog();
+                return false;
+            }
+        }
+
+        if (!hasPermissions(this, global.getPermissions())) {
+            permissionsDialog();
+            return false;
+        }
+
+        boolean isAppInitialized = sqlHandler.checkIfAny("tblControls")
+                && (sqlHandler.getAdjustibility("ClaimAdministrator").equals("N") || sqlHandler.checkIfAny("tblClaimAdmins"));
+        if (!isAppInitialized) {
+            if (global.isNetworkAvailable()) {
+                sqlHandler.createOrOpenDatabases();
+                sqlHandler.createTables();
+                initializeDb3File(sqlHandler);
+            } else {
+                showToast(R.string.CheckInternet);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public void onAllRequirementsMet() {
+        if (!sqlHandler.getAdjustibility("ClaimAdministrator").equals("N")) {
+            ClaimAdminDialogBox();
+        }
+        refreshCount();
     }
 }
