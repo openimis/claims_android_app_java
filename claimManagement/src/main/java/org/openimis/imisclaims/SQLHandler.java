@@ -1,5 +1,6 @@
 package org.openimis.imisclaims;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -8,12 +9,6 @@ import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 import android.util.Log;
-
-import static android.database.DatabaseUtils.sqlEscapeString;
-
-/**
- * Created by user on 10/01/2018.
- */
 
 public class SQLHandler extends SQLiteOpenHelper {
     public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Databases") + "/" + "Mapping.db3";
@@ -89,9 +84,12 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     public boolean InsertMapping(String Code, String Name, String Type) {
         try {
-            String sSQL = "";
-            sSQL = "INSERT INTO tblMapping(Code,Name,Type)VALUES('" + Code.replace("'", "''") + "','" + Name.replace("'", "''") + "','" + Type + "')";
-            dbMapping.execSQL(sSQL);
+            ContentValues cv = new ContentValues();
+            cv.put("Code", Code);
+            cv.put("Name", Name);
+            cv.put("Type", Type);
+
+            dbMapping.insert("tblMapping", null, cv);
         } catch (SQLiteFullException e) {
             return false;
         }
@@ -100,20 +98,24 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     public void InsertReferences(String Code, String Name, String Type, String Price) {
         try {
-            String sSQL = "";
-            sSQL = "INSERT INTO tblReferences(Code,Name,Type,Price)VALUES(\"" + Code + "\",\"" + Name + "\",\"" + Type + "\",\"" + Price + "\")";
-            db.execSQL(sSQL);
+            ContentValues cv = new ContentValues();
+            cv.put("Code", Code);
+            cv.put("Name", Name);
+            cv.put("Type", Type);
+            cv.put("Price", Price);
+
+            db.insert("tblReferences", null, cv);
         } catch (Exception e) {
             e.printStackTrace();
-
         }
     }
 
     public void InsertControls(String FieldName, String Adjustibility) {
         try {
-            String sSQL = "";
-            sSQL = "INSERT INTO tblControls(FieldName,Adjustibility)VALUES('" + FieldName + "','" + Adjustibility + "')";
-            db.execSQL(sSQL);
+            ContentValues cv = new ContentValues();
+            cv.put("FieldName", FieldName);
+            cv.put("Adjustibility", Adjustibility);
+            db.insert("tblControls", null, cv);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -121,31 +123,26 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     public void InsertClaimAdmins(String Code, String Name) {
         try {
-            String sSQL = "";
-            sSQL = "INSERT INTO tblClaimAdmins(Code,Name)VALUES(" + sqlEscapeString(Code) + "," + sqlEscapeString(Name) + ")";
-            db.execSQL(sSQL);
+            ContentValues cv = new ContentValues();
+            cv.put("Code", Code);
+            cv.put("Name", Name);
+            db.insert("tblClaimAdmins", null, cv);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void ClearMapping(String Type) {
-        String sSQL = "";
-        sSQL = "DELETE FROM tblMapping WHERE TYpe = '" + Type + "'";
-        dbMapping.execSQL(sSQL);
+        dbMapping.delete("tblMapping", "Type = ?", new String[]{Type});
     }
 
     public void ClearReferencesSI() {
-        String sSQL = "";
-        sSQL = "DELETE FROM tblReferences WHERE Type != 'D'";
-        db.execSQL(sSQL);
+        db.delete("tblReferences", "Type != ?", new String[]{"D"});
     }
 
     public void ClearAll(String tblName) {
         try {
-            String sSQL = "";
-            sSQL = "DELETE FROM " + tblName + "";
-            db.execSQL(sSQL);
+            db.delete(tblName, null, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
