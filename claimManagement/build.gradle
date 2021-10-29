@@ -77,6 +77,14 @@ android {
             buildConfigField "String", "API_BASE_URL", '"http://chf-dev.swisstph-mis.ch/rest/"'
             dimension 'std'
         }
+
+        chfProd {
+            applicationIdSuffix ".chfProd"
+            resValue "string", "app_name_claims", "Claims CHF"
+            buildConfigField "String", "APP_DIR", '"IMIS-CHFPROD"'
+            buildConfigField "String", "API_BASE_URL", '"http://chf-imis.or.tz/restapi/"'
+            dimension 'std'
+        }
         mvDev {
             applicationIdSuffix ".mvDev"
             buildConfigField "String", "APP_DIR", '"IMIS-MVDEV"'
@@ -96,7 +104,7 @@ android {
             buildConfigField "String", "APP_DIR", '"IMIS-NIGER"'
             resValue "string", "app_name_claims", "Claims Niger"
             buildConfigField "String", "API_BASE_URL", '"http://oiniger.bluesquare.org/rest/"'
-		}
+        }
         tchadDev {
             applicationIdSuffix ".tchadDev"
             buildConfigField "String", "API_BASE_URL", '"https://imis-tchad-dev.swisstph-mis.ch/rest/"'
@@ -137,6 +145,9 @@ android {
 
         chfDev.java.srcDir 'src/chfDev/java'
         chfDev.res.srcDir 'src/chfDev/res'
+
+        chfProd.java.srcDir 'src/chfDev/java'
+        chfProd.res.srcDir 'src/chfProd/res'
 
         mvDev.java.srcDir 'src/mvDev/java'
         mvDev.res.srcDir 'src/mvDev/res'
