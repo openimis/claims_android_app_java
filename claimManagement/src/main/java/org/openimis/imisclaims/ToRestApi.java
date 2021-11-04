@@ -64,6 +64,9 @@ public class ToRestApi {
             HttpResponse response = httpClient.execute(httpPost);
             int responseCode = response.getStatusLine().getStatusCode();
             Log.i("HTTP_POST", uri + functionName + " - " + responseCode);
+            if (responseCode >= 400) {
+                Log.e("HTTP_POST", object.toString());
+            }
             return response;
         } catch (IOException e) {
             e.printStackTrace();
