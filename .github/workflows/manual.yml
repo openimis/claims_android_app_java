@@ -7,7 +7,7 @@ on:
         description: URL of the REST API
         required: true
         default: https://release.openimis.org/rest/
-      app_name:
+      cli_app_name:
         description: Display name of the application
         required: false
         default: Claims Manual
@@ -37,18 +37,31 @@ jobs:
         with:
           java-version: 1.8
 
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-${{ github.event.inputs.application_id }}-${{ hashFiles('**/*.gradle*') }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}-${{ hashFiles('**/buildSrc/**/*.kt') }}
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.android
+          key: ${{ runner.os }}-${{ github.event.inputs.application_id }}
+
       - name: Environment info
         run: |
           gradle --version
           echo url ${{ github.event.inputs.api_base_url }}
-          echo app name ${{ github.event.inputs.app_name }}
+          echo app name ${{ github.event.inputs.cli_app_name }}
 
       - name: build
         run: |
           ./gradlew assembleCliDebug --stacktrace
         env:
           API_BASE_URL: "${{ github.event.inputs.api_base_url }}"
-          CLI_APP_NAME: "${{ github.event.inputs.app_name }}"
+          CLI_APP_NAME: "${{ github.event.inputs.cli_app_name }}"
           CLI_APP_DIR: "${{ github.event.inputs.app_dir }}"
           CLI_JAVA_DIR: "${{ github.event.inputs.cli_java_dir }}"
           CLI_RES_DIR: "${{ github.event.inputs.cli_res_dir }}"
