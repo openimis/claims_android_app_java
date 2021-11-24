@@ -1,278 +1,293 @@
 package org.openimis.imisclaims;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import android.util.Log;
 
-/**
- * Created by user on 10/01/2018.
- */
+public class SQLHandler extends SQLiteOpenHelper {
+    public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Databases") + "/" + "Mapping.db3";
+    public static final String DB_NAME_DATA = Global.getGlobal().getSubdirectory("Databases") + "/" + "ImisData.db3";
+    private static final String CreateTableMapping = "CREATE TABLE IF NOT EXISTS tblMapping(Code text,Name text,Type text);";
+    private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName text, Adjustibility text);";
+    private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code text, Name text);";
+    private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code text, Name text, Type text, Price text);";
+    //private static final String CreateTableDateUpdates = "CREATE TABLE tblDateUpdates(Id INTEGER PRIMARY KEY AUTOINCREMENT, last_update_date text);";
 
-public class SQLHandler extends SQLiteOpenHelper{
+    Global global;
+    SQLiteDatabase db;
+    SQLiteDatabase dbMapping;
 
-	private static final String DB_NAME = MainActivity.Path + "Mapping.db3";
-	private static final String CreateTable = "CREATE TABLE tblMapping(Code text,Name text,Type text);";
-	private static final String CreateTableControls = "CREATE TABLE tblControls(FieldName text, Adjustibility text);";
-	private static final String CreateTableClaimAdmins = "CREATE TABLE tblAdministrators(Code text, Name text);";
-	private static final String CreateTableReferences = "CREATE TABLE tblReferences(Code text, Name text, Type text, Price text);";
-	//private static final String CreateTableDateUpdates = "CREATE TABLE tblDateUpdates(Id INTEGER PRIMARY KEY AUTOINCREMENT, last_update_date text);";
+    public SQLHandler(Context context) {
+        super(context, DB_NAME_MAPPING, null, 3);
+        global = (Global) context.getApplicationContext();
+        createOrOpenDatabases();
+    }
 
-	SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(MainActivity.Path + "ImisData.db3",null);
-	//SQLiteDatabase dbMapping = SQLiteDatabase.openOrCreateDatabase(ClaimManagementActivity.Path + "Mapping.db3", null);
-	SQLiteDatabase dbMapping = this.getWritableDatabase();
+    public void createOrOpenDatabases() {
+        if (!checkDatabase()) {
+            db = SQLiteDatabase.openOrCreateDatabase(DB_NAME_DATA, null);
+        }
+        if (!checkMapping()) {
+            dbMapping = SQLiteDatabase.openOrCreateDatabase(DB_NAME_MAPPING, null);
+        }
+    }
 
-	public SQLHandler(Context context) {
-		super(context, DB_NAME, null, 3);
-		// TODO Auto-generated constructor stub
-	}
-
-
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-		// TODO Auto-generated method stub
-		checkDataBase();
-		db.execSQL(CreateTable);
-		//db.execSQL(CreateTableControls);
-		//db.execSQL(CreateTableDateUpdates);
-	}
-
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public boolean checkDataBase() {
-		SQLiteDatabase checkDB = null;
-		try {
-			checkDB = SQLiteDatabase.openDatabase(MainActivity.Path + "ImisData.db3", null,
-					SQLiteDatabase.OPEN_READONLY);
-		} catch (SQLiteException e) {
-			// database doesn't exist yet.
-			return false;
-		}
-		return true;
-	}
-	public Cursor getData(String Table,String Columns[],String Criteria){
-		try {
-			//db = SQLiteDatabase.openDatabase(ClaimManagementActivity.Path + "ImisData.db3", null,SQLiteDatabase.OPEN_READONLY);
-
-			Cursor c = dbMapping.query(Table, Columns, Criteria, null, null, null, null);
-
-			return c;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			Log.d("ErrorOnFetchingData", e.getMessage());
-			return null;
-		}
-	}
-
-	public Cursor getMapping(String Type){
-		String dbMappingPath = MainActivity.Path + "Mapping.db3";
-
-		try {
-			db.execSQL("ATTACH DATABASE '"+ dbMappingPath +"' AS dbMapping1");
-			Cursor c =  db.rawQuery("select I.code,I.name,M.Type AS isMapped FROM tblReferences I LEFT OUTER JOIN dbMapping1.tblMapping M ON I.Code = M.Code WHERE I.Type =?", new String[]{Type});
-			return c;
-		} catch (SQLException e) {
-			Log.d("ErrorOnFetchingData", e.getMessage());
-			return null;
-		}
-	}
-
-	public boolean InsertMapping(String Code,String Name,String Type){
-		try {
-			String sSQL = "";
-			sSQL = "INSERT INTO tblMapping(Code,Name,Type)VALUES('"+ Code.replace("'", "''") +"','"+ Name.replace("'", "''") +"','"+ Type +"')";
-			dbMapping.execSQL(sSQL);
-		} catch (SQLiteFullException e){
-			return false;
-		}
-		return true;
-	}
-	public void InsertReferences(String Code,String Name,String Type, String Price){
-		try {
-			String sSQL = "";
-			sSQL = "INSERT INTO tblReferences(Code,Name,Type,Price)VALUES(\""+Code+"\",\""+Name+"\",\""+Type+"\",\""+Price+"\")";
-			db.execSQL(sSQL);
-		} catch (Exception e){
-			e.printStackTrace();
-
-		}
-	}
-	public void InsertControls(String FieldName,String Adjustibility){
-		try {
-			String sSQL = "";
-			sSQL = "INSERT INTO tblControls(FieldName,Adjustibility)VALUES('"+FieldName+"','"+Adjustibility+"')";
-			db.execSQL(sSQL);
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-	}
-	public void InsertClaimAdmins(String Code,String Name){
-		try {
-			String sSQL = "";
-			sSQL = "INSERT INTO tblAdministrators(Code,Name)VALUES('"+Code+"','"+Name+"')";
-			db.execSQL(sSQL);
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-	}
-
-	public void ClearMapping(String Type){
-		String sSQL = "";
-		sSQL = "DELETE FROM tblMapping WHERE TYpe = '"+ Type +"'";
-		dbMapping.execSQL(sSQL);
-	}
-	public void ClearReferencesSI(){
-		String sSQL = "";
-		sSQL = "DELETE FROM tblReferences WHERE Type != 'D'";
-		db.execSQL(sSQL);
-	}
-	public void ClearAll(String tblName){
-		try {
-			String sSQL = "";
-			sSQL = "DELETE FROM "+tblName+"";
-			db.execSQL(sSQL);
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-
-	}
-	public Cursor SearchDisease(String InputText){
-		//Cursor c = db.rawQuery("SELECT Code as _id,Code, Name,Code + ' ' + Name AS Disease FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
-		Cursor c = db.rawQuery("SELECT Code as _id,Code, Name FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
-		if (c != null){
-			c.moveToFirst();
-		}
-
-		return c;
-	}
-
-	public Cursor SearchItems(String InputText){
-		//Cursor c = db.rawQuery("SELECT Code as _id,Code, Name,Code + ' ' + Name AS Disease FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
-		Cursor c = dbMapping.rawQuery("SELECT Code as _id,Code, Name FROM tblMapping WHERE Type = 'I' ",null);
-		if (c != null){
-			c.moveToFirst();
-		}
-
-		return c;
-	}
-
-	public Cursor SearchServices(String InputText){
-		//Cursor c = db.rawQuery("SELECT Code as _id,Code, Name,Code + ' ' + Name AS Disease FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
-		Cursor c = dbMapping.rawQuery("SELECT Code as _id,Code, Name FROM tblMapping WHERE Type = 'S' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
-		if (c != null){
-			c.moveToFirst();
-		}
-
-		return c;
-	}
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+    }
 
 
-	//Created by Herman 27.03.2018
-	public String getAdjustibility(String FieldName) {
-		String adjustibility = "M";
-		try {
-			String query = "SELECT Adjustibility FROM tblControls WHERE FieldName = '" + FieldName + "'";
-			Cursor cursor1 = db.rawQuery(query, null);
-			// looping through all rows
-			if (cursor1.moveToFirst()) {
-				do {
-					adjustibility = cursor1.getString(0);
-				} while (cursor1.moveToNext());
-			}
-		}catch (Exception e){
-			return adjustibility;
-		}
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    }
 
-		return adjustibility;
-	}
+    public Cursor getMapping(String Type) {
+        try {
+            db.execSQL("ATTACH DATABASE '" + DB_NAME_MAPPING + "' AS dbMapping1");
+            Cursor c = db.rawQuery("select I.code,I.name,M.Type AS isMapped FROM tblReferences I LEFT OUTER JOIN dbMapping1.tblMapping M ON I.Code = M.Code WHERE I.Type =?", new String[]{Type});
+            return c;
+        } catch (SQLException e) {
+            Log.d("ErrorOnFetchingData", e.getMessage());
+            return null;
+        }
+    }
 
-	public String checkIfAny() {
-		String any = null;
-		try {
-			String query = "SELECT * FROM tblControls";
-			Cursor cursor1 = db.rawQuery(query, null);
-			// looping through all rows
-			if (cursor1.moveToFirst()) {
-				do {
-					any = cursor1.getString(0);
-				} while (cursor1.moveToNext());
-			}
-		}catch (Exception e){
-			return any;
-		}
+    public String getPrice(String code, String type) {
+        String price = "0";
+        try (Cursor c = db.query("tblReferences", new String[]{"Price"}, "LOWER(Code) = LOWER(?) AND LOWER(Type) = LOWER(?)", new String[]{code, type}, null, null, null, "1")) {
+            c.moveToFirst();
+            if (!c.isAfterLast()) {
+                String result = c.getString(0);
+                if (!TextUtils.isEmpty(result)) {
+                    price = result;
+                }
+            }
+        } catch (SQLException e) {
+            Log.d("ErrorOnFetchingData", String.format("Error while getting price of %s", code), e);
+        }
+        return price;
+    }
 
-		return any;
-	}
+    public String getItemPrice(String code) {
+        return getPrice(code, "I");
+    }
 
-	public String getClaimAdmin(String Code) {
-		String Name = "";
-		try {
-			String query = "SELECT Name FROM tblAdministrators WHERE upper(Code) like '"+Code.toUpperCase()+"'";
-			Cursor cursor1 = db.rawQuery(query, null);
-			// looping through all rows
-			if (cursor1.moveToFirst()) {
-				do {
-					Name = cursor1.getString(0);
-				} while (cursor1.moveToNext());
-			}
-		}catch (Exception e){
-			return Name;
-		}
+    public String getServicePrice(String code) {
+        return getPrice(code, "S");
+    }
 
-		return Name;
-	}
+    public boolean InsertMapping(String Code, String Name, String Type) {
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("Code", Code);
+            cv.put("Name", Name);
+            cv.put("Type", Type);
 
-	public int getAllAdjustibility() {
-		int count = 0;
-		try {
-			String query = "SELECT * FROM tblControls";
-			Cursor cursor1 = db.rawQuery(query, null);
-			count = cursor1.getColumnCount();
-			// looping through all rows
-		}catch (Exception e){
-			return count;
-		}
-		return count;
-	}
+            dbMapping.insert("tblMapping", null, cv);
+        } catch (SQLiteFullException e) {
+            return false;
+        }
+        return true;
+    }
 
-	public int getMaxId() {
-		int id = 1;
-		try {
-			String query = "SELECT MAX(Id) FROM tblDateUpdates";
-			Cursor cursor1 = db.rawQuery(query, null);
-			if (cursor1.moveToFirst()) {
-				do {
-					id = cursor1.getInt(0);
-				} while (cursor1.moveToNext());
-			}
-		}catch (Exception e){
-			return id;
-		}
-		return id;
-	}
+    public void InsertReferences(String Code, String Name, String Type, String Price) {
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("Code", Code);
+            cv.put("Name", Name);
+            cv.put("Type", Type);
+            cv.put("Price", Price);
 
-	public void createTables(){
-		try {
-			db.execSQL(CreateTableControls);
-			db.execSQL(CreateTableReferences);
-			db.execSQL(CreateTableClaimAdmins);
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-	}
-	public void getTables(){
-		Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'",null);
-		if (c != null){
-			c.moveToFirst();
-		}
-	}
+            db.insert("tblReferences", null, cv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    public void InsertControls(String FieldName, String Adjustibility) {
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("FieldName", FieldName);
+            cv.put("Adjustibility", Adjustibility);
+            db.insert("tblControls", null, cv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void InsertClaimAdmins(String Code, String Name) {
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("Code", Code);
+            cv.put("Name", Name);
+            db.insert("tblClaimAdmins", null, cv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void ClearMapping(String Type) {
+        dbMapping.delete("tblMapping", "Type = ?", new String[]{Type});
+    }
+
+    public void ClearReferencesSI() {
+        db.delete("tblReferences", "Type != ?", new String[]{"D"});
+    }
+
+    public void ClearAll(String tblName) {
+        try {
+            db.delete(tblName, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public Cursor SearchDisease(String InputText) {
+        //Cursor c = db.rawQuery("SELECT Code as _id,Code, Name,Code + ' ' + Name AS Disease FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%"+ InputText +"%' OR Name LIKE '%"+ InputText +"%')",null);
+        Cursor c = db.rawQuery("SELECT Code as _id,Code, Name FROM tblReferences WHERE Type = 'D' AND (Code LIKE '%" + InputText + "%' OR Name LIKE '%" + InputText + "%')", null);
+        if (c != null) {
+            c.moveToFirst();
+        }
+
+        return c;
+    }
+
+    public String getDiseaseCode(String disease) {
+        String code = "";
+        try {
+            String table = "tblReferences";
+            String[] columns = {"Code"};
+            String selection = "Type='D' and Name=?";
+            String[] selectionArgs = {disease};
+            String limit = "1";
+            Cursor c = db.query(table, columns, selection, selectionArgs, null, null, null, limit);
+            if (c.getCount() == 1) {
+                c.moveToFirst();
+                code = c.getString(c.getColumnIndexOrThrow("Code"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
+
+    public Cursor filterItemsServices(String nameFilter, String typeFilter) {
+        String wildcardNameFilter = "%" + nameFilter + "%";
+        Cursor c = dbMapping.query("tblMapping",
+                new String[]{"Code AS _id", "Code", "Name"},
+                "type = ? AND (Code LIKE ? OR Name LIKE ?)",
+                new String[]{typeFilter, wildcardNameFilter, wildcardNameFilter},
+                null,
+                null,
+                null);
+
+        if (c != null) {
+            c.moveToFirst();
+        }
+
+        return c;
+    }
+
+    public Cursor searchItems(String filter) {
+        return filterItemsServices(filter, "I");
+    }
+
+    public Cursor searchServices(String filter) {
+        return filterItemsServices(filter, "S");
+    }
+
+    public String getAdjustibility(String FieldName) {
+        String adjustibility = "M";
+        Cursor cursor = null;
+        try {
+            String query = "SELECT Adjustibility FROM tblControls WHERE FieldName = '" + FieldName + "'";
+            cursor = db.rawQuery(query, null);
+            // looping through all rows
+            if (cursor.moveToFirst()) {
+                do {
+                    adjustibility = cursor.getString(0);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            return adjustibility;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return adjustibility;
+    }
+
+    public boolean checkIfAny(String table) {
+        boolean tableExists = false;
+        boolean any = false;
+        try {
+            Cursor c;
+            c = db.query(true, "sqlite_master", new String[]{"tbl_name"}, "tbl_name = ?", new String[]{table},
+                    null, null, null, "1");
+
+            tableExists = c.getCount() > 0;
+            c.close();
+
+            if (tableExists) {
+                c = db.query(table, null, null, null, null, null, null, "1");
+                any = c.getCount() > 0;
+                c.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return any;
+        }
+        return any;
+    }
+
+    public String getClaimAdmin(String Code) {
+        String Name = "";
+        try {
+            String query = "SELECT Name FROM tblClaimAdmins WHERE upper(Code) like '" + Code.toUpperCase() + "'";
+            Cursor cursor1 = db.rawQuery(query, null);
+            // looping through all rows
+            if (cursor1.moveToFirst()) {
+                do {
+                    Name = cursor1.getString(0);
+                } while (cursor1.moveToNext());
+            }
+        } catch (Exception e) {
+            return Name;
+        }
+
+        return Name;
+    }
+
+    public void createTables() {
+        try {
+            db.execSQL(CreateTableControls);
+            db.execSQL(CreateTableReferences);
+            db.execSQL(CreateTableClaimAdmins);
+            dbMapping.execSQL(CreateTableMapping);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeDatabases() {
+        db.close();
+        dbMapping.close();
+    }
+
+    public boolean checkDatabase() {
+        return db != null && db.isOpen();
+    }
+
+    public boolean checkMapping() {
+        return dbMapping != null && dbMapping.isOpen();
+    }
 }

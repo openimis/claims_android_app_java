@@ -2,10 +2,8 @@ package org.openimis.imisclaims;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,12 +11,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Vibrator;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -31,563 +28,470 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import org.openimis.CallSoap.CallSoap;
-import org.openimis.general.General;
+import com.google.zxing.integration.android.IntentIntegrator;
 import com.squareup.picasso.Picasso;
 
+import org.apache.http.HttpResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.openimis.imisclaims.R;
-
 import java.io.ByteArrayInputStream;
+import java.net.HttpRetryException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class EnquireActivity extends AppCompatActivity {
+import static org.openimis.imisclaims.BuildConfig.API_BASE_URL;
 
-    General _General = new General();
-   // downloadFile df = new downloadFile();
+public class EnquireActivity extends ImisActivity {
+    public static final String LOG_TAG = "ENQUIRE";
+    public static final int REQUEST_QR_SCAN_CODE = 1;
 
     EditText etCHFID;
-    TextView tvCHFID,tvName,tvGender,tvDOB;
-    ImageButton btnGo,btnScan;
+    TextView tvCHFID, tvName, tvGender, tvDOB;
+    ImageButton btnGo, btnScan;
     ListView lv;
     ImageView iv;
     LinearLayout ll;
     ProgressDialog pd;
-    NotificationManager mNotificationManager;
-    Vibrator vibrator;
 
-    ArrayList<HashMap<String, String>> PolicyList = new ArrayList<HashMap<String,String>>();
+    ArrayList<HashMap<String, String>> PolicyList = new ArrayList<>();
 
-    static String Language;
     Bitmap theImage;
-
-    final String ApkFileLocation = _General.getDomain() + "/Apps/Enquire.apk";
-    final String VersionField = "AppVersionEnquire";
-    final String Path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/IMIS/";
-    //final CharSequence[] lang = {"English","Swahili"};
-    final CharSequence[] lang = {"English","Francais"};
-    final int SIMPLE_NOTIFICATION_ID = 1;
-
-
     String result;
-
-    AlertDialog ad;
-
     SQLiteDatabase db;
 
     private boolean ZoomOut = false;
     private int orgHeight, orgWidth;
 
-    public TextView getTvCHFID() {
-        return tvCHFID;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_enquire);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle(getResources().getString(R.string.app_name_enquire));
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
+        if (actionBar != null) {
+            actionBar.setTitle(getResources().getString(R.string.app_name_enquire));
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         isSDCardAvailable();
 
         //Check if network available
-        if (_General.isNetworkAvailable(EnquireActivity.this)) {
-//			        	tvMode.setText(Html.fromHtml("<font color='green'>Online mode.</font>"));
-
-        } else {
-//			        	tvMode.setText(Html.fromHtml("<font color='red'>Offline mode.</font>"));
-            setTitle(getResources().getString(R.string.app_name) + "-" + getResources().getString(R.string.OfflineMode));
+        if (!global.isNetworkAvailable()) {
+            setTitle(getResources().getString(R.string.app_name_claims) + "-" + getResources().getString(R.string.OfflineMode));
             setTitleColor(getResources().getColor(R.color.Red));
         }
 
+        etCHFID = findViewById(R.id.etCHFID);
+        tvCHFID = findViewById(R.id.tvCHFID);
+        tvName = findViewById(R.id.tvName);
+        tvDOB = findViewById(R.id.tvDOB);
+        tvGender = findViewById(R.id.tvGender);
+        iv = findViewById(R.id.imageView);
+        btnGo = findViewById(R.id.btnGo);
+        btnScan = findViewById(R.id.btnScan);
+        lv = findViewById(R.id.listView1);
+        ll = findViewById(R.id.llListView);
 
-/*        new Thread() {
-            public void run() {
-                CheckForUpdates();
-            }
-
-        }.start();*/
-        etCHFID = (EditText) findViewById(R.id.etCHFID);
-        tvCHFID = (TextView) findViewById(R.id.tvCHFID);
-        tvName = (TextView) findViewById(R.id.tvName);
-        tvDOB = (TextView) findViewById(R.id.tvDOB);
-        tvGender = (TextView) findViewById(R.id.tvGender);
-        iv = (ImageView) findViewById(R.id.imageView);
-        btnGo = (ImageButton) findViewById(R.id.btnGo);
-        btnScan = (ImageButton) findViewById(R.id.btnScan);
-        lv = (ListView) findViewById(R.id.listView1);
-        ll = (LinearLayout) findViewById(R.id.llListView);
-
-
-        iv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ZoomOut) {
-                    iv.setLayoutParams(new LinearLayout.LayoutParams(orgWidth, orgHeight));
-                    iv.setAdjustViewBounds(true);
-                    ZoomOut = false;
-                } else {
-                    orgWidth = iv.getWidth();
-                    orgHeight = iv.getHeight();
-                    iv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-                    iv.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                    ZoomOut = true;
-                }
+        iv.setOnClickListener(v -> {
+            if (ZoomOut) {
+                iv.setLayoutParams(new LinearLayout.LayoutParams(orgWidth, orgHeight));
+                iv.setAdjustViewBounds(true);
+                ZoomOut = false;
+            } else {
+                orgWidth = iv.getWidth();
+                orgHeight = iv.getHeight();
+                iv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+                iv.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                ZoomOut = true;
             }
         });
 
-        btnGo.setOnClickListener(new View.OnClickListener() {
+        btnGo.setOnClickListener(v -> {
+            InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
-            @Override
-            public void onClick(View v) {
+            ClearForm();
+            Escape escape = new Escape();
+            if (!escape.CheckCHFID(etCHFID.getText().toString())) {
+                ShowDialog(tvCHFID, getResources().getString(R.string.MissingCHFID));
+                return;
+            }
 
-                InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
+            new Thread(() -> {
+                getInsureeInfo();
+                pd.dismiss();
+            }).start();
+        });
 
+        btnScan.setOnClickListener(v -> {
+            Intent intent = new Intent(this, com.google.zxing.client.android.CaptureActivity.class);
+            intent.setAction("com.google.zxing.client.android.SCAN");
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+            startActivityForResult(intent, REQUEST_QR_SCAN_CODE);
+            ClearForm();
+        });
+
+        etCHFID.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_GO) {
                 ClearForm();
                 Escape escape = new Escape();
-                if (!escape.CheckCHFID(etCHFID.getText().toString())) {
-                    ShowDialog(tvCHFID, getResources().getString(R.string.MissingCHFID));
-                    return;
-                }
-
+                if (!escape.CheckCHFID(etCHFID.getText().toString())) return false;
 
                 pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
-                new Thread() {
-                    public void run() {
-                        getInsureeInfo();
-
-                        pd.dismiss();
-                    }
-                }.start();
+                new Thread(() -> {
+                    getInsureeInfo();
+                    pd.dismiss();
+                }).start();
             }
-        });
-
-        btnScan.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-                intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-                startActivityForResult(intent, 1);
-
-                ClearForm();
-                //if (!CheckCHFID())return;
-
-
-            }
-        });
-
-        etCHFID.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_GO) {
-                    ClearForm();
-                    Escape escape = new Escape();
-                    if (!escape.CheckCHFID(etCHFID.getText().toString())) return false;
-
-                    pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
-                    new Thread() {
-                        public void run() {
-                            getInsureeInfo();
-
-                            pd.dismiss();
-                        }
-                    }.start();
-                }
-                return false;
-            }
+            return false;
         });
 
     }
-
-    /*private void CheckForUpdates(){
-        if(_General.isNetworkAvailable(EnquireActivity.this)){
-            if(_General.isNewVersionAvailable(VersionField,EnquireActivity.this,getApplicationContext().getPackageName())){
-                //Show notification bar
-                mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-
-                final Notification NotificationDetails = new Notification(R.drawable.enquire, getResources().getString(R.string.NotificationAlertText), System.currentTimeMillis());
-
-                NotificationDetails.flags = Notification.FLAG_SHOW_LIGHTS | Notification.FLAG_AUTO_CANCEL | Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE;
-
-                Context context = getApplicationContext();
-                CharSequence ContentTitle = getResources().getString(R.string.ContentTitle);
-                CharSequence ContentText = getResources().getString(R.string.ContentText);
-
-                Intent NotifyIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(ApkFileLocation));
-
-                PendingIntent intent = PendingIntent.getActivity(EnquireActivity.this, 0, NotifyIntent,0);
-                NotificationDetails.setLatestEventInfo(context, ContentTitle, ContentText, intent);
-
-                mNotificationManager.notify(SIMPLE_NOTIFICATION_ID, NotificationDetails);
-
-                vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
-                vibrator.vibrate(500);
-
-            }
-        }
-    }*/
-    /*private void CheckForUpdates(){
-        if(_General.isNetworkAvailable(EnquireActivity.this)){
-            if(_General.isNewVersionAvailable(VersionField,EnquireActivity.this,getApplicationContext().getPackageName())){
-                //Show notification bar
-                mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-
-                //final Notification NotificationDetails = new Notification(R.drawable.ic_launcher, getResources().getString(R.string.NotificationAlertText), System.currentTimeMillis());
-                //NotificationDetails.flags = Notification.FLAG_SHOW_LIGHTS | Notification.FLAG_AUTO_CANCEL | Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE;
-                //NotificationDetails.setLatestEventInfo(context, ContentTitle, ContentText, intent);
-                //mNotificationManager.notify(SIMPLE_NOTFICATION_ID, NotificationDetails);
-                Context context = getApplicationContext();
-                CharSequence ContentTitle = getResources().getString(R.string.ContentTitle);
-                CharSequence ContentText = getResources().getString(R.string.ContentText);
-
-                Intent NotifyIntent = new Intent(this, EnquireActivity.class);
-
-                PendingIntent intent = PendingIntent.getActivity(this, 0, NotifyIntent,PendingIntent.FLAG_CANCEL_CURRENT);
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                builder.setAutoCancel(false);
-                builder.setContentTitle(ContentTitle);
-                builder.setContentText(ContentText);
-                //builder.setSmallIcon(R.drawable.silverware);
-                builder.setContentIntent(intent);
-                builder.setOngoing(false);
-*//*				String s = "ring";
-				int res_sound_id = context.getResources().getIdentifier(s, "raw", context.getPackageName());
-				Uri u = Uri.parse("android.resource://" + context.getPackageName() + "/" + res_sound_id);
-				builder.setSound(u);*//*
-
-                mNotificationManager.notify(SIMPLE_NOTIFICATION_ID, builder.build());
-                vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
-                vibrator.vibrate(500);
-            }
-        }
-
-
-
-    }*/
-
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        try {
-            switch(requestCode){
+        switch (requestCode) {
+            case REQUEST_QR_SCAN_CODE:
+                if (resultCode == RESULT_OK) {
+                    String CHFID = data.getStringExtra("SCAN_RESULT");
+                    etCHFID.setText(CHFID);
 
-                case 1:
-                    if (resultCode == RESULT_OK){
-                        String CHFID = data.getStringExtra("SCAN_RESULT");
-                        etCHFID.setText(CHFID);
+                    Escape escape = new Escape();
+                    if (!escape.CheckCHFID(etCHFID.getText().toString())) return;
 
-                        Escape escape = new Escape();
-                        if (!escape.CheckCHFID(etCHFID.getText().toString())) return;
-
-                        pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
-                        new Thread(){
-                            public void run(){
-                                getInsureeInfo();
-
-                                pd.dismiss();
-                            }
-                        }.start();
-
-                    }
-                    break;
-
-            }
-
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+                    pd = ProgressDialog.show(EnquireActivity.this, "", getResources().getString(R.string.GetingInsuuree));
+                    new Thread(() -> {
+                        getInsureeInfo();
+                        pd.dismiss();
+                    }).start();
+                }
+                break;
         }
     }
 
-    private void isSDCardAvailable(){
-
-        if (_General.isSDCardAvailable() == 0){
+    private void isSDCardAvailable() {
+        String status = ((Global) getApplicationContext()).getSDCardStatus();
+        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)) {
             //Toast.makeText(this, "SD Card is in read only mode.", Toast.LENGTH_LONG);
             new AlertDialog.Builder(this)
-                    .setMessage(getResources().getString(R.string.ReadOnly))
+                    .setMessage(getResources().getString(R.string.SDCardReadOnly))
                     .setCancelable(false)
-                    .setPositiveButton(getResources().getString(R.string.ForceClose), new DialogInterface.OnClickListener() {
+                    .setPositiveButton("Force close", (dialog, which) -> finish()).show();
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    }).show();
-
-        }else if(_General.isSDCardAvailable() == -1){
+        } else if (!Environment.MEDIA_MOUNTED.equals(status)) {
             new AlertDialog.Builder(this)
-                    .setMessage(getResources().getString(R.string.NoSDCard))
+                    .setMessage(getResources().getString(R.string.SDCardMissing))
                     .setCancelable(false)
-                    .setPositiveButton(getResources().getString(R.string.ForceClose), new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    }).create().show();
-        }else{
-
+                    .setPositiveButton(getResources().getString(R.string.ForceClose), (dialog, which) -> finish()).create().show();
         }
     }
 
-    protected AlertDialog ShowDialog(final TextView tv,String msg){
+    protected AlertDialog ShowDialog(final TextView tv, String msg) {
         return new AlertDialog.Builder(this)
                 .setMessage(msg)
                 .setCancelable(false)
-                .setPositiveButton(R.string.Ok, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        tv.requestFocus();
-                    }
-                }).show();
+                .setPositiveButton(R.string.Ok, (dialog, which) -> tv.requestFocus()).show();
     }
 
     @SuppressLint("WrongConstant")
-    private String getDataFromDb(String chfid){
+    private String getDataFromDb(String chfid) {
+        StringBuilder builder;
+        try {
+            builder = new StringBuilder("[{");
 
-        try{
-
-            result = "[{";
-
-            db = openOrCreateDatabase(Path +"ImisData.db3",SQLiteDatabase.OPEN_READONLY, null);
-
-            String[] columns = {"CHFID" ,"Photo" , "InsureeName", "DOB", "Gender","ProductCode", "ProductName", "ExpiryDate", "Status", "DedType", "Ded1", "Ded2", "Ceiling1", "Ceiling2"};
-
-            Cursor c = db.query("tblPolicyInquiry", columns, "Trim(CHFID)=" + "\'"+ chfid +"\'" , null, null, null, null);
+            db = openOrCreateDatabase(SQLHandler.DB_NAME_DATA, SQLiteDatabase.OPEN_READONLY, null);
+            String[] columns = {"CHFID", "Photo", "InsureeName", "DOB", "Gender", "ProductCode", "ProductName", "ExpiryDate", "Status", "DedType", "Ded1", "Ded2", "Ceiling1", "Ceiling2"};
+            String[] selectionArgs = {chfid};
+            Cursor c = db.query("tblPolicyInquiry", columns, "Trim(CHFID)=?", selectionArgs, null, null, null);
 
             int i = 0;
             boolean _isHeadingDone = false;
 
-            for(c.moveToFirst();!c.isAfterLast();c.moveToNext()){
-                for(i=0;i<5;i++){
-                    if (!_isHeadingDone){
-                        if (c.getColumnName(i).equalsIgnoreCase("photo")){
+            for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+                for (i = 0; i < 5; i++) {
+                    if (!_isHeadingDone) {
+                        if (c.getColumnName(i).equalsIgnoreCase("photo")) {
                             byte[] photo = c.getBlob(i);
-                            if (photo != null){
+                            if (photo != null) {
                                 ByteArrayInputStream is = new ByteArrayInputStream(photo);
                                 theImage = BitmapFactory.decodeStream(is);
                             }
                             continue;
                         }
-                        result = result + "\"" + c.getColumnName(i) + "\":" + "\"" + c.getString(i) + "\",";
-                    }else{
-
+                        builder.append("\"").append(c.getColumnName(i)).append("\":").append("\"").append(c.getString(i)).append("\",");
                     }
                 }
                 _isHeadingDone = true;
 
                 if (c.isFirst())
-                    result = result + "\"" + "Details" + "\":[{" ;
+                    builder.append("\"").append("Details").append("\":[{");
                 else
-                    result = result + "{";
+                    builder.append("{");
 
-                for(i=5;i<c.getColumnCount();i++){
+                for (i = 5; i < c.getColumnCount(); i++) {
 
-                    result = result + "\"" + c.getColumnName(i) + "\":" + "\"" + c.getString(i) + "\"";
-                    if(i < c.getColumnCount() - 1)
-                        result = result + ",";
-                    else{
-                        result = result + "}";
-                        if (!c.isLast())result = result + ",";
+                    builder.append("\"").append(c.getColumnName(i)).append("\":").append("\"").append(c.getString(i)).append("\"");
+                    if (i < c.getColumnCount() - 1)
+                        builder.append(",");
+                    else {
+                        builder.append("}");
+                        if (!c.isLast()) builder.append(",");
                     }
-
                 }
-                //result = result + "]}";
             }
 
-            result = result + "]}]";
+            c.close();
+            builder.append("]}]");
 
-        }catch(Exception e){
-            result = e.toString();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Parsing offline enquire failed", e);
+            builder = new StringBuilder();
         }
 
-        return result;
-
+        return builder.toString();
     }
 
-    private void getInsureeInfo(){
+    private void getInsureeInfo() {
+        runOnUiThread(this::ClearForm);
         String chfid = etCHFID.getText().toString();
         result = "";
 
-        if(_General.isNetworkAvailable(this)){
+        if (global.isNetworkAvailable()) {
             try {
                 ToRestApi rest = new ToRestApi();
-                String res = rest.getObjectFromRestApiToken("insuree/" + chfid + "/enquire");
-                JSONObject obj = new JSONObject(res);
-                JSONArray arr = new JSONArray();
-                arr.put(obj);
-
-                result = arr.toString();
+                HttpResponse res = rest.getFromRestApiToken("insuree/" + chfid + "/enquire");
+                if(res != null && res.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
+                    JSONObject obj = new JSONObject(rest.getContent(res));
+                    JSONArray arr = new JSONArray();
+                    arr.put(obj);
+                    result = arr.toString();
+                }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(LOG_TAG, "Fetching online enquire failed", e);
             }
-        }else{
+        } else {
             //TODO: yet to be done
             result = getDataFromDb(etCHFID.getText().toString());
         }
 
-        runOnUiThread(new Runnable() {
+        if("".equals(result)) {
+            runOnUiThread(() -> showDialog(getResources().getString(R.string.RecordNotFound)));
+        } else {
+            runOnUiThread(this::renderResult);
+        }
+    }
 
-            @Override
-            public void run() {
-                try {
+    public void renderResult() {
+        try {
+            JSONArray jsonArray = new JSONArray(result);
 
-                    JSONArray jsonArray = new JSONArray(result);
+            if (jsonArray.length() == 0) {
+                showDialog(getResources().getString(R.string.RecordNotFound));
+                return;
+            }
 
+            ll.setVisibility(View.VISIBLE);
 
-                    if(jsonArray.length() == 0 ){
+            int i = 0;
+            for (i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                if (!etCHFID.getText().toString().trim().equals(jsonObject.getString("chfid").trim()))
+                    continue;
 
-                        ShowDialog(getResources().getString(R.string.RecordNotFound));
+                tvCHFID.setText(jsonObject.getString("chfid"));
+                tvName.setText(jsonObject.getString("insureeName"));
+                tvDOB.setText(jsonObject.getString("dob"));//Adjust
+                tvGender.setText(jsonObject.getString("gender"));
 
-                        return;
+                if (global.isNetworkAvailable()) {
+                    if (jsonObject.has("photoBase64") && !jsonObject.isNull("photoBase64") && !"null".equals(jsonObject.getString("photoBase64"))) {
+                        try {
+                            byte[] imageBytes = Base64.decode(jsonObject.getString("photoBase64").getBytes(), Base64.DEFAULT);
+                            Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                            iv.setImageBitmap(image);
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, "Error while processing Base64 image", e);
+                            iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
+                        }
+                    } else if (jsonObject.has("photoPath") && !jsonObject.isNull("photoPath") && !"null".equals(jsonObject.getString("photoPath"))) {
+                        String photo_url_str = API_BASE_URL + jsonObject.getString("photoPath");
+                        iv.setImageResource(R.drawable.person);
+                        Picasso.with(getApplicationContext())
+                                .load(photo_url_str)
+                                .placeholder(R.drawable.person)
+                                .error(R.drawable.person).into(iv);
+                    } else {
+                        iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
                     }
-
-                    ll.setVisibility(View.VISIBLE);
-
-                    int i = 0;
-                    for(i = 0;i< jsonArray.length();i++){
-                        JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        if (!etCHFID.getText().toString().trim().equals(jsonObject.getString("chfid").trim())) continue;
-
-                        tvCHFID.setText(jsonObject.getString("chfid"));
-                        tvName.setText(jsonObject.getString("insureeName"));
-                        tvDOB.setText(jsonObject.getString("dob"));//Adjust
-                        tvGender.setText(jsonObject.getString("gender"));
-
-
-
-                        if (_General.isNetworkAvailable(EnquireActivity.this)){
-
-                            String photo_url_str =_General.getDomain() + "/" + jsonObject.getString("photoPath");
-
+                } else {
+                    if (theImage != null) {
+                        iv.setImageBitmap(theImage);
+                    } else {
+                        byte[] photo = jsonObject.getString("photoPath").getBytes();
+                        ByteArrayInputStream is = new ByteArrayInputStream(photo);
+                        theImage = BitmapFactory.decodeStream(is);
+                        if (theImage != null) {
+                            iv.setImageBitmap(theImage);
+                        } else {
                             iv.setImageResource(R.drawable.person);
-                            Picasso.with(getApplicationContext())
-                                    .load(photo_url_str)
-                                    .placeholder(R.drawable.person)
-                                    .error(R.drawable.person).into(iv);
-
-                        }else{
-
-                            if(theImage != null){
-                                iv.setImageBitmap(theImage);
-                            }else {
-                                byte[] photo = jsonObject.getString("photoPath").getBytes();
-                                ByteArrayInputStream is = new ByteArrayInputStream(photo);
-                                theImage = BitmapFactory.decodeStream(is);
-                                if(theImage != null){
-                                    iv.setImageBitmap(theImage);
-                                }else{
-                                    iv.setImageResource(R.drawable.person);
-                                }
-                            }
-
-
-                        }
-
-
-                        jsonArray = new JSONArray(jsonObject.getString("details"));
-
-
-                        for(i = 0;i< jsonArray.length();i++){
-                            jsonObject = jsonArray.getJSONObject(i);
-
-
-                            HashMap<String, String> Policy = new HashMap<>();
-                            jsonObject = jsonArray.getJSONObject(i);
-                            double iDedType = 0;
-                            if(!jsonObject.getString("DedType").equalsIgnoreCase("null"))iDedType = Double.valueOf(jsonObject.getString("dedType"));
-
-                            String Ded = "",Ded1= "",Ded2 = "";
-                            String Ceiling = "",Ceiling1 = "", Ceiling2 ="";
-
-                            String jDed1 = "",jDed2 = "",jCeiling1 = "",jCeiling2 = "";
-
-                            if(jsonObject.getString("ded1").equalsIgnoreCase("null")) jDed1 = "";else jDed1 = jsonObject.getString("ded1");
-                            if(jsonObject.getString("ded2").equalsIgnoreCase("null")) jDed2 = "";else jDed2 = jsonObject.getString("ded2");
-                            if(jsonObject.getString("ceiling1").equalsIgnoreCase("null")) jCeiling1 = "";else jCeiling1 = jsonObject.getString("ceiling1");
-                            if(jsonObject.getString("ceiling2").equalsIgnoreCase("null")) jCeiling2 = "";else jCeiling2 = jsonObject.getString("ceiling2");
-
-                            //Get the type
-
-                            if(iDedType == 1 | iDedType == 2 | iDedType == 3){
-                                if (!jDed1.equals(""))Ded1 = jsonObject.getString("ded1");
-                                if (!jCeiling1.equals(""))Ceiling1 = jsonObject.getString("ceiling1");
-
-                                if(!Ded1.equals("")) Ded = "Deduction: " + Ded1;
-                                if(!Ceiling1.equals("")) Ceiling = "Ceiling: " + Ceiling1;
-
-                            }else if(iDedType == 1.1 | iDedType == 2.1 | iDedType == 3.1){
-
-                                if (jDed1.length() > 0)Ded1 = " IP:" + jsonObject.getString("ded1");
-                                if (jDed2.length() > 0)Ded2 = " OP:" + jsonObject.getString("ded2");
-                                if (jCeiling1.length() > 0)Ceiling1 = " IP:" +  jsonObject.getString("ceiling1");
-                                if (jCeiling2.length() > 0)Ceiling2 = " OP:" +  jsonObject.getString("ceiling2");
-
-                                if (!(Ded1 + Ded2).equals("")) Ded = "Deduction: "+ Ded1 + Ded2;
-                                if (!(Ceiling1 + Ceiling2).equals("")) Ceiling = "Ceiling: "+ Ceiling1 + Ceiling2;
-
-                            }
-
-
-                            Policy.put("Heading", jsonObject.getString("productCode"));
-                            Policy.put("Heading1", jsonObject.getString("expiryDate")+ "  " + jsonObject.getString("status"));
-                            Policy.put("SubItem1", jsonObject.getString("productName"));
-                            Policy.put("SubItem2",Ded);
-                            Policy.put("SubItem3",Ceiling);
-                            PolicyList.add(Policy);
-                            etCHFID.setText("");
-                            //break;
                         }
                     }
-                    ListAdapter adapter = new SimpleAdapter(EnquireActivity.this,
-                            PolicyList, R.layout.policylist,
-                            new String[]{"Heading","Heading1","SubItem1","SubItem2","SubItem3"},
-                            new int[]{R.id.tvHeading, R.id.tvHeading1, R.id.tvSubItem1, R.id.tvSubItem2, R.id.tvSubItem3}
-                    );
-
-                    lv.setAdapter(adapter);
-
-
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    result = "";
-                }catch(Exception e){
-                    Log.e("Error", e.toString());
-                    result = "";
                 }
 
-            }
-        });
+                jsonArray = new JSONArray(jsonObject.getString("details"));
 
-    }
-    public AlertDialog ShowDialog(String msg) {
-        return new AlertDialog.Builder(this)
-                .setMessage(msg)
-                .setCancelable(false)
+                for (i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
 
-                .setPositiveButton(R.string.Ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
+                    HashMap<String, String> Policy = new HashMap<>();
+                    jsonObject = jsonArray.getJSONObject(i);
+                    double iDedType = 0;
+                    if (!jsonObject.getString("dedType").equalsIgnoreCase("null"))
+                        iDedType = Double.parseDouble(jsonObject.getString("dedType"));
+
+                    String Ded = "", Ded1 = "", Ded2 = "";
+                    String Ceiling = "", Ceiling1 = "", Ceiling2 = "";
+
+                    String jDed1 = "", jDed2 = "", jCeiling1 = "", jCeiling2 = "";
+
+                    if (jsonObject.getString("ded1").equalsIgnoreCase("null")) jDed1 = "";
+                    else jDed1 = jsonObject.getString("ded1");
+                    if (jsonObject.getString("ded2").equalsIgnoreCase("null")) jDed2 = "";
+                    else jDed2 = jsonObject.getString("ded2");
+                    if (jsonObject.getString("ceiling1").equalsIgnoreCase("null"))
+                        jCeiling1 = "";
+                    else jCeiling1 = jsonObject.getString("ceiling1");
+                    if (jsonObject.getString("ceiling2").equalsIgnoreCase("null"))
+                        jCeiling2 = "";
+                    else jCeiling2 = jsonObject.getString("ceiling2");
+
+                    //Get the type
+
+                    if (iDedType == 1 | iDedType == 2 | iDedType == 3) {
+                        if (!jDed1.equals("")) Ded1 = jsonObject.getString("ded1");
+                        if (!jCeiling1.equals("")) Ceiling1 = jsonObject.getString("ceiling1");
+
+                        if (!Ded1.equals("")) Ded = "Deduction: " + Ded1;
+                        if (!Ceiling1.equals("")) Ceiling = "Ceiling: " + Ceiling1;
+
+                    } else if (iDedType == 1.1 | iDedType == 2.1 | iDedType == 3.1) {
+                        if (jDed1.length() > 0) Ded1 = " IP:" + jsonObject.getString("ded1");
+                        if (jDed2.length() > 0) Ded2 = " OP:" + jsonObject.getString("ded2");
+                        if (jCeiling1.length() > 0)
+                            Ceiling1 = " IP:" + jsonObject.getString("ceiling1");
+                        if (jCeiling2.length() > 0)
+                            Ceiling2 = " OP:" + jsonObject.getString("ceiling2");
+
+                        if (!(Ded1 + Ded2).equals("")) Ded = "Deduction: " + Ded1 + Ded2;
+                        if (!(Ceiling1 + Ceiling2).equals(""))
+                            Ceiling = "Ceiling: " + Ceiling1 + Ceiling2;
 
                     }
-                }).show();
+
+
+                    Policy.put("Heading", jsonObject.getString("productCode"));
+                    Policy.put("Heading1", jsonObject.getString("expiryDate") + "  " + jsonObject.getString("status"));
+                    Policy.put("SubItem1", jsonObject.getString("productName"));
+                    Policy.put("SubItem2", Ded);
+                    Policy.put("SubItem3", Ceiling);
+                    String TotalAdmissionsLeft;
+                    String TotalVisitsLeft;
+                    String TotalConsultationsLeft;
+                    String TotalSurgeriesLeft;
+                    String TotalDeliveriesLeft;
+                    String TotalAntenatalLeft;
+                    String ConsultationAmountLeft;
+                    String SurgeryAmountLeft;
+                    String HospitalizationAmountLeft;
+                    String AntenatalAmountLeft;
+                    String DeliveryAmountLeft;
+
+                    TotalAdmissionsLeft = buildEnquireValue(jsonObject, "totalAdmissionsLeft", R.string.totalAdmissionsLeft);
+                    TotalVisitsLeft = buildEnquireValue(jsonObject, "totalVisitsLeft", R.string.totalVisitsLeft);
+                    TotalConsultationsLeft = buildEnquireValue(jsonObject, "totalConsultationsLeft", R.string.totalConsultationsLeft);
+                    TotalSurgeriesLeft = buildEnquireValue(jsonObject, "totalSurgeriesLeft", R.string.totalSurgeriesLeft);
+                    TotalDeliveriesLeft = buildEnquireValue(jsonObject, "totalDelivieriesLeft", R.string.totalDeliveriesLeft);
+                    TotalAntenatalLeft = buildEnquireValue(jsonObject, "totalAntenatalLeft", R.string.totalAntenatalLeft);
+                    ConsultationAmountLeft = buildEnquireValue(jsonObject, "consultationAmountLeft", R.string.consultationAmountLeft);
+                    SurgeryAmountLeft = buildEnquireValue(jsonObject, "surgeryAmountLeft", R.string.surgeryAmountLeft);
+                    HospitalizationAmountLeft = buildEnquireValue(jsonObject, "hospitalizationAmountLeft", R.string.hospitalizationAmountLeft);
+                    AntenatalAmountLeft = buildEnquireValue(jsonObject, "antenatalAmountLeft", R.string.antenatalAmountLeft);
+                    DeliveryAmountLeft = buildEnquireValue(jsonObject, "deliveryAmountLeft", R.string.deliveryAmountLeft);
+
+                    if (!getSpecificControl("TotalAdmissionsLeft").equals("N")) {
+                        Policy.put("SubItem4", TotalAdmissionsLeft);
+                    }
+                    if (!getSpecificControl("TotalVisitsLeft").equals("N")) {
+                        Policy.put("SubItem5", TotalVisitsLeft);
+                    }
+                    if (!getSpecificControl("TotalConsultationsLeft").equals("N")) {
+                        Policy.put("SubItem6", TotalConsultationsLeft);
+                    }
+                    if (!getSpecificControl("TotalSurgeriesLeft").equals("N")) {
+                        Policy.put("SubItem7", TotalSurgeriesLeft);
+                    }
+                    if (!getSpecificControl("TotalDelivieriesLeft").equals("N")) {
+                        Policy.put("SubItem8", TotalDeliveriesLeft);
+                    }
+                    if (!getSpecificControl("TotalAntenatalLeft").equals("N")) {
+                        Policy.put("SubItem9", TotalAntenatalLeft);
+                    }
+                    if (!getSpecificControl("ConsultationAmountLeft").equals("N")) {
+                        Policy.put("SubItem10", ConsultationAmountLeft);
+                    }
+                    if (!getSpecificControl("AntenatalAmountLeft").equals("N")) {
+                        Policy.put("SubItem13", AntenatalAmountLeft);
+                    }
+                    if (!getSpecificControl("SurgeryAmountLeft").equals("N")) {
+                        Policy.put("SubItem11", SurgeryAmountLeft);
+                    }
+                    if (!getSpecificControl("HospitalizationAmountLeft").equals("N")) {
+                        Policy.put("SubItem12", HospitalizationAmountLeft);
+                    }
+                    if (!getSpecificControl("DeliveryAmountLeft").equals("N")) {
+                        Policy.put("SubItem14", DeliveryAmountLeft);
+                    }
+
+                    PolicyList.add(Policy);
+                    etCHFID.setText("");
+                    //break;
+                }
+            }
+            ListAdapter adapter = new SimpleAdapter(EnquireActivity.this,
+                    PolicyList, R.layout.policylist,
+                    new String[]{"Heading", "Heading1", "SubItem1", "SubItem2", "SubItem3", "SubItem4", "SubItem5", "SubItem6", "SubItem7", "SubItem8", "SubItem9", "SubItem10", "SubItem11", "SubItem12", "SubItem13", "SubItem14"},
+                    new int[]{R.id.tvHeading, R.id.tvHeading1, R.id.tvSubItem1, R.id.tvSubItem2, R.id.tvSubItem3, R.id.tvSubItem4, R.id.tvSubItem5, R.id.tvSubItem6, R.id.tvSubItem7, R.id.tvSubItem8, R.id.tvSubItem9, R.id.tvSubItem10, R.id.tvSubItem11, R.id.tvSubItem12, R.id.tvSubItem13, R.id.tvSubItem14}
+            );
+
+            lv.setAdapter(adapter);
+        } catch (JSONException e) {
+            Log.e("Error", "JSON related error when parsing enquiry response", e);
+            result = "";
+        } catch (Exception e) {
+            Log.e("Error", "Unknown error when parsing enquiry response", e);
+            result = "";
+        }
     }
 
-    private void ClearForm(){
+    protected String buildEnquireValue(JSONObject jsonObject, String jsonKey, int labelId) throws JSONException {
+        boolean ignore = jsonObject.getString(jsonKey).equalsIgnoreCase("null");
+        if (ignore) {
+            return "";
+        } else {
+            String label = getResources().getString(labelId);
+            return label + ": " + jsonObject.getString(jsonKey);
+        }
+    }
+
+    private void ClearForm() {
         tvCHFID.setText(getResources().getString(R.string.CHFID));
         tvName.setText(getResources().getString(R.string.InsureeName));
         tvDOB.setText(getResources().getString(R.string.DOB));
@@ -598,15 +502,11 @@ public class EnquireActivity extends AppCompatActivity {
         lv.setAdapter(null);
     }
 
-    public boolean onOptionsItemSelected(MenuItem item){
-        onBackPressed();
-//        Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
-//        startActivityForResult(myIntent, 0);
-//        finish();
-        return true;
-    }
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    private String getSpecificControl(String FieldName) {
+        SQLHandler sqlHandler = new SQLHandler(this);
+        sqlHandler.onOpen(db);
+        String control = sqlHandler.getAdjustibility(FieldName);
+        sqlHandler.close();
+        return control;
     }
 }

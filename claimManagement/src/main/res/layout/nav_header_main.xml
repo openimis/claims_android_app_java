@@ -6,10 +6,10 @@
     android:background="@drawable/side_nav_bar"
     android:gravity="bottom"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
@@ -22,28 +22,62 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text="@string/app_name"
-        android:typeface="monospace"
         android:fontFamily="sans-serif-light"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-    <TextView
-        android:id="@+id/AdminName"
+        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:text="@string/app_name_claims"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:typeface="monospace" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:text=""
-        android:typeface="monospace"
-        android:fontFamily="sans-serif-thin"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/AdminName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:fontFamily="sans-serif-thin"
+            android:gravity="start|center"
+            android:paddingTop="@dimen/nav_header_vertical_spacing"
+            android:paddingBottom="@dimen/nav_header_vertical_spacing"
+            android:text="test2"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:typeface="monospace" />
+
+        <RelativeLayout
+            android:id="@+id/LoginButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/LoginText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:paddingTop="@dimen/nav_header_vertical_spacing"
+                android:paddingBottom="@dimen/nav_header_vertical_spacing"
+                android:text="@string/Login"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:typeface="monospace" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:typeface="monospace"
         android:fontFamily="sans-serif-light"
         android:text="@string/release"
-        android:visibility="gone"/>
+        android:typeface="monospace"
+        android:visibility="gone" />
 
 </LinearLayout>

@@ -1,150 +1,101 @@
 package org.openimis.imisclaims;
 
-import org.openimis.general.General;
+import android.util.Log;
 
-import cz.msebera.android.httpclient.HttpEntity;
-import cz.msebera.android.httpclient.HttpResponse;
-import cz.msebera.android.httpclient.client.HttpClient;
-import cz.msebera.android.httpclient.client.methods.HttpGet;
-import cz.msebera.android.httpclient.client.methods.HttpPost;
-import cz.msebera.android.httpclient.entity.StringEntity;
-import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
-import cz.msebera.android.httpclient.util.EntityUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
-/**
- * Created by Hiren on 14/02/2019.
- */
+import static org.openimis.imisclaims.BuildConfig.API_BASE_URL;
+import static org.openimis.imisclaims.BuildConfig.API_VERSION;
 
 public class ToRestApi {
-    General general = new General();
-    Token tokenl = new Token();
-    private String uri = general.getDomain() + "api/";
+    private final Token token;
+    private final String uri;
+    private final String apiVersion;
 
-    //Post without Token
-    public HttpResponse postToRestApi(final JSONObject object, final String functionName) {
-        HttpResponse response = null;
+    public ToRestApi() {
+        token = Global.getGlobal().getJWTToken();
+        uri = API_BASE_URL + "api/";
+        apiVersion = API_VERSION;
+    }
+
+    public HttpResponse getFromRestApi(String functionName, boolean addToken) {
         HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(uri+functionName);
+        HttpGet httpGet = new HttpGet(uri + functionName);
+        httpGet.setHeader("Content-Type", "application/json");
+        httpGet.setHeader("api-version", apiVersion);
+        if (addToken) {
+            httpGet.setHeader("Authorization", "bearer " + token.getTokenText().trim());
+        }
+
+        try {
+            HttpResponse response = httpClient.execute(httpGet);
+            int responseCode = response.getStatusLine().getStatusCode();
+            Log.i("HTTP_GET", uri + functionName + " - " + responseCode);
+            return response;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public HttpResponse postToRestApi(Object object, String functionName, boolean addToken) {
+        HttpClient httpClient = new DefaultHttpClient();
+
+        HttpPost httpPost = new HttpPost(uri + functionName);
+        httpPost.setHeader("Content-type", "application/json");
+        httpPost.setHeader("api-version", apiVersion);
+        if (addToken) {
+            httpPost.setHeader("Authorization", "bearer " + token.getTokenText().trim());
+        }
+
         try {
             StringEntity postingString = new StringEntity(object.toString());
             httpPost.setEntity(postingString);
-            httpPost.setHeader("Content-type", "application/json");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            response = httpClient.execute(httpPost);
+            HttpResponse response = httpClient.execute(httpPost);
+            int responseCode = response.getStatusLine().getStatusCode();
+            Log.i("HTTP_POST", uri + functionName + " - " + responseCode);
+            return response;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        return response;
     }
 
-    //Post with Token
-    public HttpResponse postToRestApiToken(final JSONObject object, final String functionName) {
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(uri+functionName);
-        try {
-            StringEntity postingString = new StringEntity(object.toString());
-            httpPost.setEntity(postingString);
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setHeader("Authorization", "bearer "+tokenl.getTokenText());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        HttpResponse response = null;
-        try {
-            response = httpClient.execute(httpPost);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return response;
+    public HttpResponse postToRestApi(Object object, String functionName) {
+        return postToRestApi(object, functionName, false);
     }
 
-    // Post without Token, returned object
-    public String postObjectToRestApiObjectToken(final JSONObject object, final String functionName) {
-        final String[] content = {null};
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(uri+functionName);
-        try {
-            StringEntity postingString = new StringEntity(object.toString());
-            httpPost.setEntity(postingString);
-            httpPost.setHeader("Content-type", "application/json");
-            httpPost.setHeader("Authorization", "bearer "+tokenl.getTokenText());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        HttpResponse response = null;
-        try {
-            response = httpClient.execute(httpPost);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        HttpEntity respEntity = response.getEntity();
-        if (respEntity != null) {
-            try {
-                content[0] = EntityUtils.toString(respEntity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return content[0];
+    public HttpResponse postToRestApiToken(Object object, String functionName) {
+        return postToRestApi(object, functionName, true);
     }
 
-    // Get without Token
-    public String getFromRestApi(final String functionName) {
-        final String[] content = {null};
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(uri+functionName);
-        httpGet.setHeader("Content-type", "application/json");
-
-        HttpResponse response = null;
-        try {
-            response = httpClient.execute(httpGet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        HttpEntity respEntity = response.getEntity();
-        if (respEntity != null) {
-            try {
-                content[0] = EntityUtils.toString(respEntity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return content[0];
+    public String getFromRestApi(String functionName) {
+        HttpResponse response = getFromRestApi(functionName, false);
+        return getContent(response);
     }
 
-    // Get with Token, returned object
-    public String getObjectFromRestApiToken(final String functionName) {
-        String content = null;
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(uri+functionName);
-        httpGet.setHeader("Content-type", "application/json");
-        httpGet.setHeader("Authorization", "bearer "+tokenl.getTokenText());
+    public HttpResponse getFromRestApiToken(String functionName) {
+        return getFromRestApi(functionName, true);
 
-        HttpResponse response = null;
+    }
+
+    public String getContent(HttpResponse response) {
         try {
-            response = httpClient.execute(httpGet);
+            HttpEntity respEntity = (response != null) ? response.getEntity() : null;
+            return (respEntity != null) ? EntityUtils.toString(respEntity) : null;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        HttpEntity respEntity = response.getEntity();
-        if (respEntity != null) {
-            try {
-                content = EntityUtils.toString(respEntity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return content;
     }
 }

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="10dp"
+    android:layout_margin="10dp"
+    android:padding="5dp"
+    android:background="@color/white">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/ServiceCode"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/ServiceCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Black"
+            android:text="@string/ServiceCode"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/ServiceName"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/ServiceName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Black"
+            android:text="@string/ServiceName"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/Quantity"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/Qty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Black"
+            android:text="@string/Quantity"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/Price"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/Price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Black"
+            android:text="@string/ClaimCode"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/Explanation"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/Explanation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Green2"
+            android:text="@string/MainDg"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/AppQty"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/AppQty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Black"
+            android:text="@string/SecDg1"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/AppPrice"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/AppPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Black"
+            android:text="@string/SecDg4"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/Justification"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/Justification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Black"
+            android:text="@string/visit_date_from"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/Status"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/Status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Black"
+            android:text="@string/visit_date_to"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/Valuated"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/valuated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Black"
+            android:text="@string/date_claimed"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:textSize="10dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:text="@string/Result"/>
+        <TextView
+            android:textSize="13dp"
+            android:id="@+id/Result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Orange"
+            android:text="@string/Result"/>
+    </LinearLayout>
+
+</LinearLayout>

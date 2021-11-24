@@ -33,6 +33,7 @@ proguard/
 captures/
 
 # IntelliJ
+.idea
 .idea/libraries/
 .idea/workspace.xml
 .idea/tasks.xml
@@ -77,3 +78,6 @@ fastlane/readme.md
 .vscode/
 
 release/
+
+# Custom product flavours
+*custom-flavours.gradle

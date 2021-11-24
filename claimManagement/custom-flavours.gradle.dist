@@ -1,0 +1,17 @@
+// Please refer to build.gradle file for examples how to define a custom product flavour
+android {
+    productFlavors {
+        example {
+            applicationIdSuffix [APP_ID_SUFFIX]
+            buildConfigField "String", "API_BASE_URL", [API_BASE_URL]
+            buildConfigField "String", "APP_DIR", [APP_DIR_NAME]
+            buildConfigField "String", "API_VERSION", [API_VERSION]
+            buildConfigField "String", "RAR_PASSWORD", [RAR_PASSWORD]
+            resValue "string", "app_name_claims", [APP_NAME]
+        }
+    }
+    sourceSets {
+        example.java.srcDir [JAVA_DIR]
+        example.res.srcDir [RES_DIR]
+    }
+}
