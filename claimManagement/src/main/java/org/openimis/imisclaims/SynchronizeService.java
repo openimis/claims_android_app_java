@@ -228,7 +228,8 @@ public class SynchronizeService extends JobIntentService {
     }
 
     private File[] getListOfFilesForClaim(File directory, String claimCode) {
-        String regex = ".+_.+_" + claimCode + "_";
+        //Example file structure: "Claim_hfcode_claimcode_date.xml"
+        String regex = String.format("(%s|%s).+_%s_.*", claimJsonPrefix, claimXmlPrefix, claimCode);
         return getListOfFilesMatching(directory, regex);
     }
 

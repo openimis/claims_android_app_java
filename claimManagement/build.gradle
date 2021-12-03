@@ -3,8 +3,6 @@ import java.time.format.DateTimeFormatter
 
 apply plugin: 'com.android.application'
 
-// Apply custom flavours
-
 static def getDate() {
     LocalDateTime date = LocalDateTime.now()
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern('dd MMMM yyyy HH:mm').withLocale(Locale.UK)
@@ -147,7 +145,7 @@ android {
         chfDev.res.srcDir 'src/chfDev/res'
 
         chfProd.java.srcDir 'src/chfDev/java'
-        chfProd.res.srcDir 'src/chfProd/res'
+        chfProd.res.srcDir 'src/chfDev/res'
 
         mvDev.java.srcDir 'src/mvDev/java'
         mvDev.res.srcDir 'src/mvDev/res'
@@ -174,11 +172,12 @@ android {
 
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
+// Apply custom flavours
 if(file('custom-flavours.gradle').exists()){
     apply from: 'custom-flavours.gradle'
 }
