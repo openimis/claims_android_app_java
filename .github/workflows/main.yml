@@ -19,7 +19,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-          cache: 'maven'
+          cache: 'gradle'
 
       - name: Environment info
         run: |
