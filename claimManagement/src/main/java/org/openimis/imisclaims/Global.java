@@ -65,6 +65,7 @@ public class Global extends Application {
     private static final String DEFAULT_LANGUAGE_CODE = "en";
     private static Global instance;
     private String OfficerCode;
+    private String OfficerHealthFacility;
     private String OfficerName;
     private int UserId;
     private String MainDirectory;
@@ -109,6 +110,14 @@ public class Global extends Application {
 
     public void setOfficerCode(String officerCode) {
         OfficerCode = officerCode;
+    }
+
+    public String getOfficerHealthFacility() {
+        return OfficerHealthFacility;
+    }
+
+    public void setOfficerHealthFacility(String HealthFacility) {
+        OfficerHealthFacility = HealthFacility;
     }
 
     public int getUserId() {
