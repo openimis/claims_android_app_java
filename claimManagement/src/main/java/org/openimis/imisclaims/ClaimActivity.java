@@ -137,15 +137,6 @@ public class ClaimActivity extends ImisActivity {
                 etGuaranteeNo.setVisibility(View.GONE);
             }
 
-            //Fetch if Healthfacility code is available
-            SharedPreferences spHF = global.getDefaultSharedPreferences();
-            String HF = spHF.getString("HF", "");
-            if (HF.length() > 0) {
-                etHealthFacility.setText(HF);
-                etClaimAdmin.requestFocus();
-            } else {
-                etHealthFacility.requestFocus();
-            }
         } else {
             try {
                 fillForm(new JSONObject(claim));
@@ -859,12 +850,4 @@ public class ClaimActivity extends ImisActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SharedPreferences HF = global.getDefaultSharedPreferences();
-        SharedPreferences.Editor editor = HF.edit();
-        editor.putString("HF", etHealthFacility.getText().toString());
-        editor.apply();
-    }
 }
