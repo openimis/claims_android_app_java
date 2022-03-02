@@ -50,6 +50,8 @@ public class EnquireActivity extends ImisActivity {
     public static final String LOG_TAG = "ENQUIRE";
     public static final int REQUEST_QR_SCAN_CODE = 1;
 
+    private Picasso picasso;
+
     EditText etCHFID;
     TextView tvCHFID, tvName, tvGender, tvDOB;
     ImageButton btnGo, btnScan;
@@ -81,6 +83,7 @@ public class EnquireActivity extends ImisActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+        picasso = new Picasso.Builder(this).build();
         isSDCardAvailable();
 
         //Check if network available
@@ -324,10 +327,10 @@ public class EnquireActivity extends ImisActivity {
                     } else if (jsonObject.has("photoPath") && !jsonObject.isNull("photoPath") && !"null".equals(jsonObject.getString("photoPath"))) {
                         String photo_url_str = API_BASE_URL + jsonObject.getString("photoPath");
                         iv.setImageResource(R.drawable.person);
-                        Picasso.with(getApplicationContext())
-                                .load(photo_url_str)
+                        picasso.load(photo_url_str)
                                 .placeholder(R.drawable.person)
-                                .error(R.drawable.person).into(iv);
+                                .error(R.drawable.person)
+                                .into(iv);
                     } else {
                         iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
                     }
