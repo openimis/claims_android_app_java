@@ -60,7 +60,7 @@ public class ClaimActivity extends ImisActivity {
     File ClaimFile;
     int TotalItemService;
 
-    EditText etStartDate, etEndDate, etHealthFacility, etClaimCode, etCHFID, etClaimAdmin, etGuaranteeNo;
+    EditText etStartDate, etEndDate,  etClaimCode, etHealthFacility, etCHFID, etClaimAdmin, etGuaranteeNo;
     AutoCompleteTextView etDiagnosis, etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4;
     TextView tvItemTotal, tvServiceTotal;
     Button btnPost, btnNew;
@@ -111,6 +111,11 @@ public class ClaimActivity extends ImisActivity {
         rbOther = (RadioButton) findViewById(R.id.rbOther);
         rgVisitType = (RadioGroup) findViewById(R.id.rgVisitType);
 
+        // hfCode and adminCode not editable
+        etHealthFacility.setEnabled(false);
+        etHealthFacility.setKeyListener(null);
+        etClaimAdmin.setEnabled(false);
+        etClaimAdmin.setKeyListener(null);
 
         tvItemTotal.setText("0");
         tvServiceTotal.setText("0");
@@ -124,6 +129,7 @@ public class ClaimActivity extends ImisActivity {
             } else {
                 if (global.getOfficerCode() != null) {
                     etClaimAdmin.setText(global.getOfficerCode());
+                    etHealthFacility.setText(global.getOfficerHealthFacility());
                 }
             }
 
@@ -131,15 +137,6 @@ public class ClaimActivity extends ImisActivity {
                 etGuaranteeNo.setVisibility(View.GONE);
             }
 
-            //Fetch if Healthfacility code is available
-            SharedPreferences spHF = global.getDefaultSharedPreferences();
-            String HF = spHF.getString("HF", "");
-            if (HF.length() > 0) {
-                etHealthFacility.setText(HF);
-                etClaimAdmin.requestFocus();
-            } else {
-                etHealthFacility.requestFocus();
-            }
         } else {
             try {
                 fillForm(new JSONObject(claim));
@@ -343,8 +340,9 @@ public class ClaimActivity extends ImisActivity {
             String newClaimNumber = getResources().getString(R.string.restoredClaimNoPrefix) + obj.getString("claim_number");
             etClaimCode.setText(newClaimNumber);
 
-            etHealthFacility.setText(obj.getString("health_facility_code"));
             etClaimAdmin.setText(global.getOfficerCode());
+            etHealthFacility.setText(global.getOfficerHealthFacility());
+
 
             String guaranteeNumber = obj.getString("guarantee_number");
             if (null == guaranteeNumber || "null".equals(guaranteeNumber))
@@ -852,12 +850,4 @@ public class ClaimActivity extends ImisActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SharedPreferences HF = global.getDefaultSharedPreferences();
-        SharedPreferences.Editor editor = HF.edit();
-        editor.putString("HF", etHealthFacility.getText().toString());
-        editor.apply();
-    }
 }

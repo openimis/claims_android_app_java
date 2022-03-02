@@ -484,8 +484,10 @@ public class MainActivity extends ImisActivity {
                         objControls = arrControls.getJSONObject(i);
                         String lastName = objControls.getString("lastName");
                         String otherNames = objControls.getString("otherNames");
+                        String hfCode = objControls.getString("hfCode");
                         String name = lastName + " " + otherNames;
-                        sqlHandler.InsertClaimAdmins(objControls.getString("claimAdminCode"), name);
+                        sqlHandler.InsertClaimAdmins(objControls.getString("claimAdminCode"),
+                                hfCode, name);
                     }
 
                     runOnUiThread(() -> {
@@ -510,19 +512,21 @@ public class MainActivity extends ImisActivity {
         return true;
     }
 
-    public void validateClaimAdminCode(final String ClaimCode) {
-        if (ClaimCode.equals("")) {
+    public void validateClaimAdminCode(final String claimAdminCode) {
+        if (claimAdminCode.equals("")) {
             Toast.makeText(getBaseContext(), R.string.MissingClaimAdmin, Toast.LENGTH_LONG).show();
             ClaimAdminDialogBox();
         } else {
-            String ClaimName = sqlHandler.getClaimAdmin(ClaimCode);
+            String ClaimName = sqlHandler.getClaimAdminInfo(claimAdminCode, sqlHandler.CA_NAME_COLUMN);
+            String HealthFacilityName = sqlHandler.getClaimAdminInfo(claimAdminCode, sqlHandler.CA_HF_CODE_COLUMN);
             if (ClaimName.equals("")) {
                 Toast.makeText(MainActivity.this, getResources().getString(R.string.invalidClaimAdminCode), Toast.LENGTH_LONG).show();
                 ClaimAdminDialogBox();
             } else {
                 if (!sqlHandler.getAdjustibility("ClaimAdministrator").equals("N")) {
-                    global.setOfficerCode(ClaimCode);
+                    global.setOfficerCode(claimAdminCode);
                     global.setOfficerName(ClaimName);
+                    global.setOfficerHealthFacility(HealthFacilityName);
                     AdminName = (TextView) findViewById(R.id.AdminName);
                     AdminName.setText(global.getOfficeName());
                     Cursor c = sqlHandler.getMapping("I");
