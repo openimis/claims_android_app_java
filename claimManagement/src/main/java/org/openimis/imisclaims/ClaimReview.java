@@ -7,6 +7,9 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.Button;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class ClaimReview extends ImisActivity {
 
     public String claims = "";
@@ -45,8 +48,22 @@ public class ClaimReview extends ImisActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        // check if claim is already restored - by comparing prefix
+        JSONObject currentClaim = null;
+        String currentClaimCode = "";
+        try {
+            currentClaim = new JSONObject(this.claims);
+            currentClaimCode = currentClaim.getString("claim_number");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         Button restoreButton = (Button) findViewById(R.id.restore_button);
-        restoreButton.setOnClickListener(restoreButtonListener);
+        if (!currentClaimCode.startsWith(getResources().getString(R.string.restoredClaimNoPrefix))){
+            restoreButton.setOnClickListener(restoreButtonListener);
+        }
+        else{
+            restoreButton.setVisibility(View.GONE);
+        }
 
         Fragment selectedFragment = new ReviewFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, selectedFragment).commit();
