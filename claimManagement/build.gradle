@@ -141,17 +141,17 @@ android {
         demoRelease.java.srcDir 'src/demoRelease/java'
         demoRelease.res.srcDir 'src/demoRelease/res'
 
-        chfDev.java.srcDir 'src/chfDev/java'
-        chfDev.res.srcDir 'src/chfDev/res'
+        chfDev.java.srcDir 'src/chf/java'
+        chfDev.res.srcDir 'src/chf/res'
 
-        chfProd.java.srcDir 'src/chfDev/java'
-        chfProd.res.srcDir 'src/chfDev/res'
+        chfProd.java.srcDir 'src/chf/java'
+        chfProd.res.srcDir 'src/chf/res'
 
-        mvDev.java.srcDir 'src/mvDev/java'
-        mvDev.res.srcDir 'src/mvDev/res'
+        mvDev.java.srcDir 'src/mv/java'
+        mvDev.res.srcDir 'src/mv/res'
 
-        bephaDev.java.srcDir 'src/bephaDev/java'
-        bephaDev.res.srcDir 'src/bephaDev/res'
+        bephaDev.java.srcDir 'src/bepha/java'
+        bephaDev.res.srcDir 'src/bepha/res'
 
         niger.java.srcDir 'src/niger/java'
         niger.res.srcDir 'src/niger/res'
