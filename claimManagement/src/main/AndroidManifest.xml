@@ -16,6 +16,14 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <!-- These statements are required as these permissions will be included otherwise -->
+    <uses-permission
+        android:name="android.permission.READ_CALL_LOG"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.READ_CONTACTS"
+        tools:node="remove" />
+
     <application
         android:name=".Global"
         android:allowBackup="true"
