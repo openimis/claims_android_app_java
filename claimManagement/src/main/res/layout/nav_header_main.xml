@@ -43,7 +43,6 @@
             android:gravity="start|center"
             android:paddingTop="@dimen/nav_header_vertical_spacing"
             android:paddingBottom="@dimen/nav_header_vertical_spacing"
-            android:text="test2"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:typeface="monospace" />
 
