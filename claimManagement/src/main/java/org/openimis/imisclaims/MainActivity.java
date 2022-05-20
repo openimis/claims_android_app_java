@@ -517,8 +517,8 @@ public class MainActivity extends ImisActivity {
             Toast.makeText(getBaseContext(), R.string.MissingClaimAdmin, Toast.LENGTH_LONG).show();
             ClaimAdminDialogBox();
         } else {
-            String ClaimName = sqlHandler.getClaimAdminInfo(claimAdminCode, sqlHandler.CA_NAME_COLUMN);
-            String HealthFacilityName = sqlHandler.getClaimAdminInfo(claimAdminCode, sqlHandler.CA_HF_CODE_COLUMN);
+            String ClaimName = sqlHandler.getClaimAdminInfo(claimAdminCode, SQLHandler.CA_NAME_COLUMN);
+            String HealthFacilityName = sqlHandler.getClaimAdminInfo(claimAdminCode, SQLHandler.CA_HF_CODE_COLUMN);
             if (ClaimName.equals("")) {
                 Toast.makeText(MainActivity.this, getResources().getString(R.string.invalidClaimAdminCode), Toast.LENGTH_LONG).show();
                 ClaimAdminDialogBox();
@@ -527,7 +527,7 @@ public class MainActivity extends ImisActivity {
                     global.setOfficerCode(claimAdminCode);
                     global.setOfficerName(ClaimName);
                     global.setOfficerHealthFacility(HealthFacilityName);
-                    AdminName = (TextView) findViewById(R.id.AdminName);
+                    AdminName = findViewById(R.id.AdminName);
                     AdminName.setText(global.getOfficeName());
                     Cursor c = sqlHandler.getMapping("I");
                     if (c.getCount() == 0) {

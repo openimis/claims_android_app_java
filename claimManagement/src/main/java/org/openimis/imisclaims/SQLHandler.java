@@ -254,9 +254,8 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     public String getClaimAdminInfo(String Code, String column) {
         String Info = "";
-        try {
-            String query = "SELECT " + column + " FROM tblClaimAdmins WHERE upper(Code) like '" + Code.toUpperCase() + "'";
-            Cursor cursor1 = db.rawQuery(query, null);
+        String query = "SELECT " + column + " FROM tblClaimAdmins WHERE upper(Code) like '" + Code.toUpperCase() + "'";
+        try (Cursor cursor1 = db.rawQuery(query, null)){
             // looping through all rows
             if (cursor1.moveToFirst()) {
                 do {
