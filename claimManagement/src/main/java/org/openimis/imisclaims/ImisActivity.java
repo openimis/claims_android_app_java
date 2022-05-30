@@ -175,8 +175,9 @@ public abstract class ImisActivity extends AppCompatActivity {
         final TextView username = promptsView.findViewById(R.id.UserName);
         final TextView password = promptsView.findViewById(R.id.Password);
 
+
         String officer_code = ((Global) getApplicationContext()).getOfficerCode();
-        username.setText(String.valueOf(officer_code));
+        username.setText(officer_code != null ? officer_code : "");
 
         // set dialog message
         alertDialogBuilder
