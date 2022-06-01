@@ -151,9 +151,10 @@ public class SynchronizeService extends JobIntentService {
 
             if (claimResponseCode == ClaimResponse.Success) {
                 moveClaimToSubdirectory(claimCode, "AcceptedClaims");
-            } else if (claimResponseCode == ClaimResponse.Rejected) {
-                moveClaimToSubdirectory(claimCode, "RejectedClaims");
             } else {
+                if (claimResponseCode == ClaimResponse.Rejected) {
+                    moveClaimToSubdirectory(claimCode, "RejectedClaims");
+                }
                 result.put(String.format(claimResponseLine, claimCode, claimResponse.getString("message")));
             }
         }
