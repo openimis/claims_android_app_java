@@ -1,4 +1,4 @@
-package org.openimis.imispolicies.tools;
+package org.openimis.imisclaims.tools;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -11,7 +11,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 
-import org.openimis.imispolicies.BuildConfig;
+import org.openimis.imisclaims.BuildConfig;
+import org.openimis.imisclaims.util.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -104,10 +105,10 @@ public class StorageManager {
      */
     public File copyUriContentToFile(@NonNull Uri uri, @NonNull File targetFile) {
         if (!targetFile.exists()) {
-            Util.FileUtil.createFileWithSubdirectories(targetFile);
+            org.openimis.imisclaims.util.FileUtils.createFileWithSubdirectories(targetFile);
         }
         try (InputStream is = contentResolver.openInputStream(uri)) {
-            Util.FileUtil.writeToFile(targetFile, is);
+            org.openimis.imisclaims.util.FileUtils.writeToFile(targetFile, is);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error while opening streams", e);
         }
@@ -127,7 +128,7 @@ public class StorageManager {
     public Uri createUriForFile(@NonNull File file) {
         Uri uri = FileProvider.getUriForFile(context, FILE_PROVIDER_NAME, file);
         if (uri == null) {
-            org.openimis.imispolicies.tools.Log.w(LOG_TAG, "Failed to create temp photo URI");
+            org.openimis.imisclaims.tools.Log.w(LOG_TAG, "Failed to create temp photo URI");
         }
         return uri;
     }
@@ -171,18 +172,18 @@ public class StorageManager {
         File tempFile = new File(context.getCacheDir(), targetPath);
 
         if (tempFile.exists() && tempFile.delete()) {
-            org.openimis.imispolicies.tools.Log.i(LOG_TAG, "Leftover temp file deleted: " + tempFile.getAbsolutePath());
+            org.openimis.imisclaims.tools.Log.i(LOG_TAG, "Leftover temp file deleted: " + tempFile.getAbsolutePath());
         }
 
         if (preparePathOly) {
             File parentFile = tempFile.getParentFile();
             if (parentFile != null) {
-                return Util.FileUtil.createDirectoryWithSubdirectories(parentFile) ? tempFile : null;
+                return org.openimis.imisclaims.util.FileUtils.createDirectoryWithSubdirectories(parentFile) ? tempFile : null;
             } else {
                 return null;
             }
         } else {
-            return Util.FileUtil.createFileWithSubdirectories(tempFile) ? tempFile : null;
+            return org.openimis.imisclaims.util.FileUtils.createFileWithSubdirectories(tempFile) ? tempFile : null;
         }
     }
 

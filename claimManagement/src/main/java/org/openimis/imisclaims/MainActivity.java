@@ -37,6 +37,8 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openimis.imisclaims.util.AndroidUtils;
+import org.openimis.imisclaims.util.UriUtils;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -44,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import static android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION;
 
 public class MainActivity extends ImisActivity {
     private static final int REQUEST_PERMISSIONS_CODE = 1;
@@ -961,27 +962,6 @@ public class MainActivity extends ImisActivity {
         return true;
     }
 
-    public void externalStorageAccessDialog() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this)
-                .setTitle(R.string.ExternalStorageAccess)
-                .setMessage(getResources().getString(R.string.ExternalStorageAccessInfo, getResources().getString(R.string.app_name_claims)))
-                .setCancelable(false)
-                .setPositiveButton(R.string.Ok,
-                        (dialog, id) -> {
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                                Intent intent = new Intent(ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                                startActivityForResult(intent, REQUEST_ALL_FILES_ACCESS_CODE);
-                            }
-                        })
-                .setNegativeButton(R.string.ForceClose,
-                        (dialog, id) -> {
-                            dialog.cancel();
-                            finish();
-                        });
-
-        alertDialogBuilder.show();
-    }
-
     public void permissionsDialog() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this)
                 .setTitle(R.string.Permissions)
@@ -999,13 +979,6 @@ public class MainActivity extends ImisActivity {
     }
 
     public boolean checkRequirements() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                externalStorageAccessDialog();
-                return false;
-            }
-        }
-
         if (!hasPermissions(this, global.getPermissions())) {
             permissionsDialog();
             return false;

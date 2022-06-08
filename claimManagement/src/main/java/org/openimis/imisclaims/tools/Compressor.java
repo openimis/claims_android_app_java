@@ -1,4 +1,4 @@
-package org.openimis.imispolicies.tools;
+package org.openimis.imisclaims.tools;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
