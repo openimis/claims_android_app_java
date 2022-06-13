@@ -27,16 +27,16 @@ public class ItemsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View v =  inflater.inflate(R.layout.fragment_items,container,false);
+        View v = inflater.inflate(R.layout.fragment_items, container, false);
 
-        String c = ((ClaimReview)getContext()).claims;
+        String c = ((ClaimReview) getContext()).claimText;
         try {
             JSONObject object = new JSONObject(c);
             claimJson = new JSONArray(object.getString("items"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if(claimJson.length()!= 0){
+        if (claimJson.length() != 0) {
             fillClaims(v);
         }
 
@@ -44,12 +44,12 @@ public class ItemsFragment extends Fragment {
         return v;
     }
 
-    public void fillClaims(View v){
+    public void fillClaims(View v) {
         //claimJson = new JSONArray();//clientAndroidInterface.getRecordedPolicies(InsuranceNumber,OtherNames,LastName,InsuranceProduct,UploadedFrom,UploadedTo,RadioRenewal,RequestedFrom,RequestedTo, PaymentType, RadioSms);//OrderArray;
         LayoutInflater li = LayoutInflater.from(getContext());
         View promptsView = li.inflate(R.layout.activity_search_claims, null);
         listOfClaims = (RecyclerView) v.findViewById(R.id.listOfItems);
-        claimsAdapter = new ItemsAdapter(getContext(),claimJson);
+        claimsAdapter = new ItemsAdapter(getContext(), claimJson);
         listOfClaims.setLayoutManager(new LinearLayoutManager(getContext()));
         //PolicyRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
         listOfClaims.setAdapter(claimsAdapter);

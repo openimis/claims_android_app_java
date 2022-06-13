@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -14,6 +13,8 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import java.util.HashMap;
+
+import org.openimis.imisclaims.tools.Log;
 
 public class AddItems extends ImisActivity {
     ListView lvItems;
@@ -129,7 +130,6 @@ public class AddItems extends ImisActivity {
 
         btnAdd.setOnClickListener(v -> {
             try {
-
                 if (oItem == null) return;
 
                 String Amount, Quantity;
@@ -149,7 +149,6 @@ public class AddItems extends ImisActivity {
                 etItems.setText("");
                 etAmount.setText("");
                 etQuantity.setText("");
-
 
             } catch (Exception e) {
                 Log.d("AddLvError", e.getMessage());

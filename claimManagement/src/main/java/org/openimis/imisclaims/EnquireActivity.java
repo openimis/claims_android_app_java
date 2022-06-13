@@ -12,11 +12,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -28,18 +25,16 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.HttpResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openimis.imisclaims.tools.Log;
 
 import java.io.ByteArrayInputStream;
-import java.net.HttpRetryException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -271,7 +266,7 @@ public class EnquireActivity extends ImisActivity {
             try {
                 ToRestApi rest = new ToRestApi();
                 HttpResponse res = rest.getFromRestApiToken("insuree/" + chfid + "/enquire");
-                if(res != null && res.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
+                if (res != null && res.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
                     JSONObject obj = new JSONObject(rest.getContent(res));
                     JSONArray arr = new JSONArray();
                     arr.put(obj);
@@ -285,7 +280,7 @@ public class EnquireActivity extends ImisActivity {
             result = getDataFromDb(etCHFID.getText().toString());
         }
 
-        if("".equals(result)) {
+        if ("".equals(result)) {
             runOnUiThread(() -> showDialog(getResources().getString(R.string.RecordNotFound)));
         } else {
             runOnUiThread(this::renderResult);
@@ -508,7 +503,7 @@ public class EnquireActivity extends ImisActivity {
     private String getSpecificControl(String FieldName) {
         SQLHandler sqlHandler = new SQLHandler(this);
         sqlHandler.onOpen(db);
-        String control = sqlHandler.getAdjustibility(FieldName);
+        String control = sqlHandler.getAdjustability(FieldName);
         sqlHandler.close();
         return control;
     }

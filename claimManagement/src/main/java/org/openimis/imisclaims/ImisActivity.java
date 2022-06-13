@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -17,9 +16,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.openimis.imisclaims.tools.Log;
+
 import java.util.ArrayList;
 
 public abstract class ImisActivity extends AppCompatActivity {
+    private static final String BASE_LOG_TAG = "IMISACTIVITY";
     private BroadcastReceiver broadcastReceiver;
     private final ArrayList<String> emptyBroadcastList = new ArrayList<>();
 
@@ -290,20 +292,24 @@ public abstract class ImisActivity extends AppCompatActivity {
      * @param task           Task to run on a new thread
      * @param onTaskFinished Task to run after the initial task was finished
      * @param taskMinLength  Minimum amount of time between start of a task and start of onTaskFinished.
-     *                       This can be used to prevent fast flashing of ui elements modified by the task.
+     *                       This can be used to prevent fast flashing of UI elements modified by the
+     *                       onTaskFinished.
      */
     protected void runOnNewThread(Runnable task, Runnable onTaskFinished, long taskMinLength) {
         new Thread(() -> {
             long start = System.currentTimeMillis();
             task.run();
             long length = System.currentTimeMillis() - start;
+
+            //This prevents fast flashing
             if (taskMinLength > 0) {
-                try { //This prevents fast flashing
+                try {
                     Thread.sleep(length >= taskMinLength ? 0 : taskMinLength - length);
-                } catch (Exception e) {
-                    //Nothing to do
+                } catch (InterruptedException e) {
+                    Log.e(BASE_LOG_TAG, "Thread interrupted!", e);
                 }
             }
+
             onTaskFinished.run();
         }).start();
     }
