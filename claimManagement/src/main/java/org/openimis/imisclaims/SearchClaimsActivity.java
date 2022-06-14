@@ -110,57 +110,25 @@ public class SearchClaimsActivity extends ImisActivity {
             }
         }));
 
-        visitDateFrom.setOnClickListener(v ->
-                new DatePickerDialog(this,
-                        (view, year, monthOfYear, dayOfMonth) -> {
-                            visitDateFromCalendar.set(Calendar.YEAR, year);
-                            visitDateFromCalendar.set(Calendar.MONTH, monthOfYear);
-                            visitDateFromCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                            updateLabel(visitDateFromCalendar, visitDateFrom);
-                        },
-                        visitDateFromCalendar.get(Calendar.YEAR),
-                        visitDateFromCalendar.get(Calendar.MONTH),
-                        visitDateFromCalendar.get(Calendar.DAY_OF_MONTH)
-                ).show());
+        visitDateFrom.setOnClickListener(v -> getDatePicker(visitDateFrom, visitDateFromCalendar).show());
+        visitDateTo.setOnClickListener(v -> getDatePicker(visitDateTo, visitDateToCalendar).show());
+        dateProcessedFrom.setOnClickListener(v -> getDatePicker(dateProcessedFrom, dateProcessedFromCalendar).show());
+        dateProcessedTo.setOnClickListener(v -> getDatePicker(dateProcessedTo, dateProcessedToCalendar).show());
+    }
 
-        visitDateTo.setOnClickListener(v ->
-                new DatePickerDialog(this,
-                        (view, year, monthOfYear, dayOfMonth) -> {
-                            visitDateToCalendar.set(Calendar.YEAR, year);
-                            visitDateToCalendar.set(Calendar.MONTH, monthOfYear);
-                            visitDateToCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                            updateLabel(visitDateToCalendar, visitDateTo);
-                        },
-                        visitDateToCalendar.get(Calendar.YEAR),
-                        visitDateToCalendar.get(Calendar.MONTH),
-                        visitDateToCalendar.get(Calendar.DAY_OF_MONTH)
-                ).show());
-
-        dateProcessedFrom.setOnClickListener(v ->
-                new DatePickerDialog(this,
-                        (view, year, monthOfYear, dayOfMonth) -> {
-                            dateProcessedFromCalendar.set(Calendar.YEAR, year);
-                            dateProcessedFromCalendar.set(Calendar.MONTH, monthOfYear);
-                            dateProcessedFromCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                            updateLabel(dateProcessedFromCalendar, dateProcessedFrom);
-                        },
-                        dateProcessedFromCalendar.get(Calendar.YEAR),
-                        dateProcessedFromCalendar.get(Calendar.MONTH),
-                        dateProcessedFromCalendar.get(Calendar.DAY_OF_MONTH)
-                ).show());
-
-        dateProcessedTo.setOnClickListener(v ->
-                new DatePickerDialog(this,
-                        (view, year, monthOfYear, dayOfMonth) -> {
-                            dateProcessedToCalendar.set(Calendar.YEAR, year);
-                            dateProcessedToCalendar.set(Calendar.MONTH, monthOfYear);
-                            dateProcessedToCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                            updateLabel(dateProcessedToCalendar, dateProcessedTo);
-                        },
-                        dateProcessedToCalendar.get(Calendar.YEAR),
-                        dateProcessedToCalendar.get(Calendar.MONTH),
-                        dateProcessedToCalendar.get(Calendar.DAY_OF_MONTH)
-                ).show());
+    public DatePickerDialog getDatePicker(TextView textView, Calendar calendar) {
+        return new DatePickerDialog(
+                this,
+                (view, year, monthOfYear, dayOfMonth) -> {
+                    calendar.set(Calendar.YEAR, year);
+                    calendar.set(Calendar.MONTH, monthOfYear);
+                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    updateLabel(calendar, textView);
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
     }
 
     public void updateLabel(Calendar calendar, TextView view) {

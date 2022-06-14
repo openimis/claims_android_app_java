@@ -18,17 +18,17 @@ repositories {
 }
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion '30.0.3'
+    compileSdkVersion 32
+    buildToolsVersion '33.0.0'
+    useLibrary "org.apache.http.legacy"
 
     defaultConfig {
         applicationId "org.openimis.imisclaims"
-        minSdkVersion 26
-        targetSdkVersion 30
+        minSdkVersion 21
+        targetSdkVersion 32
         versionCode 4
         versionName "2.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        useLibrary 'org.apache.http.legacy'
     }
     buildTypes {
         release {
@@ -55,7 +55,6 @@ android {
     flavorDimensions 'std'
 
     productFlavors.all {
-        buildConfigField "String", "APP_DIR", '"IMIS"'
         resValue "string", "app_name_claims", "openIMIS Claims"
         resValue "string", "ReleaseDateValue", getDate()
         buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
@@ -66,7 +65,6 @@ android {
     productFlavors {
         demoProd {
             applicationIdSuffix ".demoProd"
-            buildConfigField "String", "APP_DIR", '"IMIS-DEMOPROD"'
             resValue "string", "app_name_claims", "Claims Demo"
             buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
             dimension 'std'
@@ -74,7 +72,6 @@ android {
 
         demoRelease {
             applicationIdSuffix ".demoRelease"
-            buildConfigField "String", "APP_DIR", '"IMIS-DEMORELEASE"'
             resValue "string", "app_name_claims", "Claims Release"
             buildConfigField "String", "API_BASE_URL", '"https://legacy-release.s1.openimis.org/rest/"'
             dimension 'std'
@@ -83,7 +80,6 @@ android {
         chfDev {
             applicationIdSuffix ".chfDev"
             resValue "string", "app_name_claims", "Claims CHF"
-            buildConfigField "String", "APP_DIR", '"IMIS-CHFDEV"'
             buildConfigField "String", "API_BASE_URL", '"http://chf-dev.swisstph-mis.ch/rest/"'
             dimension 'std'
         }
@@ -91,47 +87,40 @@ android {
         chfProd {
             applicationIdSuffix ".chfProd"
             resValue "string", "app_name_claims", "Claims CHF"
-            buildConfigField "String", "APP_DIR", '"IMIS-CHFPROD"'
             buildConfigField "String", "API_BASE_URL", '"http://chf-imis.or.tz/restapi/"'
             dimension 'std'
         }
         mvDev {
             applicationIdSuffix ".mvDev"
-            buildConfigField "String", "APP_DIR", '"IMIS-MVDEV"'
             resValue "string", "app_name_claims", "Claims MV"
             buildConfigField "String", "API_BASE_URL", '"http://imis-mv.swisstph-mis.ch/rest/"'
             dimension 'std'
         }
         bephaDev {
             applicationIdSuffix ".bephaDev"
-            buildConfigField "String", "APP_DIR", '"IMIS-BEPHADEV"'
             resValue "string", "app_name_claims", "Claims BEPHA"
             buildConfigField "String", "API_BASE_URL", '"http://149.210.235.40/devupgrade/rest/"'
             dimension 'std'
         }
         niger {
             applicationIdSuffix ".niger"
-            buildConfigField "String", "APP_DIR", '"IMIS-NIGER"'
             resValue "string", "app_name_claims", "Claims Niger"
             buildConfigField "String", "API_BASE_URL", '"http://oiniger.bluesquare.org/rest/"'
         }
         tchadDev {
             applicationIdSuffix ".tchadDev"
             buildConfigField "String", "API_BASE_URL", '"https://imis-tchad-dev.swisstph-mis.ch/rest/"'
-            buildConfigField "String", "APP_DIR", '"IMIS-TCHADDEV"'
             resValue "string", "app_name_claims", "Claims TCHAD DEV"
             dimension 'std'
         }
         local {
             applicationIdSuffix ".local"
-            buildConfigField "String", "APP_DIR", '"IMIS-LOCAL"'
             resValue "string", "app_name_claims", "Claims Local"
             buildConfigField "String", "API_BASE_URL", '"http://10.0.2.2:35787/"'
             dimension 'std'
         }
         cli {
             applicationIdSuffix System.getenv("APPLICATION_ID_SUFFIX") ?: ".cli"
-            buildConfigField "String", "APP_DIR", '"' + (System.getenv("CLI_APP_DIR") ?: 'IMIS-CLI') + '"'
             resValue "string", "app_name_claims", System.getenv("CLI_APP_NAME") ?: "Claims CLI"
             buildConfigField "String", "API_BASE_URL", '"' + (System.getenv("API_BASE_URL") ?: 'http://10.0.2.2:35787/') + '"'
             dimension 'std'
@@ -139,7 +128,6 @@ android {
         mauritaniaTrain {
             applicationIdSuffix ".mauritaniaTrain"
             buildConfigField "String", "API_BASE_URL", '"https://formation.cnass-mauritanie.swisstph-mis.ch/rest/"'
-            buildConfigField "String", "APP_DIR", '"IMIS-MAURITANIA-TRAIN"'
             resValue "string", "app_name_claims", "Claims CNASS TRAIN"
             dimension = 'std'
         }
@@ -178,11 +166,12 @@ android {
         cli.java.srcDir System.getenv("CLI_JAVA_DIR") ?: 'src/demoProd/java'
         cli.res.srcDir System.getenv("CLI_RES_DIR") ?: 'src/demoProd/res'
     }
-
     packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-
+        resources {
+            excludes += ['META-INF/DEPENDENCIES']
+        }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11

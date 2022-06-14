@@ -94,12 +94,12 @@ public class FileUtils {
 
     public static File[] getFilesStartingWith(@NonNull File directory, @NonNull String filenamePrefix) {
         if (!directory.exists()) {
-            android.util.Log.e(LOG_TAG, "Directory does not exists: " + directory);
+            Log.e(LOG_TAG, "Directory does not exists: " + directory);
             return null;
         }
 
         if (!directory.isDirectory()) {
-            android.util.Log.e(LOG_TAG, "Provided path is not a directory: " + directory);
+            Log.e(LOG_TAG, "Provided path is not a directory: " + directory);
             return null;
         }
 

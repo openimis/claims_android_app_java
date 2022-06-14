@@ -2,6 +2,8 @@ package org.openimis.imisclaims.util;
 
 import android.text.TextUtils;
 
+import java.util.Locale;
+
 public class StringUtils {
     /**
      * @param string String to be checked
@@ -27,5 +29,15 @@ public class StringUtils {
      */
     public static boolean equals(CharSequence s1, CharSequence s2) {
         return TextUtils.equals(s1, s2);
+    }
+
+    public static String capitalize(String s) {
+        if(s == null) {
+            return null;
+        } else if (s.length() == 1) {
+            return s.toUpperCase();
+        } else {
+            return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+        }
     }
 }

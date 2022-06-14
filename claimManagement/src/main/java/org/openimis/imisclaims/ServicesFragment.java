@@ -26,9 +26,9 @@ public class ServicesFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v =  inflater.inflate(R.layout.fragment_services,container,false);
+        View v = inflater.inflate(R.layout.fragment_services, container, false);
 
-        String c = ((ClaimReview)getContext()).claims;
+        String c = ((ClaimReview) getContext()).claimText;
         try {
             JSONObject object = new JSONObject(c);
             claimJson = new JSONArray(object.getString("services"));
@@ -36,18 +36,18 @@ public class ServicesFragment extends Fragment {
             e.printStackTrace();
         }
 
-        if(claimJson.length()!= 0){
+        if (claimJson.length() != 0) {
             fillClaims(v);
         }
 
         return v;
     }
 
-    public void fillClaims(View v){
+    public void fillClaims(View v) {
         LayoutInflater li = LayoutInflater.from(getContext());
         View promptsView = li.inflate(R.layout.activity_search_claims, null);
         listOfClaims = (RecyclerView) v.findViewById(R.id.listOfServices);
-        claimsAdapter = new ServicesAdapter(getContext(),claimJson);
+        claimsAdapter = new ServicesAdapter(getContext(), claimJson);
         listOfClaims.setLayoutManager(new LinearLayoutManager(getContext()));
         //PolicyRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
         listOfClaims.setAdapter(claimsAdapter);

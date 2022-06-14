@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
@@ -37,8 +36,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.openimis.imisclaims.util.AndroidUtils;
-import org.openimis.imisclaims.util.UriUtils;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -148,7 +145,7 @@ public class MainActivity extends ImisActivity {
     @Override
     public void onResume() {
         super.onResume();
-        SynchronizeService.getClaimCount(this);
+        refreshCount();
     }
 
     @Override
@@ -292,7 +289,7 @@ public class MainActivity extends ImisActivity {
                 if (!sql.checkIfAny("tblControls")) {
                     CriticalErrorDialogBox(getResources().getString(R.string.noControls) + " " + getResources().getString(R.string.provideExtractOrInternet));
                 } else if (!sql.checkIfAny("tblClaimAdmins")) {
-                    if (sql.getAdjustibility("ClaimAdministrator").equals("M"))
+                    if (sql.getAdjustability("ClaimAdministrator").equals("M"))
                         CriticalErrorDialogBox(getResources().getString(R.string.noAdmins) + " " + getResources().getString(R.string.provideExtractOrInternet));
                 } else {
                     ClaimAdminDialogBox();
@@ -350,7 +347,7 @@ public class MainActivity extends ImisActivity {
                     if (getControls()) {
                         try {
                             if (global.getOfficerCode() == null || global.getOfficerCode().equals("")) {
-                                if (!sqlHandler.getAdjustibility("ClaimAdministrator").equals("N")) {
+                                if (!sqlHandler.getAdjustability("ClaimAdministrator").equals("N")) {
                                     ClaimAdminDialogBox();
                                 }
                             }
@@ -399,7 +396,8 @@ public class MainActivity extends ImisActivity {
     }
 
     public void refreshCount() {
-        SynchronizeService.getClaimCount(this);
+        if (sqlHandler.checkTableExists("tblClaimDetails"))
+            SynchronizeService.getClaimCount(this);
     }
 
     public boolean checkDataBase() {
@@ -524,7 +522,7 @@ public class MainActivity extends ImisActivity {
                 Toast.makeText(MainActivity.this, getResources().getString(R.string.invalidClaimAdminCode), Toast.LENGTH_LONG).show();
                 ClaimAdminDialogBox();
             } else {
-                if (!sqlHandler.getAdjustibility("ClaimAdministrator").equals("N")) {
+                if (!sqlHandler.getAdjustability("ClaimAdministrator").equals("N")) {
                     global.setOfficerCode(claimAdminCode);
                     global.setOfficerName(ClaimName);
                     global.setOfficerHealthFacility(HealthFacilityName);
@@ -985,7 +983,7 @@ public class MainActivity extends ImisActivity {
         }
 
         boolean isAppInitialized = sqlHandler.checkIfAny("tblControls")
-                && (sqlHandler.getAdjustibility("ClaimAdministrator").equals("N") || sqlHandler.checkIfAny("tblClaimAdmins"));
+                && (sqlHandler.getAdjustability("ClaimAdministrator").equals("N") || sqlHandler.checkIfAny("tblClaimAdmins"));
         if (!isAppInitialized) {
             if (global.isNetworkAvailable()) {
                 sqlHandler.createOrOpenDatabases();
@@ -1002,7 +1000,7 @@ public class MainActivity extends ImisActivity {
     }
 
     public void onAllRequirementsMet() {
-        if (!sqlHandler.getAdjustibility("ClaimAdministrator").equals("N")) {
+        if (!sqlHandler.getAdjustability("ClaimAdministrator").equals("N")) {
             ClaimAdminDialogBox();
         }
         refreshCount();

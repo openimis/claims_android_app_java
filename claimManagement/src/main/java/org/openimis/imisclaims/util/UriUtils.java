@@ -51,7 +51,7 @@ public class UriUtils {
         try (InputStream is = new FileInputStream(file)) {
             writeToUri(context, uri, is);
         } catch (IOException e) {
-            android.util.Log.e(LOG_TAG, "Error while opening streams", e);
+            Log.e(LOG_TAG, "Error while opening streams", e);
         }
     }
 
@@ -81,7 +81,7 @@ public class UriUtils {
         try (InputStream is = context.getContentResolver().openInputStream(uri)) {
             FileUtils.writeToFile(targetFile, is);
         } catch (IOException e) {
-            android.util.Log.e(LOG_TAG, "Error while opening streams", e);
+            Log.e(LOG_TAG, "Error while opening streams", e);
         }
 
         return targetFile;
@@ -99,7 +99,7 @@ public class UriUtils {
     public static Uri createUriForFile(@NonNull Context context, @NonNull File file) {
         Uri uri = FileProvider.getUriForFile(context, FILE_PROVIDER_NAME, file);
         if (uri == null) {
-            org.openimis.imisclaims.tools.Log.w(LOG_TAG, "Failed to create temp photo URI");
+            Log.w(LOG_TAG, "Failed to create temp photo URI");
         }
         return uri;
     }

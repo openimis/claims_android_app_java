@@ -36,11 +36,9 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,7 +49,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -61,7 +58,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 import static org.openimis.imisclaims.BuildConfig.RAR_PASSWORD;
-import static org.openimis.imisclaims.BuildConfig.APP_DIR;
+
+import org.openimis.imisclaims.tools.Log;
 
 public class Global extends Application {
     private static final String SHPREF_NAME = "SHPref";
@@ -72,7 +70,6 @@ public class Global extends Application {
     private String OfficerHealthFacility;
     private String OfficerName;
     private int UserId;
-    private String MainDirectory;
     private String AppDirectory;
     private final Map<String, String> SubDirectories = new HashMap<>();
     private static final String _DefaultRarPassword = RAR_PASSWORD;
@@ -238,6 +235,7 @@ public class Global extends Application {
             context.grantUriPermission(packageName, uri, permissionFlags);
         }
     }
+
     public void sendFile(Context context, Uri uri, String mimeType) {
         Intent shareExportIntent = new Intent(Intent.ACTION_SEND);
         shareExportIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -247,6 +245,7 @@ public class Global extends Application {
         grantUriPermissions(this, uri, chooserIntent, Intent.FLAG_GRANT_READ_URI_PERMISSION);
         context.startActivity(chooserIntent);
     }
+
     public void writeText(String dir, String filename, String text) {
         writeText(new File(new File(dir), filename), text);
     }

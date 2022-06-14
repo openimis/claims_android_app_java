@@ -9,13 +9,10 @@ import android.os.Build;
 import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
-import android.util.Log;
 
 import org.openimis.imisclaims.BuildConfig;
-import org.openimis.imisclaims.util.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
