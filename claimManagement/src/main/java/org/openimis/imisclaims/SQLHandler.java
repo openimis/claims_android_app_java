@@ -16,10 +16,19 @@ import org.openimis.imisclaims.tools.Log;
 
 public class SQLHandler extends SQLiteOpenHelper {
     private static final String LOG_TAG = "SQLHELPER";
+
     public static final String CA_NAME_COLUMN = "Name";
     public static final String CA_HF_CODE_COLUMN = "HFCode";
+
+    public static final String CLAIM_UPLOAD_STATUS_ACCEPTED = "Accepted";
+    public static final String CLAIM_UPLOAD_STATUS_REJECTED = "Rejected";
+    public static final String CLAIM_UPLOAD_STATUS_ERROR = "Error";
+    public static final String CLAIM_UPLOAD_STATUS_EXPORTED = "Exported";
+    public static final String CLAIM_UPLOAD_STATUS_PENDING = "Pending";
+
     public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Databases") + "/" + "Mapping.db3";
     public static final String DB_NAME_DATA = Global.getGlobal().getSubdirectory("Databases") + "/" + "ImisData.db3";
+
     private static final String CreateTableMapping = "CREATE TABLE IF NOT EXISTS tblMapping(Code TEXT,Name TEXT,Type TEXT);";
     private static final String createTablePolicyInquiry = "CREATE TABLE IF NOT EXISTS tblPolicyInquiry(InsureeNumber text,Photo BLOB, InsureeName Text, DOB Text, Gender Text, ProductCode Text, ProductName Text, ExpiryDate Text, Status Text, DedType Int, Ded1 Int, Ded2 Int, Ceiling1 Int, Ceiling2 Int);";
     private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName TEXT, Adjustability TEXT);";
@@ -395,9 +404,9 @@ public class SQLHandler extends SQLiteOpenHelper {
         JSONArray claims = getQueryResultAsJsonArray(
                 "SELECT ClaimUUID, ClaimDate, HFCode, ClaimAdmin, ClaimCode, GuaranteeNumber, InsureeNumber AS CHFID, StartDate, EndDate, ICDCode, Comment, Total, ICDCode1, ICDCode2, ICDCode3, ICDCode4, VisitType" +
                         " FROM tblClaimDetails tcd" +
-                        " WHERE NOT EXISTS (SELECT tcus.ClaimUUID FROM tblClaimUploadStatus tcus WHERE tcus.ClaimUUID = tcd.ClaimUUID AND tcus.UploadStatus != 'Error')",
+                        " WHERE NOT EXISTS (SELECT tcus.ClaimUUID FROM tblClaimUploadStatus tcus WHERE tcus.ClaimUUID = tcd.ClaimUUID AND tcus.UploadStatus != ?)",
                 new String[]{"ClaimUUID", "ClaimDate", "HFCode", "ClaimAdmin", "ClaimCode", "GuaranteeNumber", "CHFID", "StartDate", "EndDate", "ICDCode", "Comment", "Total", "ICDCode1", "ICDCode2", "ICDCode3", "ICDCode4", "VisitType"},
-                null
+                new String[] {CLAIM_UPLOAD_STATUS_ERROR}
         );
 
         JSONArray result = new JSONArray();
@@ -513,11 +522,11 @@ public class SQLHandler extends SQLiteOpenHelper {
     @NonNull
     public JSONObject getClaimCounts() {
         JSONArray claimCounts = getQueryResultAsJsonArray(
-                "SELECT CASE WHEN cus.UploadStatus IS NULL OR cus.UploadStatus = 'Error' THEN 'Pending' ELSE cus.UploadStatus END AS Status, count(*) AS Amount" +
+                "SELECT CASE WHEN cus.UploadStatus IS NULL OR cus.UploadStatus = ? THEN ? ELSE cus.UploadStatus END AS Status, count(*) AS Amount" +
                         " FROM tblClaimDetails cd LEFT JOIN tblClaimUploadStatus cus on cd.ClaimUUID=cus.ClaimUUID" +
                         " GROUP BY Status",
                 new String[]{"Status", "Amount"},
-                null
+                new String[]{CLAIM_UPLOAD_STATUS_ERROR, CLAIM_UPLOAD_STATUS_PENDING}
         );
 
         JSONObject result = new JSONObject();

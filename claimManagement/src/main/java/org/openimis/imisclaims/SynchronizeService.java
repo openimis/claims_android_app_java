@@ -156,12 +156,12 @@ public class SynchronizeService extends JobIntentService {
             int claimResponseCode = claimResponse.getInt("response");
 
             if (claimResponseCode == ClaimResponse.Success) {
-                sqlHandler.insertClaimUploadStatus(claimUUID, date, "Accepted", null);
+                sqlHandler.insertClaimUploadStatus(claimUUID, date, SQLHandler.CLAIM_UPLOAD_STATUS_ACCEPTED, null);
             } else {
                 if (claimResponseCode == ClaimResponse.Rejected) {
-                    sqlHandler.insertClaimUploadStatus(claimUUID, date, "Rejected", null);
+                    sqlHandler.insertClaimUploadStatus(claimUUID, date, SQLHandler.CLAIM_UPLOAD_STATUS_REJECTED, null);
                 } else {
-                    sqlHandler.insertClaimUploadStatus(claimUUID, date, "Error", claimResponse.getString("message"));
+                    sqlHandler.insertClaimUploadStatus(claimUUID, date, SQLHandler.CLAIM_UPLOAD_STATUS_ERROR, claimResponse.getString("message"));
                 }
                 result.put(String.format(claimResponseLine, claimCode, claimResponse.getString("message")));
             }
@@ -194,7 +194,7 @@ public class SynchronizeService extends JobIntentService {
 
                 sqlHandler.insertClaimUploadStatus(sqlHandler.getClaimUUIDForCode(details.getString("ClaimCode")),
                         AppInformation.DateTimeInfo.getDefaultIsoDatetimeFormatter().format(new Date()),
-                        "Exported", null);
+                        SQLHandler.CLAIM_UPLOAD_STATUS_EXPORTED, null);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, "Exception while exporting claims", e);
             }
@@ -256,9 +256,9 @@ public class SynchronizeService extends JobIntentService {
     private void handleGetClaimCount() {
         JSONObject counts = sqlHandler.getClaimCounts();
 
-        int pendingCount = counts.optInt("Pending", 0);
-        int acceptedCount = counts.optInt("Accepted", 0);
-        int rejectedCount = counts.optInt("Rejected", 0);
+        int pendingCount = counts.optInt(EXTRA_CLAIM_COUNT_PENDING, 0);
+        int acceptedCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ACCEPTED, 0);
+        int rejectedCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_REJECTED, 0);
         broadcastClaimCount(pendingCount, acceptedCount, rejectedCount);
     }
 
