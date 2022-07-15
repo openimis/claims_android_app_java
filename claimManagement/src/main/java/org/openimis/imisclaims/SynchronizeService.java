@@ -256,7 +256,7 @@ public class SynchronizeService extends JobIntentService {
     private void handleGetClaimCount() {
         JSONObject counts = sqlHandler.getClaimCounts();
 
-        int pendingCount = counts.optInt(EXTRA_CLAIM_COUNT_PENDING, 0);
+        int pendingCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ENTERED, 0);
         int acceptedCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ACCEPTED, 0);
         int rejectedCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_REJECTED, 0);
         broadcastClaimCount(pendingCount, acceptedCount, rejectedCount);
