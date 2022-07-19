@@ -24,7 +24,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     public static final String CLAIM_UPLOAD_STATUS_REJECTED = "Rejected";
     public static final String CLAIM_UPLOAD_STATUS_ERROR = "Error";
     public static final String CLAIM_UPLOAD_STATUS_EXPORTED = "Exported";
-    public static final String CLAIM_UPLOAD_STATUS_PENDING = "Pending";
+    public static final String CLAIM_UPLOAD_STATUS_ENTERED = "Entered";
 
     public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Databases") + "/" + "Mapping.db3";
     public static final String DB_NAME_DATA = Global.getGlobal().getSubdirectory("Databases") + "/" + "ImisData.db3";
@@ -403,10 +403,9 @@ public class SQLHandler extends SQLiteOpenHelper {
         // This is required to support legacy Rest API and Web App
         JSONArray claims = getQueryResultAsJsonArray(
                 "SELECT ClaimUUID, ClaimDate, HFCode, ClaimAdmin, ClaimCode, GuaranteeNumber, InsureeNumber AS CHFID, StartDate, EndDate, ICDCode, Comment, Total, ICDCode1, ICDCode2, ICDCode3, ICDCode4, VisitType" +
-                        " FROM tblClaimDetails tcd" +
-                        " WHERE NOT EXISTS (SELECT tcus.ClaimUUID FROM tblClaimUploadStatus tcus WHERE tcus.ClaimUUID = tcd.ClaimUUID AND tcus.UploadStatus != ?)",
-                new String[]{"ClaimUUID", "ClaimDate", "HFCode", "ClaimAdmin", "ClaimCode", "GuaranteeNumber", "CHFID", "StartDate", "EndDate", "ICDCode", "Comment", "Total", "ICDCode1", "ICDCode2", "ICDCode3", "ICDCode4", "VisitType"},
-                new String[] {CLAIM_UPLOAD_STATUS_ERROR}
+                        " FROM tblClaimDetails cd" +
+                        " WHERE NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus != ?)",
+                new String[]{CLAIM_UPLOAD_STATUS_ERROR}
         );
 
         JSONArray result = new JSONArray();
@@ -448,15 +447,16 @@ public class SQLHandler extends SQLiteOpenHelper {
     }
 
     @NonNull
-    public JSONArray getQueryResultAsJsonArray(@NonNull String rawQuery, String[] columns, String[] selectionArgs) {
+    public JSONArray getQueryResultAsJsonArray(@NonNull String rawQuery, String[] selectionArgs) {
         JSONArray resultArray = new JSONArray();
 
         try (Cursor c = db.rawQuery(rawQuery, selectionArgs)) {
             while (c.moveToNext()) {
                 JSONObject row = new JSONObject();
-                for (String column : columns) {
-                    row.put(column, c.getString(c.getColumnIndexOrThrow(column)));
+                for (int i = 0; i < c.getColumnCount(); i++) {
+                    row.put(c.getColumnName(i), c.getString(i));
                 }
+
                 resultArray.put(row);
             }
         } catch (Exception e) {
@@ -525,8 +525,7 @@ public class SQLHandler extends SQLiteOpenHelper {
                 "SELECT CASE WHEN cus.UploadStatus IS NULL OR cus.UploadStatus = ? THEN ? ELSE cus.UploadStatus END AS Status, count(*) AS Amount" +
                         " FROM tblClaimDetails cd LEFT JOIN tblClaimUploadStatus cus on cd.ClaimUUID=cus.ClaimUUID" +
                         " GROUP BY Status",
-                new String[]{"Status", "Amount"},
-                new String[]{CLAIM_UPLOAD_STATUS_ERROR, CLAIM_UPLOAD_STATUS_PENDING}
+                new String[]{CLAIM_UPLOAD_STATUS_ERROR, CLAIM_UPLOAD_STATUS_ENTERED}
         );
 
         JSONObject result = new JSONObject();
@@ -540,5 +539,36 @@ public class SQLHandler extends SQLiteOpenHelper {
         }
 
         return result;
+    }
+
+    @NonNull
+    public JSONArray getClaimInfo(String selection, String[] selectionArgs) {
+        String query = "SELECT " +
+                "ClaimUUID, ClaimCode, ClaimDate, InsureeNumber, " +
+                "COALESCE((SELECT SUM(ItemPrice*ItemQuantity) FROM tblClaimItems ci WHERE ci.ClaimUUID = cd.ClaimUUID GROUP BY ci.ClaimUUID), 0) " +
+                "+ COALESCE((SELECT SUM(ServicePrice*ServiceQuantity) FROM tblClaimServices cs WHERE cs.ClaimUUID = cd.ClaimUUID GROUP BY cs.ClaimUUID), 0) AS TotalClaimed " +
+                "FROM tblClaimDetails cd";
+
+        if (selection != null) {
+            query = query + " WHERE " + selection;
+        }
+
+        return getQueryResultAsJsonArray(query, selectionArgs);
+    }
+
+    @NonNull
+    public JSONArray getEnteredClaimInfo() {
+        return getClaimInfo("NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus != ?)", new String[]{CLAIM_UPLOAD_STATUS_ERROR});
+    }
+
+    @NonNull
+    public JSONArray getAcceptedClaimInfo() {
+        return getClaimInfo("EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)", new String[]{CLAIM_UPLOAD_STATUS_ACCEPTED});
+    }
+
+    @NonNull
+    public JSONArray getRejectedClaimInfo() {
+        return getClaimInfo("EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)" +
+                " AND NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)", new String[]{CLAIM_UPLOAD_STATUS_REJECTED, CLAIM_UPLOAD_STATUS_ACCEPTED});
     }
 }

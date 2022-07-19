@@ -14,9 +14,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-    <!-- These statements are required as these permissions will be included otherwise -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- These statements are required as these permissions will be included otherwise -->
     <uses-permission
         android:name="android.permission.READ_CALL_LOG"
         tools:node="remove" />
@@ -35,6 +33,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:icon,android:label">
+
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -66,6 +65,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -111,5 +111,9 @@
         <activity
             android:name=".ClaimReview"
             android:label="@string/title_activity_claim_review" />
+        <activity
+            android:name=".claimlisting.ClaimListingActivity"
+            android:exported="false" />
     </application>
+
 </manifest>

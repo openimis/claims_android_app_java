@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".claimlisting.ClaimListingFragment"
+    android:orientation="vertical">
+
+    <android.support.v4.widget.ContentLoadingProgressBar
+
+        style="?android:attr/progressBarStyle"
+        android:id="@+id/progressIcon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:visibility="visible">
+
+    </android.support.v4.widget.ContentLoadingProgressBar>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/claimList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:visibility="gone">
+
+    </android.support.v7.widget.RecyclerView>
+</LinearLayout>

@@ -36,6 +36,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openimis.imisclaims.claimlisting.ClaimListingActivity;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -204,7 +205,8 @@ public class MainActivity extends ImisActivity {
         } else if (id == R.id.nav_Refresh_Map) {
             doLoggedIn(this::confirmRefreshMap);
         } else if (id == R.id.nav_claim) {
-            Intent intent = new Intent(this, ClaimActivity.class);
+            //Intent intent = new Intent(this, ClaimActivity.class);
+            Intent intent = new Intent(this, ClaimListingActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_Reports) {
             Intent intent = new Intent(getApplicationContext(), Report.class);
