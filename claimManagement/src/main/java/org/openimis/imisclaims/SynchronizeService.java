@@ -19,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.http.HttpResponse;
 import org.openimis.imisclaims.tools.Log;
@@ -44,7 +45,7 @@ public class SynchronizeService extends JobIntentService {
 
     public static final String EXTRA_CLAIM_RESPONSE = "SynchronizeService.EXTRA_CLAIM_RESPONSE";
     public static final String EXTRA_ERROR_MESSAGE = "SynchronizeService.EXTRA_ERROR_MESSAGE";
-    public static final String EXTRA_CLAIM_COUNT_PENDING = "SynchronizeService.EXTRA_CLAIM_COUNT_PENDING";
+    public static final String EXTRA_CLAIM_COUNT_ENTERED = "SynchronizeService.EXTRA_CLAIM_COUNT_ENTERED";
     public static final String EXTRA_CLAIM_COUNT_ACCEPTED = "SynchronizeService.EXTRA_CLAIM_COUNT_ACCEPTED";
     public static final String EXTRA_CLAIM_COUNT_REJECTED = "SynchronizeService.EXTRA_CLAIM_COUNT_REJECTED";
     public static final String EXTRA_EXPORT_URI = "SynchronizeService.EXTRA_EXPORT_URI";
@@ -256,10 +257,10 @@ public class SynchronizeService extends JobIntentService {
     private void handleGetClaimCount() {
         JSONObject counts = sqlHandler.getClaimCounts();
 
-        int pendingCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ENTERED, 0);
+        int enteredCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ENTERED, 0);
         int acceptedCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ACCEPTED, 0);
         int rejectedCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_REJECTED, 0);
-        broadcastClaimCount(pendingCount, acceptedCount, rejectedCount);
+        broadcastClaimCount(enteredCount, acceptedCount, rejectedCount);
     }
 
     private String getErrorMessage(int responseCode) {
@@ -278,7 +279,7 @@ public class SynchronizeService extends JobIntentService {
         Intent successIntent = new Intent(ACTION_SYNC_SUCCESS);
         successIntent.putExtra(EXTRA_CLAIM_RESPONSE, claimResponse.toString());
         sendBroadcast(successIntent);
-        Log.i(LOG_TAG, String.format("%s finished with %s, messages count: %d", lastAction, ACTION_SYNC_SUCCESS, claimResponse.length()));
+        Log.i(LOG_TAG, String.format(Locale.US, "%s finished with %s, messages count: %d", lastAction, ACTION_SYNC_SUCCESS, claimResponse.length()));
     }
 
 
@@ -296,12 +297,12 @@ public class SynchronizeService extends JobIntentService {
         Log.i(LOG_TAG, String.format("%s finished with %s, error message: %s", lastAction, action, errorMessage));
     }
 
-    private void broadcastClaimCount(int pending, int accepted, int rejected) {
+    private void broadcastClaimCount(int entered, int accepted, int rejected) {
         Intent resultIntent = new Intent(ACTION_CLAIM_COUNT_RESULT);
-        resultIntent.putExtra(EXTRA_CLAIM_COUNT_PENDING, pending);
+        resultIntent.putExtra(EXTRA_CLAIM_COUNT_ENTERED, entered);
         resultIntent.putExtra(EXTRA_CLAIM_COUNT_ACCEPTED, accepted);
         resultIntent.putExtra(EXTRA_CLAIM_COUNT_REJECTED, rejected);
         sendBroadcast(resultIntent);
-        Log.i(LOG_TAG, String.format("%s finished with %s, result:  p: %d,a: %d,r: %d", lastAction, ACTION_CLAIM_COUNT_RESULT, pending, accepted, rejected));
+        Log.i(LOG_TAG, String.format(Locale.US, "%s finished with %s, result:  p: %d,a: %d,r: %d", lastAction, ACTION_CLAIM_COUNT_RESULT, entered, accepted, rejected));
     }
 }

@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +22,17 @@ import org.openimis.imisclaims.tools.Log;
 import java.util.ArrayList;
 
 public abstract class ImisActivity extends AppCompatActivity {
+
+    /**
+     * Supplier interface missing from APIs 21-23 (can be removed in case of min API level bumped above 23)
+     * Allows specifying no argument lambdas with a return type
+     *
+     * @param <T> Return type of a supplier runnable
+     */
+    public interface Supplier<T> {
+        T get();
+    }
+
     private static final String BASE_LOG_TAG = "IMISACTIVITY";
     private BroadcastReceiver broadcastReceiver;
     private final ArrayList<String> emptyBroadcastList = new ArrayList<>();
@@ -295,7 +307,7 @@ public abstract class ImisActivity extends AppCompatActivity {
      *                       This can be used to prevent fast flashing of UI elements modified by the
      *                       onTaskFinished.
      */
-    protected void runOnNewThread(Runnable task, Runnable onTaskFinished, long taskMinLength) {
+    protected void runOnNewThread(@NonNull Runnable task, @NonNull Runnable onTaskFinished, long taskMinLength) {
         new Thread(() -> {
             long start = System.currentTimeMillis();
             task.run();
@@ -314,6 +326,29 @@ public abstract class ImisActivity extends AppCompatActivity {
         }).start();
     }
 
+    protected void runOnNewThread(@NonNull Supplier<Boolean> task, @NonNull Runnable onTaskSucceed, @NonNull Runnable onTaskFailed, long taskMinLength) {
+        new Thread(() -> {
+            long start = System.currentTimeMillis();
+            boolean result = task.get();
+            long length = System.currentTimeMillis() - start;
+
+            //This prevents fast flashing
+            if (taskMinLength > 0) {
+                try {
+                    Thread.sleep(length >= taskMinLength ? 0 : taskMinLength - length);
+                } catch (InterruptedException e) {
+                    Log.e(BASE_LOG_TAG, "Thread interrupted!", e);
+                }
+            }
+
+            if (result) {
+                onTaskSucceed.run();
+            } else {
+                onTaskFailed.run();
+            }
+        }).start();
+    }
+
     /**
      * @param task           Task to run on a new thread
      * @param onTaskFinished Task to run after the initial task was finished
@@ -329,5 +364,18 @@ public abstract class ImisActivity extends AppCompatActivity {
     protected void runOnNewThread(Runnable task) {
         runOnNewThread(task, () -> {
         }, 0);
+    }
+
+    /**
+     * Disable provided view. This method calls setEnabled(false) on any view, and additional
+     * disabling code for specific types of views (Like disabling key listener for Text View)
+     *
+     * @param view View to be disabled
+     */
+    protected void disableView(@NonNull View view) {
+        view.setEnabled(false);
+        if (view instanceof TextView) {
+            ((TextView) view).setKeyListener(null);
+        }
     }
 }
