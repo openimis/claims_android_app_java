@@ -21,8 +21,6 @@ import java.util.Objects;
  */
 public class ClaimListingFragment extends Fragment {
     private static final String ARG_PAGE = "ClaimListingFragment.ARG_PAGE";
-    private static final int SCROLL_DIRECTION_UP = -1;
-    private static final int SCROLL_DIRECTION_DOWN = 1;
 
     private RecyclerView claimList;
     private ContentLoadingProgressBar progressIcon;
@@ -62,7 +60,7 @@ public class ClaimListingFragment extends Fragment {
         progressIcon = root.findViewById(R.id.progressIcon);
         claimList = root.findViewById(R.id.claimList);
         claimList.setLayoutManager(new LinearLayoutManager(getContext()));
-        claimListingFragmentAdapter = new ClaimListingFragmentAdapter(new JSONArray());
+        claimListingFragmentAdapter = new ClaimListingFragmentAdapter(getActivity(), page, new JSONArray());
         claimList.setAdapter(claimListingFragmentAdapter);
 
         loadContent();
@@ -73,7 +71,7 @@ public class ClaimListingFragment extends Fragment {
         new Thread(() -> {
             showProgressIndicator();
             claimListingFragmentAdapter.data = this.page.loadPageData(sqlHandler);
-            Objects.requireNonNull(getActivity()).runOnUiThread(() -> claimListingFragmentAdapter.notifyItemRangeChanged(0, claimListingFragmentAdapter.getItemCount()));
+            Objects.requireNonNull(getActivity()).runOnUiThread(() -> claimListingFragmentAdapter.notifyDataSetChanged());
             showContent();
         }).start();
     }

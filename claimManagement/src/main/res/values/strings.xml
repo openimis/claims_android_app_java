@@ -214,4 +214,10 @@
     <string name="XmlExportRetry">Creating XML file failed. Please retry to create the file on the next screen.</string>
     <string name="XmlExportFailed">XML Export failed.</string>
     <string name="entered">Entered</string>
+    <string name="ClaimNotFound">Claim data not found</string>
+    <string name="Unknown">Unknown</string>
+    <string name="ArchiveClaim">Archive Claim</string>
+    <string name="DeleteClaim">Delete Claim</string>
+    <string name="ConfirmArchiveClaim">Do you want to archive this claim?</string>
+    <string name="ConfirmDeleteClaim">Do you want to delete this claim?</string>
 </resources>

@@ -1,7 +1,6 @@
 package org.openimis.imisclaims;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -41,12 +40,14 @@ public class ClaimActivity extends ImisActivity {
     static final int StartDate_Dialog_ID = 0;
     static final int EndDate_Dialog_ID = 1;
 
-    String claimText;
-
     final Calendar cal = Calendar.getInstance();
 
     public static ArrayList<HashMap<String, String>> lvItemList;
     public static ArrayList<HashMap<String, String>> lvServiceList;
+    public static final String EXTRA_CLAIM_DATA = "claim";
+    public static final String EXTRA_CLAIM_UUID = "claimUUID";
+    public static final String EXTRA_READONLY = "readonly";
+
 
     private int year, month, day;
     int TotalItemService;
@@ -56,6 +57,7 @@ public class ClaimActivity extends ImisActivity {
     TextView tvItemTotal, tvServiceTotal;
     Button btnPost, btnNew;
     RadioGroup rgVisitType;
+    RadioButton rbEmergency, rbReferral, rbOther;
     ImageButton btnScan;
 
     @Override
@@ -90,37 +92,13 @@ public class ClaimActivity extends ImisActivity {
         etDiagnosis3 = findViewById(R.id.etDiagnosis3);
         etDiagnosis4 = findViewById(R.id.etDiagnosis4);
         rgVisitType = findViewById(R.id.rgVisitType);
+        rbEmergency = findViewById(R.id.rbEmergency);
+        rbReferral = findViewById(R.id.rbReferral);
+        rbOther = findViewById(R.id.rbOther);
 
 
         tvItemTotal.setText("0");
         tvServiceTotal.setText("0");
-
-        Intent intent = getIntent();
-        claimText = intent.getStringExtra("claim");
-
-        if (claimText == null) {
-            if (sqlHandler.getAdjustability("ClaimAdministrator").equals("N")) {
-                etClaimAdmin.setVisibility(View.GONE);
-            } else {
-                if (global.getOfficerCode() != null) {
-                    etClaimAdmin.setText(global.getOfficerCode());
-                    etHealthFacility.setText(global.getOfficerHealthFacility());
-
-                    // hfCode and adminCode not editable
-                    etHealthFacility.setEnabled(false);
-                    etHealthFacility.setKeyListener(null);
-                    etClaimAdmin.setEnabled(false);
-                    etClaimAdmin.setKeyListener(null);
-                }
-            }
-
-            if (sqlHandler.getAdjustability("GuaranteeNo").equals("N")) {
-                etGuaranteeNo.setVisibility(View.GONE);
-            }
-
-        } else {
-            fillForm();
-        }
 
         DiseaseAdapter adapter = new DiseaseAdapter(ClaimActivity.this, sqlHandler);
         etDiagnosis.setAdapter(adapter);
@@ -154,14 +132,6 @@ public class ClaimActivity extends ImisActivity {
         });
 
 
-        btnNew.setOnClickListener(v -> {
-            if (TotalItemService > 0) {
-                ConfirmNewDialog(getResources().getString(R.string.ConfirmDiscard));
-            } else {
-                ClearForm();
-            }
-        });
-
         btnScan.setOnClickListener(v -> {
             Intent scanIntent = new Intent(this, com.google.zxing.client.android.CaptureActivity.class);
             scanIntent.setAction("com.google.zxing.client.android.SCAN");
@@ -172,17 +142,100 @@ public class ClaimActivity extends ImisActivity {
         btnPost.setOnClickListener(v -> {
             progressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.Processing));
             runOnNewThread(
-                    () -> {
-                        if (isValidData()) saveClaim();
-                    },
+                    () -> isValidData() && saveClaim(),
                     () -> runOnUiThread(() -> {
                         ClearForm();
                         progressDialog.dismiss();
-                        ShowDialog(getResources().getString(R.string.ClaimPosted));
-
+                        showDialog(getResources().getString(R.string.ClaimPosted), ((dialog, which) -> {
+                            Intent intent = getIntent();
+                            if (intent.hasExtra(EXTRA_CLAIM_UUID)) {
+                                finish();
+                            }
+                        }));
                     }),
+                    () -> {
+                    },
                     500
             );
+        });
+
+        if (sqlHandler.getAdjustability("GuaranteeNo").equals("N")) {
+            etGuaranteeNo.setVisibility(View.GONE);
+        }
+        if (sqlHandler.getAdjustability("ClaimAdministrator").equals("N")) {
+            etClaimAdmin.setVisibility(View.GONE);
+        }
+
+        // hfCode and adminCode not editable
+        disableView(etHealthFacility);
+        disableView(etClaimAdmin);
+
+        Intent intent = getIntent();
+
+        if (intent.hasExtra(EXTRA_CLAIM_DATA)) {
+            fillClaimFromRestore(intent.getStringExtra(EXTRA_CLAIM_DATA));
+            btnNew.setVisibility(View.INVISIBLE);
+        } else if (intent.hasExtra(EXTRA_CLAIM_UUID)) {
+            fillClaimFromDatabase(intent.getStringExtra(EXTRA_CLAIM_UUID));
+
+            if (isIntentReadonly()) {
+                disableForm();
+                btnNew.setText(R.string.ArchiveClaim);
+                btnNew.setOnClickListener(v -> confirmArchive());
+            } else {
+                btnNew.setText(R.string.DeleteClaim);
+                btnNew.setOnClickListener(v -> confirmDelete());
+            }
+        } else {
+            if (global.getOfficerCode() != null) {
+                etClaimAdmin.setText(global.getOfficerCode());
+                etHealthFacility.setText(global.getOfficerHealthFacility());
+            }
+            btnNew.setOnClickListener(v -> {
+                if (TotalItemService > 0) {
+                    confirmNewDialog(getResources().getString(R.string.ConfirmDiscard));
+                } else {
+                    ClearForm();
+                }
+            });
+        }
+    }
+
+    private boolean isIntentReadonly() {
+        Intent intent = getIntent();
+        return intent.getBooleanExtra(EXTRA_READONLY, false);
+    }
+
+    private void confirmDelete() {
+        showDialog(getResources().getString(R.string.ConfirmDeleteClaim), (dialog, which) -> {
+            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.Processing), getResources().getString(R.string.DeleteClaim));
+            Intent intent = getIntent();
+            if (intent.hasExtra(EXTRA_CLAIM_UUID)) {
+                runOnNewThread(() -> sqlHandler.deleteClaim(intent.getStringExtra(EXTRA_CLAIM_UUID)), () -> {
+                    progressDialog.dismiss();
+                    runOnUiThread(this::finish);
+                }, 500);
+            } else {
+                Log.e(LOG_TAG, "Delete claim invoked, but no claim UUID");
+            }
+        });
+    }
+
+    private void confirmArchive() {
+        showDialog(getResources().getString(R.string.ConfirmArchiveClaim), (dialog, which) -> {
+            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.Processing), getResources().getString(R.string.ArchiveClaim));
+            Intent intent = getIntent();
+            if (intent.hasExtra(EXTRA_CLAIM_UUID)) {
+                runOnNewThread(() -> {
+                    String date = AppInformation.DateTimeInfo.getDefaultIsoDatetimeFormatter().format(new Date());
+                    sqlHandler.insertClaimUploadStatus(intent.getStringExtra(EXTRA_CLAIM_UUID), date, SQLHandler.CLAIM_UPLOAD_STATUS_ARCHIVED, null);
+                }, () -> {
+                    progressDialog.dismiss();
+                    runOnUiThread(this::finish);
+                }, 500);
+            } else {
+                Log.e(LOG_TAG, "Archive claim invoked, but no claim UUID");
+            }
         });
     }
 
@@ -203,12 +256,14 @@ public class ClaimActivity extends ImisActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.mnuAddItems:
-                Intent AddItems = new Intent(ClaimActivity.this, AddItems.class);
-                ClaimActivity.this.startActivity(AddItems);
+                Intent addItemsIntent = new Intent(ClaimActivity.this, AddItems.class);
+                addItemsIntent.putExtra(EXTRA_READONLY, isIntentReadonly());
+                ClaimActivity.this.startActivity(addItemsIntent);
                 return true;
             case R.id.mnuAddServices:
-                Intent AddServices = new Intent(ClaimActivity.this, AddServices.class);
-                ClaimActivity.this.startActivity(AddServices);
+                Intent addServicesIntent = new Intent(ClaimActivity.this, AddServices.class);
+                addServicesIntent.putExtra(EXTRA_READONLY, isIntentReadonly());
+                ClaimActivity.this.startActivity(addServicesIntent);
                 return true;
             default:
                 onBackPressed();
@@ -268,8 +323,8 @@ public class ClaimActivity extends ImisActivity {
 
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
+    protected void onResume() {
+        super.onResume();
 
         int TotalItem = getTotalItem();
         int TotalService = getTotalService();
@@ -277,7 +332,6 @@ public class ClaimActivity extends ImisActivity {
 
         tvItemTotal.setText(String.valueOf(TotalItem));
         tvServiceTotal.setText(String.valueOf(TotalService));
-
     }
 
     private void ClearForm() {
@@ -300,20 +354,43 @@ public class ClaimActivity extends ImisActivity {
         etClaimCode.requestFocus();
     }
 
-    private void fillForm() {
+    private void disableForm() {
+        disableView(etClaimCode);
+        disableView(etGuaranteeNo);
+        disableView(etInsureeNumber);
+        disableView(etStartDate);
+        disableView(etEndDate);
+        disableView(etDiagnosis);
+        disableView(etDiagnosis1);
+        disableView(etDiagnosis2);
+        disableView(etDiagnosis3);
+        disableView(etDiagnosis4);
+        disableView(rgVisitType);
+        disableView(etClaimCode);
+        disableView(btnPost);
+        disableView(rbEmergency);
+        disableView(rbReferral);
+        disableView(rbOther);
+    }
+
+    private void fillClaimFromRestore(String claimRestoreText) {
         try {
-            JSONObject claim = new JSONObject(claimText);
+            JSONObject claim = new JSONObject(claimRestoreText);
 
             String newClaimNumber = getResources().getString(R.string.restoredClaimNoPrefix) + claim.getString("claim_number");
             etClaimCode.setText(newClaimNumber);
 
-            etClaimAdmin.setText(global.getOfficerCode());
+            if (etClaimAdmin.getVisibility() != View.GONE) {
+                etClaimAdmin.setText(global.getOfficerCode());
+            }
             etHealthFacility.setText(global.getOfficerHealthFacility());
 
-            String guaranteeNumber = claim.getString("guarantee_number");
-            if ("".equals(guaranteeNumber) || "null".equals(guaranteeNumber))
-                etGuaranteeNo.setText("");
-            else etGuaranteeNo.setText(guaranteeNumber);
+            if (etGuaranteeNo.getVisibility() != View.GONE) {
+                String guaranteeNumber = claim.getString("guarantee_number");
+                if ("".equals(guaranteeNumber) || "null".equals(guaranteeNumber))
+                    etGuaranteeNo.setText("");
+                else etGuaranteeNo.setText(guaranteeNumber);
+            }
 
             etInsureeNumber.setText(claim.getString("insurance_number"));
             if (!claim.getString("claim_status").equals("Rejected"))
@@ -384,6 +461,93 @@ public class ClaimActivity extends ImisActivity {
         }
     }
 
+    private void fillClaimFromDatabase(String claimUUID) {
+        new Thread(() -> {
+            JSONObject claimObject = sqlHandler.getClaim(claimUUID);
+            if (claimObject == null) {
+                showDialog(getResources().getString(R.string.ClaimNotFound), (dialog, which) -> finish());
+            } else {
+                runOnUiThread(() -> {
+                    try {
+                        JSONObject claimDetails = claimObject.getJSONObject("details");
+
+                        etClaimCode.setText(claimDetails.getString("ClaimCode"));
+                        if (etClaimAdmin.getVisibility() != View.GONE) {
+                            etClaimAdmin.setText(claimDetails.getString("ClaimAdmin"));
+                        }
+                        etHealthFacility.setText(claimDetails.getString("HFCode"));
+
+                        if (etGuaranteeNo.getVisibility() != View.GONE) {
+                            etGuaranteeNo.setText(claimDetails.getString("GuaranteeNumber"));
+                        }
+
+                        etInsureeNumber.setText(claimDetails.getString("InsureeNumber"));
+                        etStartDate.setText(claimDetails.getString("StartDate"));
+                        etEndDate.setText(claimDetails.getString("EndDate"));
+
+                        etDiagnosis.setText(claimDetails.getString("ICDCode"));
+                        etDiagnosis1.setText(claimDetails.getString("ICDCode1"));
+                        etDiagnosis2.setText(claimDetails.getString("ICDCode2"));
+                        etDiagnosis3.setText(claimDetails.getString("ICDCode3"));
+                        etDiagnosis4.setText(claimDetails.getString("ICDCode4"));
+
+                        switch (claimDetails.getString("VisitType")) {
+                            case "E":
+                                rgVisitType.check(R.id.rbEmergency);
+                                break;
+                            case "R":
+                                rgVisitType.check(R.id.rbReferral);
+                                break;
+                            case "O":
+                                rgVisitType.check(R.id.rbOther);
+                                break;
+                            default:
+                                rgVisitType.clearCheck();
+                        }
+
+                        lvItemList.clear();
+                        if (claimObject.has("items")) {
+                            JSONArray items = claimObject.getJSONArray("items");
+                            for (int i = 0; i < items.length(); i++) {
+                                HashMap<String, String> item = new HashMap<>();
+                                JSONObject itemJson = items.getJSONObject(i);
+
+                                item.put("Name", sqlHandler.getReferenceName(itemJson.getString("ItemCode")));
+                                item.put("Code", itemJson.getString("ItemCode"));
+                                item.put("Price", itemJson.getString("ItemPrice"));
+                                item.put("Quantity", itemJson.getString("ItemQuantity"));
+
+                                lvItemList.add(item);
+                            }
+                        }
+                        tvItemTotal.setText(String.valueOf(lvItemList.size()));
+
+                        lvServiceList.clear();
+                        if (claimObject.has("services")) {
+                            JSONArray services = claimObject.getJSONArray("services");
+                            for (int i = 0; i < services.length(); i++) {
+                                HashMap<String, String> service = new HashMap<>();
+                                JSONObject serviceJson = services.getJSONObject(i);
+
+                                service.put("Name", sqlHandler.getReferenceName(serviceJson.getString("ServiceCode")));
+                                service.put("Code", serviceJson.getString("ServiceCode"));
+                                service.put("Price", serviceJson.getString("ServicePrice"));
+                                service.put("Quantity", serviceJson.getString("ServiceQuantity"));
+
+                                lvServiceList.add(service);
+                            }
+                        }
+                        tvServiceTotal.setText(String.valueOf(lvServiceList.size()));
+
+                        TotalItemService = lvItemList.size() + lvServiceList.size();
+                    } catch (JSONException e) {
+                        Log.e(LOG_TAG, String.format("Error while parsing claim (%s)", claimUUID));
+                    }
+                });
+            }
+        }).start();
+    }
+
     private int getTotalItem() {
         return lvItemList.size();
     }
@@ -408,37 +572,37 @@ public class ClaimActivity extends ImisActivity {
     private boolean isValidData() {
 
         if (etHealthFacility.getText().length() == 0) {
-            ShowValidationDialog(etHealthFacility, getResources().getString(R.string.MissingHealthFacility));
+            showValidationDialog(etHealthFacility, getResources().getString(R.string.MissingHealthFacility));
             return false;
         }
 
         if (sqlHandler.getAdjustability("ClaimAdministrator").equals("M") && etClaimAdmin.getText().length() == 0) {
-            ShowValidationDialog(etClaimAdmin, getResources().getString(R.string.MissingClaimAdmin));
+            showValidationDialog(etClaimAdmin, getResources().getString(R.string.MissingClaimAdmin));
             return false;
         }
 
         if (etClaimCode.getText().length() == 0) {
-            ShowValidationDialog(etClaimCode, getResources().getString(R.string.MissingClaimCode));
+            showValidationDialog(etClaimCode, getResources().getString(R.string.MissingClaimCode));
             return false;
         }
 
         if (etInsureeNumber.getText().length() == 0) {
-            ShowValidationDialog(etInsureeNumber, getResources().getString(R.string.MissingCHFID));
+            showValidationDialog(etInsureeNumber, getResources().getString(R.string.MissingCHFID));
             return false;
         }
 
         if (!isValidInsureeNumber()) {
-            ShowValidationDialog(etInsureeNumber, getResources().getString(R.string.InvalidCHFID));
+            showValidationDialog(etInsureeNumber, getResources().getString(R.string.InvalidCHFID));
             return false;
         }
 
         if (etStartDate.getText().length() == 0) {
-            ShowValidationDialog(etStartDate, getResources().getString(R.string.MissingStartDate));
+            showValidationDialog(etStartDate, getResources().getString(R.string.MissingStartDate));
             return false;
         }
 
         if (etEndDate.getText().length() == 0) {
-            ShowValidationDialog(etEndDate, getResources().getString(R.string.MissingEndDate));
+            showValidationDialog(etEndDate, getResources().getString(R.string.MissingEndDate));
             return false;
         }
 
@@ -455,12 +619,12 @@ public class ClaimActivity extends ImisActivity {
             Date End_date = format.parse(EndDate);
 
             if (End_date.after(Current_date)) {
-                ShowValidationDialog(etEndDate, getResources().getString(R.string.AfterCurrentDate));
+                showValidationDialog(etEndDate, getResources().getString(R.string.AfterCurrentDate));
                 return false;
             }
 
             if (Start_date.after(End_date)) {
-                ShowValidationDialog(etEndDate, getResources().getString(R.string.BiggerDate));
+                showValidationDialog(etEndDate, getResources().getString(R.string.BiggerDate));
                 return false;
             }
         } catch (Exception e) {
@@ -468,17 +632,17 @@ public class ClaimActivity extends ImisActivity {
         }
 
         if (etDiagnosis.getText().length() == 0) {
-            ShowValidationDialog(etDiagnosis, getResources().getString(R.string.MissingDisease));
+            showValidationDialog(etDiagnosis, getResources().getString(R.string.MissingDisease));
             return false;
         }
 
         if (rgVisitType.getCheckedRadioButtonId() == -1) {
-            ShowValidationDialog(rgVisitType, getResources().getString(R.string.MissingVisitType));
+            showValidationDialog(rgVisitType, getResources().getString(R.string.MissingVisitType));
             return false;
         }
 
         if (Float.parseFloat(tvItemTotal.getText().toString()) + Float.parseFloat(tvServiceTotal.getText().toString()) == 0) {
-            ShowValidationDialog(tvItemTotal, getResources().getString(R.string.MissingClaim));
+            showValidationDialog(tvItemTotal, getResources().getString(R.string.MissingClaim));
             return false;
         }
 
@@ -490,37 +654,27 @@ public class ClaimActivity extends ImisActivity {
         return escape.CheckCHFID(etInsureeNumber.getText().toString());
     }
 
-    protected void ShowValidationDialog(final Object tv, String msg) {
-        runOnUiThread(() -> new AlertDialog.Builder(this)
-                .setMessage(msg)
-                .setCancelable(false)
-                .setPositiveButton(R.string.Ok, (dialog, which) -> {
-                    if (tv instanceof EditText) {
-                        EditText temp = (EditText) tv;
-                        temp.requestFocus();
-                    }
-                }).show());
+    protected void showValidationDialog(View view, String msg) {
+        runOnUiThread(() -> showDialog(msg, (dialog, which) -> {
+            if (view instanceof EditText) {
+                EditText editText = (EditText) view;
+                editText.requestFocus();
+            }
+        }));
     }
 
-    protected void ShowDialog(String msg) {
-        runOnUiThread(() -> new AlertDialog.Builder(this)
-                .setMessage(msg)
-                .setCancelable(false)
-                .setPositiveButton(getResources().getString(R.string.Ok), (dialog, which) -> {
-                }).show());
+    protected void confirmNewDialog(String msg) {
+        runOnUiThread(() -> showDialog(msg, (dialog, which) -> ClearForm(), (dialog, which) -> dialog.dismiss()));
     }
 
-    protected void ConfirmNewDialog(String msg) {
-        runOnUiThread(() -> new AlertDialog.Builder(this)
-                .setMessage(msg)
-                .setCancelable(true)
-                .setPositiveButton(getResources().getString(R.string.Yes), (dialog, which) -> ClearForm())
-                .setNegativeButton(getResources().getString(R.string.No), (dialog, which) -> dialog.dismiss()).show());
-
-    }
-
-    private void saveClaim() {
-        String claimUUID = UUID.randomUUID().toString();
+    private boolean saveClaim() {
+        Intent intent = getIntent();
+        String claimUUID;
+        if (intent.hasExtra(EXTRA_CLAIM_UUID)) {
+            claimUUID = intent.getStringExtra(EXTRA_CLAIM_UUID);
+        } else {
+            claimUUID = UUID.randomUUID().toString();
+        }
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         Calendar cal = Calendar.getInstance();
@@ -577,5 +731,6 @@ public class ClaimActivity extends ImisActivity {
         }
 
         sqlHandler.saveClaim(claimCV, claimItemCVs, claimServiceCVs);
+        return true;
     }
 }

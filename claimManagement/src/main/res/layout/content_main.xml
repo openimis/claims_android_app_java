@@ -102,7 +102,7 @@
             android:fontFamily="sans-serif-light" />
 
         <TextView
-            android:id="@+id/pending_count"
+            android:id="@+id/entered_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="5"

@@ -11,8 +11,11 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.tools.Log;
+
+import java.util.Locale;
 
 public class SQLHandler extends SQLiteOpenHelper {
     private static final String LOG_TAG = "SQLHELPER";
@@ -25,6 +28,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     public static final String CLAIM_UPLOAD_STATUS_ERROR = "Error";
     public static final String CLAIM_UPLOAD_STATUS_EXPORTED = "Exported";
     public static final String CLAIM_UPLOAD_STATUS_ENTERED = "Entered";
+    public static final String CLAIM_UPLOAD_STATUS_ARCHIVED = "Archived";
 
     public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Databases") + "/" + "Mapping.db3";
     public static final String DB_NAME_DATA = Global.getGlobal().getSubdirectory("Databases") + "/" + "ImisData.db3";
@@ -39,6 +43,8 @@ public class SQLHandler extends SQLiteOpenHelper {
     private static final String createTableClaimServices = "CREATE TABLE IF NOT EXISTS tblClaimServices(ClaimUUID TEXT, ServiceCode TEXT, ServicePrice TEXT, ServiceQuantity TEXT);";
     private static final String createTableClaimUploadStatus = "CREATE TABLE IF NOT EXISTS tblClaimUploadStatus(ClaimUUID TEXT, UploadDate TEXT, UploadStatus TEXT, UploadMessage TEXT);";
 
+    public final String REFERENCE_UNKNOWN;
+
     private final Global global;
     private SQLiteDatabase db;
     private SQLiteDatabase dbMapping;
@@ -46,6 +52,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     public SQLHandler(Context context) {
         super(context, DB_NAME_MAPPING, null, 3);
         global = (Global) context.getApplicationContext();
+        REFERENCE_UNKNOWN = context.getResources().getString(R.string.Unknown);
         createOrOpenDatabases();
     }
 
@@ -384,17 +391,47 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     public void deleteClaim(String claimUUID) {
         try {
+            String claimUUIDUpper = claimUUID.toUpperCase(Locale.US);
             db.beginTransaction();
-            db.delete("tblClaimDetails", "ClaimUUID = ?", new String[]{claimUUID});
-            db.delete("tblClaimItems", "ClaimUUID = ?", new String[]{claimUUID});
-            db.delete("tblClaimServices", "ClaimUUID = ?", new String[]{claimUUID});
-            db.delete("tblClaimUploadStatus", "ClaimUUID = ?", new String[]{claimUUID});
+            db.delete("tblClaimItems", "UPPER(ClaimUUID) = ?", new String[]{claimUUIDUpper});
+            db.delete("tblClaimServices", "UPPER(ClaimUUID) = ?", new String[]{claimUUIDUpper});
+            db.delete("tblClaimUploadStatus", "UPPER(ClaimUUID) = ?", new String[]{claimUUIDUpper});
+            db.delete("tblClaimDetails", "UPPER(ClaimUUID) = ?", new String[]{claimUUIDUpper});
             db.setTransactionSuccessful();
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error while inserting claim", e);
         } finally {
             db.endTransaction();
         }
+    }
+
+    public JSONObject getClaim(String claimUUID) {
+        JSONArray claimDetails = getQueryResultAsJsonArray("tblClaimDetails",
+                new String[]{"ClaimUUID", "ClaimDate", "HFCode", "ClaimAdmin", "ClaimCode", "GuaranteeNumber", "InsureeNumber", "StartDate", "EndDate", "ICDCode", "Comment", "Total", "ICDCode1", "ICDCode2", "ICDCode3", "ICDCode4", "VisitType"},
+                "LOWER(ClaimUUID) = ?",
+                new String[]{claimUUID.toLowerCase(Locale.ROOT)});
+
+        if (claimDetails.length() == 0) {
+            return null;
+        }
+
+        if (claimDetails.length() > 1) {
+            Log.e(LOG_TAG, "Multiple claims with the same UUID");
+            return null;
+        }
+
+        try {
+            JSONObject resultClaim = new JSONObject();
+            resultClaim.put("details", claimDetails.getJSONObject(0));
+            resultClaim.put("items", getClaimItems(claimUUID));
+            resultClaim.put("services", getClaimServices(claimUUID));
+
+            return resultClaim;
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, String.format("Error while processing claim (%s)", claimUUID));
+        }
+
+        return null;
     }
 
     @NonNull
@@ -563,12 +600,33 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     @NonNull
     public JSONArray getAcceptedClaimInfo() {
-        return getClaimInfo("EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)", new String[]{CLAIM_UPLOAD_STATUS_ACCEPTED});
+        return getClaimInfo("EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND (cus.UploadStatus = ? OR cus.UploadStatus = ?))" +
+                " AND NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)", new String[]{CLAIM_UPLOAD_STATUS_ACCEPTED, CLAIM_UPLOAD_STATUS_EXPORTED, CLAIM_UPLOAD_STATUS_ARCHIVED});
     }
 
     @NonNull
     public JSONArray getRejectedClaimInfo() {
         return getClaimInfo("EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)" +
-                " AND NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)", new String[]{CLAIM_UPLOAD_STATUS_REJECTED, CLAIM_UPLOAD_STATUS_ACCEPTED});
+                " AND NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)", new String[]{CLAIM_UPLOAD_STATUS_REJECTED, CLAIM_UPLOAD_STATUS_ARCHIVED});
+    }
+
+    @NonNull
+    public String getReferenceName(@NonNull String referenceCode) {
+        JSONArray result = getQueryResultAsJsonArray("tblReferences", new String[]{"Name"}, "Code = ?", new String[]{referenceCode});
+
+        if (result.length() < 1) {
+            Log.w(LOG_TAG, "Unknown reference name for code: " + referenceCode);
+            return REFERENCE_UNKNOWN;
+        } else if (result.length() > 1) {
+            Log.w(LOG_TAG, "Multiple reference names for code: " + referenceCode);
+        }
+
+        try {
+            JSONObject resultObject = result.getJSONObject(0);
+            return resultObject.getString("Name");
+        } catch (JSONException | IndexOutOfBoundsException e) {
+            Log.e(LOG_TAG, "Error while parsing reference name result", e);
+            return REFERENCE_UNKNOWN;
+        }
     }
 }

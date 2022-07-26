@@ -16,10 +16,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -56,7 +56,7 @@ public class MainActivity extends ImisActivity {
 
     TextView accepted_count;
     TextView rejected_count;
-    TextView pending_count;
+    TextView entered_Count;
     TextView AdminName;
     DrawerLayout drawer;
     TextView loginText;
@@ -75,7 +75,7 @@ public class MainActivity extends ImisActivity {
         if (SynchronizeService.ACTION_CLAIM_COUNT_RESULT.equals(action)) {
             accepted_count.setText(String.valueOf(intent.getIntExtra(SynchronizeService.EXTRA_CLAIM_COUNT_ACCEPTED, 0)));
             rejected_count.setText(String.valueOf(intent.getIntExtra(SynchronizeService.EXTRA_CLAIM_COUNT_REJECTED, 0)));
-            pending_count.setText(String.valueOf(intent.getIntExtra(SynchronizeService.EXTRA_CLAIM_COUNT_PENDING, 0)));
+            entered_Count.setText(String.valueOf(intent.getIntExtra(SynchronizeService.EXTRA_CLAIM_COUNT_ENTERED, 0)));
         }
     }
 
@@ -130,11 +130,11 @@ public class MainActivity extends ImisActivity {
 
         accepted_count = findViewById(R.id.accepted_count);
         rejected_count = findViewById(R.id.rejected_count);
-        pending_count = findViewById(R.id.pending_count);
+        entered_Count = findViewById(R.id.entered_count);
 
         accepted_count.setText("0");
         rejected_count.setText("0");
-        pending_count.setText("0");
+        entered_Count.setText("0");
 
         AdminName = findViewById(R.id.AdminName);
 

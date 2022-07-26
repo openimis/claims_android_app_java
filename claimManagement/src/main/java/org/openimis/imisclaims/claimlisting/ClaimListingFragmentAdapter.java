@@ -1,5 +1,8 @@
 package org.openimis.imisclaims.claimlisting;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +13,7 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openimis.imisclaims.ClaimActivity;
 import org.openimis.imisclaims.R;
 import org.openimis.imisclaims.tools.Log;
 
@@ -18,16 +22,19 @@ import org.openimis.imisclaims.tools.Log;
  */
 public class ClaimListingFragmentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String LOG_TAG = "CLAIMLISTINGFRAGMENTADAPTER";
-
+    private Context context;
+    private ClaimListingPage page;
     public JSONArray data;
 
-    public ClaimListingFragmentAdapter(JSONArray data) {
+    public ClaimListingFragmentAdapter(Context context, ClaimListingPage page, JSONArray data) {
+        this.context = context;
+        this.page = page;
         this.data = data;
     }
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View row = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_claim_listing_recycler_item, viewGroup, false);
 
         return new ClaimListingViewHolder(row);
@@ -44,6 +51,18 @@ public class ClaimListingFragmentAdapter extends RecyclerView.Adapter<RecyclerVi
             claimListingViewHolder.claimDate.setText(row.getString("ClaimDate"));
             claimListingViewHolder.insureeNumber.setText(row.getString("InsureeNumber"));
             claimListingViewHolder.totalClaimed.setText(row.getString("TotalClaimed"));
+
+            claimListingViewHolder.itemView.setOnClickListener((view) -> {
+                try {
+                    Intent intent = new Intent(context, ClaimActivity.class);
+                    intent.putExtra(ClaimActivity.EXTRA_CLAIM_UUID, row.getString("ClaimUUID"));
+                    intent.putExtra(ClaimActivity.EXTRA_READONLY, page != ClaimListingPage.ENTERED_PAGE);
+                    ((Activity) context).startActivity(intent);
+                } catch (JSONException | IndexOutOfBoundsException e) {
+                    Log.e(LOG_TAG, "Error while handling item click", e);
+                }
+            });
+
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error while reading data", e);
         }
@@ -59,13 +78,15 @@ public class ClaimListingFragmentAdapter extends RecyclerView.Adapter<RecyclerVi
      * View holder containing references and events to specific fields of a claim list recycler view
      */
     private static class ClaimListingViewHolder extends RecyclerView.ViewHolder {
-        TextView claimCode;
-        TextView claimDate;
-        TextView insureeNumber;
-        TextView totalClaimed;
+        public View itemView;
+        public TextView claimCode;
+        public TextView claimDate;
+        public TextView insureeNumber;
+        public TextView totalClaimed;
 
         public ClaimListingViewHolder(@NonNull View itemView) {
             super(itemView);
+            this.itemView = itemView;
             claimCode = itemView.findViewById(R.id.claimCode);
             claimDate = itemView.findViewById(R.id.claimDate);
             insureeNumber = itemView.findViewById(R.id.insureeNumber);

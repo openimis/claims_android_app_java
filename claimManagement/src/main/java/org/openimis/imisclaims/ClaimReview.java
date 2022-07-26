@@ -68,7 +68,7 @@ public class ClaimReview extends ImisActivity {
 
     public void restoreClaim(View view) {
         Intent intent = new Intent(this, ClaimActivity.class);
-        intent.putExtra("claim", claimText);
+        intent.putExtra(ClaimActivity.EXTRA_CLAIM_DATA, claimText);
         startActivity(intent);
     }
 }
