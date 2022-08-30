@@ -33,6 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.util.JsonUtils;
 
 import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
@@ -275,7 +276,7 @@ public class EnquireActivity extends ImisActivity {
                     runOnUiThread(this::renderResult);
                 } else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     runOnUiThread(() -> showDialog(getResources().getString(R.string.RecordNotFound)));
-                }else {
+                } else {
                     runOnUiThread(() -> showDialog(rest.getHttpError(this, responseCode)));
                 }
             } catch (Exception e) {
@@ -312,7 +313,7 @@ public class EnquireActivity extends ImisActivity {
                 tvGender.setText(jsonObject.getString("gender"));
 
                 if (global.isNetworkAvailable()) {
-                    if (jsonObject.has("photoBase64") && !jsonObject.isNull("photoBase64") && !"null".equals(jsonObject.getString("photoBase64"))) {
+                    if (JsonUtils.isStringEmpty(jsonObject, "photoBase64", true)) {
                         try {
                             byte[] imageBytes = Base64.decode(jsonObject.getString("photoBase64").getBytes(), Base64.DEFAULT);
                             Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
@@ -321,7 +322,7 @@ public class EnquireActivity extends ImisActivity {
                             Log.e(LOG_TAG, "Error while processing Base64 image", e);
                             iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
                         }
-                    } else if (jsonObject.has("photoPath") && !jsonObject.isNull("photoPath") && !"null".equals(jsonObject.getString("photoPath"))) {
+                    } else if (JsonUtils.isStringEmpty(jsonObject, "photoPath", true)) {
                         String photo_url_str = API_BASE_URL + jsonObject.getString("photoPath");
                         iv.setImageResource(R.drawable.person);
                         picasso.load(photo_url_str)
@@ -353,25 +354,19 @@ public class EnquireActivity extends ImisActivity {
 
                     HashMap<String, String> Policy = new HashMap<>();
                     jsonObject = jsonArray.getJSONObject(i);
-                    double iDedType = 0;
-                    if (!jsonObject.getString("dedType").equalsIgnoreCase("null"))
-                        iDedType = Double.parseDouble(jsonObject.getString("dedType"));
+
+                    double iDedType = Double.parseDouble(JsonUtils.getStringOrDefault(jsonObject, "dedType", "0", true));
 
                     String Ded = "", Ded1 = "", Ded2 = "";
                     String Ceiling = "", Ceiling1 = "", Ceiling2 = "";
 
-                    String jDed1 = "", jDed2 = "", jCeiling1 = "", jCeiling2 = "";
+                    String jDed1, jDed2, jCeiling1, jCeiling2;
 
-                    if (jsonObject.getString("ded1").equalsIgnoreCase("null")) jDed1 = "";
-                    else jDed1 = jsonObject.getString("ded1");
-                    if (jsonObject.getString("ded2").equalsIgnoreCase("null")) jDed2 = "";
-                    else jDed2 = jsonObject.getString("ded2");
-                    if (jsonObject.getString("ceiling1").equalsIgnoreCase("null"))
-                        jCeiling1 = "";
-                    else jCeiling1 = jsonObject.getString("ceiling1");
-                    if (jsonObject.getString("ceiling2").equalsIgnoreCase("null"))
-                        jCeiling2 = "";
-                    else jCeiling2 = jsonObject.getString("ceiling2");
+                    jDed1 = JsonUtils.getStringOrDefault(jsonObject, "ded1", "", true);
+                    jDed2 = JsonUtils.getStringOrDefault(jsonObject, "ded2", "", true);
+                    jCeiling1 = JsonUtils.getStringOrDefault(jsonObject, "ceiling1", "", true);
+                    jCeiling2 = JsonUtils.getStringOrDefault(jsonObject, "ceiling2", "", true);
+
 
                     //Get the type
 
@@ -396,9 +391,8 @@ public class EnquireActivity extends ImisActivity {
 
                     }
 
-
                     Policy.put("Heading", jsonObject.getString("productCode"));
-                    Policy.put("Heading1", jsonObject.getString("expiryDate") + "  " + jsonObject.getString("status"));
+                    Policy.put("Heading1", JsonUtils.getStringOrDefault(jsonObject, "expiryDate", "", true) + "  " + jsonObject.getString("status"));
                     Policy.put("SubItem1", jsonObject.getString("productName"));
                     Policy.put("SubItem2", Ded);
                     Policy.put("SubItem3", Ceiling);
