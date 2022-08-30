@@ -20,7 +20,6 @@ repositories {
 android {
     compileSdkVersion 32
     buildToolsVersion '33.0.0'
-    useLibrary "org.apache.http.legacy"
 
     defaultConfig {
         applicationId "org.openimis.imisclaims"
@@ -166,11 +165,6 @@ android {
         cli.java.srcDir System.getenv("CLI_JAVA_DIR") ?: 'src/demoProd/java'
         cli.res.srcDir System.getenv("CLI_RES_DIR") ?: 'src/demoProd/res'
     }
-    packagingOptions {
-        resources {
-            excludes += ['META-INF/DEPENDENCIES']
-        }
-    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -178,6 +172,9 @@ android {
     }
     buildFeatures {
         viewBinding true
+    }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
     }
 }
 
@@ -197,6 +194,8 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'android.arch.lifecycle:livedata:1.1.1'
     implementation 'android.arch.lifecycle:viewmodel:1.1.1'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.9'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.11'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

@@ -30,4 +30,16 @@ public class JsonUtils {
             return true;
         }
     }
+
+    public static String getStringOrDefault(@NonNull JSONObject object, @NonNull String field, String defaultValue, boolean checkNullString) {
+        try {
+            if (!isStringEmpty(object, field, checkNullString)) {
+                return object.getString(field);
+            } else {
+                return defaultValue;
+            }
+        } catch (JSONException e) {
+            return defaultValue;
+        }
+    }
 }
