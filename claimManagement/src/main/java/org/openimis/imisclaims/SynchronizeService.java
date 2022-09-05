@@ -110,7 +110,7 @@ public class SynchronizeService extends JobIntentService {
             return;
         }
 
-        File pendingDirectory = new File(global.getMainDirectory());
+        File pendingDirectory = new File(global.getAppDirectory());
         ArrayList<File> jsonClaims = new ArrayList<>(Arrays.asList(getListOfFilesPrefix(pendingDirectory, claimJsonPrefix)));
         JSONArray claims = loadClaims(jsonClaims);
 
@@ -161,12 +161,12 @@ public class SynchronizeService extends JobIntentService {
     }
 
     private void handleExportClaims() {
-        File pendingDirectory = new File(global.getMainDirectory());
+        File pendingDirectory = new File(global.getAppDirectory());
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss", Locale.US);
         Calendar calendar = Calendar.getInstance();
         String dateForZip = format.format(calendar.getTime());
 
-        String zipFilePath = global.getMainDirectory() + "/Claims" + "_" + global.getOfficerCode() + "_" + dateForZip + ".zip";
+        String zipFilePath = global.getAppDirectory() + "/Claims" + "_" + global.getOfficerCode() + "_" + dateForZip + ".zip";
         String password = global.getRarPwd();
 
         ArrayList<File> xmlClaims = new ArrayList<>(Arrays.asList(getListOfFilesPrefix(pendingDirectory, claimXmlPrefix)));
@@ -190,7 +190,7 @@ public class SynchronizeService extends JobIntentService {
     }
 
     private void handleGetClaimCount() {
-        File pendingDirectory = new File(global.getMainDirectory());
+        File pendingDirectory = new File(global.getAppDirectory());
         File acceptedDirectory = new File(global.getSubdirectory("AcceptedClaims"));
         File rejectedDirectory = new File(global.getSubdirectory("RejectedClaims"));
 
@@ -215,7 +215,7 @@ public class SynchronizeService extends JobIntentService {
     }
 
     private void moveClaimToSubdirectory(String claimCode, String subDirectory) {
-        File pendingDirectory = new File(global.getMainDirectory());
+        File pendingDirectory = new File(global.getAppDirectory());
         File[] files = getListOfFilesForClaim(pendingDirectory, claimCode);
         for (File f : files) {
             moveFileToSubdirectory(f, subDirectory);

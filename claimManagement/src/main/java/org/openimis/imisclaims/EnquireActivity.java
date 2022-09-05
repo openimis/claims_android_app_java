@@ -270,24 +270,26 @@ public class EnquireActivity extends ImisActivity {
         if (global.isNetworkAvailable()) {
             try {
                 ToRestApi rest = new ToRestApi();
-                HttpResponse res = rest.getFromRestApiToken("insuree/" + chfid + "/enquire");
-                if(res != null && res.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
-                    JSONObject obj = new JSONObject(rest.getContent(res));
+                HttpResponse response = rest.getFromRestApiToken("insuree/" + chfid + "/enquire");
+                int responseCode = response.getStatusLine().getStatusCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    JSONObject obj = new JSONObject(rest.getContent(response));
                     JSONArray arr = new JSONArray();
                     arr.put(obj);
                     result = arr.toString();
+                    runOnUiThread(this::renderResult);
+                } else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                    runOnUiThread(() -> showDialog(getResources().getString(R.string.RecordNotFound)));
+                }else {
+                    runOnUiThread(() -> showDialog(rest.getHttpError(this, responseCode)));
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Fetching online enquire failed", e);
+                runOnUiThread(() -> showDialog(getResources().getString(R.string.UnknownError)));
             }
         } else {
             //TODO: yet to be done
-            result = getDataFromDb(etCHFID.getText().toString());
-        }
-
-        if("".equals(result)) {
-            runOnUiThread(() -> showDialog(getResources().getString(R.string.RecordNotFound)));
-        } else {
+            result = getDataFromDb(chfid);
             runOnUiThread(this::renderResult);
         }
     }

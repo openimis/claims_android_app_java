@@ -25,7 +25,7 @@ android {
         applicationId "org.openimis.imisclaims"
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 3
+        versionCode 4
         versionName "2.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         useLibrary 'org.apache.http.legacy'
@@ -34,9 +34,21 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField "boolean", "LOGGING_ENABLED", "false"
+
+            // Refer to https://developer.android.com/reference/android/util/Log for the log level values
+            // Irrelevant if LOGGING_ENABLED = false
+            buildConfigField "int", "CONSOLE_LOG_LEVEL", '8' //Assert
+            buildConfigField "int", "FILE_LOG_LEVEL", '8' //Assert
         }
         debug {
             debuggable true
+            buildConfigField "boolean", "LOGGING_ENABLED", "true"
+
+            // Refer to https://developer.android.com/reference/android/util/Log for the log level values
+            buildConfigField "int", "CONSOLE_LOG_LEVEL", '2' //Verbose
+            buildConfigField "int", "FILE_LOG_LEVEL", '2' //Verbose
         }
     }
 

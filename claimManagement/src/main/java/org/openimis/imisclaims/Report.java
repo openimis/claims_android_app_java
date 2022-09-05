@@ -30,7 +30,7 @@ public class Report extends ImisActivity {
 
         String AcceptedFolder = global.getSubdirectory("AcceptedClaims");
         String RejectedFolder = global.getSubdirectory("RejectedClaims");
-        String PendingFolder = global.getMainDirectory();
+        String PendingFolder = global.getSubdirectory("PendingClaims");
         String TrashFolder = global.getSubdirectory("Trash");
 
         File acceptedClaims = new File(AcceptedFolder);

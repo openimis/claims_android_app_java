@@ -77,7 +77,7 @@ public class ClaimActivity extends ImisActivity {
 
         actionBar.setTitle(getResources().getString(R.string.app_name_claim));
 
-        Path = global.getMainDirectory();
+        Path = global.getAppDirectory();
 
         isSDCardAvailable();
 
