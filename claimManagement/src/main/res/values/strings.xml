@@ -224,4 +224,16 @@
     <string name="Forbidden">You are not allowed to take this action.</string>
     <string name="UnknownError">Unknown Error.</string>
     <string name="NotFound">Entry does not exist.</string>
+    <string name="LoadFile">Load file:</string>
+    <string name="Quit">Quit</string>
+    <string name="DownloadingMasterData">Downloading master data</string>
+    <string name="Sync">Sync</string>
+    <string name="DownloadMasterDataFailed">Could not download master data.</string>
+    <string name="NoFileExporerInstalled">There are no file explorer clients installed.</string>
+    <string name="DoImportClaimsMasterData">Do you want to import master data as file?</string>
+    <string name="NoInternetTitle">NO INTERNET CONNECTION</string>
+    <string name="MasterData">Master Data</string>
+    <string name="MasterDataNotFound">Master data not found, would you like to Download?</string>
+    <string name="HttpResponse">HTTP response: %1$d — %2$s</string>
+    <string name="ImportMasterDataFailed">ImportMasterDataFailed</string>
 </resources>

@@ -1,10 +1,12 @@
 package org.openimis.imisclaims;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -29,6 +31,8 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.net.Uri;
+import android.os.AsyncTask;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -37,17 +41,37 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.claimlisting.ClaimListingActivity;
+import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.util.ZipUtils;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
+
+import org.apache.commons.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 
 public class MainActivity extends ImisActivity {
     private static final int REQUEST_PERMISSIONS_CODE = 1;
     private static final int REQUEST_ALL_FILES_ACCESS_CODE = 2;
+    private static final String LOG_TAG = "MainActivity";
     ArrayList<String> broadcastList;
     final CharSequence[] lang = {"English", "Francais"};
     String Language;
@@ -66,8 +90,16 @@ public class MainActivity extends ImisActivity {
 
     final String VersionField = "AppVersionEnquire";
     NotificationManager mNotificationManager;
+    private final Context context = this;
+    public File f;
+    public String etRarPassword = "";
+    String aBuffer = "";
+    String calledFrom = "java";
+    private Context mContext = context;
     final int SIMPLE_NOTIFICATION_ID = 1;
+    private static final int REQUEST_PICK_MD_FILE = 3;
     Vibrator vibrator;
+    private AlertDialog masterDataDialog;
 
     @Override
     protected void onBroadcastReceived(Context context, Intent intent) {
@@ -254,7 +286,166 @@ public class MainActivity extends ImisActivity {
             if (checkRequirements()) {
                 onAllRequirementsMet();
             }
+        } else if (requestCode == REQUEST_PICK_MD_FILE) {
+            if (resultCode == RESULT_OK && data != null) {
+                Uri uri = data.getData();
+                if (uri != null) {
+                    try {
+                        byte[] bytes = IOUtils.toByteArray(getContentResolver().openInputStream(uri));
+                        //String path = global.getSubdirectory("Databases");
+                        f = new File(SQLHandler.DB_NAME_DATA);
+                        if (f.exists() || f.createNewFile()) {
+                            new FileOutputStream(f).write(bytes);
+                            // here  - create empty mappings
+                            onAllRequirementsMet();
+                        } else {
+                            showDialog(getResources().getString(R.string.ImportMasterDataFailed),
+                                    (d, i) -> finish());
+                        }
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "Error while copying master data.", e);
+                    }
+                }
+            }
         }
+    }
+
+
+    public void ConfirmMasterDataDialog(String filename) {
+        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(
+                MainActivity.this);
+
+        alertDialog2.setTitle(getResources().getString(R.string.LoadFile));
+        alertDialog2.setMessage(filename);
+        alertDialog2.setCancelable(false);
+
+        alertDialog2.setPositiveButton(getResources().getString(R.string.Ok),
+                (dialog, which) -> {
+                    MasterDataLocalAsync masterDataLocalAsync = new MasterDataLocalAsync();
+                    masterDataLocalAsync.execute();
+                }).setNegativeButton(getResources().getString(R.string.Quit),
+                (dialog, id) -> {
+                    dialog.cancel();
+                    finish();
+                }).show();
+    }
+
+    public void ConfirmDialogPage(String filename) {
+        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(
+                MainActivity.this);
+
+        alertDialog2.setTitle(getResources().getString(R.string.LoadFile));
+        alertDialog2.setMessage(filename);
+        alertDialog2.setCancelable(false);
+
+        alertDialog2.setPositiveButton(getResources().getString(R.string.Ok),
+                (dialog, which) -> {
+                    MasterDataLocalAsync masterDataLocalAsync = new MasterDataLocalAsync();
+                    masterDataLocalAsync.execute();
+                }).setNegativeButton(getResources().getString(R.string.Quit),
+                (dialog, id) -> dialog.cancel()).show();
+    }
+
+    public String getMasterDataText2(String fileName, String password) {
+        //unZipWithPassword(fileName, password);
+        String fname = "MasterData.txt";
+        try {
+            String dir = global.getSubdirectory("Database");
+            File myFile = new File(dir, fname);//"/"+dir+"/MasterData.txt"
+//            BufferedReader myReader = new BufferedReader(
+//                    new InputStreamReader(
+//                            new FileInputStream(myFile), "UTF32"));
+            FileInputStream fIn = new FileInputStream(myFile);
+            BufferedReader myReader = new BufferedReader(new InputStreamReader(fIn));
+            aBuffer = myReader.readLine();
+
+            myReader.close();
+/*            Scanner in = new Scanner(new FileReader("/"+dir+"/MasterData.txt"));
+            StringBuilder sb = new StringBuilder();
+            while(in.hasNext()) {
+                sb.append(in.next());
+            }
+            in.close();
+            aBuffer = sb.toString();*/
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return aBuffer;
+    }
+
+    public class MasterDataLocalAsync extends AsyncTask<Void, Void, Void> {
+        ProgressDialog pd = null;
+
+        @Override
+        protected void onPreExecute() {
+            pd = ProgressDialog.show(context, context.getResources().getString(R.string.Sync), context.getResources().getString(R.string.DownloadingMasterData));
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            //ClientAndroidInterface ca = new ClientAndroidInterface(context);
+            try {
+                importMasterData(aBuffer);
+            } catch (JSONException | UserException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            pd.dismiss();
+
+            Intent refresh = new Intent(MainActivity.this, MainActivity.class);
+            startActivity(refresh);
+            finish();
+        }
+    }
+
+    public void PickMasterDataFileDialog() {
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle(getResources().getString(R.string.NoInternetTitle))
+                .setMessage(getResources().getString(R.string.DoImportClaimsMasterData))
+                .setCancelable(false)
+                .setPositiveButton(getResources().getString(R.string.Yes),
+                        (dialog, which) -> {
+                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+                            intent.setType("*/*");
+                            try {
+                                startActivityForResult(intent, REQUEST_PICK_MD_FILE);
+                            } catch (ActivityNotFoundException e) {
+                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.NoFileExporerInstalled), Toast.LENGTH_SHORT).show();
+                            }
+                        }).setNegativeButton(getResources().getString(R.string.No),
+                        (dialog, id) -> {
+                            dialog.cancel();
+                            finish();
+                        }).show();
+    }
+
+    public void PickMasterDataFileDialogFromPage() {
+        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(
+                MainActivity.this);
+
+        alertDialog2.setTitle(getResources().getString(R.string.NoInternetTitle));
+        alertDialog2.setMessage(getResources().getString(R.string.DoImportClaimsMasterData));
+
+        alertDialog2.setPositiveButton(getResources().getString(R.string.Yes),
+                (dialog, which) -> {
+
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("*/*");
+                    try {
+                        startActivityForResult(intent, REQUEST_PICK_MD_FILE);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.NoFileExporerInstalled), Toast.LENGTH_SHORT).show();
+                    }
+                    // Write your code here to execute after dialog
+                }).setNegativeButton(getResources().getString(R.string.No),
+                (dialog, id) -> dialog.cancel()).show();
     }
 
     public AlertDialog confirmRefreshMap() {
@@ -301,6 +492,24 @@ public class MainActivity extends ImisActivity {
         }
     }
 
+//    private void copyDb3FromFile(SQLHandler sql, Uri uri) {
+//        if (checkDataBase()) {
+//            if (global.isNetworkAvailable()) {
+//                getControls();
+//            } else {
+//                if (!sql.checkIfAny("tblControls")) {
+//                    CriticalErrorDialogBox(getResources().getString(R.string.noControls) + " " + getResources().getString(R.string.provideExtractOrInternet));
+//                } else if (!sql.checkIfAny("tblClaimAdmins")) {
+//                    if (sql.getAdjustability("ClaimAdministrator").equals("M"))
+//                        CriticalErrorDialogBox(getResources().getString(R.string.noAdmins) + " " + getResources().getString(R.string.provideExtractOrInternet));
+//                } else {
+//                    ClaimAdminDialogBox();
+//                }
+//            }
+//
+//        }
+//    }
+
     private void isSDCardAvailable() {
         String status = global.getSDCardStatus();
         if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(status)) {
@@ -341,6 +550,60 @@ public class MainActivity extends ImisActivity {
 
     public void CriticalErrorDialogBox(final String message) {
         showDialog(message, (dialog, i) -> finish());
+    }
+
+    public void ShowMasterDataDialog() {
+        masterDataDialog = new AlertDialog.Builder(context)
+                .setTitle(R.string.MasterData)
+                .setMessage(R.string.MasterDataNotFound)
+                .setCancelable(false)
+                .setPositiveButton(R.string.Yes,
+                        (dialog, id) -> {
+                            if (!global.isNetworkAvailable()) {
+                                PickMasterDataFileDialog();
+                            } else {
+                                MasterDataAsync masterDataAsync = new MasterDataAsync();
+                                masterDataAsync.execute();
+
+                            }
+                        })
+                .setNegativeButton(R.string.ForceClose,
+                        (dialog, id) -> {
+                            dialog.cancel();
+                            finish();
+                        })
+                .show();
+    }
+
+    public class MasterDataAsync extends AsyncTask<Void, Void, Void> {
+        ProgressDialog pd = null;
+
+        @Override
+        protected void onPreExecute() {
+
+            pd = ProgressDialog.show(context, context.getResources().getString(R.string.Sync), context.getResources().getString(R.string.DownloadingMasterData));
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                startDownloading();
+            } catch (JSONException | UserException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            pd.dismiss();
+
+            Intent refresh = new Intent(MainActivity.this, MainActivity.class);
+            startActivity(refresh);
+            finish();
+        }
     }
 
     public AlertDialog DownloadMasterDialog() {
@@ -989,9 +1252,13 @@ public class MainActivity extends ImisActivity {
         if (!isAppInitialized) {
             if (global.isNetworkAvailable()) {
                 sqlHandler.createOrOpenDatabases();
+                // TODO two functions
                 sqlHandler.createTables();
+                sqlHandler.createMappingTables();
                 initializeDb3File(sqlHandler);
             } else {
+                sqlHandler.createMappingTables();
+                PickMasterDataFileDialog();
                 showToast(R.string.CheckInternet);
             }
 
@@ -1007,4 +1274,309 @@ public class MainActivity extends ImisActivity {
         }
         refreshCount();
     }
+
+    public int isMasterDataAvailable() {
+        String Query = "SELECT * FROM tblLanguages";
+        JSONArray Languages = sqlHandler.getResult(Query, null);
+        return Languages.length();
+    }
+
+    public void importMasterData(String data) throws JSONException, UserException {
+        try {
+            JSONArray masterDataArray = new JSONArray(data);
+            processOldFormat(masterDataArray);
+        } catch (JSONException e) {
+            try {
+                JSONObject masterDataObject = new JSONObject(data);
+                processNewFormat(masterDataObject);
+            } catch (JSONException e2) {
+                throw new UserException(mContext.getResources().getString(R.string.DownloadMasterDataFailed));
+            }
+        }
+    }
+
+    private void processOldFormat(JSONArray masterData) throws UserException {
+        //Sequence of table
+        /*
+            1   :   ConfirmationTypes
+            2   :   Controls
+            3   :   Education
+            4   :   FamilyTypes
+            5   :   HF
+            6   :   IdentificationTypes
+            7   :   Languages
+            8   :   Locations
+            9   :   Officers
+            10  :   Payers
+            11  :   Products
+            12  :   Professions
+            13  :   Relations
+            14  :   PhoneDefaults
+            15  :   Genders
+            16  :   OfficerVillages
+         */
+
+        JSONArray ConfirmationTypes = new JSONArray();
+        JSONArray Controls = new JSONArray();
+        JSONArray Education = new JSONArray();
+        JSONArray FamilyTypes = new JSONArray();
+        JSONArray HF = new JSONArray();
+        JSONArray IdentificationTypes = new JSONArray();
+        JSONArray Languages = new JSONArray();
+        JSONArray Locations = new JSONArray();
+        JSONArray Officers = new JSONArray();
+        JSONArray Payers = new JSONArray();
+        JSONArray Products = new JSONArray();
+        JSONArray Professions = new JSONArray();
+        JSONArray Relations = new JSONArray();
+        JSONArray PhoneDefaults = new JSONArray();
+        JSONArray Genders = new JSONArray();
+        //JSONArray OfficerVillages = new JSONArray();
+
+        try {
+            for (int i = 0; i < masterData.length(); i++) {
+                String keyName = masterData.getJSONObject(i).keys().next();
+                switch (keyName.toLowerCase()) {
+                    case "confirmationtypes":
+                        ConfirmationTypes = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "controls":
+                        Controls = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "education":
+                        Education = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "familytypes":
+                        FamilyTypes = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "hf":
+                        HF = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "identificationtypes":
+                        IdentificationTypes = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "languages":
+                        Languages = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "locations":
+                        Locations = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "officers":
+                        Officers = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "payers":
+                        Payers = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "products":
+                        Products = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "professions":
+                        Professions = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "relations":
+                        Relations = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "phonedefaults":
+                        PhoneDefaults = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+                    case "genders":
+                        Genders = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                        break;
+/*                case "officersvillages":
+                    OfficerVillages = (JSONArray) masterData.getJSONObject(i).get(keyName);
+                    break;*/
+                }
+            }
+
+            insertConfirmationTypes(ConfirmationTypes);
+            insertControls(Controls);
+            insertEducation(Education);
+            insertFamilyTypes(FamilyTypes);
+            insertHF(HF);
+            insertIdentificationTypes(IdentificationTypes);
+            insertLanguages(Languages);
+            insertLocations(Locations);
+            insertOfficers(Officers);
+            insertPayers(Payers);
+            insertProducts(Products);
+            insertProfessions(Professions);
+            insertRelations(Relations);
+            insertPhoneDefaults(PhoneDefaults);
+            insertGenders(Genders);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw new UserException(mContext.getResources().getString(R.string.DownloadMasterDataFailed));
+        }
+    }
+
+    private void processNewFormat(JSONObject masterData) throws UserException {
+        try {
+            insertConfirmationTypes((JSONArray) masterData.get("confirmationTypes"));
+            insertControls((JSONArray) masterData.get("controls"));
+            insertEducation((JSONArray) masterData.get("education"));
+            insertFamilyTypes((JSONArray) masterData.get("familyTypes"));
+            insertHF((JSONArray) masterData.get("hf"));
+            insertIdentificationTypes((JSONArray) masterData.get("identificationTypes"));
+            insertLanguages((JSONArray) masterData.get("languages"));
+            insertLocations((JSONArray) masterData.get("locations"));
+            insertOfficers((JSONArray) masterData.get("officers"));
+            insertPayers((JSONArray) masterData.get("payers"));
+            insertProducts((JSONArray) masterData.get("products"));
+            insertProfessions((JSONArray) masterData.get("professions"));
+            insertRelations((JSONArray) masterData.get("relations"));
+            insertPhoneDefaults((JSONArray) masterData.get("phoneDefaults"));
+            insertGenders((JSONArray) masterData.get("genders"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw new UserException(mContext.getResources().getString(R.string.DownloadMasterDataFailed));
+        }
+    }
+
+    private String[] getColumnNames(JSONArray jsonArray) {
+        String[] Columns = {};
+        if (jsonArray.length() > 0) {
+            ArrayList<String> columnsList = new ArrayList<>();
+            Iterator<String> keys;
+            try {
+                keys = jsonArray.getJSONObject(0).keys();
+                while (keys.hasNext())
+                    columnsList.add(keys.next());
+                Columns = columnsList.toArray(new String[0]);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return Columns;
+    }
+
+    private boolean insertConfirmationTypes(JSONArray jsonArray) throws JSONException {
+        try {
+            String[] Columns = getColumnNames(jsonArray);
+            sqlHandler.insertData("tblConfirmationTypes", Columns, jsonArray.toString(), "DELETE FROM tblConfirmationTypes");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean insertControls(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblControls", Columns, jsonArray.toString(), "DELETE FROM tblControls;");
+        return true;
+    }
+
+    private boolean insertEducation(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblEducations", Columns, jsonArray.toString(), "DELETE FROM tblEducations;");
+        return true;
+    }
+
+    private boolean insertFamilyTypes(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblFamilyTypes", Columns, jsonArray.toString(), "DELETE FROM tblFamilyTypes;");
+        return true;
+    }
+
+    private boolean insertHF(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblHF", Columns, jsonArray.toString(), "DELETE FROM tblHF;");
+        return true;
+    }
+
+    private boolean insertIdentificationTypes(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblIdentificationTypes", Columns, jsonArray.toString(), "DELETE FROM tblIdentificationTypes;");
+        return true;
+    }
+
+    private boolean insertLanguages(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblLanguages", Columns, jsonArray.toString(), "DELETE FROM tblLanguages;");
+        return true;
+    }
+
+    private boolean insertLocations(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblLocations", Columns, jsonArray.toString(), "DELETE FROM tblLocations;");
+
+        return true;
+    }
+
+    private boolean insertOfficers(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblOfficer", Columns, jsonArray.toString(), "DELETE FROM tblOfficer;");
+        return true;
+    }
+
+    private boolean insertPayers(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblPayer", Columns, jsonArray.toString(), "DELETE FROM tblPayer;");
+        return true;
+    }
+
+    private boolean insertProducts(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblProduct", Columns, jsonArray.toString(), "DELETE FROM tblProduct;");
+        return true;
+    }
+
+    private boolean insertProfessions(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblProfessions", Columns, jsonArray.toString(), "DELETE FROM tblProfessions;");
+        return true;
+    }
+
+    private boolean insertRelations(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblRelations", Columns, jsonArray.toString(), "DELETE FROM tblRelations;");
+        return true;
+    }
+
+    private boolean insertPhoneDefaults(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblIMISDefaultsPhone", Columns, jsonArray.toString(), "DELETE FROM tblIMISDefaultsPhone;");
+        return true;
+    }
+
+    private boolean insertGenders(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblGender", Columns, jsonArray.toString(), "DELETE FROM tblGender;");
+        return true;
+    }
+
+    private boolean insertOfficerVillages(JSONArray jsonArray) throws JSONException {
+        String[] Columns = getColumnNames(jsonArray);
+        sqlHandler.insertData("tblOfficerVillages", Columns, jsonArray.toString(), "DELETE FROM tblOfficerVillages;");
+        return true;
+    }
+
+    public void startDownloading() throws JSONException, UserException {
+        ToRestApi rest = new ToRestApi();
+        HttpResponse response = rest.getFromRestApi2("master");
+        String error = rest.getHttpError(mContext, response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        if (error == null) {
+            String MD = rest.getContent(response);
+            JSONObject masterData = new JSONObject(MD);
+
+            processNewFormat(masterData);
+        } else {
+            throw new UserException(error);
+        }
+    }
+
+//    public boolean unZipWithPassword(String fileName, String password) {
+//        String targetPath = fileName;
+//        String unzippedFolderPath = global.getSubdirectory("Database");
+//        //String unzippedFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/IMIS/Enrolment/Enrolment_"+global.getOfficerCode()+"_"+d+".xml";
+//        //here we not don't have password set yet so we pass password from Edit Text rar input
+//        try {
+//            ZipUtils.unzipPath(targetPath, unzippedFolderPath, password);
+//        } catch (Exception e) {
+//            return false;
+//        }
+//        return true;
+//    }
+
 }

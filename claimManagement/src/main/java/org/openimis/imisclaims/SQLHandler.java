@@ -15,6 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.tools.Log;
 
+import java.io.File;
 import java.util.Locale;
 
 public class SQLHandler extends SQLiteOpenHelper {
@@ -45,6 +46,12 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     public final String REFERENCE_UNKNOWN;
 
+    public static final String DBNAME = DB_NAME_DATA;
+    private static final String OFFLINEDBNAME = "ImisData.db3";
+    public Boolean isPrivate = true;
+    private Context mContext;
+    private SQLiteDatabase mDatabase;
+
     private final Global global;
     private SQLiteDatabase db;
     private SQLiteDatabase dbMapping;
@@ -53,6 +60,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         super(context, DB_NAME_MAPPING, null, 3);
         global = (Global) context.getApplicationContext();
         REFERENCE_UNKNOWN = context.getResources().getString(R.string.Unknown);
+        this.mContext = context;
         createOrOpenDatabases();
     }
 
@@ -317,7 +325,9 @@ public class SQLHandler extends SQLiteOpenHelper {
                 Log.e("SQL", "Error while excecutiong executing command: " + command, e);
             }
         }
+    }
 
+    public void createMappingTables() {
         String[] commandsMapping = {CreateTableMapping};
         for (String command : commandsMapping) {
             try {
@@ -627,6 +637,156 @@ public class SQLHandler extends SQLiteOpenHelper {
         } catch (JSONException | IndexOutOfBoundsException e) {
             Log.e(LOG_TAG, "Error while parsing reference name result", e);
             return REFERENCE_UNKNOWN;
+        }
+    }
+
+    private void openDatabase() {
+        String dbPath = mContext.getDatabasePath(DBNAME).getPath();
+        String dbOfflinePath = global.getAppDirectory() + File.separator + OFFLINEDBNAME;
+        if (mDatabase != null && mDatabase.isOpen()) {
+            return;
+        }
+        if (isPrivate)
+            mDatabase = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READWRITE);
+        else
+            mDatabase = SQLiteDatabase.openDatabase(dbOfflinePath, null, SQLiteDatabase.OPEN_READWRITE);
+
+    }
+
+    public void closeDatabase() {
+        if (mDatabase != null) {
+            mDatabase.close();
+        }
+    }
+
+    public JSONArray getResult(String tableName, String[] columns, String Where, String OrderBy, String nullOverride) {
+        openDatabase();
+        JSONArray resultSet = new JSONArray();
+        Cursor cursor = mDatabase.query(tableName, columns, Where, null, null, null, OrderBy);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            int totalColumns = cursor.getColumnCount();
+            JSONObject rowObject = new JSONObject();
+            for (int i = 0; i < totalColumns; i++) {
+                try {
+                    if (cursor.getString(i) != null)
+                        rowObject.put(cursor.getColumnName(i), cursor.getString(i));
+                    else
+                        rowObject.put(cursor.getColumnName(i), nullOverride);
+                } catch (Exception e) {
+                    Log.d("Tag Name ", e.getMessage());
+                }
+            }
+
+            resultSet.put(rowObject);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        closeDatabase();
+        return resultSet;
+    }
+
+    //get result in JSON format
+    public JSONArray getResult(String tableName, String[] columns, String where, String orderBy) {
+        return getResult(tableName, columns, where, orderBy, "0");
+    }
+
+    public JSONArray getResult(String Query, String[] args, String nullOverride) {
+        openDatabase();
+        JSONArray resultSet = new JSONArray();
+        try {
+            Cursor cursor = mDatabase.rawQuery(Query, args);
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                int totalColumns = cursor.getColumnCount();
+                JSONObject rowObject = new JSONObject();
+                for (int i = 0; i < totalColumns; i++) {
+                    try {
+                        if (cursor.getString(i) != null)
+                            rowObject.put(cursor.getColumnName(i), cursor.getString(i));
+                        else
+                            rowObject.put(cursor.getColumnName(i), nullOverride);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.d("Tag Name", e.getMessage());
+                    }
+                }
+                resultSet.put(rowObject);
+                cursor.moveToNext();
+            }
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        closeDatabase();
+        return resultSet;
+    }
+
+    public JSONArray getResult(String Query, String[] args) {
+        return getResult(Query, args, "0");
+    }
+
+    public void insertData(String TableName, String[] Columns, String data, String PreExecute) throws JSONException {
+        SQLiteDatabase database = this.getReadableDatabase();
+
+        String dbPath = database.getPath();
+        mDatabase = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READWRITE);
+        try {
+            JSONArray array;
+            JSONObject object;
+
+            array = new JSONArray(data);
+
+            if (array.length() == 0)
+                return;
+
+            if (!mDatabase.isOpen()) {
+                openDatabase();
+            }
+
+            if (!TextUtils.isEmpty(PreExecute)) {
+                mDatabase.execSQL(PreExecute);
+            }
+
+
+            mDatabase.beginTransaction();
+            for (int i = 0; i < array.length(); i++) {
+                try {
+                    object = array.getJSONObject(i);
+                    ContentValues cv = new ContentValues();
+                    for (String c : Columns) {
+                        cv.put(c, object.getString(c));
+                    }
+                    mDatabase.insert(TableName, null, cv);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            mDatabase.setTransactionSuccessful();
+            mDatabase.endTransaction();
+            mDatabase.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (mDatabase.isOpen()) {
+            closeDatabase();
+        }
+
+    }
+
+    public int insertData(String tableName, ContentValues contentValues) {
+        try {
+            openDatabase();
+            Long lastInsertedId = mDatabase.insertOrThrow(tableName, null, contentValues);
+            return (int) (long) lastInsertedId;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            closeDatabase();
         }
     }
 }

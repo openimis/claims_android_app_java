@@ -13,25 +13,25 @@ import java.util.Collections;
 public class ZipUtils {
     private static final String LOG_TAG = "ZIPUTILS";
 
-    public static File zipDirectories(File outputFile, String zipPassword, File... directories) {
-        ArrayList<File> filesToAdd = new ArrayList<>();
-        for (File directory : directories) {
-            if (!directory.exists() || !directory.isDirectory()) {
-                Log.w(LOG_TAG, "Provided file is not a directory: " + directory);
-                continue;
-            }
-
-            File[] files = directory.listFiles();
-            if (files == null) {
-                Log.w(LOG_TAG, "Reading a directory filed: " + directory);
-                continue;
-            }
-
-            Collections.addAll(filesToAdd, files);
-        }
-
-        return zipFiles(filesToAdd, outputFile, zipPassword);
-    }
+//    public static File zipDirectories(File outputFile, String zipPassword, File... directories) {
+//        ArrayList<File> filesToAdd = new ArrayList<>();
+//        for (File directory : directories) {
+//            if (!directory.exists() || !directory.isDirectory()) {
+//                Log.w(LOG_TAG, "Provided file is not a directory: " + directory);
+//                continue;
+//            }
+//
+//            File[] files = directory.listFiles();
+//            if (files == null) {
+//                Log.w(LOG_TAG, "Reading a directory filed: " + directory);
+//                continue;
+//            }
+//
+//            Collections.addAll(filesToAdd, files);
+//        }
+//
+//        return zipFiles(filesToAdd, outputFile, zipPassword);
+//    }
 
     public static File zipFiles(ArrayList<File> filesToAdd, File destinationFile, String password) {
         try {
@@ -94,16 +94,16 @@ public class ZipUtils {
         }
     }
 
-    public static void unzipPath(String targetZipFilePath, String destinationFolderPath, String password) {
-        try {
-            ZipFile zipFile = new ZipFile(targetZipFilePath);
-            if (zipFile.isEncrypted()) {
-                zipFile.setPassword(password);
-            }
-            zipFile.extractAll(destinationFolderPath);
-
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Error while decompressing", e);
-        }
-    }
+//    public static void unzipPath(String targetZipFilePath, String destinationFolderPath, String password) {
+//        try {
+//            ZipFile zipFile = new ZipFile(targetZipFilePath);
+//            if (zipFile.isEncrypted()) {
+//                zipFile.setPassword(password);
+//            }
+//            zipFile.extractAll(destinationFolderPath);
+//
+//        } catch (Exception e) {
+//            Log.e(LOG_TAG, "Error while decompressing", e);
+//        }
+//    }
 }
