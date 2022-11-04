@@ -27,25 +27,10 @@ public class ToRestApi {
     private final String uri;
     private final String apiVersion;
 
-    public static class Headers {
-        public static final String CONTENT_TYPE = "Content-Type";
-        public static final String ACCEPT = "Accept";
-        public static final String AUTHORIZATION = "Authorization";
-        public static final String API_VERSION = "api-version";
-    }
-
-    public static class MimeTypes {
-        public static final String APPLICATION_JSON = "application/json";
-    }
-
     public ToRestApi() {
         token = Global.getGlobal().getJWTToken();
         uri = API_BASE_URL + "api/";
         apiVersion = API_VERSION;
-    }
-
-    public String getObjectFromRestApi(final String functionName) {
-        return getContent(getFromRestApi(functionName, false));
     }
 
     public HttpResponse getFromRestApi(String functionName, boolean addToken) {
@@ -144,62 +129,4 @@ public class ToRestApi {
             return context.getResources().getString(R.string.SomethingWentWrongServer);
         }
     }
-
-    public String getHttpError(Context context, int httpResponseCode, String httpReason) {
-        if (httpResponseCode == HttpURLConnection.HTTP_OK || httpResponseCode == HttpURLConnection.HTTP_CREATED) {
-            return null;
-        } else if (httpResponseCode == HttpURLConnection.HTTP_NOT_FOUND) {
-            return context.getResources().getString(R.string.NotFound);
-        } else if (httpResponseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            return context.getResources().getString(R.string.Unauthorized);
-        } else if (httpResponseCode == HttpURLConnection.HTTP_FORBIDDEN) {
-            return context.getResources().getString(R.string.Forbidden);
-        } else {
-            return context.getResources().getString(R.string.HttpResponse, httpResponseCode, httpReason);
-        }
-    }
-
-    private String buildTokenHeader() {
-        String tokenText = token.getTokenText();
-        if (tokenText != null) {
-            return String.format("bearer %s", tokenText.trim());
-        }
-        return "";
-    }
-
-    private void checkToken(HttpResponse response) {
-        if (response != null && response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            token.clearToken();
-        }
-    }
-
-    public HttpResponse getFromRestApi2(final String functionName) {
-        return getFromRestApi(functionName, false);
-    }
-
-    public HttpResponse getFromRestApi2(String functionName, boolean addToken) {
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(uri + functionName);
-        httpGet.setHeader(Headers.CONTENT_TYPE, MimeTypes.APPLICATION_JSON);
-        httpGet.setHeader(Headers.ACCEPT, MimeTypes.APPLICATION_JSON);
-        httpGet.setHeader(Headers.API_VERSION, apiVersion);
-        if (addToken) {
-            httpGet.setHeader(Headers.AUTHORIZATION, buildTokenHeader());
-        }
-
-        try {
-            HttpResponse response = httpClient.execute(httpGet);
-            if (addToken) {
-                checkToken(response);
-            }
-            int responseCode = response.getStatusLine().getStatusCode();
-            Log.i("HTTP_GET", uri + functionName + " - " + responseCode);
-            return response;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-
 }
