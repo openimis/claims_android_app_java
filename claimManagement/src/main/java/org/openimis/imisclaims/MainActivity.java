@@ -77,7 +77,6 @@ public class MainActivity extends ImisActivity {
 
     final String VersionField = "AppVersionEnquire";
     NotificationManager mNotificationManager;
-    public File f;
     final int SIMPLE_NOTIFICATION_ID = 1;
     private static final int REQUEST_PICK_MD_FILE = 3;
     Vibrator vibrator;
@@ -263,6 +262,8 @@ public class MainActivity extends ImisActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        File databaseFile;
+
         if (requestCode == REQUEST_ALL_FILES_ACCESS_CODE) {
             if (checkRequirements()) {
                 onAllRequirementsMet();
@@ -273,9 +274,9 @@ public class MainActivity extends ImisActivity {
                 if (uri != null) {
                     try {
                         byte[] bytes = IOUtils.toByteArray(getContentResolver().openInputStream(uri));
-                        f = new File(SQLHandler.DB_NAME_DATA);
-                        if (f.exists() || f.createNewFile()) {
-                            new FileOutputStream(f).write(bytes);
+                        databaseFile = new File(SQLHandler.DB_NAME_DATA);
+                        if (databaseFile.exists() || databaseFile.createNewFile()) {
+                            new FileOutputStream(databaseFile).write(bytes);
                             onAllRequirementsMet();
                         } else {
                             showDialog(getResources().getString(R.string.ImportMasterDataFailed),
