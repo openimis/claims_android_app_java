@@ -43,8 +43,8 @@ import java.util.HashMap;
 import static org.openimis.imisclaims.BuildConfig.API_BASE_URL;
 
 public class EnquireActivity extends ImisActivity {
-    public static final String LOG_TAG = "ENQUIRE";
-    public static final int REQUEST_QR_SCAN_CODE = 1;
+    private static final String LOG_TAG = "ENQUIRE";
+    private static final int REQUEST_QR_SCAN_CODE = 1;
 
     private Picasso picasso;
 
@@ -277,7 +277,7 @@ public class EnquireActivity extends ImisActivity {
                 } else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     runOnUiThread(() -> showDialog(getResources().getString(R.string.RecordNotFound)));
                 } else {
-                    runOnUiThread(() -> showDialog(rest.getHttpError(this, responseCode)));
+                    runOnUiThread(() -> showDialog(rest.getHttpError(this, responseCode, response.getStatusLine().getReasonPhrase())));
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Fetching online enquire failed", e);
@@ -312,39 +312,24 @@ public class EnquireActivity extends ImisActivity {
                 tvDOB.setText(jsonObject.getString("dob"));//Adjust
                 tvGender.setText(jsonObject.getString("gender"));
 
-                if (global.isNetworkAvailable()) {
-                    if (JsonUtils.isStringEmpty(jsonObject, "photoBase64", true)) {
-                        try {
-                            byte[] imageBytes = Base64.decode(jsonObject.getString("photoBase64").getBytes(), Base64.DEFAULT);
-                            Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                            iv.setImageBitmap(image);
-                        } catch (Exception e) {
-                            Log.e(LOG_TAG, "Error while processing Base64 image", e);
-                            iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
-                        }
-                    } else if (JsonUtils.isStringEmpty(jsonObject, "photoPath", true)) {
-                        String photo_url_str = API_BASE_URL + jsonObject.getString("photoPath");
-                        iv.setImageResource(R.drawable.person);
-                        picasso.load(photo_url_str)
-                                .placeholder(R.drawable.person)
-                                .error(R.drawable.person)
-                                .into(iv);
-                    } else {
+                if (!JsonUtils.isStringEmpty(jsonObject, "photoBase64", true)) {
+                    try {
+                        byte[] imageBytes = Base64.decode(jsonObject.getString("photoBase64").getBytes(), Base64.DEFAULT);
+                        Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                        iv.setImageBitmap(image);
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "Error while processing Base64 image", e);
                         iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
                     }
+                } else if (!JsonUtils.isStringEmpty(jsonObject, "photoPath", true) && global.isNetworkAvailable()) {
+                    String photo_url_str = API_BASE_URL + jsonObject.getString("photoPath");
+                    iv.setImageResource(R.drawable.person);
+                    picasso.load(photo_url_str)
+                            .placeholder(R.drawable.person)
+                            .error(R.drawable.person)
+                            .into(iv);
                 } else {
-                    if (theImage != null) {
-                        iv.setImageBitmap(theImage);
-                    } else {
-                        byte[] photo = jsonObject.getString("photoPath").getBytes();
-                        ByteArrayInputStream is = new ByteArrayInputStream(photo);
-                        theImage = BitmapFactory.decodeStream(is);
-                        if (theImage != null) {
-                            iv.setImageBitmap(theImage);
-                        } else {
-                            iv.setImageResource(R.drawable.person);
-                        }
-                    }
+                    iv.setImageDrawable(getResources().getDrawable(R.drawable.person));
                 }
 
                 jsonArray = new JSONArray(jsonObject.getString("details"));
