@@ -9,6 +9,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.tools.Log;
 
@@ -116,7 +117,7 @@ public class ToRestApi {
         }
     }
 
-    public String getHttpError(Context context, int httpResponseCode) {
+    public String getHttpError(Context context, int httpResponseCode, String httpReason) {
         if (httpResponseCode == HttpURLConnection.HTTP_OK || httpResponseCode == HttpURLConnection.HTTP_CREATED) {
             return null;
         } else if (httpResponseCode == HttpURLConnection.HTTP_NOT_FOUND) {
@@ -126,7 +127,24 @@ public class ToRestApi {
         } else if (httpResponseCode == HttpURLConnection.HTTP_FORBIDDEN) {
             return context.getResources().getString(R.string.Forbidden);
         } else {
-            return context.getResources().getString(R.string.SomethingWentWrongServer);
+            return context.getResources().getString(R.string.HttpResponse, httpResponseCode, httpReason);
         }
     }
+
+
+    public String getPayloadError(String responseContent) {
+        String payloadError = null;
+
+        try {
+            JSONObject response = new JSONObject(responseContent);
+            if (response.optBoolean("error_occured", false)) {
+                payloadError = response.getString("error_messagge");
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Error while parsing payload error", e);
+        }
+        return payloadError;
+    }
+
+
 }
