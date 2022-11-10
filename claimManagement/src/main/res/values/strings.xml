@@ -224,4 +224,5 @@
     <string name="Forbidden">You are not allowed to take this action.</string>
     <string name="UnknownError">Unknown Error.</string>
     <string name="NotFound">Entry does not exist.</string>
+    <string name="HttpResponse">HTTP response: %1$d — %2$s</string>
 </resources>
