@@ -317,7 +317,9 @@ public class SQLHandler extends SQLiteOpenHelper {
                 Log.e("SQL", "Error while excecutiong executing command: " + command, e);
             }
         }
+    }
 
+    public void createMappingTables() {
         String[] commandsMapping = {CreateTableMapping};
         for (String command : commandsMapping) {
             try {
@@ -629,4 +631,5 @@ public class SQLHandler extends SQLiteOpenHelper {
             return REFERENCE_UNKNOWN;
         }
     }
+
 }

@@ -1,10 +1,12 @@
 package org.openimis.imisclaims;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -29,6 +31,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.net.Uri;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -37,17 +40,25 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.claimlisting.ClaimListingActivity;
+import org.openimis.imisclaims.tools.Log;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
+
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 
 public class MainActivity extends ImisActivity {
     private static final int REQUEST_PERMISSIONS_CODE = 1;
     private static final int REQUEST_ALL_FILES_ACCESS_CODE = 2;
+    private static final String LOG_TAG = "MainActivity";
     ArrayList<String> broadcastList;
     final CharSequence[] lang = {"English", "Francais"};
     String Language;
@@ -67,6 +78,7 @@ public class MainActivity extends ImisActivity {
     final String VersionField = "AppVersionEnquire";
     NotificationManager mNotificationManager;
     final int SIMPLE_NOTIFICATION_ID = 1;
+    private static final int REQUEST_PICK_MD_FILE = 3;
     Vibrator vibrator;
 
     @Override
@@ -250,11 +262,54 @@ public class MainActivity extends ImisActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        File databaseFile;
+
         if (requestCode == REQUEST_ALL_FILES_ACCESS_CODE) {
             if (checkRequirements()) {
                 onAllRequirementsMet();
             }
+        } else if (requestCode == REQUEST_PICK_MD_FILE) {
+            if (resultCode == RESULT_OK && data != null) {
+                Uri uri = data.getData();
+                if (uri != null) {
+                    try {
+                        byte[] bytes = IOUtils.toByteArray(getContentResolver().openInputStream(uri));
+                        databaseFile = new File(SQLHandler.DB_NAME_DATA);
+                        if (databaseFile.exists() || databaseFile.createNewFile()) {
+                            new FileOutputStream(databaseFile).write(bytes);
+                            onAllRequirementsMet();
+                        } else {
+                            showDialog(getResources().getString(R.string.ImportMasterDataFailed),
+                                    (d, i) -> finish());
+                        }
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "Error while copying master data.", e);
+                    }
+                }
+            }
         }
+    }
+
+    public void PickMasterDataFileDialog() {
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle(getResources().getString(R.string.NoInternetTitle))
+                .setMessage(getResources().getString(R.string.DoImportClaimsMasterData))
+                .setCancelable(false)
+                .setPositiveButton(getResources().getString(R.string.Yes),
+                        (dialog, which) -> {
+                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+                            intent.setType("*/*");
+                            try {
+                                startActivityForResult(intent, REQUEST_PICK_MD_FILE);
+                            } catch (ActivityNotFoundException e) {
+                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.NoFileExporerInstalled), Toast.LENGTH_SHORT).show();
+                            }
+                        }).setNegativeButton(getResources().getString(R.string.No),
+                        (dialog, id) -> {
+                            dialog.cancel();
+                            finish();
+                        }).show();
     }
 
     public AlertDialog confirmRefreshMap() {
@@ -990,8 +1045,11 @@ public class MainActivity extends ImisActivity {
             if (global.isNetworkAvailable()) {
                 sqlHandler.createOrOpenDatabases();
                 sqlHandler.createTables();
+                sqlHandler.createMappingTables();
                 initializeDb3File(sqlHandler);
             } else {
+                sqlHandler.createMappingTables();
+                PickMasterDataFileDialog();
                 showToast(R.string.CheckInternet);
             }
 
@@ -1007,4 +1065,5 @@ public class MainActivity extends ImisActivity {
         }
         refreshCount();
     }
+
 }

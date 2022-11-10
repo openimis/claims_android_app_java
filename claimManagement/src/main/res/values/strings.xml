@@ -224,5 +224,10 @@
     <string name="Forbidden">You are not allowed to take this action.</string>
     <string name="UnknownError">Unknown Error.</string>
     <string name="NotFound">Entry does not exist.</string>
+    <string name="NoFileExporerInstalled">There are no file explorer clients installed.</string>
+    <string name="DoImportClaimsMasterData">Do you want to import master data as file?</string>
+    <string name="NoInternetTitle">NO INTERNET CONNECTION</string>
+    <string name="ImportMasterDataFailed">Failed to read master data from file.</string>
     <string name="HttpResponse">HTTP response: %1$d — %2$s</string>
+
 </resources>
