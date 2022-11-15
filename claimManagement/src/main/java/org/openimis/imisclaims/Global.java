@@ -28,15 +28,17 @@ package org.openimis.imisclaims;
 import android.Manifest;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,7 +49,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -57,7 +58,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 import static org.openimis.imisclaims.BuildConfig.RAR_PASSWORD;
-import static org.openimis.imisclaims.BuildConfig.APP_DIR;
+
+import org.openimis.imisclaims.tools.Log;
 
 public class Global extends Application {
     private static final String SHPREF_NAME = "SHPref";
@@ -65,37 +67,27 @@ public class Global extends Application {
     private static final String DEFAULT_LANGUAGE_CODE = "en";
     private static Global instance;
     private String OfficerCode;
+    private String OfficerHealthFacility;
     private String OfficerName;
     private int UserId;
-    private String MainDirectory;
     private String AppDirectory;
     private final Map<String, String> SubDirectories = new HashMap<>();
     private static final String _DefaultRarPassword = RAR_PASSWORD;
     private Token JWTToken;
     private String[] permissions;
 
-    private final List<String> ProtectedDirectories = Arrays.asList("Authentications", "Databases");
-
-    public Global() {
-        instance = this;
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE, Manifest.permission.MANAGE_EXTERNAL_STORAGE};
-        } else {
-            permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
-        }
-
+        instance = this;
+        permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.VIBRATE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CHANGE_WIFI_STATE};
     }
 
     public static Global getGlobal() {
         return instance;
     }
 
-    public Context getContext() {
+    public static Context getContext() {
         return instance.getApplicationContext();
     }
 
@@ -109,6 +101,14 @@ public class Global extends Application {
 
     public void setOfficerCode(String officerCode) {
         OfficerCode = officerCode;
+    }
+
+    public String getOfficerHealthFacility() {
+        return OfficerHealthFacility;
+    }
+
+    public void setOfficerHealthFacility(String HealthFacility) {
+        OfficerHealthFacility = HealthFacility;
     }
 
     public int getUserId() {
@@ -155,21 +155,9 @@ public class Global extends Application {
         }
     }
 
-    public String getMainDirectory() {
-        if (MainDirectory == null || "".equals(MainDirectory)) {
-            String documentsDir = createOrCheckDirectory(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString());
-            MainDirectory = createOrCheckDirectory(documentsDir + File.separator + APP_DIR);
-
-            if ("".equals(documentsDir) || "".equals(MainDirectory)) {
-                Log.w("DIRS", "Main directory could not be created");
-            }
-        }
-        return MainDirectory;
-    }
-
     public String getAppDirectory() {
         if (AppDirectory == null || "".equals(AppDirectory)) {
-            AppDirectory = createOrCheckDirectory(getApplicationInfo().dataDir);
+            AppDirectory = createOrCheckDirectory(getApplicationInfo().dataDir + File.separator);
 
             if ("".equals(AppDirectory)) {
                 Log.w("DIRS", "App directory could not be created");
@@ -180,14 +168,7 @@ public class Global extends Application {
 
     public String getSubdirectory(String subdirectory) {
         if (!SubDirectories.containsKey(subdirectory) || "".equals(SubDirectories.get(subdirectory))) {
-            String directory;
-
-            if (ProtectedDirectories.contains(subdirectory)) {
-                directory = getAppDirectory();
-            } else {
-                directory = getMainDirectory();
-            }
-
+            String directory = getAppDirectory();
             String subDirPath = createOrCheckDirectory(directory + File.separator + subdirectory);
 
             if ("".equals(subDirPath)) {
@@ -244,6 +225,25 @@ public class Global extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void grantUriPermissions(Context context, Uri uri, Intent intent, int permissionFlags) {
+        intent.addFlags(permissionFlags);
+        List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        for (ResolveInfo resolveInfo : resInfoList) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            context.grantUriPermission(packageName, uri, permissionFlags);
+        }
+    }
+
+    public void sendFile(Context context, Uri uri, String mimeType) {
+        Intent shareExportIntent = new Intent(Intent.ACTION_SEND);
+        shareExportIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        shareExportIntent.putExtra(Intent.EXTRA_STREAM, uri);
+        shareExportIntent.setType(mimeType);
+        Intent chooserIntent = Intent.createChooser(shareExportIntent, null);
+        grantUriPermissions(this, uri, chooserIntent, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        context.startActivity(chooserIntent);
     }
 
     public void writeText(String dir, String filename, String text) {

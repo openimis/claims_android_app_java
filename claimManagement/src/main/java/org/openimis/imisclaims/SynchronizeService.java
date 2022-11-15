@@ -2,25 +2,32 @@ package org.openimis.imisclaims;
 
 import android.content.Intent;
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
-import android.util.Log;
+import android.support.v4.content.FileProvider;
+import android.util.Xml;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
+import java.util.Date;
 import java.util.Locale;
 
 import org.apache.http.HttpResponse;
+import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.tools.StorageManager;
+import org.openimis.imisclaims.util.FileUtils;
+import org.openimis.imisclaims.util.XmlUtils;
+import org.openimis.imisclaims.util.ZipUtils;
+import org.xmlpull.v1.XmlSerializer;
 
 public class SynchronizeService extends JobIntentService {
     private static final int JOB_ID = 6541259; //Random unique Job id
@@ -38,13 +45,10 @@ public class SynchronizeService extends JobIntentService {
 
     public static final String EXTRA_CLAIM_RESPONSE = "SynchronizeService.EXTRA_CLAIM_RESPONSE";
     public static final String EXTRA_ERROR_MESSAGE = "SynchronizeService.EXTRA_ERROR_MESSAGE";
-    public static final String EXTRA_CLAIM_COUNT_PENDING = "SynchronizeService.EXTRA_CLAIM_COUNT_PENDING";
-    public static final String EXTRA_CLAIM_COUNT_PENDING_XML = "SynchronizeService.EXTRA_CLAIM_COUNT_PENDING_XML";
+    public static final String EXTRA_CLAIM_COUNT_ENTERED = "SynchronizeService.EXTRA_CLAIM_COUNT_ENTERED";
     public static final String EXTRA_CLAIM_COUNT_ACCEPTED = "SynchronizeService.EXTRA_CLAIM_COUNT_ACCEPTED";
     public static final String EXTRA_CLAIM_COUNT_REJECTED = "SynchronizeService.EXTRA_CLAIM_COUNT_REJECTED";
-
-    private static final String claimJsonPrefix = "ClaimJSON_";
-    private static final String claimXmlPrefix = "Claim_";
+    public static final String EXTRA_EXPORT_URI = "SynchronizeService.EXTRA_EXPORT_URI";
 
     private static final String claimResponseLine = "[%s] %s";
 
@@ -62,16 +66,19 @@ public class SynchronizeService extends JobIntentService {
         public static final int UnexpectedException = 2999;
     }
 
-    Global global;
-    String lastAction;
-    ToRestApi toRestApi;
+    private Global global;
+    private String lastAction;
+    private ToRestApi toRestApi;
+    private SQLHandler sqlHandler;
+    private StorageManager storageManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
         global = (Global) getApplicationContext();
         toRestApi = new ToRestApi();
-
+        sqlHandler = new SQLHandler(this);
+        storageManager = StorageManager.of(this);
     }
 
     public static void uploadClaims(Context context) {
@@ -110,9 +117,7 @@ public class SynchronizeService extends JobIntentService {
             return;
         }
 
-        File pendingDirectory = new File(global.getMainDirectory());
-        ArrayList<File> jsonClaims = new ArrayList<>(Arrays.asList(getListOfFilesPrefix(pendingDirectory, claimJsonPrefix)));
-        JSONArray claims = loadClaims(jsonClaims);
+        JSONArray claims = sqlHandler.getAllPendingClaims();
 
         if (claims.length() < 1) {
             broadcastError(ACTION_SYNC_ERROR, getResources().getString(R.string.NoClaim));
@@ -143,17 +148,22 @@ public class SynchronizeService extends JobIntentService {
 
     private JSONArray processClaimResponse(JSONArray claimResponseArray) throws JSONException {
         JSONArray result = new JSONArray();
+        String date = AppInformation.DateTimeInfo.getDefaultIsoDatetimeFormatter().format(new Date());
 
         for (int i = 0; i < claimResponseArray.length(); i++) {
             JSONObject claimResponse = claimResponseArray.getJSONObject(i);
             String claimCode = claimResponse.getString("claimCode");
+            String claimUUID = sqlHandler.getClaimUUIDForCode(claimCode);
             int claimResponseCode = claimResponse.getInt("response");
 
             if (claimResponseCode == ClaimResponse.Success) {
-                moveClaimToSubdirectory(claimCode, "AcceptedClaims");
-            } else if (claimResponseCode == ClaimResponse.Rejected) {
-                moveClaimToSubdirectory(claimCode, "RejectedClaims");
+                sqlHandler.insertClaimUploadStatus(claimUUID, date, SQLHandler.CLAIM_UPLOAD_STATUS_ACCEPTED, null);
             } else {
+                if (claimResponseCode == ClaimResponse.Rejected) {
+                    sqlHandler.insertClaimUploadStatus(claimUUID, date, SQLHandler.CLAIM_UPLOAD_STATUS_REJECTED, null);
+                } else {
+                    sqlHandler.insertClaimUploadStatus(claimUUID, date, SQLHandler.CLAIM_UPLOAD_STATUS_ERROR, claimResponse.getString("message"));
+                }
                 result.put(String.format(claimResponseLine, claimCode, claimResponse.getString("message")));
             }
         }
@@ -161,45 +171,96 @@ public class SynchronizeService extends JobIntentService {
     }
 
     private void handleExportClaims() {
-        File pendingDirectory = new File(global.getMainDirectory());
-        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss", Locale.US);
-        Calendar calendar = Calendar.getInstance();
-        String dateForZip = format.format(calendar.getTime());
+        JSONArray claims = sqlHandler.getAllPendingClaims();
+        ArrayList<File> exportedClaims = new ArrayList<>();
 
-        String zipFilePath = global.getMainDirectory() + "/Claims" + "_" + global.getOfficerCode() + "_" + dateForZip + ".zip";
-        String password = global.getRarPwd();
+        if (claims.length() < 1) {
+            broadcastError(ACTION_SYNC_ERROR, getResources().getString(R.string.NoClaim));
+            return;
+        }
 
-        ArrayList<File> xmlClaims = new ArrayList<>(Arrays.asList(getListOfFilesPrefix(pendingDirectory, claimXmlPrefix)));
-        ArrayList<File> jsonClaims = new ArrayList<>(Arrays.asList(getListOfFilesPrefix(pendingDirectory, claimJsonPrefix)));
+        for (int i = 0; i < claims.length(); i++) {
+            try {
+                JSONObject claim = claims.getJSONObject(i);
+                JSONObject details = claim.getJSONObject("details");
 
-        if (xmlClaims.size() > 0) {
-            Compressor.zip(xmlClaims, zipFilePath, password);
+                File claimFile = createClaimFile(details);
+                if (claimFile == null) {
+                    Log.e(LOG_TAG, "Creating claim temp file failed");
+                    continue;
+                }
 
-            for (File f : xmlClaims) {
-                moveFileToSubdirectory(f, "Trash");
+                writeClaimToXmlFile(claimFile, claim);
+                exportedClaims.add(claimFile);
+
+                sqlHandler.insertClaimUploadStatus(sqlHandler.getClaimUUIDForCode(details.getString("ClaimCode")),
+                        AppInformation.DateTimeInfo.getDefaultIsoDatetimeFormatter().format(new Date()),
+                        SQLHandler.CLAIM_UPLOAD_STATUS_EXPORTED, null);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, "Exception while exporting claims", e);
             }
+        }
 
-            for (File f : jsonClaims) {
-                moveFileToSubdirectory(f, "Trash");
+        if (exportedClaims.size() > 0) {
+            Uri exportUri = createClaimExportZip(exportedClaims);
+            if (exportUri != null) {
+                broadcastExportSuccess(exportUri);
+            } else {
+                broadcastError(ACTION_SYNC_ERROR, getResources().getString(R.string.XmlExportFailed));
             }
-
-            broadcastExportSuccess();
         } else {
-            broadcastError(ACTION_EXPORT_ERROR, getResources().getString(R.string.NoClaim));
+            broadcastError(ACTION_SYNC_ERROR, getResources().getString(R.string.XmlExportFailed));
         }
     }
 
+    private File createClaimFile(JSONObject details) {
+        try {
+            Calendar cal = Calendar.getInstance();
+            String d = AppInformation.DateTimeInfo.getDefaultDateFormatter().format(cal.getTime());
+
+            String filename = "Claim_" + details.getString("HFCode") + "_" + details.getString("ClaimCode") + "_" + d + ".xml";
+            return storageManager.createTempFile("exports/claim/" + filename);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Parsing claim JSON failed", e);
+        }
+        return null;
+    }
+
+    private void writeClaimToXmlFile(File claimFile, JSONObject claim) {
+        try (FileOutputStream out = new FileOutputStream(claimFile)) {
+            XmlSerializer serializer = Xml.newSerializer();
+            serializer.setOutput(out, "UTF-8");
+            serializer.startDocument(null, true);
+            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+            XmlUtils.serializeXml(serializer, "Claim", claim);
+            serializer.endDocument();
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Writing XML file failed", e);
+        }
+    }
+
+    private Uri createClaimExportZip(ArrayList<File> exportedClaims) {
+        Calendar cal = Calendar.getInstance();
+        String d = AppInformation.DateTimeInfo.getDefaultFileDatetimeFormatter().format(cal.getTime());
+        String zipFilename = "Claims" + "_" + global.getOfficerCode() + "_" + d + ".zip";
+        File zipFile = storageManager.createTempFile("exports/claim/" + zipFilename, true);
+
+        String password = global.getRarPwd();
+        ZipUtils.zipFiles(exportedClaims, zipFile, password);
+        FileUtils.deleteFiles(exportedClaims.toArray(new File[exportedClaims.size()]));
+
+        return FileProvider.getUriForFile(this,
+                String.format("%s.fileprovider", BuildConfig.APPLICATION_ID),
+                zipFile);
+    }
+
     private void handleGetClaimCount() {
-        File pendingDirectory = new File(global.getMainDirectory());
-        File acceptedDirectory = new File(global.getSubdirectory("AcceptedClaims"));
-        File rejectedDirectory = new File(global.getSubdirectory("RejectedClaims"));
+        JSONObject counts = sqlHandler.getClaimCounts();
 
-        int pendingCount = getFilesCountPrefix(pendingDirectory, claimJsonPrefix);
-        int pendingXMLCount = getFilesCountPrefix(pendingDirectory, claimXmlPrefix);
-        int acceptedCount = getFilesCountPrefix(acceptedDirectory, claimJsonPrefix);
-        int rejectedCount = getFilesCountPrefix(rejectedDirectory, claimJsonPrefix);
-
-        broadcastClaimCount(pendingCount, acceptedCount, rejectedCount, pendingXMLCount);
+        int enteredCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ENTERED, 0);
+        int acceptedCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ACCEPTED, 0);
+        int rejectedCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_REJECTED, 0);
+        broadcastClaimCount(enteredCount, acceptedCount, rejectedCount);
     }
 
     private String getErrorMessage(int responseCode) {
@@ -214,67 +275,19 @@ public class SynchronizeService extends JobIntentService {
         return errorMessage;
     }
 
-    private void moveClaimToSubdirectory(String claimCode, String subDirectory) {
-        File pendingDirectory = new File(global.getMainDirectory());
-        File[] files = getListOfFilesForClaim(pendingDirectory, claimCode);
-        for (File f : files) {
-            moveFileToSubdirectory(f, subDirectory);
-        }
-    }
-
-    private File[] getListOfFilesPrefix(File directory, String prefix) {
-        FilenameFilter filter = (dir, filename) -> filename.startsWith(prefix);
-        return directory.listFiles(filter);
-    }
-
-    private File[] getListOfFilesForClaim(File directory, String claimCode) {
-        String regex = ".+_.+_" + claimCode + "_";
-        return getListOfFilesMatching(directory, regex);
-    }
-
-    private File[] getListOfFilesMatching(File directory, String regex) {
-        FilenameFilter filter = (dir, filename) -> filename.matches(regex);
-        return directory.listFiles(filter);
-    }
-
-    private int getFilesCountPrefix(File directory, String prefix) {
-        File[] listOfFiles = getListOfFilesPrefix(directory, prefix);
-        return listOfFiles != null ? listOfFiles.length : 0;
-    }
-
-    private void moveFileToSubdirectory(File file, String subdirectory) {
-        if (!file.renameTo(new File(global.getSubdirectory(subdirectory), file.getName()))) {
-            Log.e(LOG_TAG, String.format("Moving a file to %s failed: %s", subdirectory, file.getAbsolutePath()));
-        }
-    }
-
-    private JSONArray loadClaims(List<File> files) {
-        try {
-            JSONArray claims = new JSONArray();
-            for (File claimFile : files) {
-                String claim = global.getFileText(claimFile);
-                JSONObject claimObject = new JSONObject(claim);
-                claims.put(claimObject);
-            }
-            return claims;
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, "Error while loading claims", e);
-            return new JSONArray();
-        }
-    }
-
     private void broadcastSyncSuccess(JSONArray claimResponse) {
         Intent successIntent = new Intent(ACTION_SYNC_SUCCESS);
         successIntent.putExtra(EXTRA_CLAIM_RESPONSE, claimResponse.toString());
         sendBroadcast(successIntent);
-        Log.i(LOG_TAG, String.format("%s finished with %s, messages count: %d", lastAction, ACTION_SYNC_SUCCESS, claimResponse.length()));
+        Log.i(LOG_TAG, String.format(Locale.US, "%s finished with %s, messages count: %d", lastAction, ACTION_SYNC_SUCCESS, claimResponse.length()));
     }
 
 
-    private void broadcastExportSuccess() {
+    private void broadcastExportSuccess(Uri exportUri) {
         Intent successIntent = new Intent(ACTION_EXPORT_SUCCESS);
+        successIntent.putExtra(EXTRA_EXPORT_URI, exportUri.toString());
         sendBroadcast(successIntent);
-        Log.i(LOG_TAG, String.format("%s finished with %s", lastAction, ACTION_EXPORT_SUCCESS));
+        Log.i(LOG_TAG, String.format("%s finished with %s, export uri: %s", lastAction, ACTION_EXPORT_SUCCESS, exportUri));
     }
 
     private void broadcastError(String action, String errorMessage) {
@@ -284,13 +297,12 @@ public class SynchronizeService extends JobIntentService {
         Log.i(LOG_TAG, String.format("%s finished with %s, error message: %s", lastAction, action, errorMessage));
     }
 
-    private void broadcastClaimCount(int pending, int accepted, int rejected, int pendingXml) {
+    private void broadcastClaimCount(int entered, int accepted, int rejected) {
         Intent resultIntent = new Intent(ACTION_CLAIM_COUNT_RESULT);
-        resultIntent.putExtra(EXTRA_CLAIM_COUNT_PENDING, pending);
+        resultIntent.putExtra(EXTRA_CLAIM_COUNT_ENTERED, entered);
         resultIntent.putExtra(EXTRA_CLAIM_COUNT_ACCEPTED, accepted);
         resultIntent.putExtra(EXTRA_CLAIM_COUNT_REJECTED, rejected);
-        resultIntent.putExtra(EXTRA_CLAIM_COUNT_PENDING_XML, pendingXml);
         sendBroadcast(resultIntent);
-        Log.i(LOG_TAG, String.format("%s finished with %s, result:  p: %d,a: %d,r: %d,pxml: %d", lastAction, ACTION_CLAIM_COUNT_RESULT, pending, accepted, rejected, pendingXml));
+        Log.i(LOG_TAG, String.format(Locale.US, "%s finished with %s, result:  p: %d,a: %d,r: %d", lastAction, ACTION_CLAIM_COUNT_RESULT, entered, accepted, rejected));
     }
 }

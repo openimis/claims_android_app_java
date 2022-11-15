@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v7.view.menu.MenuBuilder;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +25,8 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.openimis.imisclaims.tools.Log;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -293,9 +294,9 @@ public class MapServices extends ImisActivity {
                 convertView = vi.inflate(R.layout.mappinglist, null);
 
                 holder = new ViewHolder();
-                holder.Code = (TextView) convertView.findViewById(R.id.tvMapCode);
-                holder.Name = (TextView) convertView.findViewById(R.id.tvMapName);
-                holder.isMapped = (CheckBox) convertView.findViewById(R.id.chkMap);
+                holder.Code = convertView.findViewById(R.id.tvMapCode);
+                holder.Name = convertView.findViewById(R.id.tvMapName);
+                holder.isMapped = convertView.findViewById(R.id.chkMap);
 
                 convertView.setTag(holder);
 

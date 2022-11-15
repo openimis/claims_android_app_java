@@ -7,30 +7,16 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.Button;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 public class ClaimReview extends ImisActivity {
-
-    public String claims = "";
-
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = item -> {
-        Fragment selectedFragment = null;
-
-        switch (item.getItemId()) {
-            case R.id.navigation_home:
-                selectedFragment = new ReviewFragment();
-                break;
-            case R.id.navigation_dashboard:
-                selectedFragment = new ItemsFragment();
-                break;
-            case R.id.navigation_notifications:
-                selectedFragment = new ServicesFragment();
-                break;
-        }
-        getSupportFragmentManager().beginTransaction().replace(R.id.main_container, selectedFragment).commit();
-        return true;
-    };
-
-    private View.OnClickListener restoreButtonListener = v -> restoreClaim(v);
+    public String claimText;
+    private Map<Integer, Supplier<Fragment>> fragmentMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +26,41 @@ public class ClaimReview extends ImisActivity {
         actionBar.setTitle(getResources().getString(R.string.ClaimReview));
 
         Intent intent = getIntent();
-        claims = intent.getStringExtra("claims");
+        claimText = intent.getStringExtra("claims");
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        fragmentMap.put(R.id.navigation_home, ReviewFragment::new);
+        fragmentMap.put(R.id.navigation_dashboard, ItemsFragment::new);
+        fragmentMap.put(R.id.navigation_notifications, ServicesFragment::new);
 
-        Button restoreButton = (Button) findViewById(R.id.restore_button);
-        restoreButton.setOnClickListener(restoreButtonListener);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (fragmentMap.containsKey(itemId)) {
+                Supplier<Fragment> sup = fragmentMap.get(itemId);
+                if (sup != null) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.main_container, sup.get()).commit();
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        });
+
+        Button restoreButton = findViewById(R.id.restore_button);
+
+        // check if claim is already restored - by comparing prefix
+        try {
+            JSONObject currentClaim = new JSONObject(this.claimText);
+            String currentClaimCode = currentClaim.getString("claim_number");
+
+            if (!currentClaimCode.startsWith(getResources().getString(R.string.restoredClaimNoPrefix))) {
+                restoreButton.setOnClickListener(this::restoreClaim);
+            } else {
+                restoreButton.setVisibility(View.GONE);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         Fragment selectedFragment = new ReviewFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.main_container, selectedFragment).commit();
@@ -54,8 +68,7 @@ public class ClaimReview extends ImisActivity {
 
     public void restoreClaim(View view) {
         Intent intent = new Intent(this, ClaimActivity.class);
-        intent.putExtra("claims", claims);
+        intent.putExtra(ClaimActivity.EXTRA_CLAIM_DATA, claimText);
         startActivity(intent);
     }
-
 }
