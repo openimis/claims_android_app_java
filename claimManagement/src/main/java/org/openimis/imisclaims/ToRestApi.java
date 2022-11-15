@@ -1,7 +1,5 @@
 package org.openimis.imisclaims;
 
-import android.util.Log;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -10,12 +8,19 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.openimis.imisclaims.tools.Log;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 import static org.openimis.imisclaims.BuildConfig.API_BASE_URL;
 import static org.openimis.imisclaims.BuildConfig.API_VERSION;
 import static java.lang.Math.min;
+
+import android.content.Context;
 
 public class ToRestApi {
     private static final String LOG_TAG = "HTTP";
@@ -110,6 +115,35 @@ public class ToRestApi {
             Log.e(LOG_TAG, "Error when extracting response body", e);
             return null;
         }
+    }
+
+    public String getHttpError(Context context, int httpResponseCode, String httpReason) {
+        if (httpResponseCode == HttpURLConnection.HTTP_OK || httpResponseCode == HttpURLConnection.HTTP_CREATED) {
+            return null;
+        } else if (httpResponseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+            return context.getResources().getString(R.string.NotFound);
+        } else if (httpResponseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            return context.getResources().getString(R.string.Unauthorized);
+        } else if (httpResponseCode == HttpURLConnection.HTTP_FORBIDDEN) {
+            return context.getResources().getString(R.string.Forbidden);
+        } else {
+            return context.getResources().getString(R.string.HttpResponse, httpResponseCode, httpReason);
+        }
+    }
+
+
+    public String getPayloadError(String responseContent) {
+        String payloadError = null;
+
+        try {
+            JSONObject response = new JSONObject(responseContent);
+            if (response.optBoolean("error_occured", false)) {
+                payloadError = response.getString("error_messagge");
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Error while parsing payload error", e);
+        }
+        return payloadError;
     }
 
 

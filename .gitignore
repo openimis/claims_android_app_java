@@ -77,7 +77,6 @@ fastlane/readme.md
 # Visual Studio Code
 .vscode/
 
-release/
 
 # Custom product flavours
 *custom-flavours.gradle

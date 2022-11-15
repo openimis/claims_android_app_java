@@ -14,7 +14,9 @@ import android.widget.Toast;
 import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openimis.imisclaims.tools.Log;
 
+import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class SearchClaimsActivity extends ImisActivity {
+    private static final String LOG_TAG = "SEARCHCLAIMS";
     ProgressDialog pd;
 
     ToRestApi toRestApi;
@@ -110,57 +113,25 @@ public class SearchClaimsActivity extends ImisActivity {
             }
         }));
 
-        visitDateFrom.setOnClickListener(v ->
-                new DatePickerDialog(this,
-                        (view, year, monthOfYear, dayOfMonth) -> {
-                            visitDateFromCalendar.set(Calendar.YEAR, year);
-                            visitDateFromCalendar.set(Calendar.MONTH, monthOfYear);
-                            visitDateFromCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                            updateLabel(visitDateFromCalendar, visitDateFrom);
-                        },
-                        visitDateFromCalendar.get(Calendar.YEAR),
-                        visitDateFromCalendar.get(Calendar.MONTH),
-                        visitDateFromCalendar.get(Calendar.DAY_OF_MONTH)
-                ).show());
+        visitDateFrom.setOnClickListener(v -> getDatePicker(visitDateFrom, visitDateFromCalendar).show());
+        visitDateTo.setOnClickListener(v -> getDatePicker(visitDateTo, visitDateToCalendar).show());
+        dateProcessedFrom.setOnClickListener(v -> getDatePicker(dateProcessedFrom, dateProcessedFromCalendar).show());
+        dateProcessedTo.setOnClickListener(v -> getDatePicker(dateProcessedTo, dateProcessedToCalendar).show());
+    }
 
-        visitDateTo.setOnClickListener(v ->
-                new DatePickerDialog(this,
-                        (view, year, monthOfYear, dayOfMonth) -> {
-                            visitDateToCalendar.set(Calendar.YEAR, year);
-                            visitDateToCalendar.set(Calendar.MONTH, monthOfYear);
-                            visitDateToCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                            updateLabel(visitDateToCalendar, visitDateTo);
-                        },
-                        visitDateToCalendar.get(Calendar.YEAR),
-                        visitDateToCalendar.get(Calendar.MONTH),
-                        visitDateToCalendar.get(Calendar.DAY_OF_MONTH)
-                ).show());
-
-        dateProcessedFrom.setOnClickListener(v ->
-                new DatePickerDialog(this,
-                        (view, year, monthOfYear, dayOfMonth) -> {
-                            dateProcessedFromCalendar.set(Calendar.YEAR, year);
-                            dateProcessedFromCalendar.set(Calendar.MONTH, monthOfYear);
-                            dateProcessedFromCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                            updateLabel(dateProcessedFromCalendar, dateProcessedFrom);
-                        },
-                        dateProcessedFromCalendar.get(Calendar.YEAR),
-                        dateProcessedFromCalendar.get(Calendar.MONTH),
-                        dateProcessedFromCalendar.get(Calendar.DAY_OF_MONTH)
-                ).show());
-
-        dateProcessedTo.setOnClickListener(v ->
-                new DatePickerDialog(this,
-                        (view, year, monthOfYear, dayOfMonth) -> {
-                            dateProcessedToCalendar.set(Calendar.YEAR, year);
-                            dateProcessedToCalendar.set(Calendar.MONTH, monthOfYear);
-                            dateProcessedToCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                            updateLabel(dateProcessedToCalendar, dateProcessedTo);
-                        },
-                        dateProcessedToCalendar.get(Calendar.YEAR),
-                        dateProcessedToCalendar.get(Calendar.MONTH),
-                        dateProcessedToCalendar.get(Calendar.DAY_OF_MONTH)
-                ).show());
+    public DatePickerDialog getDatePicker(TextView textView, Calendar calendar) {
+        return new DatePickerDialog(
+                this,
+                (view, year, monthOfYear, dayOfMonth) -> {
+                    calendar.set(Calendar.YEAR, year);
+                    calendar.set(Calendar.MONTH, monthOfYear);
+                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    updateLabel(calendar, textView);
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
     }
 
     public void updateLabel(Calendar calendar, TextView view) {
@@ -170,35 +141,32 @@ public class SearchClaimsActivity extends ImisActivity {
 
     private void getClaims(final JSONObject object) {
         pd = ProgressDialog.show(this, getResources().getString(R.string.DownLoad), getResources().getString(R.string.getClaims) + "...");
-        Thread thread = new Thread() {
-            public void run() {
+        new Thread(() -> {
+            String functionName = "claim/GetClaims/";
+            try {
+                HttpResponse response = toRestApi.postToRestApiToken(object, functionName);
+                String content = toRestApi.getContent(response);
+                int code = response.getStatusLine().getStatusCode();
 
-                String functionName = "claim/GetClaims/";
-                try {
-                    HttpResponse response = toRestApi.postToRestApiToken(object, functionName);
-                    String content = toRestApi.getContent(response);
-                    int code = response.getStatusLine().getStatusCode();
-
-                    if (code < 400) {
-                        runOnUiThread(() -> pd.dismiss());
-                        JSONObject jsonObject = new JSONObject(content);
-                        String data = jsonObject.getString("data");
-                        if (data.length() != 0) {
-                            openClaimReview(content);
-                        } else {
-                            runOnUiThread(() -> Toast.makeText(getContext(), response.getStatusLine().getStatusCode() + "-" + getResources().getString(R.string.NoClaim), Toast.LENGTH_LONG).show());
-                        }
+                if (code == HttpURLConnection.HTTP_OK) {
+                    runOnUiThread(() -> pd.dismiss());
+                    JSONObject jsonObject = new JSONObject(content);
+                    String data = jsonObject.getString("data");
+                    if (data.length() != 0) {
+                        openClaimReview(content);
                     } else {
-                        pd.dismiss();
-                        runOnUiThread(() -> Toast.makeText(getContext(), getResources().getString(R.string.AccessDenied), Toast.LENGTH_LONG).show());
+                        runOnUiThread(() -> Toast.makeText(getContext(), getResources().getString(R.string.NoClaim), Toast.LENGTH_LONG).show());
                     }
-                } catch (Exception e) {
+                } else {
                     pd.dismiss();
-                    runOnUiThread(() -> Toast.makeText(getContext(), getResources().getString(R.string.AccessDenied), Toast.LENGTH_LONG).show());
+                    runOnUiThread(() -> Toast.makeText(getContext(), toRestApi.getHttpError(this, code, response.getStatusLine().getReasonPhrase()), Toast.LENGTH_LONG).show());
                 }
+            } catch (Exception e) {
+                pd.dismiss();
+                Log.e(LOG_TAG, "Error while fetching claims", e);
+                runOnUiThread(() -> Toast.makeText(getContext(), getResources().getString(R.string.ErrorOccurred), Toast.LENGTH_LONG).show());
             }
-        };
-        thread.start();
+        }).start();
     }
 
     public void openClaimReview(String claims) {
