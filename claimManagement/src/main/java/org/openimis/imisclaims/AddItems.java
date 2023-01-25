@@ -6,9 +6,12 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -16,6 +19,7 @@ import android.widget.TextView;
 import java.util.HashMap;
 
 import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.util.StringUtils;
 
 public class AddItems extends ImisActivity {
     ListView lvItems;
@@ -47,9 +51,32 @@ public class AddItems extends ImisActivity {
         btnAdd = findViewById(R.id.btnAdd);
 
         alAdapter = new SimpleAdapter(AddItems.this, ClaimActivity.lvItemList, R.layout.lvitem,
-                new String[]{"Code", "Name", "Price", "Quantity"},
-                new int[]{R.id.tvLvCode, R.id.tvLvName, R.id.tvLvPrice, R.id.tvLvQuantity});
+                new String[]{"Code", "Name", "Price", "Quantity", "PriceAdjusted", "QuantityAdjusted", "Explanation", "Justification", "Result"},
+                new int[]{R.id.tvLvCode, R.id.tvLvName, R.id.tvLvPrice, R.id.tvLvQuantity, R.id.tvLvPriceAdjusted, R.id.tvLvQuantityAdjusted, R.id.tvLvExplanation, R.id.tvLvJustification, R.id.tvLvResult});
         lvItems.setAdapter(alAdapter);
+
+        alAdapter.setViewBinder((view, data, textRepresentation) -> {
+            TextView textView = (TextView) view;
+            textView.setText(textRepresentation);
+
+            int id = view.getId();
+
+            if ((id == R.id.tvLvPriceAdjusted || id == R.id.tvLvQuantityAdjusted || id == R.id.tvLvExplanation || id == R.id.tvLvJustification || id == R.id.tvLvResult) && !StringUtils.isEmpty(textRepresentation)) {
+                view.getParent().getParent();
+
+                ViewGroup containingLayout = (ViewGroup) view.getParent().getParent();
+                LinearLayout rootView = (LinearLayout) containingLayout.getParent();
+
+                LinearLayout quantityAdjustedRow = rootView.findViewById(R.id.QuantityAdjustedRow);
+                LinearLayout priceAdjustedRow = rootView.findViewById(R.id.PriceAdjustedRow);
+                LinearLayout resultRow = rootView.findViewById(R.id.ResultRow);
+                quantityAdjustedRow.setVisibility(View.VISIBLE);
+                priceAdjustedRow.setVisibility(View.VISIBLE);
+                resultRow.setVisibility(View.VISIBLE);
+            }
+
+            return true;
+        });
 
         if (isIntentReadonly()) {
             disableView(etQuantity);

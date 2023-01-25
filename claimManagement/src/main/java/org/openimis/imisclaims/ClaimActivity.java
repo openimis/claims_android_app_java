@@ -25,6 +25,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.util.JsonUtils;
+import org.openimis.imisclaims.util.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -52,7 +54,7 @@ public class ClaimActivity extends ImisActivity {
     private int year, month, day;
     int TotalItemService;
 
-    EditText etStartDate, etEndDate, etClaimCode, etHealthFacility, etInsureeNumber, etClaimAdmin, etGuaranteeNo;
+    EditText etStartDate, etEndDate, etClaimCode, etHealthFacility, etInsureeNumber, etClaimAdmin, etGuaranteeNo, etTotalClaimed, etTotalApproved, etTotalAdjusted, etExplanation, etAdjustment;
     AutoCompleteTextView etDiagnosis, etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4;
     TextView tvItemTotal, tvServiceTotal;
     Button btnPost, btnNew;
@@ -95,6 +97,11 @@ public class ClaimActivity extends ImisActivity {
         rbEmergency = findViewById(R.id.rbEmergency);
         rbReferral = findViewById(R.id.rbReferral);
         rbOther = findViewById(R.id.rbOther);
+        etTotalClaimed = findViewById(R.id.etTotalClaimed);
+        etTotalApproved = findViewById(R.id.etTotalApproved);
+        etTotalAdjusted = findViewById(R.id.etTotalAdjusted);
+        etExplanation = findViewById(R.id.etExplanation);
+        etAdjustment = findViewById(R.id.etAdjustment);
 
 
         tvItemTotal.setText("0");
@@ -154,6 +161,7 @@ public class ClaimActivity extends ImisActivity {
                         }));
                     }),
                     () -> {
+                        progressDialog.dismiss();
                     },
                     500
             );
@@ -387,7 +395,7 @@ public class ClaimActivity extends ImisActivity {
 
             if (etGuaranteeNo.getVisibility() != View.GONE) {
                 String guaranteeNumber = claim.getString("guarantee_number");
-                if ("".equals(guaranteeNumber) || "null".equals(guaranteeNumber))
+                if (StringUtils.isEmpty(guaranteeNumber, true))
                     etGuaranteeNo.setText("");
                 else etGuaranteeNo.setText(guaranteeNumber);
             }
@@ -471,27 +479,27 @@ public class ClaimActivity extends ImisActivity {
                     try {
                         JSONObject claimDetails = claimObject.getJSONObject("details");
 
-                        etClaimCode.setText(claimDetails.getString("ClaimCode"));
+                        etClaimCode.setText(claimDetails.optString("ClaimCode"));
                         if (etClaimAdmin.getVisibility() != View.GONE) {
-                            etClaimAdmin.setText(claimDetails.getString("ClaimAdmin"));
+                            etClaimAdmin.setText(claimDetails.optString("ClaimAdmin"));
                         }
-                        etHealthFacility.setText(claimDetails.getString("HFCode"));
+                        etHealthFacility.setText(claimDetails.optString("HFCode"));
 
                         if (etGuaranteeNo.getVisibility() != View.GONE) {
-                            etGuaranteeNo.setText(claimDetails.getString("GuaranteeNumber"));
+                            etGuaranteeNo.setText(claimDetails.optString("GuaranteeNumber"));
                         }
 
-                        etInsureeNumber.setText(claimDetails.getString("InsureeNumber"));
-                        etStartDate.setText(claimDetails.getString("StartDate"));
-                        etEndDate.setText(claimDetails.getString("EndDate"));
+                        etInsureeNumber.setText(claimDetails.optString("InsureeNumber"));
+                        etStartDate.setText(claimDetails.optString("StartDate"));
+                        etEndDate.setText(claimDetails.optString("EndDate"));
 
-                        etDiagnosis.setText(claimDetails.getString("ICDCode"));
-                        etDiagnosis1.setText(claimDetails.getString("ICDCode1"));
-                        etDiagnosis2.setText(claimDetails.getString("ICDCode2"));
-                        etDiagnosis3.setText(claimDetails.getString("ICDCode3"));
-                        etDiagnosis4.setText(claimDetails.getString("ICDCode4"));
+                        etDiagnosis.setText(claimDetails.optString("ICDCode"));
+                        etDiagnosis1.setText(claimDetails.optString("ICDCode1"));
+                        etDiagnosis2.setText(claimDetails.optString("ICDCode2"));
+                        etDiagnosis3.setText(claimDetails.optString("ICDCode3"));
+                        etDiagnosis4.setText(claimDetails.optString("ICDCode4"));
 
-                        switch (claimDetails.getString("VisitType")) {
+                        switch (claimDetails.optString("VisitType").substring(0, 1)) {
                             case "E":
                                 rgVisitType.check(R.id.rbEmergency);
                                 break;
@@ -505,6 +513,27 @@ public class ClaimActivity extends ImisActivity {
                                 rgVisitType.clearCheck();
                         }
 
+                        // Show claim adjustment if available (after update)
+                        if (!(JsonUtils.isStringEmpty(claimDetails, "Total", true)
+                                && JsonUtils.isStringEmpty(claimDetails, "TotalApproved", true)
+                                && JsonUtils.isStringEmpty(claimDetails, "TotalAdjusted", true)
+                                && JsonUtils.isStringEmpty(claimDetails, "Explanation", true)
+                                && JsonUtils.isStringEmpty(claimDetails, "Adjustment", true))) {
+
+                            etTotalClaimed.setVisibility(View.VISIBLE);
+                            etTotalApproved.setVisibility(View.VISIBLE);
+                            etTotalAdjusted.setVisibility(View.VISIBLE);
+                            etExplanation.setVisibility(View.VISIBLE);
+                            etAdjustment.setVisibility(View.VISIBLE);
+
+                            etTotalClaimed.setText(claimDetails.optString("Total"));
+                            etTotalApproved.setText(claimDetails.optString("TotalApproved"));
+                            etTotalAdjusted.setText(claimDetails.optString("TotalAdjusted"));
+                            etExplanation.setText(claimDetails.optString("Explanation"));
+                            etAdjustment.setText(claimDetails.optString("Adjustment"));
+                        }
+
+
                         lvItemList.clear();
                         if (claimObject.has("items")) {
                             JSONArray items = claimObject.getJSONArray("items");
@@ -512,10 +541,16 @@ public class ClaimActivity extends ImisActivity {
                                 HashMap<String, String> item = new HashMap<>();
                                 JSONObject itemJson = items.getJSONObject(i);
 
-                                item.put("Name", sqlHandler.getReferenceName(itemJson.getString("ItemCode")));
-                                item.put("Code", itemJson.getString("ItemCode"));
-                                item.put("Price", itemJson.getString("ItemPrice"));
-                                item.put("Quantity", itemJson.getString("ItemQuantity"));
+                                item.put("Name", sqlHandler.getReferenceName(itemJson.optString("ItemCode")));
+                                item.put("Code", itemJson.optString("ItemCode"));
+                                item.put("Price", itemJson.optString("ItemPrice"));
+                                item.put("Quantity", itemJson.optString("ItemQuantity"));
+                                item.put("PriceAdjusted", itemJson.optString("ItemPriceAdjusted"));
+                                item.put("QuantityAdjusted", itemJson.optString("ItemQuantityAdjusted"));
+                                item.put("Explanation", itemJson.optString("ItemExplanation"));
+                                item.put("Justification", itemJson.optString("ItemJustification"));
+                                item.put("Valuated", itemJson.optString("ItemValuated"));
+                                item.put("Result", itemJson.optString("ItemResult"));
 
                                 lvItemList.add(item);
                             }
@@ -529,10 +564,16 @@ public class ClaimActivity extends ImisActivity {
                                 HashMap<String, String> service = new HashMap<>();
                                 JSONObject serviceJson = services.getJSONObject(i);
 
-                                service.put("Name", sqlHandler.getReferenceName(serviceJson.getString("ServiceCode")));
-                                service.put("Code", serviceJson.getString("ServiceCode"));
-                                service.put("Price", serviceJson.getString("ServicePrice"));
-                                service.put("Quantity", serviceJson.getString("ServiceQuantity"));
+                                service.put("Name", sqlHandler.getReferenceName(serviceJson.optString("ServiceCode")));
+                                service.put("Code", serviceJson.optString("ServiceCode"));
+                                service.put("Price", serviceJson.optString("ServicePrice"));
+                                service.put("Quantity", serviceJson.optString("ServiceQuantity"));
+                                service.put("PriceAdjusted", serviceJson.optString("ServicePriceAdjusted"));
+                                service.put("QuantityAdjusted", serviceJson.optString("ServiceQuantityAdjusted"));
+                                service.put("Explanation", serviceJson.optString("ServiceExplanation"));
+                                service.put("Justification", serviceJson.optString("ServiceJustification"));
+                                service.put("Valuated", serviceJson.optString("ServiceValuated"));
+                                service.put("Result", serviceJson.optString("ServiceResult"));
 
                                 lvServiceList.add(service);
                             }
@@ -664,7 +705,7 @@ public class ClaimActivity extends ImisActivity {
     }
 
     protected void confirmNewDialog(String msg) {
-        runOnUiThread(() -> showDialog(msg, (dialog, which) -> ClearForm(), (dialog, which) -> dialog.dismiss()));
+        runOnUiThread(() -> showDialog(null, msg, (dialog, which) -> ClearForm(), (dialog, which) -> dialog.dismiss()));
     }
 
     private boolean saveClaim() {
@@ -680,6 +721,8 @@ public class ClaimActivity extends ImisActivity {
         Calendar cal = Calendar.getInstance();
         String claimDate = format.format(cal.getTime());
 
+        SimpleDateFormat isoFormat = AppInformation.DateTimeInfo.getDefaultIsoShortDatetimeFormatter();
+
         int SelectedId;
         SelectedId = rgVisitType.getCheckedRadioButtonId();
         RadioButton selectedTypeButton;
@@ -687,6 +730,7 @@ public class ClaimActivity extends ImisActivity {
         String visitType = selectedTypeButton.getTag().toString();
 
         ContentValues claimCV = new ContentValues();
+        String updateDate = isoFormat.format(new Date());
 
         claimCV.put("ClaimUUID", claimUUID);
         claimCV.put("ClaimDate", claimDate);
@@ -705,6 +749,7 @@ public class ClaimActivity extends ImisActivity {
         claimCV.put("ICDCode3", etDiagnosis3.getText().toString());
         claimCV.put("ICDCode4", etDiagnosis4.getText().toString());
         claimCV.put("VisitType", visitType);
+        claimCV.put("LastUpdated", updateDate);
 
         ArrayList<ContentValues> claimItemCVs = new ArrayList<>(lvItemList.size());
         for (int i = 0; i < lvItemList.size(); i++) {
@@ -714,6 +759,7 @@ public class ClaimActivity extends ImisActivity {
             claimItemCV.put("ItemCode", lvItemList.get(i).get("Code"));
             claimItemCV.put("ItemPrice", lvItemList.get(i).get("Price"));
             claimItemCV.put("ItemQuantity", lvItemList.get(i).get("Quantity"));
+            claimItemCV.put("LastUpdated", updateDate);
 
             claimItemCVs.add(claimItemCV);
         }
@@ -726,6 +772,7 @@ public class ClaimActivity extends ImisActivity {
             claimServiceCV.put("ServiceCode", lvServiceList.get(i).get("Code"));
             claimServiceCV.put("ServicePrice", lvServiceList.get(i).get("Price"));
             claimServiceCV.put("ServiceQuantity", lvServiceList.get(i).get("Quantity"));
+            claimServiceCV.put("LastUpdated", updateDate);
 
             claimServiceCVs.add(claimServiceCV);
         }
