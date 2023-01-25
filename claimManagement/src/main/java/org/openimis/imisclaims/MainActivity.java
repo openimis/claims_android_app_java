@@ -227,6 +227,7 @@ public class MainActivity extends ImisActivity {
             startActivity(new Intent(getApplicationContext(), SynchronizeActivity.class));
         } else if (id == R.id.nav_quit) {
             showDialog(
+                    null,
                     getResources().getString(R.string.AreYouSure),
                     (dialog, i) -> {
                         global.setOfficerCode("");
@@ -314,6 +315,7 @@ public class MainActivity extends ImisActivity {
 
     public AlertDialog confirmRefreshMap() {
         return showDialog(
+                null,
                 getResources().getString(R.string.AreYouSure),
                 (dialog, i) -> {
                     try {
@@ -400,6 +402,7 @@ public class MainActivity extends ImisActivity {
 
     public AlertDialog DownloadMasterDialog() {
         return showDialog(getResources().getString(R.string.getMasterData),
+                null,
                 (dialogInterface, i) -> {
                     if (getControls()) {
                         try {

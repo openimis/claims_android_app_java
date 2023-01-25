@@ -10,43 +10,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/llBottom"
+        android:layout_margin="10dp"
         android:isScrollContainer="true"
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:scrollbarStyle="insideInset"
-        android:layout_margin="10dp"
-        android:scrollbars="vertical" >
+        android:scrollbars="vertical">
 
         <LinearLayout
             android:id="@+id/llTop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <EditText
                 android:id="@+id/etHealthFacility"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/HealthFacility"
-                android:fontFamily="sans-serif-light"
                 android:ems="10"
-                android:maxLength="8">
-            </EditText>
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/HealthFacility"
+                android:maxLength="8" />
+
             <EditText
                 android:id="@+id/etClaimAdmin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/ClaimAdmin"
-                android:fontFamily="sans-serif-light"
                 android:ems="10"
-                android:maxLength="8">
-            </EditText>
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/ClaimAdmin"
+                android:maxLength="8" />
+
             <EditText
                 android:id="@+id/etClaimCode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/ClaimCode"
-                android:fontFamily="sans-serif-light"
                 android:ems="10"
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/ClaimCode"
                 android:maxLength="8">
 
                 <requestFocus />
@@ -56,12 +56,11 @@
                 android:id="@+id/etGuaranteeNo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/GuaranteeNo"
                 android:ems="10"
                 android:fontFamily="sans-serif-light"
+                android:hint="@string/GuaranteeNo"
 
-                android:maxLength="8">
-            </EditText>
+                android:maxLength="8" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -73,56 +72,56 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/CHFID"
-                    android:fontFamily="sans-serif-light"
                     android:ems="10"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="@string/CHFID"
                     android:inputType="number"
-                    android:maxLength="12">
-                </EditText>
+                    android:maxLength="12" />
 
                 <ImageButton
                     android:id="@+id/btnScan"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
+                    android:layout_marginTop="-10dp"
                     android:contentDescription="@string/Scan"
                     android:scaleType="fitXY"
-                    android:layout_marginTop="-10dp"
                     android:src="@drawable/scan" />
 
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <EditText
                     android:id="@+id/etStartDate"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/StartDate"
-                    android:fontFamily="sans-serif-light"
+                    android:layout_weight="1"
                     android:ems="10"
-                    android:layout_weight="1"/>
+                    android:fontFamily="sans-serif-light"
+                    android:hint="@string/StartDate" />
 
                 <EditText
                     android:id="@+id/etEndDate"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/EndDate"
-                    android:fontFamily="sans-serif-light"
+                    android:layout_weight="1"
                     android:ems="10"
-                    android:layout_weight="1"/>
+                    android:fontFamily="sans-serif-light"
+                    android:hint="@string/EndDate" />
             </LinearLayout>
 
             <AutoCompleteTextView
                 android:id="@+id/etDiagnosis"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/Diagnosis"
                 android:ems="10"
-
                 android:fontFamily="sans-serif-light"
-                android:maxLength="6">
-            </AutoCompleteTextView>
+
+                android:hint="@string/Diagnosis"
+                android:maxLength="6" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -141,11 +140,11 @@
                     android:id="@+id/etDiagnosis1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/Diagnosis1"
-                    android:ems="10"
-                    android:maxLength="6"
-                    android:fontFamily="sans-serif-light"
                     android:layout_weight="1"
+                    android:ems="10"
+                    android:fontFamily="sans-serif-light"
+                    android:hint="@string/Diagnosis1"
+                    android:maxLength="6"
 
                     />
 
@@ -153,44 +152,45 @@
                     android:id="@+id/etDiagnosis2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/Diagnosis2"
+                    android:layout_weight="1"
                     android:ems="10"
-                    android:maxLength="6"
                     android:fontFamily="sans-serif-light"
-                    android:layout_weight="1"/>
+                    android:hint="@string/Diagnosis2"
+                    android:maxLength="6" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <AutoCompleteTextView
                     android:id="@+id/etDiagnosis3"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/Diagnosis3"
+                    android:layout_weight="1"
                     android:ems="10"
-                    android:maxLength="6"
                     android:fontFamily="sans-serif-light"
-                    android:layout_weight="1"/>
+                    android:hint="@string/Diagnosis3"
+                    android:maxLength="6" />
+
                 <AutoCompleteTextView
                     android:id="@+id/etDiagnosis4"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/Diagnosis4"
+                    android:layout_weight="1"
                     android:ems="10"
-                    android:maxLength="6"
                     android:fontFamily="sans-serif-light"
-                    android:layout_weight="1"/>
-
+                    android:hint="@string/Diagnosis4"
+                    android:maxLength="6" />
 
 
             </LinearLayout>
 
-            <RadioGroup android:id="@+id/rgVisitType"
+            <RadioGroup
+                android:id="@+id/rgVisitType"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content">
 
                 <RadioButton
                     android:id="@+id/rbEmergency"
@@ -214,28 +214,74 @@
                     android:text="@string/Other" />
 
             </RadioGroup>
+
+            <EditText
+                android:id="@+id/etTotalClaimed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/TotalClaimed"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/etTotalApproved"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/TotalApproved"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/etTotalAdjusted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/TotalAdjusted"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/etExplanation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/Explanation"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/etAdjustment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/Adjustment"
+                android:visibility="gone" />
         </LinearLayout>
-
-
     </ScrollView>
-    <LinearLayout android:id="@+id/llBottom"
+
+    <LinearLayout
+        android:id="@+id/llBottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:background="@color/Gray" >
+        android:background="@color/Gray"
+        android:orientation="vertical">
 
 
-        <LinearLayout android:id="@+id/llLabel"
+        <LinearLayout
+            android:id="@+id/llLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingRight="3dp" >
+                android:paddingRight="3dp">
 
 
                 <TextView
@@ -243,8 +289,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.33"
-                    android:gravity="right"
                     android:fontFamily="sans-serif-light"
+                    android:gravity="right"
                     android:text="@string/Item"
                     android:textColor="@color/cyan" />
 
@@ -254,8 +300,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.33"
-                    android:gravity="right"
                     android:fontFamily="sans-serif-light"
+                    android:gravity="right"
                     android:text="@string/Service"
                     android:textColor="@color/cyan" />
 
@@ -276,7 +322,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingRight="3dp" >
+                android:paddingRight="3dp">
 
 
                 <TextView
@@ -284,8 +330,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.33"
-                    android:gravity="right"
                     android:fontFamily="sans-serif-light"
+                    android:gravity="right"
                     android:textColor="@color/White" />
 
 
@@ -294,8 +340,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.33"
-                    android:gravity="right"
                     android:fontFamily="sans-serif-light"
+                    android:gravity="right"
                     android:textColor="@color/White" />
 
 
@@ -312,11 +358,11 @@
 
         </LinearLayout>
 
-        <LinearLayout android:id="@+id/llButton"
+        <LinearLayout
+            android:id="@+id/llButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
 
 
             <Button
@@ -332,12 +378,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/Save" />
-<!--            <Button
-                android:id="@+id/btnOpt"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/Options" />-->
 
         </LinearLayout>
     </LinearLayout>
