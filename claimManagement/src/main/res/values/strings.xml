@@ -229,15 +229,5 @@
     <string name="NoInternetTitle">NO INTERNET CONNECTION</string>
     <string name="ImportMasterDataFailed">Failed to read master data from file.</string>
     <string name="HttpResponse">HTTP response: %1$d — %2$s</string>
-    <string name="last_update_date">Date Updated</string>
-    <string name="last_update_time">Time Updated</string>
-    <string name="Updating">Updating…</string>
-    <string name="Error">Error</string>
-    <string name="NewClaimsStatus">New claims: %1$d</string>
-    <string name="UpdatedClaimsStatus">Claims updated: %1$d</string>
-    <string name="TotalClaimed">Total Claimed</string>
-    <string name="TotalApproved">Total Approved</string>
-    <string name="TotalAdjusted">Total Adjusted</string>
-    <string name="PriceAdjusted">Price Adjusted</string>
-    <string name="QuantityAdjusted">Quantity Adjusted</string>
+
 </resources>

@@ -153,14 +153,10 @@ public abstract class ImisActivity extends AppCompatActivity {
         return builder.show();
     }
 
-    protected AlertDialog showDialog(String title, String msg, DialogInterface.OnClickListener okCallback, DialogInterface.OnClickListener cancelCallback) {
+    protected AlertDialog showDialog(String msg, DialogInterface.OnClickListener okCallback, DialogInterface.OnClickListener cancelCallback) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setMessage(msg)
                 .setCancelable(false);
-
-        if (title != null) {
-            builder.setTitle(title);
-        }
 
         if (okCallback != null) {
             builder.setPositiveButton(R.string.Ok, okCallback);
@@ -176,15 +172,11 @@ public abstract class ImisActivity extends AppCompatActivity {
     }
 
     protected AlertDialog showDialog(String msg, DialogInterface.OnClickListener okCallback) {
-        return showDialog(null, msg, okCallback, null);
+        return showDialog(msg, okCallback, null);
     }
 
     protected AlertDialog showDialog(String msg) {
-        return showDialog(null, msg, null, null);
-    }
-
-    protected AlertDialog showDialog(String title, String msg) {
-        return showDialog(title, msg, null, null);
+        return showDialog(msg, null, null);
     }
 
     private AlertDialog showLoginDialogBox(Runnable onLoggedIn, Runnable onCancel) {

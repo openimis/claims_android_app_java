@@ -30,16 +30,8 @@ public final class AppInformation {
             return "yyyy-MM-dd";
         }
 
-        public static String getTimeFormat() {
-            return "HH:mm:ss";
-        }
-
         public static String getISODatetimeFormat() {
             return "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX";
-        }
-
-        public static String getISOShortDatetimeFormat() {
-            return "yyyy-MM-dd'T'HH:mm:ss";
         }
 
         public static String getFileDatetimeFormat() {
@@ -50,16 +42,8 @@ public final class AppInformation {
             return new SimpleDateFormat(getDateFormat(), Locale.US);
         }
 
-        public static SimpleDateFormat getDefaultTimeFormatter() {
-            return new SimpleDateFormat(getTimeFormat(), Locale.US);
-        }
-
         public static SimpleDateFormat getDefaultIsoDatetimeFormatter() {
             return new SimpleDateFormat(getISODatetimeFormat(), Locale.US);
-        }
-
-        public static SimpleDateFormat getDefaultIsoShortDatetimeFormatter() {
-            return new SimpleDateFormat(getISOShortDatetimeFormat(), Locale.US);
         }
 
         public static SimpleDateFormat getDefaultFileDatetimeFormatter() {

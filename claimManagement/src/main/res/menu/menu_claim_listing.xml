@@ -7,10 +7,4 @@
         app:showAsAction="always"
         android:title="@string/Add">
     </item>
-    <item
-        android:id="@+id/action_sync"
-        android:icon="@android:drawable/stat_notify_sync_noanim"
-        app:showAsAction="always"
-        android:title="@string/synchronize">
-    </item>
 </menu>

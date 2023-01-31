@@ -2,7 +2,6 @@ package org.openimis.imisclaims;
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -10,7 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
@@ -35,15 +33,11 @@ public class SearchClaimsActivity extends ImisActivity {
     EditText visitDateTo;
     EditText dateProcessedFrom;
     EditText dateProcessedTo;
-    EditText lastUpdateDate;
-    EditText lastUpdateTime;
-    EditText insureeNumber;
 
     Calendar visitDateFromCalendar;
     Calendar visitDateToCalendar;
     Calendar dateProcessedFromCalendar;
     Calendar dateProcessedToCalendar;
-    Calendar lastUpdateCalendar;
 
     Button clear;
     Button search;
@@ -87,17 +81,11 @@ public class SearchClaimsActivity extends ImisActivity {
         visitDateTo = findViewById(R.id.visit_date_to);
         dateProcessedFrom = findViewById(R.id.date_processed_from);
         dateProcessedTo = findViewById(R.id.date_processed_to);
-        lastUpdateDate = findViewById(R.id.last_update_date);
-        lastUpdateTime = findViewById(R.id.last_update_time);
-        insureeNumber = findViewById(R.id.insureeNumber);
-
 
         visitDateFromCalendar = Calendar.getInstance();
         visitDateToCalendar = Calendar.getInstance();
         dateProcessedFromCalendar = Calendar.getInstance();
         dateProcessedToCalendar = Calendar.getInstance();
-        lastUpdateCalendar = Calendar.getInstance();
-
 
         search = findViewById(R.id.search);
         search.setOnClickListener(view -> doLoggedIn(() -> {
@@ -108,23 +96,16 @@ public class SearchClaimsActivity extends ImisActivity {
                     object.put("status_claim", categories.get(spinner.getSelectedItemPosition()));
                 }
                 if (visitDateFrom.length() != 0) {
-                    object.put("visit_date_from", AppInformation.DateTimeInfo.getDefaultDateFormatter().format(visitDateFromCalendar.getTime()));
+                    object.put("visit_date_from", visitDateFrom.getText());
                 }
                 if (visitDateTo.length() != 0) {
-                    object.put("visit_date_to", AppInformation.DateTimeInfo.getDefaultDateFormatter().format(visitDateToCalendar.getTime()));
+                    object.put("visit_date_to", visitDateTo.getText());
                 }
                 if (dateProcessedFrom.length() != 0) {
-                    object.put("processed_date_from", AppInformation.DateTimeInfo.getDefaultDateFormatter().format(dateProcessedFromCalendar.getTime()));
+                    object.put("processed_date_from", dateProcessedFrom.getText());
                 }
                 if (dateProcessedTo.length() != 0) {
-                    object.put("processed_date_to", AppInformation.DateTimeInfo.getDefaultDateFormatter().format(dateProcessedToCalendar.getTime()));
-                }
-                if (lastUpdateDate.length() != 0) {
-                    object.put("last_update_date", AppInformation.DateTimeInfo.getDefaultIsoShortDatetimeFormatter().format(lastUpdateCalendar.getTime()));
-                }
-
-                if (insureeNumber.length() != 0) {
-                    object.put("insuree_number", insureeNumber.getText());
+                    object.put("processed_date_to", dateProcessedTo.getText());
                 }
                 getClaims(object);
             } catch (JSONException e) {
@@ -136,8 +117,6 @@ public class SearchClaimsActivity extends ImisActivity {
         visitDateTo.setOnClickListener(v -> getDatePicker(visitDateTo, visitDateToCalendar).show());
         dateProcessedFrom.setOnClickListener(v -> getDatePicker(dateProcessedFrom, dateProcessedFromCalendar).show());
         dateProcessedTo.setOnClickListener(v -> getDatePicker(dateProcessedTo, dateProcessedToCalendar).show());
-        lastUpdateDate.setOnClickListener(v -> getDatePicker(lastUpdateDate, lastUpdateCalendar).show());
-        lastUpdateTime.setOnClickListener(v -> getTimePicker(lastUpdateTime, lastUpdateCalendar).show());
     }
 
     public DatePickerDialog getDatePicker(TextView textView, Calendar calendar) {
@@ -147,10 +126,7 @@ public class SearchClaimsActivity extends ImisActivity {
                     calendar.set(Calendar.YEAR, year);
                     calendar.set(Calendar.MONTH, monthOfYear);
                     calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                    calendar.set(Calendar.HOUR_OF_DAY, 0);
-                    calendar.set(Calendar.MINUTE, 0);
-                    calendar.set(Calendar.SECOND, 0);
-                    updateDateLabel(calendar, textView);
+                    updateLabel(calendar, textView);
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -158,28 +134,8 @@ public class SearchClaimsActivity extends ImisActivity {
         );
     }
 
-    public TimePickerDialog getTimePicker(TextView textView, Calendar calendar) {
-        return new TimePickerDialog(
-                this,
-                (view, hour, minute) -> {
-                    calendar.set(Calendar.HOUR_OF_DAY, hour);
-                    calendar.set(Calendar.MINUTE, minute);
-                    calendar.set(Calendar.SECOND, 0); // Time picker does not support seconds
-                    updateTimeLabel(calendar, textView);
-                },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-        );
-    }
-
-    public void updateDateLabel(Calendar calendar, TextView view) {
-        SimpleDateFormat formatter = new SimpleDateFormat(AppInformation.DateTimeInfo.getDateFormat(), Locale.US);
-        view.setText(formatter.format(calendar.getTime()));
-    }
-
-    public void updateTimeLabel(Calendar calendar, TextView view) {
-        SimpleDateFormat formatter = new SimpleDateFormat(AppInformation.DateTimeInfo.getTimeFormat(), Locale.US);
+    public void updateLabel(Calendar calendar, TextView view) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         view.setText(formatter.format(calendar.getTime()));
     }
 
@@ -203,7 +159,7 @@ public class SearchClaimsActivity extends ImisActivity {
                     }
                 } else {
                     pd.dismiss();
-                    runOnUiThread(() -> Toast.makeText(getContext(), toRestApi.getHttpError(this, code, response.getStatusLine().getReasonPhrase(), null), Toast.LENGTH_LONG).show());
+                    runOnUiThread(() -> Toast.makeText(getContext(), toRestApi.getHttpError(this, code, response.getStatusLine().getReasonPhrase()), Toast.LENGTH_LONG).show());
                 }
             } catch (Exception e) {
                 pd.dismiss();
