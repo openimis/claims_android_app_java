@@ -277,7 +277,7 @@ public class EnquireActivity extends ImisActivity {
                 } else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     runOnUiThread(() -> showDialog(getResources().getString(R.string.RecordNotFound)));
                 } else {
-                    runOnUiThread(() -> showDialog(rest.getHttpError(this, responseCode, response.getStatusLine().getReasonPhrase())));
+                    runOnUiThread(() -> showDialog(rest.getHttpError(this, responseCode, response.getStatusLine().getReasonPhrase(), null)));
                 }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Fetching online enquire failed", e);

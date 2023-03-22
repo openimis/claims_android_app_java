@@ -1,9 +1,12 @@
 package org.openimis.imisclaims.util;
 
+import android.content.ContentValues;
 import android.support.annotation.NonNull;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 public class JsonUtils {
     /**
@@ -41,5 +44,18 @@ public class JsonUtils {
         } catch (JSONException e) {
             return defaultValue;
         }
+    }
+
+    public static ContentValues jsonToContentValues(JSONObject object, Map<String, String> mapping) {
+        ContentValues cv = new ContentValues();
+
+        for (String key : mapping.keySet()) {
+            String value = object.optString(key);
+            if (!StringUtils.isEmpty(value, true)) {
+                cv.put(mapping.get(key), value);
+            }
+        }
+
+        return cv;
     }
 }
