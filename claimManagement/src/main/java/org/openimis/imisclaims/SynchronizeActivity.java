@@ -120,12 +120,15 @@ public class SynchronizeActivity extends ImisActivity {
                 break;
             case SynchronizeService.ACTION_EXPORT_ERROR:
             case SynchronizeService.ACTION_SYNC_ERROR:
-            case MasterDataService.ACTION_IMPORT_ERROR:
                 errorMessage = intent.getStringExtra(SynchronizeService.EXTRA_ERROR_MESSAGE);
                 showDialog(errorMessage);
                 break;
             case MasterDataService.ACTION_IMPORT_SUCCESS:
                 showDialog(getResources().getString(R.string.importMasterDataSuccess));
+                break;
+            case MasterDataService.ACTION_IMPORT_ERROR:
+                errorMessage = intent.getStringExtra(MasterDataService.EXTRA_ERROR_MESSAGE);
+                showDialog(errorMessage);
                 break;
         }
 
@@ -169,11 +172,11 @@ public class SynchronizeActivity extends ImisActivity {
     }
 
     public void confirmXMLCreation() {
-        showDialog(null, getResources().getString(R.string.AreYouSure), (dialogInterface, i) -> exportClaims(), (dialog, id) -> dialog.cancel());
+        showDialog(getResources().getString(R.string.AreYouSure), (dialogInterface, i) -> exportClaims(), (dialog, id) -> dialog.cancel());
     }
 
     public void confirmUploadClaims() {
-        showDialog(null, getResources().getString(R.string.AreYouSure), (dialogInterface, i) -> uploadClaims(), (dialog, id) -> dialog.cancel());
+        showDialog(getResources().getString(R.string.AreYouSure), (dialogInterface, i) -> uploadClaims(), (dialog, id) -> dialog.cancel());
     }
 
     public void requestPickDatabase() {

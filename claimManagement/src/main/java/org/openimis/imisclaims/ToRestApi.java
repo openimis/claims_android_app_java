@@ -18,7 +18,6 @@ import java.net.HttpURLConnection;
 
 import static org.openimis.imisclaims.BuildConfig.API_BASE_URL;
 import static org.openimis.imisclaims.BuildConfig.API_VERSION;
-import static java.lang.Math.PI;
 import static java.lang.Math.min;
 
 import android.content.Context;
@@ -118,14 +117,7 @@ public class ToRestApi {
         }
     }
 
-    public String getHttpError(Context context, int httpResponseCode, String httpReason, String responseContent) {
-        if (responseContent != null) {
-            String payloadError = getPayloadError(responseContent);
-            if (payloadError != null) {
-                return payloadError;
-            }
-        }
-
+    public String getHttpError(Context context, int httpResponseCode, String httpReason) {
         if (httpResponseCode == HttpURLConnection.HTTP_OK || httpResponseCode == HttpURLConnection.HTTP_CREATED) {
             return null;
         } else if (httpResponseCode == HttpURLConnection.HTTP_NOT_FOUND) {
@@ -139,13 +131,14 @@ public class ToRestApi {
         }
     }
 
+
     public String getPayloadError(String responseContent) {
         String payloadError = null;
 
         try {
             JSONObject response = new JSONObject(responseContent);
             if (response.optBoolean("error_occured", false)) {
-                payloadError = response.optString("error_messagge");
+                payloadError = response.getString("error_messagge");
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error while parsing payload error", e);

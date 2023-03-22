@@ -16,13 +16,14 @@ public enum ClaimListingPage {
         JSONArray loadData(SQLHandler sqlHandler);
     }
 
-    public final int titleResId;
-    private final PageDataLoader pageDataLoader;
-
     ClaimListingPage(int titleResId, PageDataLoader pageDataLoader) {
         this.titleResId = titleResId;
         this.pageDataLoader = pageDataLoader;
     }
+
+    public final int titleResId;
+    private final PageDataLoader pageDataLoader;
+
 
     public JSONArray loadPageData(SQLHandler sqlHandler) {
         return pageDataLoader.loadData(sqlHandler);

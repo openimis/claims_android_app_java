@@ -130,6 +130,7 @@ android {
             resValue "string", "app_name_claims", "Claims CNASS TRAIN"
             dimension = 'std'
         }
+
     }
 
     sourceSets {

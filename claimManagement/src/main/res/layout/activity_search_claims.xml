@@ -10,9 +10,9 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/faint"
         android:paddingTop="20dp"
-        android:paddingBottom="20dp">
+        android:paddingBottom="20dp"
+        android:background="@color/faint">
 
         <Spinner
             android:id="@+id/spinner_status"
@@ -22,119 +22,70 @@
             android:layout_marginRight="5dp"
             android:background="@drawable/corner_fields"
             android:elevation="10dp"
-            android:prompt="@string/Amount" />
-
-        <EditText
-            android:id="@+id/insureeNumber"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_below="@+id/spinner_status"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="5dp"
-            android:background="@drawable/corner_edittext"
-            android:elevation="10dp"
-            android:hint="@string/InsuranceNumber"
-            android:inputType="text" />
-
+            android:prompt="@string/Amount"/>
         <EditText
             android:id="@+id/visit_date_from"
             android:layout_width="190dp"
             android:layout_height="50dp"
-            android:layout_below="@+id/insureeNumber"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="5dp"
-            android:background="@drawable/corner_edittext"
-            android:drawableRight="@drawable/calendar1"
             android:elevation="10dp"
-            android:focusable="false"
-            android:hint="@string/visit_date_from"
             android:inputType="none"
-            android:textIsSelectable="true" />
-
+            android:focusable="false"
+            android:textIsSelectable="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:hint="@string/visit_date_from"
+            android:drawableRight="@drawable/calendar1"
+            android:layout_below="@+id/spinner_status"
+            android:background="@drawable/corner_edittext"/>
         <EditText
             android:id="@+id/visit_date_to"
             android:layout_width="190dp"
             android:layout_height="50dp"
-            android:layout_below="@+id/insureeNumber"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="5dp"
-            android:layout_toRightOf="@+id/visit_date_from"
-            android:background="@drawable/corner_edittext"
-            android:drawableRight="@drawable/calendar1"
             android:elevation="10dp"
-            android:focusable="false"
-            android:hint="@string/visit_date_to"
             android:inputType="none"
-            android:textIsSelectable="true" />
+            android:focusable="false"
+            android:textIsSelectable="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:hint="@string/visit_date_to"
+            android:drawableRight="@drawable/calendar1"
+            android:layout_below="@+id/spinner_status"
+            android:layout_toRightOf="@+id/visit_date_from"
+            android:background="@drawable/corner_edittext"/>
 
         <EditText
             android:id="@+id/date_processed_from"
             android:layout_width="190dp"
             android:layout_height="50dp"
-            android:layout_below="@+id/visit_date_from"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="5dp"
-            android:background="@drawable/corner_edittext"
-            android:drawableRight="@drawable/calendar1"
             android:elevation="10dp"
-            android:focusable="false"
-            android:hint="@string/date_processed_from"
             android:inputType="none"
-            android:textIsSelectable="true" />
-
+            android:focusable="false"
+            android:textIsSelectable="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
+            android:hint="@string/date_processed_from"
+            android:drawableRight="@drawable/calendar1"
+            android:layout_below="@+id/visit_date_from"
+            android:background="@drawable/corner_edittext"/>
         <EditText
             android:id="@+id/date_processed_to"
             android:layout_width="190dp"
             android:layout_height="50dp"
-            android:layout_below="@+id/visit_date_to"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="5dp"
-            android:layout_toRightOf="@+id/date_processed_from"
-            android:background="@drawable/corner_edittext"
-            android:drawableRight="@drawable/calendar1"
             android:elevation="10dp"
+            android:inputType="none"
             android:focusable="false"
+            android:textIsSelectable="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="20dp"
             android:hint="@string/date_processed_to"
-            android:inputType="none"
-            android:textIsSelectable="true" />
-
-        <EditText
-            android:id="@+id/last_update_date"
-            android:layout_width="190dp"
-            android:layout_height="50dp"
-            android:layout_below="@+id/date_processed_from"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="5dp"
-            android:background="@drawable/corner_edittext"
             android:drawableRight="@drawable/calendar1"
-            android:elevation="10dp"
-            android:focusable="false"
-            android:hint="@string/last_update_date"
-            android:inputType="none"
-            android:textIsSelectable="true" />
-
-        <EditText
-            android:id="@+id/last_update_time"
-            android:layout_width="190dp"
-            android:layout_height="50dp"
-            android:layout_below="@+id/date_processed_to"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="5dp"
-            android:layout_toRightOf="@+id/last_update_date"
-            android:background="@drawable/corner_edittext"
-            android:drawableRight="@drawable/clock"
-            android:elevation="10dp"
-            android:focusable="false"
-            android:hint="@string/last_update_time"
-            android:inputType="none"
-            android:textIsSelectable="true" />
+            android:layout_below="@+id/visit_date_to"
+            android:layout_toRightOf="@+id/date_processed_from"
+            android:background="@drawable/corner_edittext"/>
 
 
     </RelativeLayout>
@@ -149,18 +100,20 @@
             android:id="@+id/clear"
             android:layout_width="150dp"
             android:layout_height="50dp"
-            android:layout_gravity="left"
             android:layout_marginRight="5dp"
-            android:text="@string/clear"
-            android:textColor="@color/Black" />
+            android:textColor="@color/Black"
+            android:layout_gravity="left"
+            android:text="@string/clear"/>
 
         <Button
             android:id="@+id/search"
             android:layout_width="150dp"
             android:layout_height="50dp"
-            android:layout_gravity="right"
             android:layout_marginLeft="5dp"
-            android:text="@string/search"
-            android:textColor="@color/Black" />
+            android:layout_gravity="right"
+            android:textColor="@color/Black"
+            android:text="@string/search"/>
+
     </LinearLayout>
+
 </LinearLayout>
