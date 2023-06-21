@@ -3,9 +3,9 @@ package org.openimis.imisclaims;
 import android.content.Intent;
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
-import android.support.v4.content.FileProvider;
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
+import androidx.core.content.FileProvider;
 import android.util.Xml;
 
 import org.json.JSONArray;
@@ -24,6 +24,7 @@ import java.util.Locale;
 import org.apache.http.HttpResponse;
 import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.tools.StorageManager;
+import org.openimis.imisclaims.util.DateUtils;
 import org.openimis.imisclaims.util.FileUtils;
 import org.openimis.imisclaims.util.XmlUtils;
 import org.openimis.imisclaims.util.ZipUtils;
@@ -216,7 +217,7 @@ public class SynchronizeService extends JobIntentService {
     private File createClaimFile(JSONObject details) {
         try {
             Calendar cal = Calendar.getInstance();
-            String d = AppInformation.DateTimeInfo.getDefaultDateFormatter().format(cal.getTime());
+            String d = DateUtils.toDateString(cal.getTime());
 
             String filename = "Claim_" + details.getString("HFCode") + "_" + details.getString("ClaimCode") + "_" + d + ".xml";
             return storageManager.createTempFile("exports/claim/" + filename);

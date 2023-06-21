@@ -8,7 +8,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.tools.Log;
@@ -17,6 +16,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 
 import static org.openimis.imisclaims.BuildConfig.API_BASE_URL;
+import static org.openimis.imisclaims.BuildConfig.REST_API_PREFIX;
 import static org.openimis.imisclaims.BuildConfig.API_VERSION;
 import static java.lang.Math.min;
 
@@ -30,7 +30,7 @@ public class ToRestApi {
 
     public ToRestApi() {
         token = Global.getGlobal().getJWTToken();
-        uri = API_BASE_URL + "api/";
+        uri = API_BASE_URL + REST_API_PREFIX + "api/";
         apiVersion = API_VERSION;
     }
 

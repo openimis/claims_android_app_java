@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
 
 import org.openimis.imisclaims.tools.Log;
 
@@ -34,14 +34,12 @@ public class MasterDataService extends JobIntentService {
     public static final String EXTRA_ERROR_MESSAGE = "MasterDataService.EXTRA_ERROR_MESSAGE";
 
     Global global;
-    ToRestApi toRestApi;
     String lastAction;
 
     @Override
     public void onCreate() {
         super.onCreate();
         global = (Global) getApplicationContext();
-        toRestApi = new ToRestApi();
     }
 
     public static void downloadMasterData(Context context) {

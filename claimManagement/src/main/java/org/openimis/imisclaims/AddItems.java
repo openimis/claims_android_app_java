@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
 import java.util.HashMap;
 
@@ -19,7 +18,6 @@ import org.openimis.imisclaims.tools.Log;
 
 public class AddItems extends ImisActivity {
     ListView lvItems;
-    TextView tvCode, tvName;
     EditText etQuantity, etAmount;
     Button btnAdd;
     AutoCompleteTextView etItems;
@@ -39,8 +37,6 @@ public class AddItems extends ImisActivity {
         }
 
         lvItems = findViewById(R.id.lvItems);
-        tvCode = findViewById(R.id.tvCode);
-        tvName = findViewById(R.id.tvName);
         etQuantity = findViewById(R.id.etQuantity);
         etAmount = findViewById(R.id.etAmount);
         etItems = findViewById(R.id.etItems);
@@ -192,7 +188,7 @@ public class AddItems extends ImisActivity {
 
     private void HideAllDeleteButtons() {
         for (int i = 0; i <= lvItems.getLastVisiblePosition(); i++) {
-            Button Delete = (Button) lvItems.getChildAt(i).findViewById(R.id.btnDelete);
+            Button Delete = lvItems.getChildAt(i).findViewById(R.id.btnDelete);
             Delete.setVisibility(View.GONE);
         }
     }

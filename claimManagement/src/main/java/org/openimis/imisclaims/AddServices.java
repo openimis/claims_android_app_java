@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
 import org.openimis.imisclaims.tools.Log;
 
@@ -19,7 +18,6 @@ import java.util.HashMap;
 
 public class AddServices extends ImisActivity {
     ListView lvServices;
-    TextView tvCode, tvName;
     EditText etSQuantity, etSAmount;
     Button btnAdd;
     AutoCompleteTextView etServices;
@@ -37,8 +35,6 @@ public class AddServices extends ImisActivity {
         }
 
         lvServices = findViewById(R.id.lvServices);
-        tvCode = findViewById(R.id.tvCode);
-        tvName = findViewById(R.id.tvName);
         etSQuantity = findViewById(R.id.etSQuantity);
         etSAmount = findViewById(R.id.etSAmount);
         etServices = findViewById(R.id.etService);

@@ -8,16 +8,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.usecase.Login;
 
 import java.util.ArrayList;
 
@@ -202,7 +203,7 @@ public abstract class ImisActivity extends AppCompatActivity {
                                 progressDialog = ProgressDialog.show(this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
 
                                 runOnNewThread(
-                                        () -> new Login().LoginToken(username.getText().toString(), password.getText().toString()),
+                                        () -> new Login().execute(username.getText().toString(), password.getText().toString()),
                                         () -> {
                                             progressDialog.dismiss();
                                             if (global.isLoggedIn()) {
