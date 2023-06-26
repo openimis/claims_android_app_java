@@ -145,6 +145,8 @@ public class ClaimActivity extends ImisActivity {
             return false;
         });
 
+        findViewById(R.id.ivAddItem).setOnClickListener(v -> addItem());
+        findViewById(R.id.ivAddService).setOnClickListener(v -> addService());
 
         btnScan.setOnClickListener(v -> {
             Intent scanIntent = new Intent(this, com.google.zxing.client.android.CaptureActivity.class);
@@ -270,19 +272,27 @@ public class ClaimActivity extends ImisActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.mnuAddItems:
-                Intent addItemsIntent = new Intent(ClaimActivity.this, AddItems.class);
-                addItemsIntent.putExtra(EXTRA_READONLY, isIntentReadonly());
-                ClaimActivity.this.startActivity(addItemsIntent);
+                addItem();
                 return true;
             case R.id.mnuAddServices:
-                Intent addServicesIntent = new Intent(ClaimActivity.this, AddServices.class);
-                addServicesIntent.putExtra(EXTRA_READONLY, isIntentReadonly());
-                ClaimActivity.this.startActivity(addServicesIntent);
+                addService();
                 return true;
             default:
                 onBackPressed();
                 return true;
         }
+    }
+
+    private void addItem() {
+        Intent addItemsIntent = new Intent(ClaimActivity.this, AddItems.class);
+        addItemsIntent.putExtra(EXTRA_READONLY, isIntentReadonly());
+        ClaimActivity.this.startActivity(addItemsIntent);
+    }
+
+    private  void addService() {
+        Intent addServicesIntent = new Intent(this, AddServices.class);
+        addServicesIntent.putExtra(EXTRA_READONLY, isIntentReadonly());
+        ClaimActivity.this.startActivity(addServicesIntent);
     }
 
     @Override
