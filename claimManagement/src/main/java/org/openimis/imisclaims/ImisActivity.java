@@ -209,6 +209,7 @@ public abstract class ImisActivity extends AppCompatActivity {
                                             if (global.isLoggedIn()) {
                                                 runOnUiThread(() -> {
                                                     showToast(R.string.Login_Successful);
+                                                    onUserLoggedIn();
                                                     onLoggedIn.run();
                                                 });
                                             } else {
@@ -233,6 +234,8 @@ public abstract class ImisActivity extends AppCompatActivity {
 
         return alertDialogBuilder.show();
     }
+
+    protected void onUserLoggedIn(){}
 
 
     /**

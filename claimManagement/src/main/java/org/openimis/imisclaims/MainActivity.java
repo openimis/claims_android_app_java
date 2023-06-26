@@ -35,11 +35,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 
 import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.openimis.imisclaims.claimlisting.ClaimListingActivity;
 import org.openimis.imisclaims.domain.entity.ClaimAdmin;
+import org.openimis.imisclaims.domain.entity.Control;
 import org.openimis.imisclaims.domain.entity.DiagnosesServicesMedications;
 import org.openimis.imisclaims.domain.entity.Diagnosis;
 import org.openimis.imisclaims.domain.entity.Medication;
@@ -47,6 +45,7 @@ import org.openimis.imisclaims.domain.entity.PaymentList;
 import org.openimis.imisclaims.domain.entity.Service;
 import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.usecase.FetchClaimAdmins;
+import org.openimis.imisclaims.usecase.FetchControls;
 import org.openimis.imisclaims.usecase.FetchDiagnosesServicesItems;
 import org.openimis.imisclaims.usecase.FetchPaymentList;
 
@@ -63,8 +62,6 @@ public class MainActivity extends ImisActivity {
     ArrayList<String> broadcastList;
     final CharSequence[] lang = {"English", "Francais"};
     String Language;
-
-    final ToRestApi toRestApi = new ToRestApi();
 
     TextView accepted_count;
     TextView rejected_count;
@@ -466,38 +463,21 @@ public class MainActivity extends ImisActivity {
             Thread thread = new Thread() {
                 public void run() {
                     try {
-                        String content = toRestApi.getFromRestApi("claim/Controls");
-
-                        JSONObject ob;
-
-                        ob = new JSONObject(content);
-                        String error_occurred = ob.getString("error_occured");
-                        if (error_occurred.equals("false")) {
-                            String controls = ob.getString("controls");
-                            sqlHandler.ClearAll("tblControls");
-                            //Insert Diagnosese
-                            JSONArray arrControls;
-                            JSONObject objControls;
-                            arrControls = new JSONArray(controls);
-                            for (int i = 0; i < arrControls.length(); i++) {
-                                objControls = arrControls.getJSONObject(i);
-                                sqlHandler.InsertControls(objControls.getString("fieldName"), objControls.getString("adjustibility"));
-                            }
-
-                            runOnUiThread(() -> {
-                                progressDialog.dismiss();
-                                getClaimAdmins();
-                            });
-
-
-                        } else {
-                            runOnUiThread(() -> progressDialog.dismiss());
-                            String error_message = ob.getString("error_message");
-                            ErrorDialogBox(error_message);
+                        List<Control> controls = new FetchControls().execute();
+                        for (Control control : controls) {
+                            sqlHandler.InsertControls(control.getName(), control.getAdjustability());
                         }
-                    } catch (JSONException | NullPointerException e) {
+
+                        runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            doLoggedIn(MainActivity.this::getClaimAdmins);
+                        });
+                    } catch (Exception e) {
                         e.printStackTrace();
-                        runOnUiThread(() -> progressDialog.dismiss());
+                        runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            ErrorDialogBox(e.getMessage());
+                        });
                     }
                 }
             };
@@ -734,6 +714,11 @@ public class MainActivity extends ImisActivity {
         }
 
         return true;
+    }
+
+    @Override
+    protected void onUserLoggedIn() {
+        loginText.setText(global.isLoggedIn() ? R.string.Logout : R.string.Login);
     }
 
     public void onAllRequirementsMet() {
