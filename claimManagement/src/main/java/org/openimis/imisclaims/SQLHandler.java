@@ -47,13 +47,11 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     public final String REFERENCE_UNKNOWN;
 
-    private final Global global;
     private SQLiteDatabase db;
     private SQLiteDatabase dbMapping;
 
     public SQLHandler(Context context) {
         super(context, DB_NAME_MAPPING, null, 3);
-        global = (Global) context.getApplicationContext();
         REFERENCE_UNKNOWN = context.getResources().getString(R.string.Unknown);
         createOrOpenDatabases();
     }
