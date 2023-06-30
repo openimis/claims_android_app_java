@@ -278,11 +278,11 @@ public class PendingClaim implements Parcelable {
         public static List<Service> fromJson(@NonNull JSONArray array) throws Exception {
             List<Service> list = new ArrayList<>();
             for (int i = 0; i < array.length(); i++) {
-                JSONObject medication = array.getJSONObject(i);
+                JSONObject service = array.getJSONObject(i);
                 list.add(new Service(
-                        /* code = */ medication.getString("ServiceCode"),
-                        /* price = */ Double.parseDouble(medication.getString("ServicePrice")),
-                        /* quantity = */ Integer.parseInt(medication.getString("ServiceQuantity"))
+                        /* code = */ service.getString("ServiceCode"),
+                        /* price = */ Double.parseDouble(service.getString("ServicePrice")),
+                        /* quantity = */ Integer.parseInt(service.getString("ServiceQuantity"))
                 ));
             }
             return list;

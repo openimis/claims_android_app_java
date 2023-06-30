@@ -12,7 +12,6 @@ import java.util.List;
 public class IdentifierDto {
 
     private static final String TYPE_CODE = "Code";
-    private static final String TYPE_UUID = "UUID";
 
     @NonNull
     public static String getCode(@NonNull List<IdentifierDto> identifiers) {

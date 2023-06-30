@@ -2,16 +2,23 @@ package org.openimis.imisclaims.network.dto;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class TokenDto {
 
     @NonNull
-    private final String token;
+    public static TokenDto fromJson(@NonNull JSONObject object) throws JSONException {
+        return new TokenDto(object.getString("token"), object.getLong("exp"));
+    }
+
     @NonNull
+    private final String token;
     private final long expiresOn;
 
     public TokenDto(
             @NonNull String token,
-            @NonNull long expiresOn
+            long expiresOn
     ){
         this.token = token;
         this.expiresOn = expiresOn;
@@ -22,7 +29,6 @@ public class TokenDto {
         return token;
     }
 
-    @NonNull
     public long getExpiresOn() {
         return expiresOn;
     }

@@ -16,7 +16,7 @@ public class LoginRequest extends BaseFHIRPostRequest<LoginDto, TokenDto> {
     @NonNull
     @Override
     protected TokenDto fromJson(@NonNull JSONObject object) throws Exception {
-        return new TokenDto(object.getString("token"), object.getLong("exp"));
+        return TokenDto.fromJson(object);
     }
 
     @NonNull
