@@ -169,8 +169,7 @@ public class ClaimActivity extends ImisActivity {
                             }
                         }));
                     }),
-                    () -> {
-                    },
+                    () -> progressDialog.dismiss(),
                     500
             );
         });
@@ -447,7 +446,7 @@ public class ClaimActivity extends ImisActivity {
             item.put("Name", medication.getName());
             item.put("Code", medication.getCode());
             item.put("Price", String.valueOf(medication.getPrice()));
-            item.put("Quantity", "item_qty"); // TODO item_qty
+            item.put("Quantity", medication.getQuantity());
             lvItemList.add(item);
         }
 
@@ -459,7 +458,7 @@ public class ClaimActivity extends ImisActivity {
             item.put("Name", service.getName());
             item.put("Code", service.getCode());
             item.put("Price", String.valueOf(service.getPrice()));
-            item.put("Quantity", "item_qty"); // TODO item_qty
+            item.put("Quantity", service.getQuantity());
             lvServiceList.add(item);
         }
         tvServiceTotal.setText(String.valueOf(lvServiceList.size()));

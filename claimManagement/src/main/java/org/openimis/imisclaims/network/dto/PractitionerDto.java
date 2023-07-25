@@ -42,11 +42,15 @@ public class PractitionerDto {
                     }
                 }
             }
+            Date birthDate = null;
+            if (entry.has("birthDate")) {
+                birthDate = DateUtils.dateFromString(entry.getString("birthDate"));
+            }
             list.add(
                     new PractitionerDto(
                             /* id = */ entry.getString("id"),
                             /* identifiers = */ IdentifierDto.fromJson(entry.getJSONArray("identifier")),
-                            /* birthDate = */ Objects.requireNonNull(DateUtils.dateFromString(entry.getString("birthDate"))),
+                            /* birthDate = */ birthDate,
                             /* names = */ Name.fromJson(entry.getJSONArray("name")),
                             /* qualifications = */ qualifications,
                             /* healthFacilityCode = */ healthFacilityCode
@@ -60,7 +64,7 @@ public class PractitionerDto {
     private final String id;
     @NonNull
     private final List<IdentifierDto> identifiers;
-    @NonNull
+    @Nullable
     private final Date birthDate;
     @NonNull
     private final List<Name> names;
@@ -72,7 +76,7 @@ public class PractitionerDto {
     public PractitionerDto(
             @NonNull String id,
             @NonNull List<IdentifierDto> identifiers,
-            @NonNull Date birthDate,
+            @Nullable Date birthDate,
             @NonNull List<Name> names,
             @NonNull List<CodeDto> qualifications,
             @Nullable String healthFacilityCode
@@ -95,7 +99,7 @@ public class PractitionerDto {
         return identifiers;
     }
 
-    @NonNull
+    @Nullable
     public Date getBirthDate() {
         return birthDate;
     }

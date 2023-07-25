@@ -48,8 +48,8 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Strin
         JSONObject type = new JSONObject();
         JSONObject coding = new JSONObject();
         coding.put("system", "https://openimis.github.io/openimis_fhir_r4_ig/CodeSystem-claim-visit-type.html");
-        coding.put("code", getVisitTypeCode(object.getVisitType()));
-        coding.put("display", object.getVisitType());
+        coding.put("code", object.getVisitType());
+        coding.put("display", getVisitTypeCode(object.getVisitType()));
         type.put("coding", wrapInArray(coding));
         jsonObject.put("type", type);
         JSONObject identifier = new JSONObject();
@@ -59,36 +59,36 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Strin
         typeIdentifierCoding.put("system", "https://openimis.github.io/openimis_fhir_r4_ig/CodeSystem/openimis-identifiers");
         typeIdentifierCoding.put("code", "Code");
         typeIdentifierCodings.put(typeIdentifierCoding);
-        type.put("coding", typeIdentifierCodings);
+        typeIdentifier.put("coding", typeIdentifierCodings);
         identifier.put("type", typeIdentifier);
         identifier.put("value", object.getClaimCode());
         jsonObject.put("identifier", wrapInArray(identifier));
         JSONArray diagnoses = new JSONArray();
         int sequence = 1;
         diagnoses.put(getDiagnosisJson(object.getIcdCode(), sequence++));
-        if (object.getIcdCode1() != null) {
+        if (object.getIcdCode1() != null && !Objects.equals(object.getIcdCode1(), "")) {
             diagnoses.put(getDiagnosisJson(object.getIcdCode1(), sequence++));
         }
-        if (object.getIcdCode2() != null) {
+        if (object.getIcdCode2() != null && !Objects.equals(object.getIcdCode2(), "")) {
             diagnoses.put(getDiagnosisJson(object.getIcdCode2(), sequence++));
         }
-        if (object.getIcdCode3() != null) {
+        if (object.getIcdCode3() != null && !Objects.equals(object.getIcdCode3(), "")) {
             diagnoses.put(getDiagnosisJson(object.getIcdCode3(), sequence++));
         }
-        if (object.getIcdCode4() != null) {
+        if (object.getIcdCode4() != null && !Objects.equals(object.getIcdCode4(), "")) {
             diagnoses.put(getDiagnosisJson(object.getIcdCode4(), sequence));
         }
         jsonObject.put("diagnosis", diagnoses);
-        JSONObject enterer = new JSONObject();
-        enterer.put("reference", "Practitioner/"+object.getClaimAdminCode());
-        jsonObject.put("enterer", enterer);
-        JSONObject insurance = new JSONObject();
-        JSONObject coverage = new JSONObject();
-        coverage.put("reference", "Coverage/"+object.getGuaranteeNumber());
-        insurance.put("coverage", coverage);
-        insurance.put( "focal",true);
-        insurance.put( "sequence", 1);
-        jsonObject.put("insurance",  wrapInArray(insurance));
+        if (object.getClaimAdminCode() != null && !Objects.equals(object.getClaimAdminCode(), "")) {
+            jsonObject.put("enterer", code("Practitioner", object.getClaimAdminCode()));
+        }
+        if (object.getGuaranteeNumber() != null && !Objects.equals(object.getGuaranteeNumber(), "")) {
+            JSONObject insurance = new JSONObject();
+            insurance.put("coverage", code("Coverage", object.getGuaranteeNumber()));
+            insurance.put( "focal",true);
+            insurance.put( "sequence", 1);
+            jsonObject.put("insurance",  wrapInArray(insurance));
+        }
         JSONArray items = new JSONArray();
         sequence = 1;
         double total = 0;
@@ -101,17 +101,13 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Strin
             total += service.getPrice();
         }
         jsonObject.put("item", items);
-        JSONObject patient = new JSONObject();
-        patient.put("reference", "Patient/"+object.getChfId());
-        jsonObject.put("patient", patient);
+        jsonObject.put("patient", code("Patient", object.getChfId()));
         JSONObject priority = new JSONObject();
         JSONObject priorityCoding = new JSONObject();
         priorityCoding.put("code", "normal");
         priority.put("coding", wrapInArray(priorityCoding));
         jsonObject.put("priority", priority);
-        JSONObject provider = new JSONObject();
-        provider.put("reference", "Organization/"+object.getHealthFacilityCode());
-        jsonObject.put("provider", provider);
+        jsonObject.put("provider", code("Organization", object.getHealthFacilityCode()));
         jsonObject.put("status", "active");
         JSONObject totalJson = new JSONObject();
         totalJson.put("currency", "$");
@@ -124,12 +120,12 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Strin
     @NonNull
     private String getVisitTypeCode(@NonNull String type) {
         switch (type) {
-            case "Emergency":
-                return "E";
-            case "Referrals":
-                return "R";
-            case "Other":
-                return "O";
+            case "E":
+                return "Emergency";
+            case "R":
+                return "Referral";
+            case "O":
+                return "Other";
             default:
                 throw new IllegalArgumentException("Type '" + type + "' is unknown");
         }
@@ -156,9 +152,7 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Strin
         object.put("category", category);
         JSONObject extension = new JSONObject();
         extension.put("url", "Medication");
-        JSONObject reference = new JSONObject();
-        reference.put("reference", "Medication/"+medication.getCode());
-        extension.put("valueReference", reference);
+        extension.put("valueReference", code("Medication", medication.getCode()));
         object.put("extension", wrapInArray(extension));
         JSONObject productOrService = new JSONObject();
         productOrService.put("text", medication.getCode());
@@ -182,9 +176,7 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Strin
         object.put("category", category);
         JSONObject extension = new JSONObject();
         extension.put("url", "ActivityDefinition");
-        JSONObject reference = new JSONObject();
-        reference.put("reference", "ActivityDefinition/"+service.getCode());
-        extension.put("valueReference", reference);
+        extension.put("valueReference", code("ActivityDefinition", service.getCode()));
         object.put("extension", wrapInArray(extension));
         JSONObject productOrService = new JSONObject();
         productOrService.put("text", service.getCode());
@@ -205,5 +197,21 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Strin
         JSONArray array = new JSONArray();
         array.put(jsonObject);
         return array;
+    }
+
+    @NonNull
+    private JSONObject code(@NonNull String type, @NonNull String code) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("type", type);
+        JSONObject identifier = new JSONObject();
+        identifier.put("value", code);
+        JSONObject jsonType = new JSONObject();
+        JSONObject coding = new JSONObject();
+        coding.put("system", "https://openimis.github.io/openimis_fhir_r4_ig/CodeSystem/openimis-identifiers");
+        coding.put("code", "Code");
+        jsonType.put("coding", wrapInArray(coding));
+        identifier.put("type", jsonType);
+        json.put("identifier", identifier);
+        return json;
     }
 }

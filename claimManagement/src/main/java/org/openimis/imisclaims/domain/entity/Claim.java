@@ -64,10 +64,6 @@ public class Claim implements Parcelable {
 
     @Nullable
     private final Double approved;
-
-    @Nullable
-    private final Double adjusted;
-
     @Nullable
     private final String explanation;
 
@@ -103,7 +99,6 @@ public class Claim implements Parcelable {
             @Nullable String secDg4,
             @Nullable Double claimed,
             @Nullable Double approved,
-            @Nullable Double adjusted,
             @Nullable String explanation,
             @Nullable String adjustment,
             @Nullable String guaranteeNumber,
@@ -128,7 +123,6 @@ public class Claim implements Parcelable {
         this.secDg4 = secDg4;
         this.claimed = claimed;
         this.approved = approved;
-        this.adjusted = adjusted;
         this.explanation = explanation;
         this.adjustment = adjustment;
         this.guaranteeNumber = guaranteeNumber;
@@ -158,11 +152,6 @@ public class Claim implements Parcelable {
             approved = null;
         } else {
             approved = in.readDouble();
-        }
-        if (in.readByte() == 0) {
-            adjusted = null;
-        } else {
-            adjusted = in.readDouble();
         }
         explanation = in.readString();
         adjustment = in.readString();
@@ -217,12 +206,6 @@ public class Claim implements Parcelable {
         } else {
             dest.writeByte((byte) 1);
             dest.writeDouble(approved);
-        }
-        if (adjusted == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeDouble(adjusted);
         }
         dest.writeString(explanation);
         dest.writeString(adjustment);
@@ -353,7 +336,35 @@ public class Claim implements Parcelable {
 
     @Nullable
     public Double getAdjusted() {
-        return adjusted;
+        try {
+            double adjusted = -1.0;
+            for (Service service : services) {
+                if (service.priceAdjusted != null) {
+                    double value = Double.parseDouble(service.priceAdjusted);
+                    if (adjusted < 0) {
+                        adjusted = value;
+                    } else {
+                        adjusted += value;
+                    }
+                }
+            }
+            for (Medication medication : medications) {
+                if (medication.priceAdjusted != null) {
+                    double value = Double.parseDouble(medication.priceAdjusted);
+                    if (adjusted < 0) {
+                        adjusted = value;
+                    } else {
+                        adjusted += value;
+                    }
+                }
+            }
+            if (adjusted < 0) {
+                return null;
+            }
+            return adjusted;
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     @Nullable
@@ -453,6 +464,11 @@ public class Claim implements Parcelable {
             dest.writeString(priceValuated);
             dest.writeString(explanation);
             dest.writeString(justification);
+        }
+
+        @NonNull
+        public String getQuantity() {
+            return getQuantityApproved() == null ? getQuantityProvided() : getQuantityApproved();
         }
 
         @NonNull
@@ -558,6 +574,11 @@ public class Claim implements Parcelable {
             dest.writeString(priceValuated);
             dest.writeString(explanation);
             dest.writeString(justification);
+        }
+
+        @NonNull
+        public String getQuantity() {
+            return getQuantityApproved() == null ? getQuantityProvided() : getQuantityApproved();
         }
 
         @NonNull

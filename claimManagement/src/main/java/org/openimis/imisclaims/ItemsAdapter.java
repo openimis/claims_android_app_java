@@ -78,10 +78,10 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.Reportmsg> {
 
         holder.ItemCode.setText(medication.getCode());
         holder.ItemName.setText(medication.getName());
-        holder.Quantity.setText(null); // TODO item_qty
+        holder.Quantity.setText(medication.getQuantity());
         holder.Price.setText(String.valueOf(medication.getPrice()));
         holder.Explanation.setText(medication.getExplanation());
-        holder.AppQty.setText(null); // TODO item_adjusted_qty
+        holder.AppQty.setText(medication.getQuantityApproved());
         holder.AppPrice.setText(medication.getPriceAdjusted());
         holder.Justification.setText(medication.getJustification());
         holder.Status.setText(""); // previous code took the status from the claim then got commented out

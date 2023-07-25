@@ -79,17 +79,15 @@ public class ServicesAdapter extends RecyclerView.Adapter<ServicesAdapter.Report
 
         holder.ServiceCode.setText(service.getCode());
         holder.ServiceName.setText(service.getName());
-        holder.Quantity.setText(null); //TODO service_qty
+        holder.Quantity.setText(service.getQuantity());
         holder.Price.setText(String.valueOf(service.getPrice()));
         holder.Explanation.setText(service.getExplanation());
-        holder.AppQty.setText(null); // TODO service_adjusted_qty
+        holder.AppQty.setText(service.getQuantityApproved());
         holder.AppPrice.setText(service.getPriceAdjusted());
         holder.Justification.setText(service.getJustification());
         holder.Status.setText(""); // previous code took the status from the claim then got commented out
         holder.Valuated.setText(service.getPriceValuated());
         holder.Result.setText(null); // TODO service_result
-
-
     }
 
     @Override

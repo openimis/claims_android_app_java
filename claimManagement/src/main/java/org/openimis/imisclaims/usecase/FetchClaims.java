@@ -96,7 +96,7 @@ public class FetchClaims {
             @NonNull GetClaimsQuery.Edge dto,
             @NonNull Mapper<GetClaimsQuery.Service, Claim.Service> serviceMapper,
             @NonNull Mapper<GetClaimsQuery.Item, Claim.Medication> medicationMapper
-        ) {
+    ) {
         GetClaimsQuery.Node node = Objects.requireNonNull(dto.node());
         return new Claim(
                 /* uuid = */ node.uuid(),
@@ -108,7 +108,7 @@ public class FetchClaims {
                 /* dateClaimed = */ node.dateClaimed(),
                 /* visitDateFrom = */ node.dateFrom(),
                 /* visitDateTo = */ node.dateTo(),
-                /* visitType = */ node.visitType(),
+                /* visitType = */ mapVisitType(node.visitType()),
                 /* status = */ intAsStatus(node.status()),
                 /* mainDg = */ node.icd().name(),
                 /* secDg1 = */ node.icd1() != null ? node.icd1().name() : null,
@@ -117,13 +117,29 @@ public class FetchClaims {
                 /* secDg4 = */ node.icd4() != null ? node.icd4().name() : null,
                 /* claimed = */ node.claimed(),
                 /* approved = */ node.approved(),
-                /* adjusted = */ null,// TODO confirm how to get this value
                 /* explanation = */ node.explanation(),
                 /* adjustment = */ node.adjustment(),
                 /* guaranteeNumber = */ node.guaranteeId(),
                 /* services = */ serviceMapper.map(node.services()),
                 /* medications = */ medicationMapper.map(node.items())
         );
+    }
+
+    @Nullable
+    private String mapVisitType(@Nullable String type) {
+        if (type == null) {
+            return null;
+        }
+        switch (type) {
+            case "E":
+                return "Emergency";
+            case "R":
+                return "Referral";
+            case "O":
+                return "Other";
+            default:
+                return type;
+        }
     }
 
     private Claim.Service toService(@NonNull GetClaimsQuery.Service service) {

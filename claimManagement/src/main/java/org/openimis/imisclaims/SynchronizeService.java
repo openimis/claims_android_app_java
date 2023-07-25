@@ -113,6 +113,7 @@ public class SynchronizeService extends JobIntentService {
             JSONArray claimStatus = processClaimResponse(results);
             broadcastSyncSuccess(claimStatus);
         } catch (Exception e) {
+            e.printStackTrace();
             broadcastError(getResources().getString(R.string.ErrorOccurred) + ": " + e.getMessage(), ACTION_UPLOAD_CLAIMS);
         }
     }
