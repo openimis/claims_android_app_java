@@ -6,13 +6,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.domain.entity.PendingClaim;
-import org.openimis.imisclaims.network.dto.IdentifierDto;
-import org.openimis.imisclaims.network.exception.InsertClaimException;
 import org.openimis.imisclaims.util.DateUtils;
 
 import java.util.Objects;
 
-public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, String> {
+public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Boolean> {
 
     public PostNewClaimRequest() {
         super("Claim");
@@ -20,17 +18,10 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Strin
 
     @NonNull
     @Override
-    protected String fromJson(@NonNull JSONObject object) throws Exception {
+    protected Boolean fromJson(@NonNull JSONObject object) throws Exception {
         String resourceType = object.getString("resourceType");
         if ("ClaimResponse".equals(resourceType)) {
-            return IdentifierDto.getCode(IdentifierDto.fromJson(object.getJSONArray("identifier")));
-        } else if ("OperationOutcome".equals(resourceType)) {
-            JSONObject issue = object.getJSONArray("issue").getJSONObject(0);
-            throw new InsertClaimException(
-                    /* severity = */ issue.getString("severity"),
-                    /* code = */ issue.getString("code"),
-                    /* message = */ issue.getJSONObject("details").getString("text")
-            );
+            return object.has("total");
         }
         throw new IllegalStateException("ResourceType '"+resourceType+"' is unknown");
     }

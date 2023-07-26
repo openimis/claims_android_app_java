@@ -4,8 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.openimis.imisclaims.domain.entity.PendingClaim;
-import org.openimis.imisclaims.network.exception.InsertClaimException;
+import org.openimis.imisclaims.network.exception.HttpException;
 import org.openimis.imisclaims.network.request.PostNewClaimRequest;
 
 import java.util.ArrayList;
@@ -31,22 +33,36 @@ public class PostNewClaims {
         List<Result> results = new ArrayList<>();
         for (PendingClaim pendingClaim : pendingClaims) {
             try {
-                String claimCode = request.post(pendingClaim);
-                results.add(
-                        new Result(
-                                /* claimCode = */ claimCode,
-                                /* status = */ Result.Status.SUCCESS,
-                                /* message = */ null
-                        )
-                );
-            } catch (InsertClaimException e) {
+                Boolean isAccepted = request.post(pendingClaim);
                 results.add(
                         new Result(
                                 /* claimCode = */ pendingClaim.getClaimCode(),
-                                /* status = */ Result.Status.ERROR, //TODO figure out when it's REJECTED
-                                /* message = */ e.getMessage()
+                                /* status = */ isAccepted ? Result.Status.SUCCESS : Result.Status.REJECTED,
+                                /* message = */ null
                         )
                 );
+            } catch (HttpException e) {
+                if (e.getBody() == null) {
+                    throw e;
+                }
+                try {
+                    JSONObject issue = new JSONObject(e.getBody()).getJSONArray("issue").getJSONObject(0);
+                    results.add(
+                            new Result(
+                                    /* claimCode = */ pendingClaim.getClaimCode(),
+                                    /* status = */ Result.Status.ERROR,
+                                    /* message = */ issue.getJSONObject("details").getString("text")
+                            )
+                    );
+                } catch (JSONException ignored) {
+                    results.add(
+                            new Result(
+                                    /* claimCode = */ pendingClaim.getClaimCode(),
+                                    /* status = */ Result.Status.ERROR,
+                                    /* message = */ e.getMessage()
+                            )
+                    );
+                }
             }
         }
         return results;

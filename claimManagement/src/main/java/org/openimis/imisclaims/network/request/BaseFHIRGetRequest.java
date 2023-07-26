@@ -31,15 +31,15 @@ public abstract class BaseFHIRGetRequest<T> extends BaseFHIRRequest {
     public T get(@Nullable Map<String, String> queryParameters) throws Exception {
         Request.Builder builder = getRequestBuilder(queryParameters);
         try (Response response = okHttpClient.newCall(builder.build()).execute()) {
+            ResponseBody body = response.body();
+            String bodyString = body != null ? body.string() : null;
             if (response.isSuccessful()) {
-                ResponseBody body = response.body();
-                String bodyString = body != null ? body.string() : null;
                 if (bodyString == null) {
                     throw new RuntimeException("Call was successful but body was null");
                 }
                 return fromJson(new JSONObject(bodyString));
             } else {
-                throw new HttpException(response.code(), response.message(), null);
+                throw new HttpException(response.code(), response.message(), bodyString, null);
             }
         }
     }

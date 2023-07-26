@@ -46,7 +46,7 @@ public abstract class BaseFHIRPostRequest<T, U> extends BaseFHIRRequest {
                 }
                 return fromJson(new JSONObject(bodyString));
             } else {
-                throw new HttpException(response.code(), response.message()+": "+bodyString, null);
+                throw new HttpException(response.code(), response.message(), bodyString, null);
             }
         }
     }
