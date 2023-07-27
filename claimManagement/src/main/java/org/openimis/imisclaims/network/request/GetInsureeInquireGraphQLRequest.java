@@ -5,8 +5,11 @@ import androidx.annotation.WorkerThread;
 
 import com.apollographql.apollo.api.Input;
 
-
 import org.openimis.imisclaims.GetInsureeInquireQuery;
+import org.openimis.imisclaims.network.exception.HttpException;
+
+import java.net.HttpURLConnection;
+import java.util.List;
 
 
 public class GetInsureeInquireGraphQLRequest extends BaseGraphQLRequest {
@@ -16,8 +19,17 @@ public class GetInsureeInquireGraphQLRequest extends BaseGraphQLRequest {
     public GetInsureeInquireQuery.Node get(
             @NonNull String chfId
     ) throws Exception {
-        return makeSynchronous(new GetInsureeInquireQuery(
+        List<GetInsureeInquireQuery.Edge> edges = makeSynchronous(new GetInsureeInquireQuery(
                 Input.fromNullable(chfId)
-        )).getData().insurees().edges().get(0).node();
+        )).getData().insurees().edges();
+        if (edges.isEmpty()) {
+            throw new HttpException(
+                    /* code = */ HttpURLConnection.HTTP_NOT_FOUND,
+                    /* message = */ "Insuree with id '" + chfId + "' was not found",
+                    /* body = */ null,
+                    /* cause = */ null
+            );
+        }
+        return edges.get(0).node();
     }
 }
