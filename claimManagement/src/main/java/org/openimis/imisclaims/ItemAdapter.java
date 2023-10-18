@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 public class ItemAdapter extends CursorAdapter {
     SQLHandler sqlHandler;
-    SQLiteDatabase db;
 
     public ItemAdapter(Context context, SQLHandler sqlHandler) {
         super(context, null, 0);

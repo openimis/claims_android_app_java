@@ -2,64 +2,54 @@ package org.openimis.imisclaims;
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
-import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.openimis.imisclaims.tools.Log;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import java.net.HttpURLConnection;
-import java.text.SimpleDateFormat;
+import org.openimis.imisclaims.domain.entity.Claim;
+import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.usecase.FetchClaims;
+import org.openimis.imisclaims.util.TextViewUtils;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class SearchClaimsActivity extends ImisActivity {
     private static final String LOG_TAG = "SEARCHCLAIMS";
-    ProgressDialog pd;
 
-    ToRestApi toRestApi;
+    private static final String SPINNER_POSITION = "SPINNER_POSITION";
+    private static final String VISIT_FROM = "VISIT_FROM";
+    private static final String VISIT_TO = "VISIT_TO";
+    private static final String PROCESSED_FROM = "PROCESSED_FROM";
+    private static final String PROCESSED_TO = "PROCESSED_TO";
 
-    EditText visitDateFrom;
-    EditText visitDateTo;
-    EditText dateProcessedFrom;
-    EditText dateProcessedTo;
-    EditText lastUpdateDate;
-    EditText lastUpdateTime;
-    EditText insureeNumber;
+    private final Calendar visitDateFromCalendar = Calendar.getInstance();
+    private final Calendar visitDateToCalendar = Calendar.getInstance();
+    private final Calendar dateProcessedFromCalendar = Calendar.getInstance();
+    private final Calendar dateProcessedToCalendar = Calendar.getInstance();
 
-    Calendar visitDateFromCalendar;
-    Calendar visitDateToCalendar;
-    Calendar dateProcessedFromCalendar;
-    Calendar dateProcessedToCalendar;
-    Calendar lastUpdateCalendar;
-
-    Button clear;
-    Button search;
+    private Spinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_claims);
 
-        toRestApi = new ToRestApi();
-
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(getResources().getString(R.string.SearchClaims));
         }
 
+        spinner = findViewById(R.id.spinner_status);
         List<String> categories = new ArrayList<>();
         categories.add("Select claim status");
         categories.add(getString(R.string.Entered));
@@ -67,15 +57,28 @@ public class SearchClaimsActivity extends ImisActivity {
         categories.add(getString(R.string.Processed));
         categories.add(getString(R.string.Valuated));
         categories.add(getString(R.string.Rejected));
-
-        Spinner spinner = findViewById(R.id.spinner_status);
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(dataAdapter);
 
+        EditText visitDateFrom = findViewById(R.id.visit_date_from);
+        EditText visitDateTo = findViewById(R.id.visit_date_to);
+        EditText dateProcessedFrom = findViewById(R.id.date_processed_from);
+        EditText dateProcessedTo = findViewById(R.id.date_processed_to);
 
-        clear = findViewById(R.id.clear);
-        clear.setOnClickListener(view -> {
+        if (savedInstanceState != null) {
+            spinner.setSelection(savedInstanceState.getInt(SPINNER_POSITION));
+            visitDateFromCalendar.setTimeInMillis(savedInstanceState.getLong(VISIT_FROM));
+            TextViewUtils.setDate(visitDateFrom, visitDateFromCalendar.getTime());
+            visitDateToCalendar.setTimeInMillis(savedInstanceState.getLong(VISIT_TO));
+            TextViewUtils.setDate(visitDateTo, visitDateToCalendar.getTime());
+            dateProcessedFromCalendar.setTimeInMillis(savedInstanceState.getLong(PROCESSED_FROM));
+            TextViewUtils.setDate(dateProcessedFrom, dateProcessedFromCalendar.getTime());
+            dateProcessedToCalendar.setTimeInMillis(savedInstanceState.getLong(PROCESSED_TO));
+            TextViewUtils.setDate(dateProcessedTo, dateProcessedToCalendar.getTime());
+        }
+
+        findViewById(R.id.clear).setOnClickListener(view -> {
             visitDateFrom.setText("");
             visitDateTo.setText("");
             dateProcessedFrom.setText("");
@@ -83,61 +86,21 @@ public class SearchClaimsActivity extends ImisActivity {
             spinner.setSelection(0);
         });
 
-        visitDateFrom = findViewById(R.id.visit_date_from);
-        visitDateTo = findViewById(R.id.visit_date_to);
-        dateProcessedFrom = findViewById(R.id.date_processed_from);
-        dateProcessedTo = findViewById(R.id.date_processed_to);
-        lastUpdateDate = findViewById(R.id.last_update_date);
-        lastUpdateTime = findViewById(R.id.last_update_time);
-        insureeNumber = findViewById(R.id.insureeNumber);
-
-
-        visitDateFromCalendar = Calendar.getInstance();
-        visitDateToCalendar = Calendar.getInstance();
-        dateProcessedFromCalendar = Calendar.getInstance();
-        dateProcessedToCalendar = Calendar.getInstance();
-        lastUpdateCalendar = Calendar.getInstance();
-
-
-        search = findViewById(R.id.search);
-        search.setOnClickListener(view -> doLoggedIn(() -> {
-            JSONObject object = new JSONObject();
-            try {
-                object.put("claim_administrator_code", global.getOfficerCode());
-                if (spinner.getSelectedItemPosition() != 0) {
-                    object.put("status_claim", categories.get(spinner.getSelectedItemPosition()));
-                }
-                if (visitDateFrom.length() != 0) {
-                    object.put("visit_date_from", AppInformation.DateTimeInfo.getDefaultDateFormatter().format(visitDateFromCalendar.getTime()));
-                }
-                if (visitDateTo.length() != 0) {
-                    object.put("visit_date_to", AppInformation.DateTimeInfo.getDefaultDateFormatter().format(visitDateToCalendar.getTime()));
-                }
-                if (dateProcessedFrom.length() != 0) {
-                    object.put("processed_date_from", AppInformation.DateTimeInfo.getDefaultDateFormatter().format(dateProcessedFromCalendar.getTime()));
-                }
-                if (dateProcessedTo.length() != 0) {
-                    object.put("processed_date_to", AppInformation.DateTimeInfo.getDefaultDateFormatter().format(dateProcessedToCalendar.getTime()));
-                }
-                if (lastUpdateDate.length() != 0) {
-                    object.put("last_update_date", AppInformation.DateTimeInfo.getDefaultIsoShortDatetimeFormatter().format(lastUpdateCalendar.getTime()));
-                }
-
-                if (insureeNumber.length() != 0) {
-                    object.put("insuree_number", insureeNumber.getText());
-                }
-                getClaims(object);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }));
+        findViewById(R.id.search).setOnClickListener(view ->
+                doLoggedIn(() -> getClaims(
+                                global.getOfficerCode(),
+                                getStatus(spinner),
+                                getDate(visitDateFrom, visitDateFromCalendar),
+                                getDate(visitDateTo, visitDateToCalendar),
+                                getDate(dateProcessedFrom, dateProcessedFromCalendar),
+                                getDate(dateProcessedTo, dateProcessedToCalendar)
+                        )
+                ));
 
         visitDateFrom.setOnClickListener(v -> getDatePicker(visitDateFrom, visitDateFromCalendar).show());
         visitDateTo.setOnClickListener(v -> getDatePicker(visitDateTo, visitDateToCalendar).show());
         dateProcessedFrom.setOnClickListener(v -> getDatePicker(dateProcessedFrom, dateProcessedFromCalendar).show());
         dateProcessedTo.setOnClickListener(v -> getDatePicker(dateProcessedTo, dateProcessedToCalendar).show());
-        lastUpdateDate.setOnClickListener(v -> getDatePicker(lastUpdateDate, lastUpdateCalendar).show());
-        lastUpdateTime.setOnClickListener(v -> getTimePicker(lastUpdateTime, lastUpdateCalendar).show());
     }
 
     public DatePickerDialog getDatePicker(TextView textView, Calendar calendar) {
@@ -147,10 +110,7 @@ public class SearchClaimsActivity extends ImisActivity {
                     calendar.set(Calendar.YEAR, year);
                     calendar.set(Calendar.MONTH, monthOfYear);
                     calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                    calendar.set(Calendar.HOUR_OF_DAY, 0);
-                    calendar.set(Calendar.MINUTE, 0);
-                    calendar.set(Calendar.SECOND, 0);
-                    updateDateLabel(calendar, textView);
+                    TextViewUtils.setDate(textView, calendar.getTime());
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -158,64 +118,73 @@ public class SearchClaimsActivity extends ImisActivity {
         );
     }
 
-    public TimePickerDialog getTimePicker(TextView textView, Calendar calendar) {
-        return new TimePickerDialog(
-                this,
-                (view, hour, minute) -> {
-                    calendar.set(Calendar.HOUR_OF_DAY, hour);
-                    calendar.set(Calendar.MINUTE, minute);
-                    calendar.set(Calendar.SECOND, 0); // Time picker does not support seconds
-                    updateTimeLabel(calendar, textView);
-                },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-        );
+    @Nullable
+    private Claim.Status getStatus(Spinner spinner) {
+        switch (spinner.getSelectedItemPosition()) {
+            case 1:
+                return Claim.Status.ENTERED;
+            case 2:
+                return Claim.Status.CHECKED;
+            case 3:
+                return Claim.Status.PROCESSED;
+            case 4:
+                return Claim.Status.VALUATED;
+            case 5:
+                return Claim.Status.REJECTED;
+            default:
+                return null;
+        }
     }
 
-    public void updateDateLabel(Calendar calendar, TextView view) {
-        SimpleDateFormat formatter = new SimpleDateFormat(AppInformation.DateTimeInfo.getDateFormat(), Locale.US);
-        view.setText(formatter.format(calendar.getTime()));
+    @Nullable
+    private Date getDate(@NonNull EditText editText, @NonNull Calendar calendar) {
+        if (editText.length() != 0) {
+            return calendar.getTime();
+        }
+        return null;
     }
 
-    public void updateTimeLabel(Calendar calendar, TextView view) {
-        SimpleDateFormat formatter = new SimpleDateFormat(AppInformation.DateTimeInfo.getTimeFormat(), Locale.US);
-        view.setText(formatter.format(calendar.getTime()));
-    }
-
-    private void getClaims(final JSONObject object) {
-        pd = ProgressDialog.show(this, getResources().getString(R.string.DownLoad), getResources().getString(R.string.getClaims) + "...");
+    private void getClaims(
+            @Nullable String claimAdministratorCode,
+            @Nullable Claim.Status status,
+            @Nullable Date visitDateFrom,
+            @Nullable Date visitDateTo,
+            @Nullable Date processedDateFrom,
+            @Nullable Date processedDateTo
+    ) {
+        ProgressDialog pd = ProgressDialog.show(this, getResources().getString(R.string.DownLoad), getResources().getString(R.string.getClaims) + "...");
         new Thread(() -> {
-            String functionName = "claim/GetClaims/";
-            try {
-                HttpResponse response = toRestApi.postToRestApiToken(object, functionName);
-                String content = toRestApi.getContent(response);
-                int code = response.getStatusLine().getStatusCode();
 
-                if (code == HttpURLConnection.HTTP_OK) {
-                    runOnUiThread(() -> pd.dismiss());
-                    JSONObject jsonObject = new JSONObject(content);
-                    String data = jsonObject.getString("data");
-                    if (data.length() != 0) {
-                        openClaimReview(content);
-                    } else {
-                        runOnUiThread(() -> Toast.makeText(getContext(), getResources().getString(R.string.NoClaim), Toast.LENGTH_LONG).show());
-                    }
+            try {
+                List<Claim> claims = new FetchClaims().execute(
+                        claimAdministratorCode, status, visitDateFrom,
+                        visitDateTo, processedDateFrom, processedDateTo
+                );
+                pd.dismiss();
+                if (!claims.isEmpty()) {
+                    openClaimReview(claims);
                 } else {
-                    pd.dismiss();
-                    runOnUiThread(() -> Toast.makeText(getContext(), toRestApi.getHttpError(this, code, response.getStatusLine().getReasonPhrase(), null), Toast.LENGTH_LONG).show());
+                    runOnUiThread(() -> Toast.makeText(getContext(), getResources().getString(R.string.NoClaim), Toast.LENGTH_LONG).show());
                 }
             } catch (Exception e) {
                 pd.dismiss();
                 Log.e(LOG_TAG, "Error while fetching claims", e);
-                runOnUiThread(() -> Toast.makeText(getContext(), getResources().getString(R.string.ErrorOccurred), Toast.LENGTH_LONG).show());
+                runOnUiThread(() -> Toast.makeText(getContext(), getResources().getString(R.string.ErrorOccurred) + ": " + e.getMessage(), Toast.LENGTH_LONG).show());
             }
         }).start();
     }
 
-    public void openClaimReview(String claims) {
-        Intent intent = new Intent(this, Claims.class);
-        intent.putExtra("claims", claims);
-        startActivity(intent);
+    public void openClaimReview(List<Claim> claims) {
+        startActivity(Claims.newIntent(this, claims));
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt(SPINNER_POSITION, spinner.getSelectedItemPosition());
+        outState.putLong(VISIT_FROM, visitDateFromCalendar.getTimeInMillis());
+        outState.putLong(VISIT_TO, visitDateToCalendar.getTimeInMillis());
+        outState.putLong(PROCESSED_FROM, dateProcessedFromCalendar.getTimeInMillis());
+        outState.putLong(PROCESSED_TO, dateProcessedToCalendar.getTimeInMillis());
     }
 }

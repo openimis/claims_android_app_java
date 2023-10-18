@@ -8,16 +8,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.usecase.Login;
 
 import java.util.ArrayList;
 
@@ -153,14 +154,10 @@ public abstract class ImisActivity extends AppCompatActivity {
         return builder.show();
     }
 
-    protected AlertDialog showDialog(String title, String msg, DialogInterface.OnClickListener okCallback, DialogInterface.OnClickListener cancelCallback) {
+    protected AlertDialog showDialog(String msg, DialogInterface.OnClickListener okCallback, DialogInterface.OnClickListener cancelCallback) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setMessage(msg)
                 .setCancelable(false);
-
-        if (title != null) {
-            builder.setTitle(title);
-        }
 
         if (okCallback != null) {
             builder.setPositiveButton(R.string.Ok, okCallback);
@@ -176,15 +173,11 @@ public abstract class ImisActivity extends AppCompatActivity {
     }
 
     protected AlertDialog showDialog(String msg, DialogInterface.OnClickListener okCallback) {
-        return showDialog(null, msg, okCallback, null);
+        return showDialog(msg, okCallback, null);
     }
 
     protected AlertDialog showDialog(String msg) {
-        return showDialog(null, msg, null, null);
-    }
-
-    protected AlertDialog showDialog(String title, String msg) {
-        return showDialog(title, msg, null, null);
+        return showDialog(msg, null, null);
     }
 
     private AlertDialog showLoginDialogBox(Runnable onLoggedIn, Runnable onCancel) {
@@ -210,12 +203,13 @@ public abstract class ImisActivity extends AppCompatActivity {
                                 progressDialog = ProgressDialog.show(this, getResources().getString(R.string.Login), getResources().getString(R.string.InProgress));
 
                                 runOnNewThread(
-                                        () -> new Login().LoginToken(username.getText().toString(), password.getText().toString()),
+                                        () -> new Login().execute(username.getText().toString(), password.getText().toString()),
                                         () -> {
                                             progressDialog.dismiss();
                                             if (global.isLoggedIn()) {
                                                 runOnUiThread(() -> {
                                                     showToast(R.string.Login_Successful);
+                                                    onUserLoggedIn();
                                                     onLoggedIn.run();
                                                 });
                                             } else {
@@ -240,6 +234,8 @@ public abstract class ImisActivity extends AppCompatActivity {
 
         return alertDialogBuilder.show();
     }
+
+    protected void onUserLoggedIn(){}
 
 
     /**

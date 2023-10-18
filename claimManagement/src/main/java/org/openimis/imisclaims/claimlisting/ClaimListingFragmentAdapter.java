@@ -1,14 +1,13 @@
 package org.openimis.imisclaims.claimlisting;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,10 +53,13 @@ public class ClaimListingFragmentAdapter extends RecyclerView.Adapter<RecyclerVi
 
             claimListingViewHolder.itemView.setOnClickListener((view) -> {
                 try {
-                    Intent intent = new Intent(context, ClaimActivity.class);
-                    intent.putExtra(ClaimActivity.EXTRA_CLAIM_UUID, row.getString("ClaimUUID"));
-                    intent.putExtra(ClaimActivity.EXTRA_READONLY, page != ClaimListingPage.ENTERED_PAGE);
-                    ((Activity) context).startActivity(intent);
+                    context.startActivity(
+                            ClaimActivity.newIntent(
+                                    context,
+                                    /* claimUUID = */ row.getString("ClaimUUID"),
+                                    /* readOnly = */ page != ClaimListingPage.ENTERED_PAGE
+                            )
+                    );
                 } catch (JSONException | IndexOutOfBoundsException e) {
                     Log.e(LOG_TAG, "Error while handling item click", e);
                 }

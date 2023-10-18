@@ -6,24 +6,18 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
 import java.util.HashMap;
 
 import org.openimis.imisclaims.tools.Log;
-import org.openimis.imisclaims.util.StringUtils;
 
 public class AddItems extends ImisActivity {
     ListView lvItems;
-    TextView tvCode, tvName;
     EditText etQuantity, etAmount;
     Button btnAdd;
     AutoCompleteTextView etItems;
@@ -43,40 +37,15 @@ public class AddItems extends ImisActivity {
         }
 
         lvItems = findViewById(R.id.lvItems);
-        tvCode = findViewById(R.id.tvCode);
-        tvName = findViewById(R.id.tvName);
         etQuantity = findViewById(R.id.etQuantity);
         etAmount = findViewById(R.id.etAmount);
         etItems = findViewById(R.id.etItems);
         btnAdd = findViewById(R.id.btnAdd);
 
         alAdapter = new SimpleAdapter(AddItems.this, ClaimActivity.lvItemList, R.layout.lvitem,
-                new String[]{"Code", "Name", "Price", "Quantity", "PriceAdjusted", "QuantityAdjusted", "Explanation", "Justification", "Result"},
-                new int[]{R.id.tvLvCode, R.id.tvLvName, R.id.tvLvPrice, R.id.tvLvQuantity, R.id.tvLvPriceAdjusted, R.id.tvLvQuantityAdjusted, R.id.tvLvExplanation, R.id.tvLvJustification, R.id.tvLvResult});
+                new String[]{"Code", "Name", "Price", "Quantity"},
+                new int[]{R.id.tvLvCode, R.id.tvLvName, R.id.tvLvPrice, R.id.tvLvQuantity});
         lvItems.setAdapter(alAdapter);
-
-        alAdapter.setViewBinder((view, data, textRepresentation) -> {
-            TextView textView = (TextView) view;
-            textView.setText(textRepresentation);
-
-            int id = view.getId();
-
-            if ((id == R.id.tvLvPriceAdjusted || id == R.id.tvLvQuantityAdjusted || id == R.id.tvLvExplanation || id == R.id.tvLvJustification || id == R.id.tvLvResult) && !StringUtils.isEmpty(textRepresentation)) {
-                view.getParent().getParent();
-
-                ViewGroup containingLayout = (ViewGroup) view.getParent().getParent();
-                LinearLayout rootView = (LinearLayout) containingLayout.getParent();
-
-                LinearLayout quantityAdjustedRow = rootView.findViewById(R.id.QuantityAdjustedRow);
-                LinearLayout priceAdjustedRow = rootView.findViewById(R.id.PriceAdjustedRow);
-                LinearLayout resultRow = rootView.findViewById(R.id.ResultRow);
-                quantityAdjustedRow.setVisibility(View.VISIBLE);
-                priceAdjustedRow.setVisibility(View.VISIBLE);
-                resultRow.setVisibility(View.VISIBLE);
-            }
-
-            return true;
-        });
 
         if (isIntentReadonly()) {
             disableView(etQuantity);
@@ -219,7 +188,7 @@ public class AddItems extends ImisActivity {
 
     private void HideAllDeleteButtons() {
         for (int i = 0; i <= lvItems.getLastVisiblePosition(); i++) {
-            Button Delete = (Button) lvItems.getChildAt(i).findViewById(R.id.btnDelete);
+            Button Delete = lvItems.getChildAt(i).findViewById(R.id.btnDelete);
             Delete.setVisibility(View.GONE);
         }
     }

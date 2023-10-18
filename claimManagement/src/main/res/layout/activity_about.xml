@@ -43,7 +43,7 @@
             android:layout_height="match_parent"
             android:layout_marginStart="10dp"
             android:fontFamily="sans-serif-light"
-            android:text="2.0.1"
+            android:text="2.1.0"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:typeface="monospace" />

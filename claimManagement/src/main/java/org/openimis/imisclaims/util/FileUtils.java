@@ -1,7 +1,7 @@
 package org.openimis.imisclaims.util;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.openimis.imisclaims.tools.Log;
 

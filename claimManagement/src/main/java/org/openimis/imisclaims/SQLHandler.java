@@ -7,7 +7,9 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import android.text.TextUtils;
 
 import org.json.JSONArray;
@@ -15,8 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.tools.Log;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 public class SQLHandler extends SQLiteOpenHelper {
@@ -29,7 +29,6 @@ public class SQLHandler extends SQLiteOpenHelper {
     public static final String CLAIM_UPLOAD_STATUS_REJECTED = "Rejected";
     public static final String CLAIM_UPLOAD_STATUS_ERROR = "Error";
     public static final String CLAIM_UPLOAD_STATUS_EXPORTED = "Exported";
-    public static final String CLAIM_UPLOAD_STATUS_CHECKED = "Checked";
     public static final String CLAIM_UPLOAD_STATUS_ENTERED = "Entered";
     public static final String CLAIM_UPLOAD_STATUS_ARCHIVED = "Archived";
 
@@ -41,20 +40,18 @@ public class SQLHandler extends SQLiteOpenHelper {
     private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName TEXT, Adjustability TEXT);";
     private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code TEXT, HFCode TEXT ,Name TEXT);";
     private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code TEXT, Name TEXT, Type TEXT, Price TEXT);";
-    private static final String createTableClaimDetails = "CREATE TABLE IF NOT EXISTS tblClaimDetails(ClaimUUID TEXT, ClaimDate TEXT, HFCode TEXT, ClaimAdmin TEXT, ClaimCode TEXT, GuaranteeNumber TEXT, InsureeNumber TEXT, StartDate TEXT, EndDate TEXT, ICDCode TEXT, Comment TEXT, Total TEXT, ICDCode1 TEXT, ICDCode2 TEXT, ICDCode3 TEXT, ICDCode4 TEXT, VisitType TEXT, TotalApproved TEXT, TotalAdjusted TEXT, Explanation TEXT, Adjustment TEXT, LastUpdated TEXT);";
-    private static final String createTableClaimItems = "CREATE TABLE IF NOT EXISTS tblClaimItems(ClaimUUID TEXT, ItemCode TEXT, ItemPrice TEXT, ItemQuantity TEXT, ItemPriceAdjusted TEXT, ItemQuantityAdjusted TEXT, ItemExplanation TEXT, ItemJustification TEXT, ItemValuated TEXT, ItemResult TEXT, LastUpdated TEXT);";
-    private static final String createTableClaimServices = "CREATE TABLE IF NOT EXISTS tblClaimServices(ClaimUUID TEXT, ServiceCode TEXT, ServicePrice TEXT, ServiceQuantity TEXT, ServicePriceAdjusted TEXT, ServiceQuantityAdjusted TEXT, ServiceExplanation TEXT, ServiceJustification TEXT, ServiceValuated TEXT, ServiceResult TEXT, LastUpdated TEXT);";
+    private static final String createTableClaimDetails = "CREATE TABLE IF NOT EXISTS tblClaimDetails(ClaimUUID TEXT, ClaimDate TEXT, HFCode TEXT, ClaimAdmin TEXT, ClaimCode TEXT, GuaranteeNumber TEXT, InsureeNumber TEXT, StartDate TEXT, EndDate TEXT, ICDCode TEXT, Comment TEXT, Total TEXT, ICDCode1 TEXT, ICDCode2 TEXT, ICDCode3 TEXT, ICDCode4 TEXT, VisitType TEXT);";
+    private static final String createTableClaimItems = "CREATE TABLE IF NOT EXISTS tblClaimItems(ClaimUUID TEXT, ItemCode TEXT, ItemPrice TEXT, ItemQuantity TEXT);";
+    private static final String createTableClaimServices = "CREATE TABLE IF NOT EXISTS tblClaimServices(ClaimUUID TEXT, ServiceCode TEXT, ServicePrice TEXT, ServiceQuantity TEXT);";
     private static final String createTableClaimUploadStatus = "CREATE TABLE IF NOT EXISTS tblClaimUploadStatus(ClaimUUID TEXT, UploadDate TEXT, UploadStatus TEXT, UploadMessage TEXT);";
 
     public final String REFERENCE_UNKNOWN;
 
-    private final Global global;
     private SQLiteDatabase db;
     private SQLiteDatabase dbMapping;
 
     public SQLHandler(Context context) {
         super(context, DB_NAME_MAPPING, null, 3);
-        global = (Global) context.getApplicationContext();
         REFERENCE_UNKNOWN = context.getResources().getString(R.string.Unknown);
         createOrOpenDatabases();
     }
@@ -77,11 +74,14 @@ public class SQLHandler extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
+    @Nullable
     public Cursor getMapping(String Type) {
         try {
-            db.execSQL("ATTACH DATABASE '" + DB_NAME_MAPPING + "' AS dbMapping1");
-            Cursor c = db.rawQuery("select I.code,I.name,M.Type AS isMapped FROM tblReferences I LEFT OUTER JOIN dbMapping1.tblMapping M ON I.Code = M.Code WHERE I.Type =?", new String[]{Type});
-            return c;
+            try {
+                db.execSQL("ATTACH DATABASE '" + DB_NAME_MAPPING + "' AS dbMapping1");
+            } catch (SQLException ignored) {
+            }
+            return db.rawQuery("select I.code,I.name,M.Type AS isMapped FROM tblReferences I LEFT OUTER JOIN dbMapping1.tblMapping M ON I.Code = M.Code WHERE I.Type =?", new String[]{Type});
         } catch (SQLException e) {
             Log.d("ErrorOnFetchingData", e.getMessage());
             return null;
@@ -177,6 +177,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     public Cursor SearchDisease(String InputText) {
@@ -411,7 +412,7 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     public JSONObject getClaim(String claimUUID) {
         JSONArray claimDetails = getQueryResultAsJsonArray("tblClaimDetails",
-                new String[]{"ClaimUUID", "ClaimDate", "HFCode", "ClaimAdmin", "ClaimCode", "GuaranteeNumber", "InsureeNumber", "StartDate", "EndDate", "ICDCode", "Comment", "Total", "ICDCode1", "ICDCode2", "ICDCode3", "ICDCode4", "VisitType", "TotalApproved", "TotalAdjusted", "Explanation", "Adjustment"},
+                new String[]{"ClaimUUID", "ClaimDate", "HFCode", "ClaimAdmin", "ClaimCode", "GuaranteeNumber", "InsureeNumber", "StartDate", "EndDate", "ICDCode", "Comment", "Total", "ICDCode1", "ICDCode2", "ICDCode3", "ICDCode4", "VisitType"},
                 "LOWER(ClaimUUID) = ?",
                 new String[]{claimUUID.toLowerCase(Locale.ROOT)});
 
@@ -445,7 +446,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         JSONArray claims = getQueryResultAsJsonArray(
                 "SELECT ClaimUUID, ClaimDate, HFCode, ClaimAdmin, ClaimCode, GuaranteeNumber, InsureeNumber AS CHFID, StartDate, EndDate, ICDCode, Comment, Total, ICDCode1, ICDCode2, ICDCode3, ICDCode4, VisitType" +
                         " FROM tblClaimDetails cd" +
-                        " WHERE NOT EXISTS (SELECT cus.ClaimUUID FROM (SELECT * FROM tblClaimUploadStatus GROUP BY ClaimUUID HAVING UploadDate=MAX(UploadDate)) AS cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus != ?)",
+                        " WHERE NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus != ?)",
                 new String[]{CLAIM_UPLOAD_STATUS_ERROR}
         );
 
@@ -471,7 +472,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     public JSONArray getClaimItems(String claimUUID) {
         return getQueryResultAsJsonArray(
                 "tblClaimItems",
-                new String[]{"ItemCode", "ItemPrice", "ItemQuantity", "ItemPriceAdjusted", "ItemQuantityAdjusted", "ItemExplanation", "ItemJustification", "ItemValuated", "ItemResult"},
+                new String[]{"ItemCode", "ItemPrice", "ItemQuantity"},
                 "ClaimUUID = ?",
                 new String[]{claimUUID}
         );
@@ -481,7 +482,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     public JSONArray getClaimServices(String claimUUID) {
         return getQueryResultAsJsonArray(
                 "tblClaimServices",
-                new String[]{"ServiceCode", "ServicePrice", "ServiceQuantity", "ServicePriceAdjusted", "ServiceQuantityAdjusted", "ServiceExplanation", "ServiceJustification", "ServiceValuated", "ServiceResult"},
+                new String[]{"ServiceCode", "ServicePrice", "ServiceQuantity"},
                 "ClaimUUID = ?",
                 new String[]{claimUUID}
         );
@@ -542,21 +543,31 @@ public class SQLHandler extends SQLiteOpenHelper {
         }
     }
 
-    public String getClaimUuid(@NonNull String claimCode) {
-        return getSingleValue("tblClaimDetails", "ClaimUUID", "ClaimCode = ?", new String[]{claimCode});
-    }
+    public String getClaimUUIDForCode(@NonNull String claimCode) {
+        JSONArray claims = getQueryResultAsJsonArray("tblClaimDetails", new String[]{"ClaimUUID"}, "ClaimCode = ?", new String[]{claimCode});
+        if (claims.length() < 1) {
+            return null;
+        }
+        if (claims.length() > 1) {
+            Log.e(LOG_TAG, "Multiple claims for claim code: " + claimCode);
+        }
 
-    public String getClaimUuid(@NonNull String claimCode, @NonNull String hfCode) {
-        return getSingleValue("tblClaimDetails", "ClaimUUID", "ClaimCode = ? AND HFCode = ?", new String[]{claimCode, hfCode});
+        try {
+            return claims.getJSONObject(0).getString("ClaimUUID");
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Error while getting claim uuid", e);
+        }
+
+        return null;
     }
 
     @NonNull
     public JSONObject getClaimCounts() {
         JSONArray claimCounts = getQueryResultAsJsonArray(
-                "SELECT CASE WHEN cus.UploadStatus IS NULL OR cus.UploadStatus = ? THEN ? WHEN cus.UploadStatus = ? THEN ? ELSE cus.UploadStatus END" +
-                        " AS Status, count(*) AS Amount FROM tblClaimDetails cd LEFT JOIN (SELECT * FROM tblClaimUploadStatus GROUP BY ClaimUUID HAVING UploadDate=MAX(UploadDate))" +
-                        " AS cus on cd.ClaimUUID=cus.ClaimUUID GROUP BY Status;",
-                new String[]{CLAIM_UPLOAD_STATUS_ERROR, CLAIM_UPLOAD_STATUS_ENTERED, CLAIM_UPLOAD_STATUS_CHECKED, CLAIM_UPLOAD_STATUS_ACCEPTED}
+                "SELECT CASE WHEN cus.UploadStatus IS NULL OR cus.UploadStatus = ? THEN ? ELSE cus.UploadStatus END AS Status, count(*) AS Amount" +
+                        " FROM tblClaimDetails cd LEFT JOIN tblClaimUploadStatus cus on cd.ClaimUUID=cus.ClaimUUID" +
+                        " GROUP BY Status",
+                new String[]{CLAIM_UPLOAD_STATUS_ERROR, CLAIM_UPLOAD_STATUS_ENTERED}
         );
 
         JSONObject result = new JSONObject();
@@ -581,29 +592,27 @@ public class SQLHandler extends SQLiteOpenHelper {
                 "FROM tblClaimDetails cd";
 
         if (selection != null) {
-            query += " WHERE " + selection;
+            query = query + " WHERE " + selection;
         }
-
-        query += "  ORDER BY LastUpdated DESC";
 
         return getQueryResultAsJsonArray(query, selectionArgs);
     }
 
     @NonNull
     public JSONArray getEnteredClaimInfo() {
-        return getClaimInfo("NOT EXISTS (SELECT cus.ClaimUUID FROM (SELECT * FROM tblClaimUploadStatus GROUP BY ClaimUUID HAVING UploadDate=MAX(UploadDate)) AS cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus != ?)", new String[]{CLAIM_UPLOAD_STATUS_ERROR});
+        return getClaimInfo("NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus != ?)", new String[]{CLAIM_UPLOAD_STATUS_ERROR});
     }
 
     @NonNull
     public JSONArray getAcceptedClaimInfo() {
-        return getClaimInfo("EXISTS (SELECT cus.ClaimUUID FROM (SELECT * FROM tblClaimUploadStatus GROUP BY ClaimUUID HAVING UploadDate=MAX(UploadDate)) AS cus WHERE cus.ClaimUUID = cd.ClaimUUID AND (cus.UploadStatus = ? OR cus.UploadStatus = ? OR cus.UploadStatus = ?))" +
-                " AND NOT EXISTS (SELECT cus.ClaimUUID FROM (SELECT * FROM tblClaimUploadStatus GROUP BY ClaimUUID HAVING UploadDate=MAX(UploadDate)) AS cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)", new String[]{CLAIM_UPLOAD_STATUS_ACCEPTED, CLAIM_UPLOAD_STATUS_EXPORTED, CLAIM_UPLOAD_STATUS_CHECKED, CLAIM_UPLOAD_STATUS_ARCHIVED});
+        return getClaimInfo("EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND (cus.UploadStatus = ? OR cus.UploadStatus = ?))" +
+                " AND NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)", new String[]{CLAIM_UPLOAD_STATUS_ACCEPTED, CLAIM_UPLOAD_STATUS_EXPORTED, CLAIM_UPLOAD_STATUS_ARCHIVED});
     }
 
     @NonNull
     public JSONArray getRejectedClaimInfo() {
-        return getClaimInfo("EXISTS (SELECT cus.ClaimUUID FROM (SELECT * FROM tblClaimUploadStatus GROUP BY ClaimUUID HAVING UploadDate=MAX(UploadDate)) AS cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)" +
-                " AND NOT EXISTS (SELECT cus.ClaimUUID FROM (SELECT * FROM tblClaimUploadStatus GROUP BY ClaimUUID HAVING UploadDate=MAX(UploadDate)) AS cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)", new String[]{CLAIM_UPLOAD_STATUS_REJECTED, CLAIM_UPLOAD_STATUS_ARCHIVED});
+        return getClaimInfo("EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)" +
+                " AND NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus = ?)", new String[]{CLAIM_UPLOAD_STATUS_REJECTED, CLAIM_UPLOAD_STATUS_ARCHIVED});
     }
 
     @NonNull
@@ -626,39 +635,4 @@ public class SQLHandler extends SQLiteOpenHelper {
         }
     }
 
-    public void updateClaimAdjustment(String claimUuid, ContentValues claimCv, List<ContentValues> itemsCvs, List<ContentValues> servicesCvs) {
-        try {
-            db.beginTransaction();
-            db.update("tblClaimDetails", claimCv, "ClaimUUID = ?", new String[]{claimUuid});
-            for (ContentValues itemCv : itemsCvs) {
-                db.update("tblClaimItems", itemCv, "ClaimUUID = ? AND ItemCode = ?", new String[]{claimUuid, itemCv.get("ItemCode").toString()});
-            }
-            for (ContentValues serviceCv : servicesCvs) {
-                db.update("tblClaimServices", serviceCv, "ClaimUUID = ? AND ServiceCode = ?", new String[]{claimUuid, serviceCv.get("ServiceCode").toString()});
-            }
-            db.setTransactionSuccessful();
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Error while updating claim adjustment values", e);
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    private String getSingleValue(@NonNull String tableName, @NonNull String column, @NonNull String selection, @NonNull String[] selectionArgs) {
-        JSONArray result = getQueryResultAsJsonArray(tableName, new String[]{column}, selection, selectionArgs);
-        if (result.length() < 1) {
-            return null;
-        }
-        if (result.length() > 1) {
-            Log.e(LOG_TAG, String.format("Multiple result rows for selection (%s, %s, %s, %s)", tableName, column, selection, Arrays.toString(selectionArgs)));
-        }
-
-        try {
-            return result.getJSONObject(0).getString(column);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Error while getting single value", e);
-        }
-
-        return null;
-    }
 }

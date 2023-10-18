@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/llBottom"
+        android:layout_alignParentTop="true"
         android:layout_margin="10dp"
         android:isScrollContainer="true"
         android:scrollbarAlwaysDrawVerticalTrack="true"
@@ -29,7 +30,7 @@
                 android:ems="10"
                 android:fontFamily="sans-serif-light"
                 android:hint="@string/HealthFacility"
-                android:maxLength="8" />
+                android:maxLength="8"></EditText>
 
             <EditText
                 android:id="@+id/etClaimAdmin"
@@ -38,7 +39,7 @@
                 android:ems="10"
                 android:fontFamily="sans-serif-light"
                 android:hint="@string/ClaimAdmin"
-                android:maxLength="8" />
+                android:maxLength="8"></EditText>
 
             <EditText
                 android:id="@+id/etClaimCode"
@@ -60,7 +61,7 @@
                 android:fontFamily="sans-serif-light"
                 android:hint="@string/GuaranteeNo"
 
-                android:maxLength="8" />
+                android:maxLength="8"></EditText>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -76,7 +77,7 @@
                     android:fontFamily="sans-serif-light"
                     android:hint="@string/CHFID"
                     android:inputType="number"
-                    android:maxLength="12" />
+                    android:maxLength="12"></EditText>
 
                 <ImageButton
                     android:id="@+id/btnScan"
@@ -121,7 +122,7 @@
                 android:fontFamily="sans-serif-light"
 
                 android:hint="@string/Diagnosis"
-                android:maxLength="6" />
+                android:maxLength="6"></AutoCompleteTextView>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -214,52 +215,9 @@
                     android:text="@string/Other" />
 
             </RadioGroup>
-
-            <EditText
-                android:id="@+id/etTotalClaimed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:fontFamily="sans-serif-light"
-                android:hint="@string/TotalClaimed"
-                android:visibility="gone" />
-
-            <EditText
-                android:id="@+id/etTotalApproved"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:fontFamily="sans-serif-light"
-                android:hint="@string/TotalApproved"
-                android:visibility="gone" />
-
-            <EditText
-                android:id="@+id/etTotalAdjusted"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:fontFamily="sans-serif-light"
-                android:hint="@string/TotalAdjusted"
-                android:visibility="gone" />
-
-            <EditText
-                android:id="@+id/etExplanation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:fontFamily="sans-serif-light"
-                android:hint="@string/Explanation"
-                android:visibility="gone" />
-
-            <EditText
-                android:id="@+id/etAdjustment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:fontFamily="sans-serif-light"
-                android:hint="@string/Adjustment"
-                android:visibility="gone" />
         </LinearLayout>
+
+
     </ScrollView>
 
     <LinearLayout
@@ -270,100 +228,87 @@
         android:background="@color/Gray"
         android:orientation="vertical">
 
-
         <LinearLayout
-            android:id="@+id/llLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingRight="3dp">
-
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvItemLable"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.33"
                     android:fontFamily="sans-serif-light"
-                    android:gravity="right"
                     android:text="@string/Item"
-                    android:textColor="@color/cyan" />
-
-
-                <TextView
-                    android:id="@+id/tvServiceLable"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.33"
-                    android:fontFamily="sans-serif-light"
-                    android:gravity="right"
-                    android:text="@string/Service"
-                    android:textColor="@color/cyan" />
-
-
-                <!--        <TextView -->
-                <!--            android:id="@+id/tvTotalLable" -->
-                <!--            android:layout_width="0dp" -->
-                <!--            android:layout_height="wrap_content" -->
-                <!--            android:layout_weight="0.33" -->
-                <!--            android:gravity="right" -->
-                <!--            android:text="@string/Total" -->
-                <!--            android:textColor="@color/Green" /> -->
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingRight="3dp">
-
+                    android:textColor="@color/white" />
 
                 <TextView
                     android:id="@+id/tvItemTotal"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.33"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:fontFamily="sans-serif-light"
-                    android:gravity="right"
-                    android:textColor="@color/White" />
-
-
-                <TextView
-                    android:id="@+id/tvServiceTotal"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.33"
-                    android:fontFamily="sans-serif-light"
-                    android:gravity="right"
-                    android:textColor="@color/White" />
-
-
-                <!--        <TextView -->
-                <!--            android:id="@+id/tvTotal" -->
-                <!--            android:layout_width="0dp" -->
-                <!--            android:layout_height="wrap_content" -->
-                <!--            android:layout_weight="0.33" -->
-                <!--            android:gravity="right" -->
-                <!--            android:textColor="@color/White" -->
-                <!--            android:textStyle="bold" /> -->
+                    android:textColor="@color/White"
+                    tools:text="0" />
 
             </LinearLayout>
 
+            <ImageView
+                android:id="@+id/ivAddItem"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?selectableItemBackground"
+                android:padding="8dp"
+                app:tint="@color/white"
+                app:srcCompat="@drawable/ic_add" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvServiceLable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:text="@string/Service"
+                    android:textColor="@color/white" />
+
+                <TextView
+                    android:id="@+id/tvServiceTotal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
+                    android:textColor="@color/White"
+                    tools:text="0" />
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/ivAddService"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?selectableItemBackground"
+                android:padding="8dp"
+                app:tint="@color/white"
+                app:srcCompat="@drawable/ic_add" />
+
         </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/llButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
 
             <Button
                 android:id="@+id/btnNew"

@@ -2,6 +2,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.apollographql.apollo'
 
 static def getDate() {
     LocalDateTime date = LocalDateTime.now()
@@ -27,7 +28,7 @@ android {
         targetSdkVersion 32
         versionCode 4
         versionName "2.0.1"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildTypes {
         release {
@@ -56,7 +57,8 @@ android {
     productFlavors.all {
         resValue "string", "app_name_claims", "openIMIS Claims"
         resValue "string", "ReleaseDateValue", getDate()
-        buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
+        buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/"'
+        buildConfigField "String", "REST_API_PREFIX", '"rest"'
         buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
         buildConfigField "String", "API_VERSION", '"3"'
     }
@@ -65,50 +67,51 @@ android {
         demoProd {
             applicationIdSuffix ".demoProd"
             resValue "string", "app_name_claims", "Claims Demo"
-            buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/rest/"'
+            buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/"'
             dimension 'std'
         }
 
         demoRelease {
             applicationIdSuffix ".demoRelease"
             resValue "string", "app_name_claims", "Claims Release"
-            buildConfigField "String", "API_BASE_URL", '"https://release.openimis.org/rest/"'
+            buildConfigField "String", "API_BASE_URL", '"https://release.openimis.org/"'
             dimension 'std'
         }
 
         chfDev {
             applicationIdSuffix ".chfDev"
             resValue "string", "app_name_claims", "Claims CHF"
-            buildConfigField "String", "API_BASE_URL", '"http://chf-dev.swisstph-mis.ch/rest/"'
+            buildConfigField "String", "API_BASE_URL", '"http://chf-dev.swisstph-mis.ch/"'
             dimension 'std'
         }
 
         chfProd {
             applicationIdSuffix ".chfProd"
             resValue "string", "app_name_claims", "Claims CHF"
-            buildConfigField "String", "API_BASE_URL", '"http://chf-imis.or.tz/restapi/"'
+            buildConfigField "String", "API_BASE_URL", '"http://chf-imis.or.tz/"'
+            buildConfigField "String", "REST_API_PREFIX", '"restapi"'
             dimension 'std'
         }
         mvDev {
             applicationIdSuffix ".mvDev"
             resValue "string", "app_name_claims", "Claims MV"
-            buildConfigField "String", "API_BASE_URL", '"http://imis-mv.swisstph-mis.ch/rest/"'
+            buildConfigField "String", "API_BASE_URL", '"http://imis-mv.swisstph-mis.ch/"'
             dimension 'std'
         }
         bephaDev {
             applicationIdSuffix ".bephaDev"
             resValue "string", "app_name_claims", "Claims BEPHA"
-            buildConfigField "String", "API_BASE_URL", '"http://149.210.235.40/devupgrade/rest/"'
+            buildConfigField "String", "API_BASE_URL", '"http://149.210.235.40/devupgrade/"'
             dimension 'std'
         }
         niger {
             applicationIdSuffix ".niger"
             resValue "string", "app_name_claims", "Claims Niger"
-            buildConfigField "String", "API_BASE_URL", '"http://oiniger.bluesquare.org/rest/"'
+            buildConfigField "String", "API_BASE_URL", '"http://oiniger.bluesquare.org/"'
         }
         tchadDev {
             applicationIdSuffix ".tchadDev"
-            buildConfigField "String", "API_BASE_URL", '"https://imis-tchad-dev.swisstph-mis.ch/rest/"'
+            buildConfigField "String", "API_BASE_URL", '"https://imis-tchad-dev.swisstph-mis.ch/"'
             resValue "string", "app_name_claims", "Claims TCHAD DEV"
             dimension 'std'
         }
@@ -126,10 +129,11 @@ android {
         }
         mauritaniaTrain {
             applicationIdSuffix ".mauritaniaTrain"
-            buildConfigField "String", "API_BASE_URL", '"https://formation.cnass-mauritanie.swisstph-mis.ch/rest/"'
+            buildConfigField "String", "API_BASE_URL", '"https://formation.cnass-mauritanie.swisstph-mis.ch/"'
             resValue "string", "app_name_claims", "Claims CNASS TRAIN"
             dimension = 'std'
         }
+
     }
 
     sourceSets {
@@ -177,6 +181,18 @@ android {
     }
 }
 
+apollo {
+    service("service") {
+        packageName.set("org.openimis.imisclaims")
+    }
+    customTypeMapping = [
+            "Date" : "java.util.Date",
+            "DateTime" : "java.util.Date",
+            "Decimal": "java.lang.Double",
+    ]
+}
+
+
 // Apply custom flavours
 if(file('custom-flavours.gradle').exists()){
     apply from: 'custom-flavours.gradle'
@@ -184,20 +200,22 @@ if(file('custom-flavours.gradle').exists()){
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:support-annotations:28.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
+    implementation 'androidx.annotation:annotation:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.zxing:core:3.3.0'
     implementation 'com.embarkmobile:zxing-android-minimal:1.2.1@aar'
     implementation 'commons-io:commons-io:2.11.0'
-    implementation 'com.android.support:design:28.0.0'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'android.arch.lifecycle:livedata:1.1.1'
-    implementation 'android.arch.lifecycle:viewmodel:1.1.1'
-    implementation 'org.apache.httpcomponents:httpclient:4.5.9'
-    implementation 'org.apache.httpcomponents:httpcore:4.4.11'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
+    implementation('com.apollographql.apollo:apollo-runtime:2.5.14')
+    implementation ('com.apollographql.apollo:apollo-android-support:2.5.14'){
+        because("Apollo 3+ only works with Kotlin coroutines")
+    }
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
     implementation group: 'com.squareup.picasso', name: 'picasso', version: '2.71828'
     implementation group: 'net.lingala.zip4j', name: 'zip4j', version: '1.2.7'
 

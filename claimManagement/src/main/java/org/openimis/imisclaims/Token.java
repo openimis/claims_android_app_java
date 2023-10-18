@@ -12,6 +12,14 @@ import java.util.Date;
 import java.util.Locale;
 
 public class Token {
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX", Locale.US);
+
+    // It's inefficient but it's to stay backward compatible without some logic to migrate the old
+    // file to store the value in long.
+    public void saveTokenText(String token, long validTo) {
+        saveTokenText(token, format.format(new Date(validTo)));
+    }
+
     public void saveTokenText(String token, String validTo) {
         Global global = Global.getGlobal();
         String dir = global.getSubdirectory("Authentications");
@@ -73,7 +81,6 @@ public class Token {
         }
 
         try {
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX", Locale.US);
             Date expiryDate = format.parse(validTo);
             Date now = new Date();
 

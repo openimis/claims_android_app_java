@@ -1,51 +1,30 @@
 package org.openimis.imisclaims;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
+import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.openimis.imisclaims.domain.entity.Claim;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Claims extends ImisActivity {
+    private static final String CLAIMS_EXTRA = "claims";
 
-    ClaimsAdapter claimsAdapter;
-    RecyclerView listOfClaims;
-    JSONArray claimJson;
-
-    String claims = "";
-
-    JSONObject object = null;
+    public static Intent newIntent(Context context, List<Claim> claims) {
+        return new Intent(context, Claims.class)
+                .putParcelableArrayListExtra(CLAIMS_EXTRA, new ArrayList<>(claims));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_claims);
-
         actionBar.setTitle(getResources().getString(R.string.claims));
-
-        Intent intent = getIntent();
-        claims = intent.getStringExtra("claims");
-
-        try {
-            object = new JSONObject(claims);
-            claimJson = new JSONArray(object.getString("data"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        fillClaims();
-    }
-
-    public void fillClaims() {
-        LayoutInflater li = LayoutInflater.from(Claims.this);
-        View promptsView = li.inflate(R.layout.activity_search_claims, null);
-        listOfClaims = (RecyclerView) findViewById(R.id.listOfClaims);
-        claimsAdapter = new ClaimsAdapter(this, claimJson);
-        listOfClaims.setLayoutManager(new LinearLayoutManager(this));
-        listOfClaims.setAdapter(claimsAdapter);
+        ((RecyclerView) findViewById(R.id.listOfClaims)).setAdapter(
+                new ClaimsAdapter(getIntent().getParcelableArrayListExtra(CLAIMS_EXTRA))
+        );
     }
 }
