@@ -1,11 +1,9 @@
 package org.openimis.imisclaims.network.okhttp;
 
-import android.view.textclassifier.TextLinks;
-
 import androidx.annotation.NonNull;
 
 import org.openimis.imisclaims.Global;
-import org.openimis.imisclaims.Token;
+import org.openimis.imisclaims.repository.LoginRepository;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -26,13 +24,14 @@ public class AuthorizationInterceptor implements Interceptor {
     @NonNull
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
-        Token token = global.getJWTToken();
-        if (token != null && token.isTokenValidJWT()) {
+        LoginRepository loginRepository = global.getLoginRepository();
+        String token = loginRepository.getToken();
+        if (token != null) {
             Request.Builder builder = chain.request().newBuilder();
-            builder.addHeader("Authorization", "bearer " + token.getTokenText().trim());
+            builder.addHeader("Authorization", "bearer " + token.trim());
             Response response = chain.proceed(builder.build());
             if (response.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                global.getJWTToken().clearToken();
+                loginRepository.saveToken(null, null);
             }
             return response;
         }

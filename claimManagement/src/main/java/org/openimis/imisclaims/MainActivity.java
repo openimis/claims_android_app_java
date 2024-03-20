@@ -325,7 +325,7 @@ public class MainActivity extends ImisActivity {
         if (global.isLoggedIn()) {
             progressDialog = ProgressDialog.show(this, getResources().getString(R.string.Logout), getResources().getString(R.string.InProgress));
             loginText.setText(R.string.Login);
-            runOnNewThread(() -> global.getJWTToken().clearToken(),
+            runOnNewThread(() -> global.getLoginRepository().saveToken(null, null),
                     () -> progressDialog.dismiss(),
                     500);
         } else {
