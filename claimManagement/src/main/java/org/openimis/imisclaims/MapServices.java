@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class MapServices extends ImisActivity {
     ListView lvMapServices;
-    CheckBox chkAll, chk;
+    CheckBox chkAll;
     EditText etSearchServices;
 
     ArrayList<HashMap<String, Object>> ServiceList = new ArrayList<>();
@@ -53,7 +53,6 @@ public class MapServices extends ImisActivity {
 
         lvMapServices = (ListView) findViewById(R.id.lvMapServices);
         chkAll = (CheckBox) findViewById(R.id.chkAllServices);
-        chk = (CheckBox) findViewById(R.id.chkMap);
         etSearchServices = (EditText) findViewById(R.id.etSearchServices);
 
         etSearchServices.addTextChangedListener(new TextWatcher() {
@@ -322,18 +321,16 @@ public class MapServices extends ImisActivity {
                 constraint = constraint.toString().toLowerCase();
                 FilterResults results = new FilterResults();
                 ArrayList<HashMap<String, Object>> FilteredItems = new ArrayList<HashMap<String, Object>>();
-                ;
 
-                if (constraint != null && constraint.toString().length() > 0) {
-
+                if (!constraint.toString().isEmpty()) {
                     for (int i = 0; i < OriginalList.size(); i++) {
                         HashMap<String, Object> oItem = OriginalList.get(i);
                         if (oItem.get("Code").toString().toLowerCase().contains(constraint) || oItem.get("Name").toString().toLowerCase().contains(constraint)) {
                             FilteredItems.add(oItem);
                         }
-                        results.count = FilteredItems.size();
-                        results.values = FilteredItems;
                     }
+                    results.count = FilteredItems.size();
+                    results.values = FilteredItems;
                 } else {
                     synchronized (this) {
                         results.values = OriginalList;

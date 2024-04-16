@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+
 import androidx.appcompat.view.menu.MenuBuilder;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -329,18 +331,16 @@ public class MapItems extends ImisActivity {
                 constraint = constraint.toString().toLowerCase();
                 FilterResults results = new FilterResults();
                 ArrayList<HashMap<String, Object>> FilteredItems = new ArrayList<HashMap<String, Object>>();
-                ;
 
-                if (constraint != null && constraint.toString().length() > 0) {
-
+                if (!constraint.toString().isEmpty()) {
                     for (int i = 0; i < OriginalList.size(); i++) {
                         HashMap<String, Object> oItem = OriginalList.get(i);
                         if (oItem.get("Code").toString().toLowerCase().contains(constraint) || oItem.get("Name").toString().toLowerCase().contains(constraint)) {
                             FilteredItems.add(oItem);
                         }
-                        results.count = FilteredItems.size();
-                        results.values = FilteredItems;
                     }
+                    results.count = FilteredItems.size();
+                    results.values = FilteredItems;
                 } else {
                     synchronized (this) {
                         results.values = OriginalList;
