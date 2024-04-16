@@ -347,7 +347,6 @@ public class MainActivity extends ImisActivity {
                     ClaimAdminDialogBox();
                 }
             }
-
         }
     }
 
@@ -514,7 +513,10 @@ public class MainActivity extends ImisActivity {
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
-                    runOnUiThread(() -> progressDialog.dismiss());
+                    runOnUiThread(() -> {
+                        ErrorDialogBox(e.getMessage());
+                        progressDialog.dismiss();
+                    });
                 }
             });
             thread.start();

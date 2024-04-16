@@ -8,6 +8,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -32,13 +35,20 @@ import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.util.DateUtils;
 import org.openimis.imisclaims.util.TextViewUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
 public class ClaimActivity extends ImisActivity {
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
     private static final String LOG_TAG = "CLAIM";
     private static final int REQUEST_SCAN_QR_CODE = 1;
     static final int StartDate_Dialog_ID = 0;
@@ -184,6 +194,33 @@ public class ClaimActivity extends ImisActivity {
         // hfCode and adminCode not editable
         disableView(etHealthFacility);
         disableView(etClaimAdmin);
+        if (BuildConfig.GENERATE_CLAIM_NUMBER) {
+            disableView(etClaimCode);
+            etClaimCode.setFilters(new InputFilter[0]);
+            TextWatcher watcher = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    //
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    //
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String hfCode = etHealthFacility.getText().toString();
+                    String insureeNumber = etInsureeNumber.getText().toString();
+                    if (hfCode.isEmpty() || insureeNumber.isEmpty()) {
+                        return;
+                    }
+                    etClaimCode.setText(generateClaimNumber(hfCode, insureeNumber));
+                }
+            };
+            etHealthFacility.addTextChangedListener(watcher);
+            etInsureeNumber.addTextChangedListener(watcher);
+        }
 
         Intent intent = getIntent();
 
@@ -374,7 +411,11 @@ public class ClaimActivity extends ImisActivity {
         etDiagnosis3.setText("");
         etDiagnosis4.setText("");
         rgVisitType.clearCheck();
-        etClaimCode.requestFocus();
+        if (!BuildConfig.GENERATE_CLAIM_NUMBER) {
+            etClaimCode.requestFocus();
+        } else {
+            etGuaranteeNo.requestFocus();
+        }
     }
 
     private void disableForm() {
@@ -389,7 +430,6 @@ public class ClaimActivity extends ImisActivity {
         disableView(etDiagnosis3);
         disableView(etDiagnosis4);
         disableView(rgVisitType);
-        disableView(etClaimCode);
         disableView(btnPost);
         disableView(rbEmergency);
         disableView(rbReferral);
@@ -589,7 +629,7 @@ public class ClaimActivity extends ImisActivity {
             return false;
         }
 
-        if (etClaimCode.getText().length() == 0) {
+        if (getClaimCode().isEmpty()) {
             showValidationDialog(etClaimCode, getResources().getString(R.string.MissingClaimCode));
             return false;
         }
@@ -694,7 +734,7 @@ public class ClaimActivity extends ImisActivity {
         claimCV.put("ClaimDate", claimDate);
         claimCV.put("HFCode", etHealthFacility.getText().toString());
         claimCV.put("ClaimAdmin", etClaimAdmin.getText().toString());
-        claimCV.put("ClaimCode", etClaimCode.getText().toString());
+        claimCV.put("ClaimCode", getClaimCode());
         claimCV.put("GuaranteeNumber", etGuaranteeNo.getText().toString());
         claimCV.put("InsureeNumber", etInsureeNumber.getText().toString());
         claimCV.put("StartDate", etStartDate.getText().toString());
@@ -734,5 +774,27 @@ public class ClaimActivity extends ImisActivity {
 
         sqlHandler.saveClaim(claimCV, claimItemCVs, claimServiceCVs);
         return true;
+    }
+
+    @NonNull
+    private String getClaimCode() {
+        String input = etClaimCode.getText().toString();
+        if (!input.isEmpty()) {
+            return input;
+        }
+        if (BuildConfig.GENERATE_CLAIM_NUMBER) {
+            String hfCode = etHealthFacility.getText().toString() ;
+            String insureeNumber = etInsureeNumber.getText().toString();
+            return generateClaimNumber(hfCode, insureeNumber);
+        }
+        return "";
+    }
+
+    private String generateClaimNumber(@NonNull String hfCode, @NonNull String insureeNumber) {
+        return String.format(
+                Locale.ENGLISH,
+                "%1$s-%2$s-%3$s",
+                hfCode, insureeNumber, dateFormat.format(new Date())
+        );
     }
 }

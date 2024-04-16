@@ -61,6 +61,8 @@ android {
         buildConfigField "String", "REST_API_PREFIX", '"rest"'
         buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
         buildConfigField "String", "API_VERSION", '"3"'
+        buildConfigField "boolean", "DISABLE_PRICE_EDITION", 'false'
+        buildConfigField "boolean", "GENERATE_CLAIM_NUMBER", 'false'
     }
 
     productFlavors {
@@ -133,7 +135,14 @@ android {
             resValue "string", "app_name_claims", "Claims CNASS TRAIN"
             dimension = 'std'
         }
-
+        gambia {
+            applicationIdSuffix ".gambia"
+            buildConfigField "String", "API_BASE_URL", '"https://gambiatest.bluesquare.org/"'
+            resValue "string", "app_name_claims", "Claims Gambia"
+            dimension = 'std'
+            buildConfigField "boolean", "DISABLE_PRICE_EDITION", 'true'
+            buildConfigField "boolean", "GENERATE_CLAIM_NUMBER", 'true'
+        }
     }
 
     sourceSets {
