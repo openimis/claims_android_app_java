@@ -137,7 +137,7 @@ android {
         }
         gambia {
             applicationIdSuffix ".gambia"
-            buildConfigField "String", "API_BASE_URL", '"https://gambiatest.bluesquare.org/"'
+            buildConfigField "String", "API_BASE_URL", '"https://openimis.nhia.gm/"'
             resValue "string", "app_name_claims", "Claims Gambia"
             dimension = 'std'
             buildConfigField "boolean", "DISABLE_PRICE_EDITION", 'true'
