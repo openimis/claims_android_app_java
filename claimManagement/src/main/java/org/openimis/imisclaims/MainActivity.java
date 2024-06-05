@@ -313,12 +313,49 @@ public class MainActivity extends ImisActivity {
                 getResources().getString(R.string.AreYouSure),
                 (dialog, i) -> {
                     try {
-                        doLoggedIn(() -> DownLoadDiagnosesServicesItems(global.getOfficerCode()));
+                        doLoggedIn(() -> refreshData());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 },
                 (dialog, i) -> dialog.cancel());
+    }
+
+    private void refreshData() {
+        progressDialog = ProgressDialog.show(this, getResources().getString(R.string.Checking_For_Updates), null);
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    sqlHandler.ClearAll("tblControls");
+                    List<Control> controls = new FetchControls().execute();
+                    for (Control control : controls) {
+                        sqlHandler.InsertControls(control.getName(), control.getAdjustability());
+                    }
+                    List<ClaimAdmin> claimAdmins = new FetchClaimAdmins().execute();
+                    sqlHandler.ClearAll("tblClaimAdmins");
+                    for (ClaimAdmin claimAdmin : claimAdmins) {
+                        sqlHandler.InsertClaimAdmins(
+                                claimAdmin.getClaimAdminCode(),
+                                claimAdmin.getHealthFacilityCode(),
+                                claimAdmin.getDisplayName()
+                        );
+                        if (claimAdmin.getClaimAdminCode().equals(global.getOfficerCode())) {
+                            global.setOfficerHealthFacility(claimAdmin.getHealthFacilityCode());
+                        }
+                    }
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        DownLoadDiagnosesServicesItems(global.getOfficerCode());
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(MainActivity.this, e.getMessage() + "-" + getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                    });
+                }
+            }
+        }.start();
     }
 
     public void changeLoginState() {
