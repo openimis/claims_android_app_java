@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openimis.imisclaims.BuildConfig;
 import org.openimis.imisclaims.domain.entity.PendingClaim;
 import org.openimis.imisclaims.util.DateUtils;
 
@@ -101,7 +102,7 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Boole
         jsonObject.put("provider", code("Organization", object.getHealthFacilityCode()));
         jsonObject.put("status", "active");
         JSONObject totalJson = new JSONObject();
-        totalJson.put("currency", "$");
+        totalJson.put("currency", BuildConfig.CURRENCY);
         totalJson.put("value", total);
         jsonObject.put("total", totalJson);
         jsonObject.put("use", "claim");
@@ -153,7 +154,7 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Boole
         object.put("quantity", quantity);
         object.put("sequence", sequence);
         JSONObject unitPrice = new JSONObject();
-        unitPrice.put("currency", "$");
+        unitPrice.put("currency", BuildConfig.CURRENCY);
         unitPrice.put("value", medication.getPrice());
         object.put("unitPrice", unitPrice);
         return object;
@@ -177,7 +178,7 @@ public class PostNewClaimRequest extends BaseFHIRPostRequest<PendingClaim, Boole
         object.put("quantity", quantity);
         object.put("sequence", sequence);
         JSONObject unitPrice = new JSONObject();
-        unitPrice.put("currency", "$");
+        unitPrice.put("currency", BuildConfig.CURRENCY);
         unitPrice.put("value", service.getPrice());
         object.put("unitPrice", unitPrice);
         return object;

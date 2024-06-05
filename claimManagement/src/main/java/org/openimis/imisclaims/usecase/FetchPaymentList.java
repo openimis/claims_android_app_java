@@ -3,6 +3,7 @@ package org.openimis.imisclaims.usecase;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
+import org.openimis.imisclaims.BuildConfig;
 import org.openimis.imisclaims.GetPaymentListQuery;
 import org.openimis.imisclaims.domain.entity.Medication;
 import org.openimis.imisclaims.domain.entity.PaymentList;
@@ -49,7 +50,7 @@ public class FetchPaymentList {
                 /* code = */ service.code(),
                 /* name = */ service.name(),
                 /* price = */ service.price(),
-                /* currency = */ "$"
+                /* currency = */ BuildConfig.CURRENCY
         );
     }
 
@@ -60,7 +61,7 @@ public class FetchPaymentList {
                 /* code = */ item.code(),
                 /* name = */ item.name(),
                 /* price = */ item.price(),
-                /* currency = */ "$"
+                /* currency = */ BuildConfig.CURRENCY
         );
     }
 }

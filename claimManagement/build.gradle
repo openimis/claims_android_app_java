@@ -63,6 +63,8 @@ android {
         buildConfigField "String", "API_VERSION", '"3"'
         buildConfigField "boolean", "DISABLE_PRICE_EDITION", 'false'
         buildConfigField "boolean", "GENERATE_CLAIM_NUMBER", 'false'
+        buildConfigField "String", "CURRENCY", '"$"'
+
     }
 
     productFlavors {
@@ -142,6 +144,7 @@ android {
             dimension = 'std'
             buildConfigField "boolean", "DISABLE_PRICE_EDITION", 'true'
             buildConfigField "boolean", "GENERATE_CLAIM_NUMBER", 'true'
+            buildConfigField "String", "CURRENCY", '"D"'
         }
     }
 

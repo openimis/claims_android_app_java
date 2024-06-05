@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import org.openimis.imisclaims.BuildConfig;
 import org.openimis.imisclaims.GetClaimsQuery;
 import org.openimis.imisclaims.domain.entity.Claim;
 import org.openimis.imisclaims.network.request.GetClaimsGraphQLRequest;
@@ -147,7 +148,7 @@ public class FetchClaims {
                 /* code = */ service.service().code(),
                 /* name = */ service.service().name(),
                 /* price = */ service.service().price(),
-                /* currency = */ "$",
+                /* currency = */ BuildConfig.CURRENCY,
                 /* quantityProvided = */ service.qtyProvided().toString(),
                 /* quantityApproved = */ service.qtyApproved() != null ? service.qtyApproved().toString() : null,
                 /* priceAdjusted = */ service.priceAdjusted() != null ? service.priceAdjusted().toString() : null,
@@ -162,7 +163,7 @@ public class FetchClaims {
                 /* code = */ item.item().code(),
                 /* name = */ item.item().name(),
                 /* price = */ item.item().price(),
-                /* currency = */ "$",
+                /* currency = */ BuildConfig.CURRENCY,
                 /* quantityProvided = */ item.qtyProvided().toString(),
                 /* quantityApproved = */ item.qtyApproved() != null ? item.qtyApproved().toString() : null,
                 /* priceAdjusted = */ item.priceAdjusted() != null ? item.priceAdjusted().toString() : null,
