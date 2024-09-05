@@ -111,7 +111,7 @@ android {
         niger {
             applicationIdSuffix ".niger"
             resValue "string", "app_name_claims", "Claims Niger"
-            buildConfigField "String", "API_BASE_URL", '"https://imis.amd.ne/"'
+            buildConfigField "String", "API_BASE_URL", '"https://imis.msppas.ne/"'
         }
         tchadDev {
             applicationIdSuffix ".tchadDev"
