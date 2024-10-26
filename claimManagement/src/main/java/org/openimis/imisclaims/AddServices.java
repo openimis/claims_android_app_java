@@ -92,7 +92,7 @@ public class AddServices extends ImisActivity {
                     String Code = cursor.getString(itemColumnIndex);
                     String Name = cursor.getString(descColumnIndex);
                     packageType = sqlHandler.getPackageType(Code);
-                    String id = sqlHandler.getId(Code);
+                    String id = sqlHandler.getServiceId(Code);
 
                     oService = new HashMap<>();
                     oService.put("Code", Code);

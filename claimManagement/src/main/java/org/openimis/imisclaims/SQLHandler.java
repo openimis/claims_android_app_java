@@ -692,7 +692,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         return packageType;
     }
 
-    public String getId(String code) {
+    public String getServiceId(String code) {
         String id = "";
         try (Cursor c = db.query("tblServices", new String[]{"Id"}, "LOWER(Code) = LOWER(?)", new String[]{code}, null, null, null, "1")) {
             c.moveToFirst();
@@ -763,102 +763,6 @@ public class SQLHandler extends SQLiteOpenHelper {
         }
     }
 
-    public JSONArray getServices() {
-        String nullOverride="";
-        JSONArray resultSet = new JSONArray();
-        try {
-            String query = "SELECT * FROM tblServices ";
-            Cursor cursor1 = db.rawQuery(query, null);
-            cursor1.moveToFirst();
-            // looping through all rows
-            while (!cursor1.isAfterLast()) {
-                int totalColumns = cursor1.getColumnCount();
-                JSONObject rowObject = new JSONObject();
-                for (int i = 0; i < totalColumns; i++) {
-                    try {
-                        if (cursor1.getString(i) != null)
-                            rowObject.put(cursor1.getColumnName(i), cursor1.getString(i));
-                        else
-                            rowObject.put(cursor1.getColumnName(i), nullOverride);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.d("Tag Name", e.getMessage());
-                    }
-                }
-                resultSet.put(rowObject);
-                cursor1.moveToNext();
-            }
-            cursor1.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return resultSet;
-    }
-
-    public JSONArray getItems() {
-        String nullOverride="";
-        JSONArray resultSet = new JSONArray();
-        try {
-            String query = "SELECT * FROM tblItems ";
-            Cursor cursor1 = db.rawQuery(query, null);
-            cursor1.moveToFirst();
-            // looping through all rows
-            while (!cursor1.isAfterLast()) {
-                int totalColumns = cursor1.getColumnCount();
-                JSONObject rowObject = new JSONObject();
-                for (int i = 0; i < totalColumns; i++) {
-                    try {
-                        if (cursor1.getString(i) != null)
-                            rowObject.put(cursor1.getColumnName(i), cursor1.getString(i));
-                        else
-                            rowObject.put(cursor1.getColumnName(i), nullOverride);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.d("Tag Name", e.getMessage());
-                    }
-                }
-                resultSet.put(rowObject);
-                cursor1.moveToNext();
-            }
-            cursor1.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return resultSet;
-    }
-
-    public JSONArray getSubServices() {
-        String nullOverride="";
-        JSONArray resultSet = new JSONArray();
-        try {
-            String query = "SELECT * FROM tblSubServices ";
-            Cursor cursor1 = db.rawQuery(query, null);
-            cursor1.moveToFirst();
-            // looping through all rows
-            while (!cursor1.isAfterLast()) {
-                int totalColumns = cursor1.getColumnCount();
-                JSONObject rowObject = new JSONObject();
-                for (int i = 0; i < totalColumns; i++) {
-                    try {
-                        if (cursor1.getString(i) != null)
-                            rowObject.put(cursor1.getColumnName(i), cursor1.getString(i));
-                        else
-                            rowObject.put(cursor1.getColumnName(i), nullOverride);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.d("Tag Name", e.getMessage());
-                    }
-                }
-                resultSet.put(rowObject);
-                cursor1.moveToNext();
-            }
-            cursor1.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return resultSet;
-    }
-
     public JSONArray getSubServicesIds(String id) {
         String nullOverride="";
         JSONArray resultSet = new JSONArray();
@@ -896,38 +800,6 @@ public class SQLHandler extends SQLiteOpenHelper {
         JSONArray resultSet = new JSONArray();
         try {
             String query = "SELECT * FROM tblSubItems WHERE ServiceId = "+ id;
-            Cursor cursor1 = db.rawQuery(query, null);
-            cursor1.moveToFirst();
-            // looping through all rows
-            while (!cursor1.isAfterLast()) {
-                int totalColumns = cursor1.getColumnCount();
-                JSONObject rowObject = new JSONObject();
-                for (int i = 0; i < totalColumns; i++) {
-                    try {
-                        if (cursor1.getString(i) != null)
-                            rowObject.put(cursor1.getColumnName(i), cursor1.getString(i));
-                        else
-                            rowObject.put(cursor1.getColumnName(i), nullOverride);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.d("Tag Name", e.getMessage());
-                    }
-                }
-                resultSet.put(rowObject);
-                cursor1.moveToNext();
-            }
-            cursor1.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return resultSet;
-    }
-
-    public JSONArray getSubItems() {
-        String nullOverride="";
-        JSONArray resultSet = new JSONArray();
-        try {
-            String query = "SELECT * FROM tblSubItems ";
             Cursor cursor1 = db.rawQuery(query, null);
             cursor1.moveToFirst();
             // looping through all rows
@@ -1018,39 +890,4 @@ public class SQLHandler extends SQLiteOpenHelper {
         }
         return resultSet;
     }
-
-    public String getSubServiceQty(String ServId) {
-        String qty = "";
-        try {
-            String query = "SELECT Quantity FROM tblSubServices WHERE ServiceId = " + ServId;
-            Cursor cursor1 = db.rawQuery(query, null);
-            // looping through all rows
-            if (cursor1.moveToFirst()) {
-                do {
-                    qty = cursor1.getString(0);
-                } while (cursor1.moveToNext());
-            }
-        } catch (Exception e) {
-            return qty;
-        }
-        return qty;
-    }
-
-    public String getSubItemQty(String ItemId) {
-        String qty = "";
-        try {
-            String query = "SELECT Quantity FROM tblSubItems WHERE ItemId = " + ItemId;
-            Cursor cursor1 = db.rawQuery(query, null);
-            // looping through all rows
-            if (cursor1.moveToFirst()) {
-                do {
-                    qty = cursor1.getString(0);
-                } while (cursor1.moveToNext());
-            }
-        } catch (Exception e) {
-            return qty;
-        }
-        return qty;
-    }
-
 }

@@ -729,7 +729,7 @@ public class MainActivity extends ImisActivity {
         refreshCount();
     }
 
-    public void downloadServices(@NonNull final String claimAdminCode) {
+    public void downloadServices(@NonNull final String officerCode) {
         if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.Services);
             progressDialog = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
@@ -766,9 +766,7 @@ public class MainActivity extends ImisActivity {
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, getResources().getString(R.string.installed_updates), Toast.LENGTH_LONG).show();
-                            if (claimAdminCode != null) {
-                                DownLoadServicesItemsPriceList(claimAdminCode);
-                            }
+                            DownLoadServicesItemsPriceList(officerCode);
                         });
                     } else {
                         runOnUiThread(() -> {
