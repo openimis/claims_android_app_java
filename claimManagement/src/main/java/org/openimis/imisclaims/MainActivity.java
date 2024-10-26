@@ -48,7 +48,6 @@ import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.usecase.FetchClaimAdmins;
 import org.openimis.imisclaims.usecase.FetchControls;
 import org.openimis.imisclaims.usecase.FetchDiagnosesServicesItems;
-import org.openimis.imisclaims.usecase.FetchMedications;
 import org.openimis.imisclaims.usecase.FetchPaymentList;
 import org.openimis.imisclaims.usecase.FetchServices;
 
@@ -587,6 +586,7 @@ public class MainActivity extends ImisActivity {
                         for (Medication medication : diagnosesServicesMedications.getMedications()) {
                             sqlHandler.InsertReferences(medication.getCode(), medication.getName(), "I", String.valueOf(medication.getPrice()));
                             sqlHandler.InsertMapping(medication.getCode(), medication.getName(), "I");
+                            sqlHandler.InsertItem(medication.getId(),medication.getCode(),medication.getName(), "I", String.valueOf(medication.getPrice()));
                         }
 
                         runOnUiThread(() -> {
@@ -747,7 +747,7 @@ public class MainActivity extends ImisActivity {
                                     String.valueOf(service.getPrice()),
                                     service.getPackageType());
 
-                            if (!service.getSubServices().isEmpty()) {
+                            if (service.getSubServices() != null && !service.getSubServices().isEmpty()) {
                                 List<SubServiceItem> subServices = service.getSubServices();
                                 for (SubServiceItem subService: subServices) {
                                     sqlHandler.InsertSubServices(subService.getId(),
@@ -755,7 +755,7 @@ public class MainActivity extends ImisActivity {
                                 }
                             }
                             //insert subItems
-                            if (service.getSubItems().size() != 0) {
+                            if (service.getSubItems() != null && !service.getSubItems().isEmpty()) {
                                 List<SubServiceItem> subItems = service.getSubItems();
                                 for (SubServiceItem subItem: subItems) {
                                     sqlHandler.InsertSubItems(subItem.getId(),
@@ -765,7 +765,10 @@ public class MainActivity extends ImisActivity {
                         }
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
-                            downloadItems(claimAdminCode);
+                            Toast.makeText(MainActivity.this, getResources().getString(R.string.installed_updates), Toast.LENGTH_LONG).show();
+                            if (claimAdminCode != null) {
+                                DownLoadServicesItemsPriceList(claimAdminCode);
+                            }
                         });
                     } else {
                         runOnUiThread(() -> {
@@ -780,46 +783,6 @@ public class MainActivity extends ImisActivity {
             });
             thread.start();
         }else{
-            ErrorDialogBox(getResources().getString(R.string.CheckInternet));
-        }
-    }
-
-    public void downloadItems(@NonNull final String claimAdminCode) {
-        if (global.isNetworkAvailable()) {
-            String progress_message = getResources().getString(R.string.Items);
-            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
-            Thread thread = new Thread(() -> {
-                try {
-                    List<Medication> items = new FetchMedications().execute();
-                    if (items.size() != 0) {
-                        sqlHandler.ClearAll("tblItems");
-                        for (Medication item : items) {
-                            sqlHandler.InsertItem(
-                                    item.getId(),
-                                    item.getCode(),
-                                    item.getName(), "I",
-                                    String.valueOf(item.getPrice()));
-                        }
-                        runOnUiThread(() -> {
-                            progressDialog.dismiss();
-                            Toast.makeText(MainActivity.this, getResources().getString(R.string.installed_updates), Toast.LENGTH_LONG).show();
-                            if (claimAdminCode != null) {
-                                DownLoadServicesItemsPriceList(claimAdminCode);
-                            }
-                        });
-                    }else {
-                        runOnUiThread(() -> {
-                            progressDialog.dismiss();
-                            Toast.makeText(MainActivity.this, getResources().getString(R.string.downloadFail), Toast.LENGTH_LONG).show();
-                        });
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    runOnUiThread(() -> progressDialog.dismiss());
-                }
-            });
-            thread.start();
-        } else {
             ErrorDialogBox(getResources().getString(R.string.CheckInternet));
         }
     }

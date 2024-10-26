@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 public class Medication implements Parcelable {
 
     @Nullable
-    private final String id;
+    private String id;
     @NonNull
     private final String code;
     @NonNull
@@ -28,6 +28,18 @@ public class Medication implements Parcelable {
             @NonNull String currency
     ){
         this.id = id;
+        this.code = code;
+        this.name = name;
+        this.price = price;
+        this.currency = currency;
+    }
+
+    public Medication(
+            @NonNull String code,
+            @NonNull String name,
+            double price,
+            @NonNull String currency
+    ){
         this.code = code;
         this.name = name;
         this.price = price;

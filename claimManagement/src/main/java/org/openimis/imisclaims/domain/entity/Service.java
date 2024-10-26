@@ -10,8 +10,8 @@ import java.util.List;
 
 public class Service implements Parcelable {
 
-    @Nullable
-    private final String id;
+    @NonNull
+    private String id;
     @NonNull
     private final String code;
     @NonNull
@@ -23,14 +23,14 @@ public class Service implements Parcelable {
     private final String currency;
 
     @Nullable
-    private final List<SubServiceItem> subServices;
+    private List<SubServiceItem> subServices;
     @Nullable
-    private final List<SubServiceItem> subItems;
+    private List<SubServiceItem> subItems;
     @Nullable
-    private final String packageType;
+    private String packageType;
 
     public Service(
-            @Nullable String id,
+            @NonNull String id,
             @NonNull String code,
             @NonNull String name,
             double price,
@@ -47,6 +47,18 @@ public class Service implements Parcelable {
         this.packageType = packageType;
         this.subServices = subServices;
         this.subItems = subItems;
+    }
+
+    public Service(
+            @NonNull String code,
+            @NonNull String name,
+            double price,
+            @NonNull String currency
+    ){
+        this.code = code;
+        this.name = name;
+        this.price = price;
+        this.currency = currency;
     }
 
     protected Service(Parcel in) {
