@@ -122,7 +122,6 @@ public class AddServices extends ImisActivity {
                                 objItem.put("Price", subItemIds.getJSONObject(i).getString("Price"));
                                 subItemArr.put(objItem);
                             }
-                            Log.e("items",sqlHandler.getItems().toString());
                             for (int i = 0; i < subServiceArr.length(); i++) {
                                 JSONObject obj = subServiceArr.getJSONObject(i);
                                 HashMap<String, String> sService = new HashMap<>();

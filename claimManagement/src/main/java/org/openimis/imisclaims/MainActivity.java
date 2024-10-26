@@ -736,31 +736,20 @@ public class MainActivity extends ImisActivity {
             Thread thread = new Thread(() ->{
                 try {
                     List<Service> services = new FetchServices().execute();
-                    if (services.size() != 0) {
-                        //get list of all services in database
-                        //get pricelist service for health facility and user
-                        PaymentList paymentList = new FetchPaymentList().execute(claimAdminCode);
-                        List<Service> servicesPricelist = paymentList.getServices();
+                    if (!services.isEmpty()) {
                         sqlHandler.ClearAll("tblServices");
                         sqlHandler.ClearAll("tblSubServices");
                         sqlHandler.ClearAll("tblSubItems");
                         for (Service service: services) {
-                            String price ="";
-                            //insert user healthfacility services
-                            for(Service serv : servicesPricelist){
-                                if(serv.getCode().equals(service.getCode())){
-                                    price = String.valueOf(serv.getPrice());
-                                }
-                            }
                             sqlHandler.InsertService(service.getId(),
                                     service.getCode(),
                                     service.getName(), "S",
-                                    price,
+                                    String.valueOf(service.getPrice()),
                                     service.getPackageType());
-                            //insert subservices
-                            if (service.getSubServices().size() != 0) {
-                                List<SubServiceItem> subservices = service.getSubServices();
-                                for (SubServiceItem subService: subservices) {
+
+                            if (!service.getSubServices().isEmpty()) {
+                                List<SubServiceItem> subServices = service.getSubServices();
+                                for (SubServiceItem subService: subServices) {
                                     sqlHandler.InsertSubServices(subService.getId(),
                                             service.getId(),String.valueOf(subService.getQty()),subService.getPrice());
                                 }
@@ -803,19 +792,8 @@ public class MainActivity extends ImisActivity {
                 try {
                     List<Medication> items = new FetchMedications().execute();
                     if (items.size() != 0) {
-                        //get pricelist service for health facility and user
-                        //PaymentList paymentList = new FetchPaymentList().execute(claimAdminCode);
-                        //List<Medication> itemsPricelist = paymentList.getMedications();
                         sqlHandler.ClearAll("tblItems");
                         for (Medication item : items) {
-                            //String priceService = "";
-                            //get service price from pricelist
-                            //for (Medication med : itemsPricelist) {
-                            //if (med.getCode().equals(item.getCode())) {
-                            //priceService = String.valueOf(med.getPrice());
-                            //}
-                            //}
-                            //insert item in database
                             sqlHandler.InsertItem(
                                     item.getId(),
                                     item.getCode(),
