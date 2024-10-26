@@ -59,7 +59,6 @@ query GetClaims($claim_administrator_code: String, $status_claim: Int, $visit_da
             code
             name
             price
-            packagetype
           }
         }
         items {
