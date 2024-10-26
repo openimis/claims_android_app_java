@@ -733,6 +733,7 @@ public class ClaimActivity extends ImisActivity {
             claimServiceCV.put("ServiceCode", lvServiceList.get(i).get("Code"));
             claimServiceCV.put("ServicePrice", lvServiceList.get(i).get("Price"));
             claimServiceCV.put("ServiceQuantity", lvServiceList.get(i).get("Quantity"));
+            claimServiceCV.put("ServicePackageType",lvServiceList.get(i).get("PackageType"));
             if (!lvServiceList.get(i).get("PackageType").equals("S")) {
                 claimServiceCV.put("SubServicesItems", lvServiceList.get(i).get("SubServicesItems"));
             }
