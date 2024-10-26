@@ -7,6 +7,8 @@ import org.openimis.imisclaims.domain.entity.Service;
 import org.openimis.imisclaims.domain.entity.SubServiceItem;
 import org.openimis.imisclaims.network.request.GetServicesGraphqlRequest;
 import org.openimis.imisclaims.network.util.Mapper;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 public class FetchServices {
@@ -23,9 +25,21 @@ public class FetchServices {
     @WorkerThread
     @NonNull
     public List<Service> execute() throws Exception {
+        List<Service> services = new ArrayList<>();
+        int page = 0;
+        boolean hasNextPage;
         Mapper<GetServicesQuery.ServiceserviceSet, SubServiceItem> subServiceMapper = new Mapper<>(this::toSubService);
         Mapper<GetServicesQuery.ServicesLinked, SubServiceItem> subItemMapper = new Mapper<>(this::toSubItem);
-        return Mapper.map(request.get().edges(), dto -> toService(dto,subServiceMapper,subItemMapper));
+        do{
+            GetServicesQuery.MedicalServices response = request.get(page);
+            services.addAll(Mapper.map(
+                    response.edges(),
+                    dto -> toService(dto,subServiceMapper,subItemMapper)
+            ));
+            hasNextPage = response.pageInfo().hasNextPage();
+            page = page + 100;
+        }while (hasNextPage);
+        return services;
     }
     private Service toService(
             @NonNull GetServicesQuery.Edge dto,

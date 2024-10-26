@@ -1,5 +1,8 @@
-query GetServices {
-  medicalServices {
+query GetServices ($offset: Int) {
+  medicalServices(offset: $offset) {
+    pageInfo {
+      hasNextPage
+    }
     edges {
       node {
         id

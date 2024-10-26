@@ -132,6 +132,7 @@ public class AddServices extends ImisActivity {
                                 sService.put("QtyMax", obj.getString("QuantityMax"));
                                 lvSServiceList.add(sService);
                             }
+                            Log.e("subItems",subItemArr.toString());
                             for (int i = 0; i < subItemArr.length(); i++) {
                                 JSONObject obj = subItemArr.getJSONObject(i);
                                 HashMap<String, String> sItem = new HashMap<>();

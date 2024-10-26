@@ -1,5 +1,8 @@
-query GetMedications {
-  medicalItems {
+query GetMedications($offset: Int) {
+  medicalItems(offset: $offset) {
+  pageInfo{
+    hasNextPage
+  }
     edges {
       node {
         id
