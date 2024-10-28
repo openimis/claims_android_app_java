@@ -125,7 +125,7 @@ android {
         local {
             applicationIdSuffix ".local"
             resValue "string", "app_name_claims", "Claims Local"
-            buildConfigField "String", "API_BASE_URL", '"http://10.0.2.2:35787/"'
+            buildConfigField "String", "API_BASE_URL", '"http:/10.0.2.2:8000/"'
             dimension 'std'
         }
         cli {
@@ -216,6 +216,7 @@ dependencies {
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.9'
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
     implementation('com.apollographql.apollo:apollo-runtime:2.5.14')

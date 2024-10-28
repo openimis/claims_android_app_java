@@ -1065,6 +1065,7 @@ type ServiceGQLType implements Node {
   name: String!
   type: String!
   level: String!
+  packagetype: String!
   price: Decimal!
   careType: String!
   frequency: Int
@@ -1073,6 +1074,20 @@ type ServiceGQLType implements Node {
   pricelistDetails(offset: Int, before: String, after: String, first: Int, last: Int, servicesPricelist: ID): ServicesPricelistDetailGQLTypeConnection!
   services(offset: Int, before: String, after: String, first: Int, last: Int, id: ID): ProductServiceGQLTypeConnection!
   claimserviceSet: [ClaimServiceGQLType!]!
+  serviceserviceSet: [SubServiceGQLType]
+  servicesLinked: [SubItemGQLType]
+}
+
+type SubServiceGQLType {
+  service: ServiceGQLType
+  qtyProvided: Int!
+  priceAsked: String!
+}
+
+type SubItemGQLType{
+  item: ItemGQLType
+  qtyProvided: Int!
+  priceAsked: String!
 }
 
 type ProductServiceGQLTypeConnection {
