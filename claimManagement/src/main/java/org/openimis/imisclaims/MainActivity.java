@@ -48,6 +48,7 @@ import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.usecase.FetchClaimAdmins;
 import org.openimis.imisclaims.usecase.FetchControls;
 import org.openimis.imisclaims.usecase.FetchDiagnosesServicesItems;
+import org.openimis.imisclaims.usecase.FetchMedications;
 import org.openimis.imisclaims.usecase.FetchPaymentList;
 import org.openimis.imisclaims.usecase.FetchServices;
 
@@ -583,7 +584,8 @@ public class MainActivity extends ImisActivity {
                         }
 
                         //Insert Items
-                        for (Medication medication : diagnosesServicesMedications.getMedications()) {
+                        List<Medication> medications = new FetchMedications().execute();
+                        for (Medication medication : medications) {
                             sqlHandler.InsertReferences(medication.getCode(), medication.getName(), "I", String.valueOf(medication.getPrice()));
                             sqlHandler.InsertMapping(medication.getCode(), medication.getName(), "I");
                             sqlHandler.InsertItem(medication.getId(),medication.getCode(),medication.getName(), "I", String.valueOf(medication.getPrice()));
