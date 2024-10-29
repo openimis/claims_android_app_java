@@ -636,7 +636,6 @@ public class MainActivity extends ImisActivity {
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, getResources().getString(R.string.MapSuccessful), Toast.LENGTH_LONG).show();
-                            downloadServices(claimAdministratorCode);
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
