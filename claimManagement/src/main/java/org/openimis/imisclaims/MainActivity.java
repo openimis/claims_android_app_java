@@ -48,6 +48,7 @@ import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.usecase.FetchClaimAdmins;
 import org.openimis.imisclaims.usecase.FetchControls;
 import org.openimis.imisclaims.usecase.FetchDiagnosesServicesItems;
+import org.openimis.imisclaims.usecase.FetchMedications;
 import org.openimis.imisclaims.usecase.FetchPaymentList;
 import org.openimis.imisclaims.usecase.FetchServices;
 
@@ -636,7 +637,6 @@ public class MainActivity extends ImisActivity {
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, getResources().getString(R.string.MapSuccessful), Toast.LENGTH_LONG).show();
-                            downloadServices(claimAdministratorCode);
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -762,6 +762,43 @@ public class MainActivity extends ImisActivity {
                                             service.getId(), String.valueOf(subItem.getQty()),subItem.getPrice());
                                 }
                             }
+                        }
+                        runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            downloadItems(officerCode);
+                        });
+                    } else {
+                        runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            Toast.makeText(MainActivity.this, getResources().getString(R.string.downloadFail), Toast.LENGTH_LONG).show();
+                        });
+                    }
+                } catch ( Exception e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> progressDialog.dismiss());
+                }
+            });
+            thread.start();
+        }else{
+            ErrorDialogBox(getResources().getString(R.string.CheckInternet));
+        }
+    }
+
+    public void downloadItems(@NonNull final String officerCode) {
+        if (global.isNetworkAvailable()) {
+            String progress_message = getResources().getString(R.string.Items);
+            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
+            Thread thread = new Thread(() -> {
+                try {
+                    List<Medication> items = new FetchMedications().execute();
+                    if (!items.isEmpty()) {
+                        sqlHandler.ClearAll("tblItems");
+                        for (Medication item : items) {
+                            sqlHandler.InsertItem(
+                                    item.getId(),
+                                    item.getCode(),
+                                    item.getName(), "I",
+                                    String.valueOf(item.getPrice()));
                         }
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
