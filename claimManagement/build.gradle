@@ -67,7 +67,7 @@ android {
         demoProd {
             applicationIdSuffix ".demoProd"
             resValue "string", "app_name_claims", "Claims Demo"
-            buildConfigField "String", "API_BASE_URL", '"https://test-csuapps.minsante.cm/"'
+            buildConfigField "String", "API_BASE_URL", '"https://demo.openimis.org/"'
             dimension 'std'
         }
 
