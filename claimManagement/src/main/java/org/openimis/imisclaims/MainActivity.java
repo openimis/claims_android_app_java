@@ -584,7 +584,8 @@ public class MainActivity extends ImisActivity {
                         }
 
                         //Insert Items
-                        for (Medication medication : diagnosesServicesMedications.getMedications()) {
+                        List<Medication> medications = new FetchMedications().execute();
+                        for (Medication medication : medications) {
                             sqlHandler.InsertReferences(medication.getCode(), medication.getName(), "I", String.valueOf(medication.getPrice()));
                             sqlHandler.InsertMapping(medication.getCode(), medication.getName(), "I");
                             sqlHandler.InsertItem(medication.getId(),medication.getCode(),medication.getName(), "I", String.valueOf(medication.getPrice()));
@@ -762,43 +763,6 @@ public class MainActivity extends ImisActivity {
                                             service.getId(), String.valueOf(subItem.getQty()),subItem.getPrice());
                                 }
                             }
-                        }
-                        runOnUiThread(() -> {
-                            progressDialog.dismiss();
-                            downloadItems(officerCode);
-                        });
-                    } else {
-                        runOnUiThread(() -> {
-                            progressDialog.dismiss();
-                            Toast.makeText(MainActivity.this, getResources().getString(R.string.downloadFail), Toast.LENGTH_LONG).show();
-                        });
-                    }
-                } catch ( Exception e) {
-                    e.printStackTrace();
-                    runOnUiThread(() -> progressDialog.dismiss());
-                }
-            });
-            thread.start();
-        }else{
-            ErrorDialogBox(getResources().getString(R.string.CheckInternet));
-        }
-    }
-
-    public void downloadItems(@NonNull final String officerCode) {
-        if (global.isNetworkAvailable()) {
-            String progress_message = getResources().getString(R.string.Items);
-            progressDialog = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
-            Thread thread = new Thread(() -> {
-                try {
-                    List<Medication> items = new FetchMedications().execute();
-                    if (!items.isEmpty()) {
-                        sqlHandler.ClearAll("tblItems");
-                        for (Medication item : items) {
-                            sqlHandler.InsertItem(
-                                    item.getId(),
-                                    item.getCode(),
-                                    item.getName(), "I",
-                                    String.valueOf(item.getPrice()));
                         }
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
