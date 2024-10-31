@@ -61,6 +61,8 @@ android {
         buildConfigField "String", "REST_API_PREFIX", '"rest"'
         buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
         buildConfigField "String", "API_VERSION", '"3"'
+        buildConfigField "boolean", "DISABLE_PRICE_EDITION", 'false'
+        buildConfigField "boolean", "GENERATE_CLAIM_NUMBER", 'false'
     }
 
     productFlavors {
@@ -107,7 +109,7 @@ android {
         niger {
             applicationIdSuffix ".niger"
             resValue "string", "app_name_claims", "Claims Niger"
-            buildConfigField "String", "API_BASE_URL", '"http://oiniger.bluesquare.org/"'
+            buildConfigField "String", "API_BASE_URL", '"https://niger23.bluesquare.org/"'
         }
         tchadDev {
             applicationIdSuffix ".tchadDev"
@@ -133,7 +135,14 @@ android {
             resValue "string", "app_name_claims", "Claims CNASS TRAIN"
             dimension = 'std'
         }
-
+        gambia {
+            applicationIdSuffix ".gambia"
+            buildConfigField "String", "API_BASE_URL", '"https://gambiatest.bluesquare.org/"'
+            resValue "string", "app_name_claims", "Claims Gambia"
+            dimension = 'std'
+            buildConfigField "boolean", "DISABLE_PRICE_EDITION", 'true'
+            buildConfigField "boolean", "GENERATE_CLAIM_NUMBER", 'true'
+        }
     }
 
     sourceSets {
@@ -213,9 +222,6 @@ dependencies {
     implementation ('com.apollographql.apollo:apollo-android-support:2.5.14'){
         because("Apollo 3+ only works with Kotlin coroutines")
     }
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
     implementation group: 'com.squareup.picasso', name: 'picasso', version: '2.71828'
     implementation group: 'net.lingala.zip4j', name: 'zip4j', version: '1.2.7'
 

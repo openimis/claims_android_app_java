@@ -2,6 +2,8 @@ package org.openimis.imisclaims;
 
 import android.util.Base64;
 
+import androidx.annotation.Nullable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,14 +13,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+@Deprecated
 public class Token {
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX", Locale.US);
-
-    // It's inefficient but it's to stay backward compatible without some logic to migrate the old
-    // file to store the value in long.
-    public void saveTokenText(String token, long validTo) {
-        saveTokenText(token, format.format(new Date(validTo)));
-    }
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX", Locale.US);
 
     public void saveTokenText(String token, String validTo) {
         Global global = Global.getGlobal();
@@ -32,18 +29,35 @@ public class Token {
     }
 
     public String getTokenText() {
-        String token = "";
 
         Global global = Global.getGlobal();
         String dir = global.getSubdirectory("Authentications");
-
-        if (isTokenValidJWT()) {
-            token = global.getFileText(dir, "token.txt");
+        String token = global.getFileText(dir, "token.txt");
+        if (isTokenValidJWT(token)) {
+            return token;
         } else {
             clearToken();
         }
 
-        return token;
+        return null;
+    }
+
+    @Nullable
+    public Date getValidity() {
+        Global global = Global.getGlobal();
+        String dir = global.getSubdirectory("Authentications");
+
+        String validTo = global.getFileText(dir, "validTo.txt");
+        if (validTo == null || "".equals(validTo)) {
+            return null;
+        }
+
+        try {
+            return format.parse(validTo);
+        } catch (ParseException | NullPointerException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void clearToken() {
@@ -52,12 +66,14 @@ public class Token {
 
     //How to validate JWT:
     //https://datatracker.ietf.org/doc/html/rfc7519#section-7.2
+
     public boolean isTokenValidJWT() {
         Global global = Global.getGlobal();
         String dir = global.getSubdirectory("Authentications");
+        return isTokenValidJWT(Global.getGlobal().getFileText(dir, "token.txt"));
+    }
 
-        String validTo = global.getFileText(dir, "validTo.txt");
-        String token = global.getFileText(dir, "token.txt");
+    private boolean isTokenValidJWT(@Nullable String token) {
 
         if (token == null || "".equals(token))
             return false;
@@ -75,23 +91,13 @@ public class Token {
         } catch (JSONException e) {
             return false;
         }
-
-        if (validTo == null || "".equals(validTo)) {
+        Date expiryDate = getValidity();
+        if (expiryDate == null) {
             return false;
         }
 
-        try {
-            Date expiryDate = format.parse(validTo);
-            Date now = new Date();
-
-            if (now.after(expiryDate)) {
-                return false;
-            }
-        } catch (ParseException | NullPointerException e) {
-            e.printStackTrace();
-        }
-
-        return true;
+        Date now = new Date();
+        return !now.after(expiryDate);
     }
 }
 

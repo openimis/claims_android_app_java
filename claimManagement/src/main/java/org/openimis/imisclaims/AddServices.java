@@ -37,6 +37,7 @@ public class AddServices extends ImisActivity {
         lvServices = findViewById(R.id.lvServices);
         etSQuantity = findViewById(R.id.etSQuantity);
         etSAmount = findViewById(R.id.etSAmount);
+        disableView(etSAmount);
         etServices = findViewById(R.id.etService);
         btnAdd = findViewById(R.id.btnAdd);
 

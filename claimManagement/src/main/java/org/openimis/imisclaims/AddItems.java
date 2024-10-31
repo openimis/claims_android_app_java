@@ -39,6 +39,7 @@ public class AddItems extends ImisActivity {
         lvItems = findViewById(R.id.lvItems);
         etQuantity = findViewById(R.id.etQuantity);
         etAmount = findViewById(R.id.etAmount);
+        disableView(etAmount);
         etItems = findViewById(R.id.etItems);
         btnAdd = findViewById(R.id.btnAdd);
 
