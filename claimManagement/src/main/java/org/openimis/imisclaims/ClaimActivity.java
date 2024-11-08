@@ -71,7 +71,7 @@ public class ClaimActivity extends ImisActivity {
     AutoCompleteTextView etDiagnosis, etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4, etReferalHF;
     TextView tvItemTotal, tvServiceTotal;
     Button btnPost, btnNew;
-    RadioGroup rgVisitType, etPatientCondition;
+    RadioGroup rgVisitType, rgPatientCondition;
     RadioButton rbEmergency, rbReferral, rbOther, rbHealed, rbDiseased, rbEscaped, rbReferal;
     ImageButton btnScan;
     CheckBox etPreAuthorization;
@@ -112,7 +112,7 @@ public class ClaimActivity extends ImisActivity {
         rbReferral = findViewById(R.id.rbReferral);
         rbOther = findViewById(R.id.rbOther);
         etReferalHF = findViewById(R.id.etReferalHF);
-        etPatientCondition = findViewById(R.id.rgPatientCondition);
+        rgPatientCondition = findViewById(R.id.rgPatientCondition);
         rbDiseased = findViewById(R.id.rbDeceased);
         rbEscaped = findViewById(R.id.rbEscaped);
         rbHealed = findViewById(R.id.rbHealed);
@@ -389,7 +389,10 @@ public class ClaimActivity extends ImisActivity {
         etDiagnosis2.setText("");
         etDiagnosis3.setText("");
         etDiagnosis4.setText("");
+        etPreAuthorization.setChecked(false);
+        etReferalHF.setText("");
         rgVisitType.clearCheck();
+        rgPatientCondition.clearCheck();
         etClaimCode.requestFocus();
     }
 
@@ -489,6 +492,7 @@ public class ClaimActivity extends ImisActivity {
     private void fillClaimFromDatabase(String claimUUID) {
         new Thread(() -> {
             JSONObject claimObject = sqlHandler.getClaim(claimUUID);
+            Log.e("claim", claimObject.toString());
             if (claimObject == null) {
                 showDialog(getResources().getString(R.string.ClaimNotFound), (dialog, which) -> finish());
             } else {
@@ -515,6 +519,13 @@ public class ClaimActivity extends ImisActivity {
                         etDiagnosis2.setText(claimDetails.getString("ICDCode2"));
                         etDiagnosis3.setText(claimDetails.getString("ICDCode3"));
                         etDiagnosis4.setText(claimDetails.getString("ICDCode4"));
+                        etReferalHF.setText(claimDetails.getString("ReferalHF"));
+
+                        if(claimDetails.getInt("PreAuthorization") == 1){
+                            etPreAuthorization.setChecked(true);
+                        }else{
+                            etPreAuthorization.setChecked(false);
+                        }
 
                         switch (claimDetails.getString("VisitType")) {
                             case "E":
@@ -528,6 +539,23 @@ public class ClaimActivity extends ImisActivity {
                                 break;
                             default:
                                 rgVisitType.clearCheck();
+                        }
+
+                        switch (claimDetails.getString("PatientCondition")) {
+                            case "H":
+                                rgPatientCondition.check(R.id.rbHealed);
+                                break;
+                            case "D":
+                                rgPatientCondition.check(R.id.rbDeceased);
+                                break;
+                            case "E":
+                                rgPatientCondition.check(R.id.rbEscaped);
+                                break;
+                            case "R":
+                                rgPatientCondition.check(R.id.rbReferal);
+                                break;
+                            default:
+                                rgPatientCondition.clearCheck();
                         }
 
                         lvItemList.clear();
@@ -709,6 +737,12 @@ public class ClaimActivity extends ImisActivity {
         selectedTypeButton = findViewById(SelectedId);
         String visitType = selectedTypeButton.getTag().toString();
 
+        int PatientConditionId;
+        PatientConditionId = rgPatientCondition.getCheckedRadioButtonId();
+        RadioButton selectedPatientCondition;
+        selectedPatientCondition = findViewById(PatientConditionId);
+        String patientCondition = selectedPatientCondition.getTag().toString();
+
         ContentValues claimCV = new ContentValues();
 
         claimCV.put("ClaimUUID", claimUUID);
@@ -728,6 +762,14 @@ public class ClaimActivity extends ImisActivity {
         claimCV.put("ICDCode3", etDiagnosis3.getText().toString());
         claimCV.put("ICDCode4", etDiagnosis4.getText().toString());
         claimCV.put("VisitType", visitType);
+        claimCV.put("ReferalHF", etReferalHF.getText().toString());
+        claimCV.put("PatientCondition", patientCondition);
+
+        if(etPreAuthorization.isChecked()){
+            claimCV.put("PreAuthorization", 1);
+        }else{
+            claimCV.put("PreAuthorization", 0);
+        }
 
         ArrayList<ContentValues> claimItemCVs = new ArrayList<>(lvItemList.size());
         for (int i = 0; i < lvItemList.size(); i++) {
