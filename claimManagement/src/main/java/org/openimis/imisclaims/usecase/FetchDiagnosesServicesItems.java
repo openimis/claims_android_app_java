@@ -87,6 +87,7 @@ public class FetchDiagnosesServicesItems {
     @NonNull
     private Medication toMedication(@NonNull MedicationDto dto) {
         return new Medication(
+                /* Id = */ dto.getId(),
                 /* code = */ IdentifierDto.getCode(dto.getIdentifiers()),
                 /* name = */ dto.getTitle(),
                 /* price = */ dto.getPrice(),
