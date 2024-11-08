@@ -48,6 +48,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     private static final String CreateTableItems = "CREATE TABLE IF NOT EXISTS tblItems(Id text, Code text, Name text, Type text, Price text);";
     private static final String CreateTableSubServices = "CREATE TABLE IF NOT EXISTS tblSubServices(ServiceId text, ServiceLinked text, Quantity text, Price text);";
     private static final String CreateTableSubItems = "CREATE TABLE IF NOT EXISTS tblSubItems(ItemId text, ServiceId text, Quantity text, Price text);";
+    private static final String CreateTableHealthFacilities = "CREATE TABLE IF NOT EXISTS tblHealthFacilities(Id TEXT, Code TEXT, Name TEXT);";
 
     public final String REFERENCE_UNKNOWN;
 
@@ -198,6 +199,15 @@ public class SQLHandler extends SQLiteOpenHelper {
         return c;
     }
 
+    public Cursor SearchHF(String InputText) {
+        Cursor c = db.rawQuery("SELECT Code as _id,Code, Name FROM tblHealthFacilities WHERE Code LIKE '%" + InputText + "%' OR Name LIKE '%" + InputText + "%'", null);
+        if (c != null) {
+            c.moveToFirst();
+        }
+
+        return c;
+    }
+
     public String getDiseaseCode(String disease) {
         String code = "";
         try {
@@ -321,7 +331,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         String[] commands = {CreateTableControls, CreateTableReferences, CreateTableClaimAdmins,
                 createTablePolicyInquiry, createTableClaimDetails, createTableClaimItems, createTableClaimServices,
                 createTableClaimUploadStatus, CreateTableSubItems,
-                CreateTableSubServices,CreateTableItems,CreateTableServices};
+                CreateTableSubServices,CreateTableItems,CreateTableServices, CreateTableHealthFacilities};
         for (String command : commands) {
             try {
                 db.execSQL(command);
@@ -889,5 +899,17 @@ public class SQLHandler extends SQLiteOpenHelper {
             e.printStackTrace();
         }
         return resultSet;
+    }
+
+    public void InsertHealthFacilities(String Id, String Code, String Name) {
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("Id", Id);
+            cv.put("Code", Code);
+            cv.put("Name", Name);
+            db.insert("tblHealthFacilities", null, cv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

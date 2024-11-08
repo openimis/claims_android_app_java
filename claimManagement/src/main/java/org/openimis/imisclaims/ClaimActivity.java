@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -67,12 +68,13 @@ public class ClaimActivity extends ImisActivity {
     int TotalItemService;
 
     EditText etStartDate, etEndDate, etClaimCode, etHealthFacility, etInsureeNumber, etClaimAdmin, etGuaranteeNo;
-    AutoCompleteTextView etDiagnosis, etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4;
+    AutoCompleteTextView etDiagnosis, etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4, etReferalHF;
     TextView tvItemTotal, tvServiceTotal;
     Button btnPost, btnNew;
-    RadioGroup rgVisitType;
-    RadioButton rbEmergency, rbReferral, rbOther;
+    RadioGroup rgVisitType, etPatientCondition;
+    RadioButton rbEmergency, rbReferral, rbOther, rbHealed, rbDiseased, rbEscaped, rbReferal;
     ImageButton btnScan;
+    CheckBox etPreAuthorization;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +111,13 @@ public class ClaimActivity extends ImisActivity {
         rbEmergency = findViewById(R.id.rbEmergency);
         rbReferral = findViewById(R.id.rbReferral);
         rbOther = findViewById(R.id.rbOther);
+        etReferalHF = findViewById(R.id.etReferalHF);
+        etPatientCondition = findViewById(R.id.rgPatientCondition);
+        rbDiseased = findViewById(R.id.rbDeceased);
+        rbEscaped = findViewById(R.id.rbEscaped);
+        rbHealed = findViewById(R.id.rbHealed);
+        rbReferal = findViewById(R.id.rbReferal);
+        etPreAuthorization = findViewById(R.id.etPreAuthorization);
 
 
         tvItemTotal.setText("0");
@@ -134,6 +143,13 @@ public class ClaimActivity extends ImisActivity {
         etDiagnosis4.setAdapter(adapter);
         etDiagnosis4.setThreshold(1);
         etDiagnosis4.setOnItemClickListener(adapter);
+
+        HFAdapter hfAdapter = new HFAdapter(ClaimActivity.this, sqlHandler);
+        etReferalHF.setAdapter(hfAdapter);
+        etReferalHF.setThreshold(1);
+        etReferalHF.setOnItemClickListener(hfAdapter);
+
+        etPreAuthorization.setChecked(false);
 
         etStartDate.setOnTouchListener((v, event) -> {
             showDialog(StartDate_Dialog_ID);

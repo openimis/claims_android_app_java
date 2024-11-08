@@ -1,0 +1,14 @@
+query GetHealthFacility ($offset: Int){
+    healthFacilities(offset: $offset) {
+        pageInfo {
+          hasNextPage
+        }
+        edges {
+          node {
+            id
+            code
+            name
+          }
+        }
+      }
+}
