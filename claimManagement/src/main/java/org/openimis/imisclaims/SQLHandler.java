@@ -40,7 +40,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName TEXT, Adjustability TEXT);";
     private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code TEXT, HFCode TEXT ,Name TEXT);";
     private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code TEXT, Name TEXT, Type TEXT, Price TEXT);";
-    private static final String createTableClaimDetails = "CREATE TABLE IF NOT EXISTS tblClaimDetails(ClaimUUID TEXT, ClaimDate TEXT, HFCode TEXT, ClaimAdmin TEXT, ClaimCode TEXT, GuaranteeNumber TEXT, InsureeNumber TEXT, StartDate TEXT, EndDate TEXT, ICDCode TEXT, Comment TEXT, Total TEXT, ICDCode1 TEXT, ICDCode2 TEXT, ICDCode3 TEXT, ICDCode4 TEXT, VisitType TEXT);";
+    private static final String createTableClaimDetails = "CREATE TABLE IF NOT EXISTS tblClaimDetails(ClaimUUID TEXT, ClaimDate TEXT, HFCode TEXT, ClaimAdmin TEXT, ClaimCode TEXT, GuaranteeNumber TEXT, InsureeNumber TEXT, StartDate TEXT, EndDate TEXT, ICDCode TEXT, Comment TEXT, Total TEXT, ICDCode1 TEXT, ICDCode2 TEXT, ICDCode3 TEXT, ICDCode4 TEXT, VisitType TEXT, ReferalHF TEXT, PatientCondition TEXT,PreAuthorization Int );";
     private static final String createTableClaimItems = "CREATE TABLE IF NOT EXISTS tblClaimItems(ClaimUUID TEXT, ItemCode TEXT, ItemPrice TEXT, ItemQuantity TEXT);";
     private static final String createTableClaimServices = "CREATE TABLE IF NOT EXISTS tblClaimServices(ClaimUUID TEXT, ServiceCode TEXT, ServicePrice TEXT, ServiceQuantity TEXT, ServicePackageType TEXT, SubServicesItems TEXT);";
     private static final String createTableClaimUploadStatus = "CREATE TABLE IF NOT EXISTS tblClaimUploadStatus(ClaimUUID TEXT, UploadDate TEXT, UploadStatus TEXT, UploadMessage TEXT);";
@@ -48,6 +48,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     private static final String CreateTableItems = "CREATE TABLE IF NOT EXISTS tblItems(Id text, Code text, Name text, Type text, Price text);";
     private static final String CreateTableSubServices = "CREATE TABLE IF NOT EXISTS tblSubServices(ServiceId text, ServiceLinked text, Quantity text, Price text);";
     private static final String CreateTableSubItems = "CREATE TABLE IF NOT EXISTS tblSubItems(ItemId text, ServiceId text, Quantity text, Price text);";
+    private static final String CreateTableHealthFacilities = "CREATE TABLE IF NOT EXISTS tblHealthFacilities(Id TEXT, Code TEXT, Name TEXT);";
 
     public final String REFERENCE_UNKNOWN;
 
@@ -198,6 +199,15 @@ public class SQLHandler extends SQLiteOpenHelper {
         return c;
     }
 
+    public Cursor SearchHF(String InputText) {
+        Cursor c = db.rawQuery("SELECT Code as _id,Code, Name FROM tblHealthFacilities WHERE Code LIKE '%" + InputText + "%' OR Name LIKE '%" + InputText + "%'", null);
+        if (c != null) {
+            c.moveToFirst();
+        }
+
+        return c;
+    }
+
     public String getDiseaseCode(String disease) {
         String code = "";
         try {
@@ -321,7 +331,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         String[] commands = {CreateTableControls, CreateTableReferences, CreateTableClaimAdmins,
                 createTablePolicyInquiry, createTableClaimDetails, createTableClaimItems, createTableClaimServices,
                 createTableClaimUploadStatus, CreateTableSubItems,
-                CreateTableSubServices,CreateTableItems,CreateTableServices};
+                CreateTableSubServices,CreateTableItems,CreateTableServices, CreateTableHealthFacilities};
         for (String command : commands) {
             try {
                 db.execSQL(command);
@@ -421,7 +431,7 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     public JSONObject getClaim(String claimUUID) {
         JSONArray claimDetails = getQueryResultAsJsonArray("tblClaimDetails",
-                new String[]{"ClaimUUID", "ClaimDate", "HFCode", "ClaimAdmin", "ClaimCode", "GuaranteeNumber", "InsureeNumber", "StartDate", "EndDate", "ICDCode", "Comment", "Total", "ICDCode1", "ICDCode2", "ICDCode3", "ICDCode4", "VisitType"},
+                new String[]{"ClaimUUID", "ClaimDate", "HFCode", "ClaimAdmin", "ClaimCode", "GuaranteeNumber", "InsureeNumber", "StartDate", "EndDate", "ICDCode", "Comment", "Total", "ICDCode1", "ICDCode2", "ICDCode3", "ICDCode4", "VisitType", "ReferalHF", "PatientCondition", "PreAuthorization"},
                 "LOWER(ClaimUUID) = ?",
                 new String[]{claimUUID.toLowerCase(Locale.ROOT)});
 
@@ -889,5 +899,17 @@ public class SQLHandler extends SQLiteOpenHelper {
             e.printStackTrace();
         }
         return resultSet;
+    }
+
+    public void InsertHealthFacilities(String Id, String Code, String Name) {
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("Id", Id);
+            cv.put("Code", Code);
+            cv.put("Name", Name);
+            db.insert("tblHealthFacilities", null, cv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
