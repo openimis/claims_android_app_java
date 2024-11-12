@@ -1,0 +1,11 @@
+query GetAdminId($code: String) {
+    claimAdmins(
+        code: $code
+    ) {
+        edges {
+            node {
+                id
+            }
+        }
+    }
+}

@@ -1,0 +1,11 @@
+query GetInsureeId($chfId: String) {
+    insurees(
+        chfId: $chfId
+    ) {
+        edges {
+            node {
+                id
+            }
+        }
+    }
+}

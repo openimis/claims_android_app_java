@@ -737,11 +737,13 @@ public class ClaimActivity extends ImisActivity {
         selectedTypeButton = findViewById(SelectedId);
         String visitType = selectedTypeButton.getTag().toString();
 
-        int PatientConditionId;
-        PatientConditionId = rgPatientCondition.getCheckedRadioButtonId();
+        String patientCondition = "";
+        int PatientConditionId = rgPatientCondition.getCheckedRadioButtonId();
         RadioButton selectedPatientCondition;
         selectedPatientCondition = findViewById(PatientConditionId);
-        String patientCondition = selectedPatientCondition.getTag().toString();
+        if(selectedPatientCondition != null){
+            patientCondition = selectedPatientCondition.getTag().toString();
+        }
 
         ContentValues claimCV = new ContentValues();
 
@@ -786,8 +788,10 @@ public class ClaimActivity extends ImisActivity {
         ArrayList<ContentValues> claimServiceCVs = new ArrayList<>(lvServiceList.size());
         for (int i = 0; i < lvServiceList.size(); i++) {
             ContentValues claimServiceCV = new ContentValues();
+            String serviceId = sqlHandler.getServiceId(lvServiceList.get(i).get("Code"));
 
             claimServiceCV.put("ClaimUUID", claimUUID);
+            claimServiceCV.put("ServiceId", serviceId);
             claimServiceCV.put("ServiceCode", lvServiceList.get(i).get("Code"));
             claimServiceCV.put("ServicePrice", lvServiceList.get(i).get("Price"));
             claimServiceCV.put("ServiceQuantity", lvServiceList.get(i).get("Quantity"));

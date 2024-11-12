@@ -122,7 +122,7 @@
                 android:fontFamily="sans-serif-light"
 
                 android:hint="@string/Diagnosis"
-                android:maxLength="6"></AutoCompleteTextView>
+                ></AutoCompleteTextView>
 
             <LinearLayout
                 android:layout_width="match_parent"
