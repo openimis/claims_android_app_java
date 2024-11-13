@@ -114,10 +114,8 @@ public class SynchronizeService extends JobIntentService {
         }
 
         try {
-            String hfCode = sqlHandler.getClaimAdminInfo(global.getOfficerCode(),"HFCode");
-            String hfId = sqlHandler.getHfId(hfCode);
             //List<PostNewClaims.Result> results = new PostNewClaims().execute(PendingClaim.fromJson(claims));
-            List<PostNewClaims.Result> results = new CreateClaims().execute(PendingClaimGQL.fromJson(claims), Integer.parseInt(hfId));
+            List<PostNewClaims.Result> results = new CreateClaims().execute(PendingClaimGQL.fromJson(claims), this);
             JSONArray claimStatus = processClaimResponse(results);
             broadcastSyncSuccess(claimStatus);
         } catch (Exception e) {

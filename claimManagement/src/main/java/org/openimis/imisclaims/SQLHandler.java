@@ -463,7 +463,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         // Rename InsureeNumber to CHFID
         // This is required to support legacy Rest API and Web App
         JSONArray claims = getQueryResultAsJsonArray(
-                "SELECT ClaimUUID, ClaimDate, HFCode, ClaimAdmin, ClaimCode, GuaranteeNumber, InsureeNumber AS CHFID, StartDate, EndDate, ICDCode, Comment, Total, ICDCode1, ICDCode2, ICDCode3, ICDCode4, VisitType" +
+                "SELECT ClaimUUID, ClaimDate, HFCode, ClaimAdmin, ClaimCode, GuaranteeNumber, InsureeNumber AS CHFID, StartDate, EndDate, ICDCode, Comment, Total, ICDCode1, ICDCode2, ICDCode3, ICDCode4, VisitType, ReferalHF, PatientCondition, PreAuthorization " +
                         " FROM tblClaimDetails cd" +
                         " WHERE NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus != ?)",
                 new String[]{CLAIM_UPLOAD_STATUS_ERROR}

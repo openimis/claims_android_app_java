@@ -43,7 +43,8 @@ public class CreateClaimGraphQLRequest extends BaseGraphQLRequest{
             @NonNull int hfId,
             @NonNull int adminId,
             @NonNull int insureeId,
-            @NonNull int diagnosisId
+            @NonNull int diagnosisId,
+            @NonNull int referFromId
     ) throws Exception{
 
         String claimServices = "";
@@ -117,6 +118,11 @@ public class CreateClaimGraphQLRequest extends BaseGraphQLRequest{
             claimItems = claimItems + "]";
         }
 
+        boolean preAuthorization = false;
+        if(claim.getPreAuthorization() != null && claim.getPreAuthorization().equals("1")){
+            preAuthorization = true;
+        }
+
         String QUERY_DOCUMENT = QueryDocumentMinifier.minify(
                 "mutation {"
                         + "  createClaim(input: {"
@@ -127,6 +133,9 @@ public class CreateClaimGraphQLRequest extends BaseGraphQLRequest{
                         + " dateTo: \"" + DateUtils.toDateString(claim.getEndDate()) + "\""
                         + " icdId: " + diagnosisId
                         + " dateClaimed: \"" + DateUtils.toDateString(claim.getClaimDate()) + "\""
+                        + " referFromId: " + referFromId
+                        + " patientCondition: \"" + claim.getPatientCondition() + "\""
+                        + " preAuthorization: " + preAuthorization
                         + " healthFacilityId: " + hfId
                         + " visitType: \"" + claim.getVisitType() +"\""
                         + " services: " + claimServices
