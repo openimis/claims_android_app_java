@@ -134,6 +134,7 @@ public class CreateClaimGraphQLRequest extends BaseGraphQLRequest{
                         + " icdId: " + diagnosisId
                         + " dateClaimed: \"" + DateUtils.toDateString(claim.getClaimDate()) + "\""
                         + " referFromId: " + referFromId
+                        + " referralCode: \"" + claim.getReferralCode() + "\""
                         + " patientCondition: \"" + claim.getPatientCondition() + "\""
                         + " preAuthorization: " + preAuthorization
                         + " healthFacilityId: " + hfId

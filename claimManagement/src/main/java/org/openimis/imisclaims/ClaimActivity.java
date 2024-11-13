@@ -67,7 +67,7 @@ public class ClaimActivity extends ImisActivity {
     private int year, month, day;
     int TotalItemService;
 
-    EditText etStartDate, etEndDate, etClaimCode, etHealthFacility, etInsureeNumber, etClaimAdmin, etGuaranteeNo;
+    EditText etStartDate, etEndDate, etClaimCode, etHealthFacility, etInsureeNumber, etClaimAdmin, etGuaranteeNo, etReferralCode;
     AutoCompleteTextView etDiagnosis, etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4, etReferalHF;
     TextView tvItemTotal, tvServiceTotal;
     Button btnPost, btnNew;
@@ -118,6 +118,7 @@ public class ClaimActivity extends ImisActivity {
         rbHealed = findViewById(R.id.rbHealed);
         rbReferal = findViewById(R.id.rbReferal);
         etPreAuthorization = findViewById(R.id.etPreAuthorization);
+        etReferralCode = findViewById(R.id.etReferralCode);
 
 
         tvItemTotal.setText("0");
@@ -150,6 +151,18 @@ public class ClaimActivity extends ImisActivity {
         etReferalHF.setOnItemClickListener(hfAdapter);
 
         etPreAuthorization.setChecked(false);
+        etReferalHF.setVisibility(View.GONE);
+        etReferralCode.setVisibility(View.GONE);
+
+        rgVisitType.setOnCheckedChangeListener((radioGroup, i) -> {
+            if(radioGroup.getCheckedRadioButtonId() == R.id.rbReferral){
+                etReferalHF.setVisibility(View.VISIBLE);
+                etReferralCode.setVisibility(View.VISIBLE);
+            }else{
+                etReferalHF.setVisibility(View.GONE);
+                etReferralCode.setVisibility(View.GONE);
+            }
+        });
 
         etStartDate.setOnTouchListener((v, event) -> {
             showDialog(StartDate_Dialog_ID);
@@ -391,6 +404,7 @@ public class ClaimActivity extends ImisActivity {
         etDiagnosis4.setText("");
         etPreAuthorization.setChecked(false);
         etReferalHF.setText("");
+        etReferralCode.setText("");
         rgVisitType.clearCheck();
         rgPatientCondition.clearCheck();
         etClaimCode.requestFocus();
@@ -413,6 +427,13 @@ public class ClaimActivity extends ImisActivity {
         disableView(rbEmergency);
         disableView(rbReferral);
         disableView(rbOther);
+        disableView(etReferralCode);
+        disableView(etReferalHF);
+        disableView(etPreAuthorization);
+        disableView(rbHealed);
+        disableView(rbDiseased);
+        disableView(rbEscaped);
+        disableView(rbReferal);
     }
 
     private void fillClaimFromRestore(Claim claim) {
@@ -520,6 +541,7 @@ public class ClaimActivity extends ImisActivity {
                         etDiagnosis3.setText(claimDetails.getString("ICDCode3"));
                         etDiagnosis4.setText(claimDetails.getString("ICDCode4"));
                         etReferalHF.setText(claimDetails.getString("ReferalHF"));
+                        etReferralCode.setText(claimDetails.getString("ReferralCode"));
 
                         if(claimDetails.getInt("PreAuthorization") == 1){
                             etPreAuthorization.setChecked(true);
@@ -556,6 +578,14 @@ public class ClaimActivity extends ImisActivity {
                                 break;
                             default:
                                 rgPatientCondition.clearCheck();
+                        }
+
+                        if(rgVisitType.getCheckedRadioButtonId() == R.id.rbReferral){
+                            etReferralCode.setEnabled(true);
+                            etReferalHF.setEnabled(true);
+                        }else{
+                            disableView(etReferalHF);
+                            disableView(etReferralCode);
                         }
 
                         lvItemList.clear();
@@ -699,6 +729,13 @@ public class ClaimActivity extends ImisActivity {
             return false;
         }
 
+        if(rgVisitType.getCheckedRadioButtonId() == R.id.rbReferral){
+            if(etReferralCode.getText().length() == 0){
+                showValidationDialog(etReferralCode, getResources().getString(R.string.MissingReferralCode));
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -765,6 +802,7 @@ public class ClaimActivity extends ImisActivity {
         claimCV.put("ICDCode4", etDiagnosis4.getText().toString());
         claimCV.put("VisitType", visitType);
         claimCV.put("ReferalHF", etReferalHF.getText().toString());
+        claimCV.put("ReferralCode", etReferralCode.getText().toString());
         claimCV.put("PatientCondition", patientCondition);
 
         if(etPreAuthorization.isChecked()){

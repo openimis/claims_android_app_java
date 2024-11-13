@@ -238,5 +238,6 @@
     <string name="Healed">Healed</string>
     <string name="Deceased">Deceased</string>
     <string name="Escaped">Escaped</string>
-
+    <string name="ReferralCode">Referral Code</string>
+    <string name="MissingReferralCode">Please enter a referral Code</string>
 </resources>

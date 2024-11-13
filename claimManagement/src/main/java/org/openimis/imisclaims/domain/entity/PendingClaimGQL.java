@@ -41,9 +41,10 @@ public class PendingClaimGQL {
                     /* icCode3 = */ details.getString("ICDCode3"),
                     /* icdCode4 = */ details.getString("ICDCode4"),
                     /* GuaranteeNumber = */ details.getString("GuaranteeNumber"),
-                    /* ReferalHF */ details.getString("ReferalHF"),
-                    /* PatientCondition */ details.getString("PatientCondition"),
-                    /* PreAuthorization */ details.getString("PreAuthorization"),
+                    /* ReferalHF = */ details.getString("ReferalHF"),
+                    /* Referral code = */ details.getString("ReferralCode"),
+                    /* PatientCondition = */ details.getString("PatientCondition"),
+                    /* PreAuthorization = */ details.getString("PreAuthorization"),
                     /* services = */ Service.fromJson(arrayServices),
                     /* items = */ Medication.fromJson(arrayItems)
             ));
@@ -82,6 +83,8 @@ public class PendingClaimGQL {
     @Nullable
     private final String referalHF;
     @Nullable
+    private final String referralCode;
+    @Nullable
     private  final String patientCondition;
     @Nullable
     private  final String preAuthorization;
@@ -106,6 +109,7 @@ public class PendingClaimGQL {
             @Nullable String icdCode4,
             @Nullable String guaranteeNumber,
             @Nullable String referralHf,
+            @Nullable String referralCode,
             @Nullable String patientCondition,
             @Nullable String preAuthorisation,
             @NonNull List<PendingClaimGQL.Service> services,
@@ -128,6 +132,7 @@ public class PendingClaimGQL {
         this.services = services;
         this.medications = medications;
         this.referalHF = referralHf;
+        this.referralCode = referralCode;
         this.patientCondition = patientCondition;
         this.preAuthorization = preAuthorisation;
     }
@@ -148,6 +153,7 @@ public class PendingClaimGQL {
         icdCode4 = in.readString();
         visitType = in.readString();
         referalHF = in.readString();
+        referralCode = in.readString();
         patientCondition = in.readString();
         preAuthorization = in.readString();
         services = in.createTypedArrayList(PendingClaimGQL.Service.CREATOR);
@@ -172,6 +178,7 @@ public class PendingClaimGQL {
         dest.writeTypedList(services);
         dest.writeTypedList(medications);
         dest.writeString(referalHF);
+        dest.writeString(referralCode);
         dest.writeString(patientCondition);
         dest.writeString(preAuthorization);
     }
@@ -252,6 +259,9 @@ public class PendingClaimGQL {
 
     @Nullable
     public String getReferalHF(){ return referalHF; }
+
+    @Nullable
+    public String getReferralCode(){ return referralCode; }
 
     @Nullable
     public String getPatientCondition(){ return patientCondition; }
