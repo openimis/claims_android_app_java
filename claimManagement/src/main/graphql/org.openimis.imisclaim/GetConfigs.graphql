@@ -1,0 +1,6 @@
+query GetConfigs($layer: String){
+    moduleConfigurations(layer: $layer){
+        module
+        config
+    }
+}

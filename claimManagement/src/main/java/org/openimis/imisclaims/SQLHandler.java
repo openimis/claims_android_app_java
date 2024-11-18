@@ -48,6 +48,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     private static final String CreateTableItems = "CREATE TABLE IF NOT EXISTS tblItems(Id text, Code text, Name text, Type text, Price text);";
     private static final String CreateTableSubServices = "CREATE TABLE IF NOT EXISTS tblSubServices(ServiceId text, ServiceLinked text, Quantity text, Price text);";
     private static final String CreateTableSubItems = "CREATE TABLE IF NOT EXISTS tblSubItems(ItemId text, ServiceId text, Quantity text, Price text);";
+    private static final String CreateTableConfigs = "CREATE TABLE IF NOT EXISTS tblConfigs(Id TEXT, Name TEXT, Value TEXT);";
 
     public final String REFERENCE_UNKNOWN;
 
@@ -321,7 +322,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         String[] commands = {CreateTableControls, CreateTableReferences, CreateTableClaimAdmins,
                 createTablePolicyInquiry, createTableClaimDetails, createTableClaimItems, createTableClaimServices,
                 createTableClaimUploadStatus, CreateTableSubItems,
-                CreateTableSubServices,CreateTableItems,CreateTableServices};
+                CreateTableSubServices,CreateTableItems,CreateTableServices, CreateTableConfigs};
         for (String command : commands) {
             try {
                 db.execSQL(command);
@@ -889,5 +890,17 @@ public class SQLHandler extends SQLiteOpenHelper {
             e.printStackTrace();
         }
         return resultSet;
+    }
+
+    public void InsertConfiguration(String Id, String Name, String Config) {
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("Id", Id);
+            cv.put("Name", Name);
+            cv.put("Value", Config);
+            db.insert("tblConfigs", null, cv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

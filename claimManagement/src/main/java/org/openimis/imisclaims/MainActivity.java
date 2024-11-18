@@ -41,6 +41,7 @@ import org.openimis.imisclaims.domain.entity.Control;
 import org.openimis.imisclaims.domain.entity.DiagnosesServicesMedications;
 import org.openimis.imisclaims.domain.entity.Diagnosis;
 import org.openimis.imisclaims.domain.entity.Medication;
+import org.openimis.imisclaims.domain.entity.ModuleConfiguration;
 import org.openimis.imisclaims.domain.entity.PaymentList;
 import org.openimis.imisclaims.domain.entity.Service;
 import org.openimis.imisclaims.domain.entity.SubServiceItem;
@@ -49,6 +50,7 @@ import org.openimis.imisclaims.usecase.FetchClaimAdmins;
 import org.openimis.imisclaims.usecase.FetchControls;
 import org.openimis.imisclaims.usecase.FetchDiagnosesServicesItems;
 import org.openimis.imisclaims.usecase.FetchMedications;
+import org.openimis.imisclaims.usecase.FetchModuleConfigurations;
 import org.openimis.imisclaims.usecase.FetchPaymentList;
 import org.openimis.imisclaims.usecase.FetchServices;
 
@@ -572,6 +574,7 @@ public class MainActivity extends ImisActivity {
                         sqlHandler.ClearAll("tblReferences");
                         sqlHandler.ClearMapping("S");
                         sqlHandler.ClearMapping("I");
+                        sqlHandler.ClearAll("tblConfigs");
                         //Insert Diagnoses
                         for (Diagnosis diagnosis : diagnosesServicesMedications.getDiagnoses()) {
                             sqlHandler.InsertReferences(diagnosis.getCode(), diagnosis.getName(), "D", "");
@@ -589,6 +592,14 @@ public class MainActivity extends ImisActivity {
                             sqlHandler.InsertReferences(medication.getCode(), medication.getName(), "I", String.valueOf(medication.getPrice()));
                             sqlHandler.InsertMapping(medication.getCode(), medication.getName(), "I");
                             sqlHandler.InsertItem(medication.getId(),medication.getCode(),medication.getName(), "I", String.valueOf(medication.getPrice()));
+                        }
+
+                        //insertConfigurations
+                        List<ModuleConfiguration> configurations = new FetchModuleConfigurations().execute();
+                        for(ModuleConfiguration config : configurations){
+                            if(config.getName().equals("fe-claim")){
+                                sqlHandler.InsertConfiguration(config.getId(), config.getName(), config.getConfig());
+                            }
                         }
 
                         runOnUiThread(() -> {
