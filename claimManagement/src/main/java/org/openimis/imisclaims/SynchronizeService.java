@@ -12,12 +12,16 @@ import androidx.core.content.FileProvider;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openimis.imisclaims.domain.entity.Claim;
 import org.openimis.imisclaims.domain.entity.PendingClaim;
+import org.openimis.imisclaims.domain.entity.PendingClaimGQL;
 import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.tools.StorageManager;
+import org.openimis.imisclaims.usecase.CreateClaims;
 import org.openimis.imisclaims.usecase.PostNewClaims;
 import org.openimis.imisclaims.util.DateUtils;
 import org.openimis.imisclaims.util.FileUtils;
+import org.openimis.imisclaims.util.JsonUtils;
 import org.openimis.imisclaims.util.XmlUtils;
 import org.openimis.imisclaims.util.ZipUtils;
 import org.xmlpull.v1.XmlSerializer;
@@ -30,6 +34,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class SynchronizeService extends JobIntentService {
     private static final int JOB_ID = 6541259; //Random unique Job id
@@ -109,7 +114,8 @@ public class SynchronizeService extends JobIntentService {
         }
 
         try {
-            List<PostNewClaims.Result> results = new PostNewClaims().execute(PendingClaim.fromJson(claims));
+            //List<PostNewClaims.Result> results = new PostNewClaims().execute(PendingClaim.fromJson(claims));
+            List<PostNewClaims.Result> results = new CreateClaims().execute(PendingClaimGQL.fromJson(claims), this);
             JSONArray claimStatus = processClaimResponse(results);
             broadcastSyncSuccess(claimStatus);
         } catch (Exception e) {

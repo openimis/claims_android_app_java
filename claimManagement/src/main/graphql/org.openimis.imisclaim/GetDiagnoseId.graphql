@@ -1,0 +1,11 @@
+query GetDiagnoseId($code: String) {
+    diagnoses(
+        code: $code
+    ) {
+        edges {
+            node {
+                id
+            }
+        }
+    }
+}
