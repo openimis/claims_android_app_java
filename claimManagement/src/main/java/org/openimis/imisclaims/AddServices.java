@@ -106,9 +106,8 @@ public class AddServices extends ImisActivity {
                         Boolean complexProductWithoutPriceImpact = true;
                         try {
                             JSONObject config = new JSONObject(sqlHandler.getConfig("fe-claim"));
-                            complexProductWithoutPriceImpact = config.getBoolean("claimForm.ComplexProductWithoutPriceImpact");
-                            Log.e("config", config.toString());
                             if(config.has("claimForm.ComplexProductWithoutPriceImpact") && !config.getBoolean("claimForm.ComplexProductWithoutPriceImpact")){
+                                complexProductWithoutPriceImpact = config.getBoolean("claimForm.ComplexProductWithoutPriceImpact");
                                 etSAmount.setText("");
                             }
                         } catch (JSONException e) {
