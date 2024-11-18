@@ -903,4 +903,20 @@ public class SQLHandler extends SQLiteOpenHelper {
             e.printStackTrace();
         }
     }
+
+    public String getConfig(String module){
+        String config = "";
+        try (Cursor c = db.query("tblConfigs", new String[]{"Value"}, "LOWER(Name) = LOWER(?)", new String[]{module}, null, null, null, "1")) {
+            c.moveToFirst();
+            if (!c.isAfterLast()) {
+                String result = c.getString(0);
+                if (!TextUtils.isEmpty(result)) {
+                    config = result;
+                }
+            }
+        } catch (SQLException e) {
+            Log.d("ErrorOnFetchingData", String.format("Error while getting price of %s", module), e);
+        }
+        return config;
+    }
 }

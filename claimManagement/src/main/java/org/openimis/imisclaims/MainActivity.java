@@ -741,7 +741,7 @@ public class MainActivity extends ImisActivity {
         refreshCount();
     }
 
-    public void downloadServices(@NonNull final String officerCode) {
+    public void downloadServices(@Nullable final String officerCode) {
         if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.Services);
             progressDialog = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
@@ -778,7 +778,9 @@ public class MainActivity extends ImisActivity {
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, getResources().getString(R.string.installed_updates), Toast.LENGTH_LONG).show();
-                            DownLoadServicesItemsPriceList(officerCode);
+                            if (officerCode != null) {
+                                DownLoadServicesItemsPriceList(officerCode);
+                            }
                         });
                     } else {
                         runOnUiThread(() -> {

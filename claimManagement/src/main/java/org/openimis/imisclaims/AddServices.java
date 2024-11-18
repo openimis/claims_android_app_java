@@ -103,7 +103,17 @@ public class AddServices extends ImisActivity {
                     etSAmount.setText(sqlHandler.getServicePrice(Code));
                     etSName.setText(sqlHandler.getServiceName(Code));
                     if (!packageType.equals("S")) {
-                        etSAmount.setText("");
+                        Boolean complexProductWithoutPriceImpact = true;
+                        try {
+                            JSONObject config = new JSONObject(sqlHandler.getConfig("fe-claim"));
+                            complexProductWithoutPriceImpact = config.getBoolean("claimForm.ComplexProductWithoutPriceImpact");
+                            Log.e("config", config.toString());
+                            if(config.has("claimForm.ComplexProductWithoutPriceImpact") && !config.getBoolean("claimForm.ComplexProductWithoutPriceImpact")){
+                                etSAmount.setText("");
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
                         sServicePrice = 0;
                         try {
                             JSONArray subServices = sqlHandler.getSubServicesIds(id);
@@ -132,7 +142,6 @@ public class AddServices extends ImisActivity {
                                 sService.put("QtyMax", obj.getString("QuantityMax"));
                                 lvSServiceList.add(sService);
                             }
-                            Log.e("subItems",subItemArr.toString());
                             for (int i = 0; i < subItemArr.length(); i++) {
                                 JSONObject obj = subItemArr.getJSONObject(i);
                                 HashMap<String, String> sItem = new HashMap<>();
@@ -144,7 +153,7 @@ public class AddServices extends ImisActivity {
                                 lvSItemList.add(sItem);
                             }
                             editModelArrayListServices = populateListServicesItems();
-                            ssAdapterServicesItems = new CustomAdapter(AddServices.this, editModelArrayListServices);
+                            ssAdapterServicesItems = new CustomAdapter(AddServices.this, editModelArrayListServices, complexProductWithoutPriceImpact);
                             TextView textServices = new TextView(AddServices.this);
                             textServices.setText("Sub-Services & Items");
                             textServices.setPadding(0, 0, 0, 10);

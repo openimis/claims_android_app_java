@@ -9,14 +9,19 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 public class CustomAdapter extends BaseAdapter {
     private Context context;
     public static ArrayList<EditModel> editModelArrayList;
-    private static float price;
-    public CustomAdapter(Context context, ArrayList<EditModel> editModelArrayList) {
+    private Boolean config;
+    public CustomAdapter(Context context, ArrayList<EditModel> editModelArrayList, Boolean config) {
         this.context = context;
         this.editModelArrayList = editModelArrayList;
+        this.config = config;
     }
     @Override
     public int getViewTypeCount() {
@@ -92,7 +97,9 @@ public class CustomAdapter extends BaseAdapter {
                 for(int i = 0 ; i < editModelArrayList.size(); i++){
                     amount = amount + (Float.valueOf(editModelArrayList.get(i).getQty()) * Float.valueOf(editModelArrayList.get(i).getPrice())) ;
                 }
-                AddServices.etSAmount.setText(String.valueOf(amount));
+                if(!config){
+                    AddServices.etSAmount.setText(String.valueOf(amount));
+                }
             }
         });
         return convertView;
