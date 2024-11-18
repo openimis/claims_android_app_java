@@ -513,7 +513,6 @@ public class ClaimActivity extends ImisActivity {
     private void fillClaimFromDatabase(String claimUUID) {
         new Thread(() -> {
             JSONObject claimObject = sqlHandler.getClaim(claimUUID);
-            Log.e("claim", claimObject.toString());
             if (claimObject == null) {
                 showDialog(getResources().getString(R.string.ClaimNotFound), (dialog, which) -> finish());
             } else {
@@ -814,8 +813,10 @@ public class ClaimActivity extends ImisActivity {
         ArrayList<ContentValues> claimItemCVs = new ArrayList<>(lvItemList.size());
         for (int i = 0; i < lvItemList.size(); i++) {
             ContentValues claimItemCV = new ContentValues();
+            String itemId = sqlHandler.getItemId(lvItemList.get(i).get("Code"));
 
             claimItemCV.put("ClaimUUID", claimUUID);
+            claimItemCV.put("ItemId", itemId);
             claimItemCV.put("ItemCode", lvItemList.get(i).get("Code"));
             claimItemCV.put("ItemPrice", lvItemList.get(i).get("Price"));
             claimItemCV.put("ItemQuantity", lvItemList.get(i).get("Quantity"));

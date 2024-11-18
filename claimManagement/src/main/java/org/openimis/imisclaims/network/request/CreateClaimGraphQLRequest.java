@@ -123,6 +123,11 @@ public class CreateClaimGraphQLRequest extends BaseGraphQLRequest{
             preAuthorization = true;
         }
 
+        String referFrom = "";
+        if(referFromId != 0){
+            referFrom = " referFromId: " + referFromId;
+        }
+
         String QUERY_DOCUMENT = QueryDocumentMinifier.minify(
                 "mutation {"
                         + "  createClaim(input: {"
@@ -133,7 +138,7 @@ public class CreateClaimGraphQLRequest extends BaseGraphQLRequest{
                         + " dateTo: \"" + DateUtils.toDateString(claim.getEndDate()) + "\""
                         + " icdId: " + diagnosisId
                         + " dateClaimed: \"" + DateUtils.toDateString(claim.getClaimDate()) + "\""
-                        + " referFromId: " + referFromId
+                        + referFrom
                         + " referralCode: \"" + claim.getReferralCode() + "\""
                         + " patientCondition: \"" + claim.getPatientCondition() + "\""
                         + " preAuthorization: " + preAuthorization

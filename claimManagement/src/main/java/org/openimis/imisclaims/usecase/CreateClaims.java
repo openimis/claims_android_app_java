@@ -49,8 +49,11 @@ public class CreateClaims {
             int adminId = Integer.parseInt(new FetchClaimAdmin().execute(pendingClaim.getClaimAdmin()));
             int icdId = Integer.parseInt(new FetchDiagnose().execute(pendingClaim.getIcdCode()));
             String hfId = sqlHandler.getHfId(pendingClaim.getHealthFacilityCode());
-            String referFromId = sqlHandler.getHfId(pendingClaim.getReferalHF());
-            results.add(createClaimGraphQLRequest.create(pendingClaim,Integer.parseInt(hfId),adminId,insureeId,icdId, Integer.parseInt(referFromId)));
+            int referFromId = 0;
+            if(pendingClaim.getReferalHF() != null && !pendingClaim.getReferalHF().isEmpty()){
+                referFromId = Integer.parseInt(sqlHandler.getHfId(pendingClaim.getReferalHF()));
+            }
+            results.add(createClaimGraphQLRequest.create(pendingClaim,Integer.parseInt(hfId),adminId,insureeId,icdId, referFromId));
         }
         return results;
     }

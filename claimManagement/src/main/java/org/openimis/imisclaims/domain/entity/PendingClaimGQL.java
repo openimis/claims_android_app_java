@@ -25,7 +25,6 @@ public class PendingClaimGQL {
             JSONArray arrayItems = claim.getJSONArray("items");
             JSONArray arrayServices = claim.getJSONArray("services");
             JSONObject details = claim.getJSONObject("details");
-            Log.e("details", details.toString());
             claims.add( new PendingClaimGQL(
                     /* hfCode = */ details.getString("HFCode"),
                     /* claimAdmin */ details.getString("ClaimAdmin"),
@@ -297,7 +296,6 @@ public class PendingClaimGQL {
             List<PendingClaimGQL.Service> list = new ArrayList<>();
             for (int i = 0; i < array.length(); i++) {
                 JSONObject service = array.getJSONObject(i);
-                Log.e("service", service.toString());
                 JSONArray arrSubServices = new JSONArray();
                 JSONArray arrSubItems = new JSONArray();
                 if (service.has("SubServicesItems")){
