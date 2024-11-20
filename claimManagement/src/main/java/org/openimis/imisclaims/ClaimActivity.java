@@ -580,8 +580,13 @@ public class ClaimActivity extends ImisActivity {
                         }
 
                         if(rgVisitType.getCheckedRadioButtonId() == R.id.rbReferral){
-                            etReferralCode.setEnabled(true);
-                            etReferalHF.setEnabled(true);
+                            if(isIntentReadonly()){
+                                disableView(etReferalHF);
+                                disableView(etReferralCode);
+                            }else{
+                                etReferralCode.setEnabled(true);
+                                etReferalHF.setEnabled(true);
+                            }
                         }else{
                             disableView(etReferalHF);
                             disableView(etReferralCode);

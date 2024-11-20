@@ -48,12 +48,28 @@ public class CreateClaims {
             int insureeId = Integer.parseInt(new FetchInsuree().execute(pendingClaim.getChfId()));
             int adminId = Integer.parseInt(new FetchClaimAdmin().execute(pendingClaim.getClaimAdmin()));
             int icdId = Integer.parseInt(new FetchDiagnose().execute(pendingClaim.getIcdCode()));
+            int icd1Id = 0;
+            int icd2Id = 0;
+            int icd3Id = 0;
+            int icd4Id = 0;
+            if(pendingClaim.getIcdCode1() != null){
+                icd1Id = Integer.parseInt(new FetchDiagnose().execute(pendingClaim.getIcdCode1()));
+            }
+            if(pendingClaim.getIcdCode2() != null){
+                icd2Id = Integer.parseInt(new FetchDiagnose().execute(pendingClaim.getIcdCode2()));
+            }
+            if(pendingClaim.getIcdCode3() != null){
+                icd3Id = Integer.parseInt(new FetchDiagnose().execute(pendingClaim.getIcdCode3()));
+            }
+            if(pendingClaim.getIcdCode4() != null){
+                icd4Id = Integer.parseInt(new FetchDiagnose().execute(pendingClaim.getIcdCode4()));
+            }
             String hfId = sqlHandler.getHfId(pendingClaim.getHealthFacilityCode());
             int referFromId = 0;
             if(pendingClaim.getReferalHF() != null && !pendingClaim.getReferalHF().isEmpty()){
                 referFromId = Integer.parseInt(sqlHandler.getHfId(pendingClaim.getReferalHF()));
             }
-            results.add(createClaimGraphQLRequest.create(pendingClaim,Integer.parseInt(hfId),adminId,insureeId,icdId, referFromId));
+            results.add(createClaimGraphQLRequest.create(pendingClaim,Integer.parseInt(hfId),adminId,insureeId,icdId, referFromId, icd1Id, icd2Id, icd3Id, icd4Id));
         }
         return results;
     }

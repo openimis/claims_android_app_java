@@ -145,7 +145,6 @@
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
                     android:hint="@string/Diagnosis1"
-                    android:maxLength="6"
 
                     />
 
@@ -156,8 +155,7 @@
                     android:layout_weight="1"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
-                    android:hint="@string/Diagnosis2"
-                    android:maxLength="6" />
+                    android:hint="@string/Diagnosis2" />
             </LinearLayout>
 
             <LinearLayout
@@ -172,8 +170,7 @@
                     android:layout_weight="1"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
-                    android:hint="@string/Diagnosis3"
-                    android:maxLength="6" />
+                    android:hint="@string/Diagnosis3"/>
 
                 <AutoCompleteTextView
                     android:id="@+id/etDiagnosis4"
@@ -182,8 +179,7 @@
                     android:layout_weight="1"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
-                    android:hint="@string/Diagnosis4"
-                    android:maxLength="6" />
+                    android:hint="@string/Diagnosis4"/>
 
 
             </LinearLayout>

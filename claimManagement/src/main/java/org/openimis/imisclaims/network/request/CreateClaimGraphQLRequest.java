@@ -44,7 +44,11 @@ public class CreateClaimGraphQLRequest extends BaseGraphQLRequest{
             @NonNull int adminId,
             @NonNull int insureeId,
             @NonNull int diagnosisId,
-            @NonNull int referFromId
+            @NonNull int referFromId,
+            @NonNull int icd1Id,
+            @NonNull int icd2Id,
+            @NonNull int icd3Id,
+            @NonNull int icd4Id
     ) throws Exception{
 
         String claimServices = "";
@@ -128,6 +132,26 @@ public class CreateClaimGraphQLRequest extends BaseGraphQLRequest{
             referFrom = " referFromId: " + referFromId;
         }
 
+        String icd1 = "";
+        if(icd1Id != 0){
+            icd1 = "icd1Id: "+ icd1Id;
+        }
+
+        String icd2 = "";
+        if(icd2Id != 0){
+            icd2 = "icd2Id: "+ icd2Id;
+        }
+
+        String icd3 = "";
+        if(icd3Id != 0){
+            icd3 = "icd3Id: "+ icd3Id;
+        }
+
+        String icd4 = "";
+        if(icd4Id != 0){
+            icd4 = "icd4Id: "+ icd4Id;
+        }
+
         String QUERY_DOCUMENT = QueryDocumentMinifier.minify(
                 "mutation {"
                         + "  createClaim(input: {"
@@ -137,6 +161,11 @@ public class CreateClaimGraphQLRequest extends BaseGraphQLRequest{
                         + " dateFrom: \"" + DateUtils.toDateString(claim.getStartDate()) + "\""
                         + " dateTo: \"" + DateUtils.toDateString(claim.getEndDate()) + "\""
                         + " icdId: " + diagnosisId
+                        + icd1
+                        + icd2
+                        + icd3
+                        + icd4
+                        + " guaranteeId: \"" + claim.getGuaranteeNumber() + "\""
                         + " dateClaimed: \"" + DateUtils.toDateString(claim.getClaimDate()) + "\""
                         + referFrom
                         + " referralCode: \"" + claim.getReferralCode() + "\""
