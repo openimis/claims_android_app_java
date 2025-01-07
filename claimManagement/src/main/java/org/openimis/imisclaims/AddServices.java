@@ -41,6 +41,7 @@ public class AddServices extends ImisActivity {
     public static ArrayList<HashMap<String, String>> lvSServiceList;
     public static ArrayList<HashMap<String, String>> lvSItemList;
     public static String packageType;
+    public static String manualPrice;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,6 +94,7 @@ public class AddServices extends ImisActivity {
                     String Name = cursor.getString(descColumnIndex);
                     packageType = sqlHandler.getPackageType(Code);
                     String id = sqlHandler.getServiceId(Code);
+                    manualPrice = sqlHandler.getManualPrice(Code);
 
                     oService = new HashMap<>();
                     oService.put("Code", Code);
@@ -103,17 +105,10 @@ public class AddServices extends ImisActivity {
                     etSAmount.setText(sqlHandler.getServicePrice(Code));
                     etSName.setText(sqlHandler.getServiceName(Code));
                     if (!packageType.equals("S")) {
-                        Boolean complexProductWithoutPriceImpact = true;
-                        try {
-                            JSONObject config = new JSONObject(sqlHandler.getConfig("fe-claim"));
-                            if(config.has("claimForm.ComplexProductWithoutPriceImpact") && !config.getBoolean("claimForm.ComplexProductWithoutPriceImpact")){
-                                complexProductWithoutPriceImpact = config.getBoolean("claimForm.ComplexProductWithoutPriceImpact");
-                                etSAmount.setText("");
-                            }
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
+                        if(manualPrice.equals("0")){
+                            etSAmount.setText("");
+                            sServicePrice = 0;
                         }
-                        sServicePrice = 0;
                         try {
                             JSONArray subServices = sqlHandler.getSubServicesIds(id);
                             JSONArray subServiceArr = new JSONArray();
@@ -152,7 +147,7 @@ public class AddServices extends ImisActivity {
                                 lvSItemList.add(sItem);
                             }
                             editModelArrayListServices = populateListServicesItems();
-                            ssAdapterServicesItems = new CustomAdapter(AddServices.this, editModelArrayListServices, complexProductWithoutPriceImpact);
+                            ssAdapterServicesItems = new CustomAdapter(AddServices.this, editModelArrayListServices);
                             TextView textServices = new TextView(AddServices.this);
                             textServices.setText("Sub-Services & Items");
                             textServices.setPadding(0, 0, 0, 10);

@@ -56,6 +56,7 @@ public class FetchServices {
                 /* price = */ node.price(),
                 "XAF",
                 /* packageType = */ node.packagetype(),
+                /* manualPrice = */ node.manualPrice() ? 1 : 0,
                 /* subServices = */ subServiceMapper.map(node.serviceserviceSet()),
                 /* subItems = */ subItemMapper.map(node.servicesLinked())
         );

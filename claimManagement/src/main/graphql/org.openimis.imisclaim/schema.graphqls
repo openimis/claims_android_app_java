@@ -1076,6 +1076,7 @@ type ServiceGQLType implements Node {
   claimserviceSet: [ClaimServiceGQLType!]!
   serviceserviceSet: [SubServiceGQLType]
   servicesLinked: [SubItemGQLType]
+  manualPrice: Boolean
 }
 
 type SubServiceGQLType {

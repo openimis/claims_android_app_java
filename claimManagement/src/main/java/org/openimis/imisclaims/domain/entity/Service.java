@@ -28,6 +28,7 @@ public class Service implements Parcelable {
     private List<SubServiceItem> subItems;
     @Nullable
     private String packageType;
+    private int manualPrice;
 
     public Service(
             @NonNull String id,
@@ -36,6 +37,7 @@ public class Service implements Parcelable {
             double price,
             @NonNull String currency,
             @Nullable String packageType,
+            int manualPrice,
             @Nullable List<SubServiceItem> subServices,
             @Nullable List<SubServiceItem> subItems
     ){
@@ -45,6 +47,7 @@ public class Service implements Parcelable {
         this.price = price;
         this.currency = currency;
         this.packageType = packageType;
+        this.manualPrice = manualPrice;
         this.subServices = subServices;
         this.subItems = subItems;
     }
@@ -68,6 +71,7 @@ public class Service implements Parcelable {
         price = in.readDouble();
         currency = in.readString();
         packageType = in.readString();
+        manualPrice = in.readInt();
         subServices = in.createTypedArrayList(SubServiceItem.CREATOR);
         subItems = in.createTypedArrayList(SubServiceItem.CREATOR);
     }
@@ -80,6 +84,7 @@ public class Service implements Parcelable {
         dest.writeDouble(price);
         dest.writeString(currency);
         dest.writeString(packageType);
+        dest.writeInt(manualPrice);
         dest.writeTypedList(subServices);
         dest.writeTypedList(subItems);
     }
@@ -113,6 +118,8 @@ public class Service implements Parcelable {
 
     @NonNull
     public  String getPackageType(){ return packageType; }
+    @NonNull
+    public int getManualPrice(){ return manualPrice; }
     @Nullable
     public List<SubServiceItem> getSubServices() {
         return subServices;

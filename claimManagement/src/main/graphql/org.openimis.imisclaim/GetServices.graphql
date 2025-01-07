@@ -12,6 +12,7 @@ query GetServices ($offset: Int) {
         type
         price
         careType
+        manualPrice
         serviceserviceSet {
           service {
             id
