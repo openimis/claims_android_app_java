@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingLeft="3dp"
+    android:paddingRight="3dp">
+    <LinearLayout
+        android:layout_width="180dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/tvLvCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/Gray"
+            android:textStyle="bold" />
+        <EditText
+            android:id="@+id/tvLvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:enabled="false"
+            android:textColor="@color/Gray" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/llLvFullRow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="15dp">
+        <TextView
+            android:id="@+id/tvLvQuantityLable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Quantity"
+            android:textColor="@color/Gray" />
+        <EditText
+            android:id="@+id/tvLvQuantity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:textSize="15dp"
+            android:textColor="@color/Black" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="5dp">
+        <TextView
+            android:id="@+id/tvLvPriceLable"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/Price"
+            android:textColor="@color/Gray" />
+        <EditText
+            android:id="@+id/tvLvPrice"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="15dp"
+            android:enabled="false"
+            android:textColor="@color/Black" />
+    </LinearLayout>
+</LinearLayout>

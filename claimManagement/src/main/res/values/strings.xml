@@ -229,5 +229,8 @@
     <string name="NoInternetTitle">NO INTERNET CONNECTION</string>
     <string name="ImportMasterDataFailed">Failed to read master data from file.</string>
     <string name="HttpResponse">HTTP response: %1$d — %2$s</string>
+    <string name="downloadFail">Download data failed</string>
+    <string name="qtyAlert">The maximum quantity of this product is</string>
+    <string name="qtyAlertAsk">The quantity allowed for this product is</string>
 
 </resources>
