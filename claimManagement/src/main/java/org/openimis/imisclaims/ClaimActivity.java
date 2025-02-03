@@ -421,6 +421,12 @@ public class ClaimActivity extends ImisActivity {
         disableView(rbEmergency);
         disableView(rbReferral);
         disableView(rbOther);
+        disableView(etReferalHF);
+        disableView(etPreAuthorization);
+        disableView(rbHealed);
+        disableView(rbDiseased);
+        disableView(rbEscaped);
+        disableView(rbReferal);
     }
 
     private void fillClaimFromRestore(Claim claim) {
@@ -526,6 +532,12 @@ public class ClaimActivity extends ImisActivity {
                         etDiagnosis2.setText(claimDetails.getString("ICDCode2"));
                         etDiagnosis3.setText(claimDetails.getString("ICDCode3"));
                         etDiagnosis4.setText(claimDetails.getString("ICDCode4"));
+                        etReferalHF.setText(claimDetails.getString("ReferalHF"));
+                        if(claimDetails.getInt("PreAuthorization") == 1){
+                            etPreAuthorization.setChecked(true);
+                        }else{
+                            etPreAuthorization.setChecked(false);
+                        }
 
                         switch (claimDetails.getString("VisitType")) {
                             case "E":
@@ -539,6 +551,23 @@ public class ClaimActivity extends ImisActivity {
                                 break;
                             default:
                                 rgVisitType.clearCheck();
+                        }
+
+                        switch (claimDetails.getString("PatientCondition")) {
+                            case "H":
+                                rgPatientCondition.check(R.id.rbHealed);
+                                break;
+                            case "D":
+                                rgPatientCondition.check(R.id.rbDeceased);
+                                break;
+                            case "E":
+                                rgPatientCondition.check(R.id.rbEscaped);
+                                break;
+                            case "R":
+                                rgPatientCondition.check(R.id.rbReferal);
+                                break;
+                            default:
+                                rgPatientCondition.clearCheck();
                         }
 
                         lvItemList.clear();
@@ -557,6 +586,12 @@ public class ClaimActivity extends ImisActivity {
                             }
                         }
                         tvItemTotal.setText(String.valueOf(lvItemList.size()));
+
+                        if(rgVisitType.getCheckedRadioButtonId() == R.id.rbReferral){
+                            etReferalHF.setEnabled(true);
+                        }else{
+                            disableView(etReferalHF);
+                        }
 
                         lvServiceList.clear();
                         if (claimObject.has("services")) {
@@ -720,6 +755,12 @@ public class ClaimActivity extends ImisActivity {
         selectedTypeButton = findViewById(SelectedId);
         String visitType = selectedTypeButton.getTag().toString();
 
+        int PatientConditionId;
+        PatientConditionId = rgPatientCondition.getCheckedRadioButtonId();
+        RadioButton selectedPatientCondition;
+        selectedPatientCondition = findViewById(PatientConditionId);
+        String patientCondition = selectedPatientCondition.getTag().toString();
+
         ContentValues claimCV = new ContentValues();
 
         claimCV.put("ClaimUUID", claimUUID);
@@ -739,6 +780,13 @@ public class ClaimActivity extends ImisActivity {
         claimCV.put("ICDCode3", etDiagnosis3.getText().toString());
         claimCV.put("ICDCode4", etDiagnosis4.getText().toString());
         claimCV.put("VisitType", visitType);
+        claimCV.put("ReferalHF", etReferalHF.getText().toString());
+        claimCV.put("PatientCondition", patientCondition);
+        if(etPreAuthorization.isChecked()){
+            claimCV.put("PreAuthorization", 1);
+        }else{
+            claimCV.put("PreAuthorization", 0);
+        }
 
         ArrayList<ContentValues> claimItemCVs = new ArrayList<>(lvItemList.size());
         for (int i = 0; i < lvItemList.size(); i++) {
