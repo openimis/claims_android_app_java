@@ -215,6 +215,52 @@
                     android:text="@string/Other" />
 
             </RadioGroup>
+
+            <AutoCompleteTextView
+                android:id="@+id/etReferalHF"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="sans-serif-light"
+                android:hint="@string/ReferalHF"/>
+            <CheckBox
+                android:id="@+id/etPreAuthorization"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preAuthorization"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/PatientCondition"/>
+            <RadioGroup
+                android:id="@+id/rgPatientCondition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <RadioButton
+                    android:id="@+id/rbHealed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tag="H"
+                    android:text="@string/Healed" />
+                <RadioButton
+                    android:id="@+id/rbDeceased"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tag="D"
+                    android:text="@string/Deceased" />
+                <RadioButton
+                    android:id="@+id/rbEscaped"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tag="E"
+                    android:text="@string/Escaped" />
+                <RadioButton
+                    android:id="@+id/rbReferal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tag="R"
+                    android:text="@string/Referral" />
+            </RadioGroup>
         </LinearLayout>
 
 

@@ -40,6 +40,7 @@ import org.openimis.imisclaims.domain.entity.ClaimAdmin;
 import org.openimis.imisclaims.domain.entity.Control;
 import org.openimis.imisclaims.domain.entity.DiagnosesServicesMedications;
 import org.openimis.imisclaims.domain.entity.Diagnosis;
+import org.openimis.imisclaims.domain.entity.HealthFacility;
 import org.openimis.imisclaims.domain.entity.Medication;
 import org.openimis.imisclaims.domain.entity.PaymentList;
 import org.openimis.imisclaims.domain.entity.Service;
@@ -48,6 +49,7 @@ import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.usecase.FetchClaimAdmins;
 import org.openimis.imisclaims.usecase.FetchControls;
 import org.openimis.imisclaims.usecase.FetchDiagnosesServicesItems;
+import org.openimis.imisclaims.usecase.FetchHealthfacilities;
 import org.openimis.imisclaims.usecase.FetchMedications;
 import org.openimis.imisclaims.usecase.FetchPaymentList;
 import org.openimis.imisclaims.usecase.FetchServices;
@@ -570,6 +572,7 @@ public class MainActivity extends ImisActivity {
                         DiagnosesServicesMedications diagnosesServicesMedications = new FetchDiagnosesServicesItems().execute();
                         saveLastUpdateDate(diagnosesServicesMedications.getLastUpdated());
                         sqlHandler.ClearAll("tblReferences");
+                        sqlHandler.ClearAll("tblHealthFacilities");
                         sqlHandler.ClearMapping("S");
                         sqlHandler.ClearMapping("I");
                         //Insert Diagnoses
@@ -589,6 +592,11 @@ public class MainActivity extends ImisActivity {
                             sqlHandler.InsertReferences(medication.getCode(), medication.getName(), "I", String.valueOf(medication.getPrice()));
                             sqlHandler.InsertMapping(medication.getCode(), medication.getName(), "I");
                             sqlHandler.InsertItem(medication.getId(),medication.getCode(),medication.getName(), "I", String.valueOf(medication.getPrice()));
+                        }
+
+                        List<HealthFacility> healthFacilities = new FetchHealthfacilities().execute();
+                        for(HealthFacility hf: healthFacilities) {
+                            sqlHandler.InsertHealthFacilities(hf.getId(), hf.getCode(), hf.getName());
                         }
 
                         runOnUiThread(() -> {

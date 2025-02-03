@@ -232,5 +232,11 @@
     <string name="downloadFail">Download data failed</string>
     <string name="qtyAlert">The maximum quantity of this product is</string>
     <string name="qtyAlertAsk">The quantity allowed for this product is</string>
+    <string name="ReferalHF">Referal HF</string>
+    <string name="PatientCondition">Patient\'s condition at discharge</string>
+    <string name="preAuthorization">Pre-Authorization</string>
+    <string name="Healed">Healed</string>
+    <string name="Deceased">Deceased</string>
+    <string name="Escaped">Escaped</string>
 
 </resources>
