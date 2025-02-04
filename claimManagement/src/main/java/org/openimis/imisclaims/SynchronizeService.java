@@ -153,6 +153,34 @@ public class SynchronizeService extends JobIntentService {
             try {
                 JSONObject claim = claims.getJSONObject(i);
                 JSONObject details = claim.getJSONObject("details");
+                JSONArray services = claim.getJSONArray("services");
+                for(int j = 0; j<services.length(); j++){
+                    if (services.getJSONObject(j).has("SubServicesItems")) {
+                        JSONObject Service = services.getJSONObject(j);
+                        JSONArray subServicesItems = services.getJSONObject(j).getJSONArray("SubServicesItems");
+                        JSONArray serviceServiceSet = new JSONArray();
+                        JSONArray serviceItemSet = new JSONArray();
+                        for (int s=0; s < subServicesItems.length(); s++){
+                            JSONObject obj = subServicesItems.getJSONObject(s);
+                            if(obj.getString("Type").equals("S")){
+                                JSONObject ClaimSubService = new JSONObject();
+                                ClaimSubService.put("subServiceCode",obj.getString("Code"));
+                                ClaimSubService.put("qtyAsked",obj.getString("Quantity"));
+                                ClaimSubService.put("priceAsked",obj.getString("Price"));
+                                serviceServiceSet.put(ClaimSubService);
+                            }else{
+                                JSONObject ClaimSubItem = new JSONObject();
+                                ClaimSubItem.put("subItemCode",obj.getString("Code"));
+                                ClaimSubItem.put("qtyAsked",obj.getString("Quantity"));
+                                ClaimSubItem.put("priceAsked",obj.getString("Price"));
+                                serviceItemSet.put(ClaimSubItem);
+                            }
+                        }
+                        Service.put("serviceServiceSet", serviceServiceSet);
+                        Service.put("serviceItemSet", serviceItemSet);
+                        Service.remove("SubServicesItems");
+                    }
+                }
 
                 File claimFile = createClaimFile(details);
                 if (claimFile == null) {
