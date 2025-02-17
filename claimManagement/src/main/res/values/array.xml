@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="visitType">
+        <item>Emergency</item>
+        <item>Referral</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="patientCondition">
+        <item>Healed</item>
+        <item>Deceased</item>
+        <item>Escaped</item>
+        <item>Referral</item>
+    </string-array>
+</resources>

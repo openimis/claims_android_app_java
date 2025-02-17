@@ -75,7 +75,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ClaimActivity"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/CustomTheme"/>
         <activity
             android:name=".AddItems"
             android:label="@string/AddItems"
