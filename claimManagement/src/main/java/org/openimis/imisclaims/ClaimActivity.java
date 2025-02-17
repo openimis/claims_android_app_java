@@ -75,7 +75,7 @@ public class ClaimActivity extends ImisActivity {
     AutoCompleteTextView etDiagnosis, etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4, etReferalHF, etPatientCondition, etVisitType;
     TextView tvItemTotal, tvServiceTotal;
     Button btnPost, btnNew;
-    RadioGroup rgVisitType, rgPatientCondition;
+    RadioGroup rgVisitType;
     RadioButton rbEmergency, rbReferral, rbOther;
     ImageButton btnScan;
     CheckBox etPreAuthorization;
@@ -804,12 +804,6 @@ public class ClaimActivity extends ImisActivity {
         //SelectedId = rgVisitType.getCheckedRadioButtonId();
         //RadioButton selectedTypeButton;
         //selectedTypeButton = findViewById(SelectedId);
-
-        //int PatientConditionId;
-        //PatientConditionId = rgPatientCondition.getCheckedRadioButtonId();
-        //RadioButton selectedPatientCondition;
-        //selectedPatientCondition = findViewById(PatientConditionId);
-        //String patientCondition = selectedPatientCondition.getTag().toString();
 
         ContentValues claimCV = new ContentValues();
 
