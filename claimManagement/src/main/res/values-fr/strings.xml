@@ -197,4 +197,10 @@
   <string name="initializing">Initialisation.....</string>
   <string name="initializing_complete">Initialisation Terminée</string>
   <string name="application">Application</string>
+  <string name="ReferalHF">Référence HF</string>
+  <string name="PatientCondition">État du patient à la sortie</string>
+  <string name="preAuthorization">Pré-Authorisation</string>
+  <string name="Healed">Guéri</string>
+  <string name="Deceased">Décédé</string>
+  <string name="Escaped">Échappé</string>
 </resources>
