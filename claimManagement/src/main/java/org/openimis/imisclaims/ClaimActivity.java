@@ -29,6 +29,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.view.menu.MenuBuilder;
 
+import com.google.android.material.textfield.TextInputLayout;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,6 +81,7 @@ public class ClaimActivity extends ImisActivity {
     RadioButton rbEmergency, rbReferral, rbOther;
     ImageButton btnScan;
     CheckBox etPreAuthorization;
+    TextInputLayout tfReferal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +122,7 @@ public class ClaimActivity extends ImisActivity {
         etPreAuthorization = findViewById(R.id.etPreAuthorization);
         etPatientCondition = findViewById(R.id.patientCondition);
         etVisitType = findViewById(R.id.etVisitType);
+        tfReferal = findViewById(R.id.tfReferal);
 
         String[] visitTypes = getResources().getStringArray(R.array.visitType);
         ArrayAdapter<String> visitTypeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, visitTypes);
@@ -130,19 +134,19 @@ public class ClaimActivity extends ImisActivity {
                 String item = adapterView.getItemAtPosition(position).toString();
                 switch(item){
                     case "Emergency":
-                        visitType = "E";
-                        etReferalHF.setVisibility(View.GONE);
+                        etVisitType.setTag("E");
+                        tfReferal.setVisibility(View.GONE);
                         break;
                     case "Referral":
-                        visitType = "R";
-                        etReferalHF.setVisibility(View.VISIBLE);
+                        etVisitType.setTag("R");;
+                        tfReferal.setVisibility(View.VISIBLE);
                         break;
                     case "Other":
-                        visitType = "O";
-                        etReferalHF.setVisibility(View.GONE);
+                        etVisitType.setTag("O");;
+                        tfReferal.setVisibility(View.GONE);
                         break;
                     default:
-                        visitType = "";
+                        etVisitType.setTag("");
                         break;
                 }
             }
@@ -157,16 +161,16 @@ public class ClaimActivity extends ImisActivity {
                  String item = adapterView.getItemAtPosition(position).toString();
                 switch(item){
                     case "Healed":
-                        patientCondition = "H";
+                        etPatientCondition.setTag("H");
                         break;
                     case "Deceased":
-                        patientCondition = "D";
+                        etPatientCondition.setTag("D");
                         break;
                     case "Escaped":
-                         patientCondition = "E";
+                         etPatientCondition.setTag("E");
                          break;
                     case "Referral":
-                        patientCondition = "R";
+                        etPatientCondition.setTag("R");
                         break;
                 }
             }
@@ -204,7 +208,7 @@ public class ClaimActivity extends ImisActivity {
         etReferalHF.setOnItemClickListener(hfAdapter);
 
         etPreAuthorization.setChecked(false);
-        etReferalHF.setVisibility(View.GONE);
+        tfReferal.setVisibility(View.GONE);
 
         etStartDate.setOnTouchListener((v, event) -> {
             showDialog(StartDate_Dialog_ID);
@@ -446,6 +450,7 @@ public class ClaimActivity extends ImisActivity {
         etDiagnosis4.setText("");
         etPreAuthorization.setChecked(false);
         etReferalHF.setText("");
+        tfReferal.setVisibility(View.GONE);
         rgVisitType.clearCheck();
         etPatientCondition.setText("");
         etVisitType.setText("");
@@ -587,13 +592,14 @@ public class ClaimActivity extends ImisActivity {
 
                         switch (claimDetails.getString("VisitType")) {
                             case "E":
-                                etVisitType.setText("Emergency");
+                                etVisitType.setText(getResources().getString(R.string.Emergency));
                                 break;
                             case "R":
-                                etVisitType.setText("Referral");
+                                etVisitType.setText(getResources().getString(R.string.Referral));
+                                tfReferal.setVisibility(View.VISIBLE);
                                 break;
                             case "O":
-                                etVisitType.setText("Other");
+                                etVisitType.setText(getResources().getString(R.string.Other));
                                 break;
                             default:
                                 etVisitType.setText("");
@@ -601,16 +607,16 @@ public class ClaimActivity extends ImisActivity {
 
                         switch (claimDetails.getString("PatientCondition")) {
                             case "H":
-                                etPatientCondition.setText("Healed");
+                                etPatientCondition.setText(getResources().getString(R.string.Healed));
                                 break;
                             case "D":
-                                etPatientCondition.setText("Deceased");
+                                etPatientCondition.setText(getResources().getString(R.string.Deceased));
                                 break;
                             case "E":
-                                etPatientCondition.setText("Escaped");
+                                etPatientCondition.setText(getResources().getString(R.string.Escaped));
                                 break;
                             case "R":
-                                etPatientCondition.setText("Referral");
+                                etPatientCondition.setText(getResources().getString(R.string.Referral));
                                 break;
                             default:
                                 etPatientCondition.setText("");
@@ -632,12 +638,6 @@ public class ClaimActivity extends ImisActivity {
                             }
                         }
                         tvItemTotal.setText(String.valueOf(lvItemList.size()));
-
-                        if(etVisitType.getText().equals("Referral")){
-                            etReferalHF.setEnabled(true);
-                        }else{
-                            disableView(etReferalHF);
-                        }
 
                         lvServiceList.clear();
                         if (claimObject.has("services")) {
@@ -823,9 +823,9 @@ public class ClaimActivity extends ImisActivity {
         claimCV.put("ICDCode2", etDiagnosis2.getText().toString());
         claimCV.put("ICDCode3", etDiagnosis3.getText().toString());
         claimCV.put("ICDCode4", etDiagnosis4.getText().toString());
-        claimCV.put("VisitType", visitType);
+        claimCV.put("VisitType", etVisitType.getTag().toString());
         claimCV.put("ReferalHF", etReferalHF.getText().toString());
-        claimCV.put("PatientCondition", patientCondition);
+        claimCV.put("PatientCondition", etPatientCondition.getTag().toString());
         if(etPreAuthorization.isChecked()){
             claimCV.put("PreAuthorization", 1);
         }else{

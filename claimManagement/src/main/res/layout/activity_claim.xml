@@ -23,110 +23,152 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/etHealthFacility"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:fontFamily="sans-serif-light"
+                android:layout_marginBottom="10dp"
                 android:hint="@string/HealthFacility"
-                android:maxLength="8"></EditText>
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <EditText
+                    android:id="@+id/etHealthFacility"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:ems="10"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLength="8"></EditText>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/etClaimAdmin"
+
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:fontFamily="sans-serif-light"
+                android:layout_marginBottom="10dp"
                 android:hint="@string/ClaimAdmin"
-                android:maxLength="8"></EditText>
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <EditText
+                    android:id="@+id/etClaimAdmin"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:ems="10"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLength="8"></EditText>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/etClaimCode"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:fontFamily="sans-serif-light"
+                android:layout_marginBottom="10dp"
                 android:hint="@string/ClaimCode"
-                android:maxLength="8">
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <EditText
+                    android:id="@+id/etClaimCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:ems="10"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLength="8">
+                    <requestFocus />
+                </EditText>
+            </com.google.android.material.textfield.TextInputLayout>
 
-                <requestFocus />
-            </EditText>
-
-            <EditText
-                android:id="@+id/etGuaranteeNo"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:fontFamily="sans-serif-light"
+                android:layout_marginBottom="10dp"
                 android:hint="@string/GuaranteeNo"
-
-                android:maxLength="8"></EditText>
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <EditText
+                    android:id="@+id/etGuaranteeNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:ems="10"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLength="8"></EditText>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/etCHFID"
-                    android:layout_width="0dp"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="250dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:fontFamily="sans-serif-light"
                     android:hint="@string/CHFID"
-                    android:inputType="number"
-                    android:maxLength="12"></EditText>
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                    <EditText
+                        android:id="@+id/etCHFID"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:fontFamily="sans-serif-light"
+                        android:inputType="number"
+                        android:maxLength="12"></EditText>
+
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageButton
                     android:id="@+id/btnScan"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
-                    android:layout_marginTop="-10dp"
                     android:contentDescription="@string/Scan"
                     android:scaleType="fitXY"
                     android:src="@drawable/scan" />
-
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/etStartDate"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:layout_weight="1"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
+                    android:layout_marginRight="5dp"
+                    android:paddingLeft="5dp"
+                    android:background="@drawable/corner"
                     android:hint="@string/StartDate" />
 
                 <EditText
                     android:id="@+id/etEndDate"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:layout_weight="1"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
+                    android:background="@drawable/corner"
+                    android:paddingLeft="5dp"
                     android:hint="@string/EndDate" />
             </LinearLayout>
 
-            <AutoCompleteTextView
-                android:id="@+id/etDiagnosis"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:fontFamily="sans-serif-light"
-
+                android:layout_marginBottom="10dp"
                 android:hint="@string/Diagnosis"
-                android:maxLength="6"></AutoCompleteTextView>
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <AutoCompleteTextView
+                    android:id="@+id/etDiagnosis"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:ems="10"
+                    android:paddingLeft="5dp"
+                    android:fontFamily="sans-serif-light"
+                    android:maxLength="6"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
                 <!--<EditText-->
                 <!--android:id="@+id/etDiagnosis1"-->
@@ -140,21 +182,25 @@
                 <AutoCompleteTextView
                     android:id="@+id/etDiagnosis1"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
+                    android:paddingLeft="5dp"
+                    android:layout_marginRight="5dp"
                     android:layout_weight="1"
                     android:ems="10"
+                    android:background="@drawable/corner"
                     android:fontFamily="sans-serif-light"
                     android:hint="@string/Diagnosis1"
                     android:maxLength="6"
-
                     />
 
                 <AutoCompleteTextView
                     android:id="@+id/etDiagnosis2"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
+                    android:paddingLeft="5dp"
                     android:layout_weight="1"
                     android:ems="10"
+                    android:background="@drawable/corner"
                     android:fontFamily="sans-serif-light"
                     android:hint="@string/Diagnosis2"
                     android:maxLength="6" />
@@ -163,25 +209,31 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
 
                 <AutoCompleteTextView
                     android:id="@+id/etDiagnosis3"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:layout_weight="1"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
+                    android:background="@drawable/corner"
+                    android:paddingLeft="5dp"
+                    android:layout_marginRight="5dp"
                     android:hint="@string/Diagnosis3"
                     android:maxLength="6" />
 
                 <AutoCompleteTextView
                     android:id="@+id/etDiagnosis4"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:layout_weight="1"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
+                    android:background="@drawable/corner"
+                    android:paddingLeft="5dp"
                     android:hint="@string/Diagnosis4"
                     android:maxLength="6" />
 
@@ -230,14 +282,22 @@
 
             </RadioGroup>
 
-            <AutoCompleteTextView
-                android:id="@+id/etReferalHF"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tfReferal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:layout_marginTop="5dp"
-                android:fontFamily="sans-serif-light"
-                android:hint="@string/ReferalHF"/>
+                android:layout_marginTop="10dp"
+                android:hint="@string/ReferalHF"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+                <AutoCompleteTextView
+                    android:id="@+id/etReferalHF"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="sans-serif-light"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
             <CheckBox
                 android:id="@+id/etPreAuthorization"
                 android:layout_width="wrap_content"
@@ -356,6 +416,7 @@
                 android:id="@+id/btnNew"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
                 android:layout_weight="1"
                 android:text="@string/New" />
 
