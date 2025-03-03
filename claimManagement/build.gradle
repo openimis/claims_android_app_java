@@ -215,8 +215,8 @@ dependencies {
         because("Apollo 3+ only works with Kotlin coroutines")
     }
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation group: 'com.squareup.picasso', name: 'picasso', version: '2.71828'
     implementation group: 'net.lingala.zip4j', name: 'zip4j', version: '1.2.7'
 
