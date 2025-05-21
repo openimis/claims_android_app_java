@@ -231,7 +231,7 @@ public class SynchronizeActivity extends ImisActivity {
                     boolean updateAvailable = false;
 
                     //get all github releases
-                    URL url = new URL("https://api.github.com/repos/mngoe/claims_android_app_java/releases");
+                    URL url = new URL("https://api.github.com/repos/openimis/claims_android_app_java/releases");
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
                     connection.setReadTimeout(60_000);
@@ -303,7 +303,7 @@ public class SynchronizeActivity extends ImisActivity {
 
     public void downloadUpdate(String lastVersion, String tagName) {
         try {
-            String apkUrl = "https://github.com/mngoe/claims_android_app_java/releases/download/" + tagName + "/claimManagement-"+ BuildConfig.FLAVOR + "-debug.apk";
+            String apkUrl = "https://github.com/openimis/claims_android_app_java/releases/download/" + tagName + "/claimManagement-"+ BuildConfig.FLAVOR + "-debug.apk";
 
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(apkUrl))
                     .setTitle(getResources().getString(R.string.claimUpdate))
