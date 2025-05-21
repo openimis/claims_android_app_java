@@ -7,7 +7,7 @@ import org.openimis.imisclaims.GetCsrfTokenMutation;
 
 import java.util.Objects;
 
-public class GetCrsfTokenGraphQLMutation extends BaseGraphQLRequest {
+public class GetCsrfTokenGraphQLMutation extends BaseGraphQLRequest {
 
     @WorkerThread
     @NonNull

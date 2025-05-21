@@ -569,22 +569,22 @@ public class MainActivity extends ImisActivity {
             Thread thread = new Thread() {
                 public void run() {
                     try {
-                        DiagnosesServicesMedications diagnosesServicesMedications = new FetchDiagnosesServicesItems().execute();
-                        saveLastUpdateDate(diagnosesServicesMedications.getLastUpdated());
+//                        DiagnosesServicesMedications diagnosesServicesMedications = new FetchDiagnosesServicesItems().execute();
+//                        saveLastUpdateDate(diagnosesServicesMedications.getLastUpdated());
                         sqlHandler.ClearAll("tblReferences");
                         sqlHandler.ClearAll("tblHealthFacilities");
                         sqlHandler.ClearMapping("S");
                         sqlHandler.ClearMapping("I");
                         //Insert Diagnoses
-                        for (Diagnosis diagnosis : diagnosesServicesMedications.getDiagnoses()) {
-                            sqlHandler.InsertReferences(diagnosis.getCode(), diagnosis.getName(), "D", "");
-                        }
+//                        for (Diagnosis diagnosis : diagnosesServicesMedications.getDiagnoses()) {
+//                            sqlHandler.InsertReferences(diagnosis.getCode(), diagnosis.getName(), "D", "");
+//                        }
 
                         //Insert Services
-                        for (Service service : diagnosesServicesMedications.getServices()) {
-                            sqlHandler.InsertReferences(service.getCode(), service.getName(), "S", String.valueOf(service.getPrice()));
-                            sqlHandler.InsertMapping(service.getCode(), service.getName(), "S");
-                        }
+//                        for (Service service : diagnosesServicesMedications.getServices()) {
+//                            sqlHandler.InsertReferences(service.getCode(), service.getName(), "S", String.valueOf(service.getPrice()));
+//                            sqlHandler.InsertMapping(service.getCode(), service.getName(), "S");
+//                        }
 
                         //Insert Items
                         List<Medication> medications = new FetchMedications().execute();

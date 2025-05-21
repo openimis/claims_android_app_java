@@ -5,6 +5,7 @@ import androidx.annotation.WorkerThread;
 
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.api.Mutation;
 import com.apollographql.apollo.api.Operation;
 import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
@@ -14,9 +15,11 @@ import org.openimis.imisclaims.BuildConfig;
 import org.openimis.imisclaims.network.apollo.DateCustomTypeAdapter;
 import org.openimis.imisclaims.network.apollo.DateTimeCustomTypeAdapter;
 import org.openimis.imisclaims.network.apollo.DecimalCustomTypeAdapter;
+import org.openimis.imisclaims.network.exception.HttpException;
 import org.openimis.imisclaims.network.util.OkHttpUtils;
 import org.openimis.imisclaims.type.CustomType;
 
+import java.net.HttpURLConnection;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -61,5 +64,55 @@ public abstract class BaseGraphQLRequest {
             throw exception;
         }
         return responses[0];
+    }
+
+    @NonNull
+    @WorkerThread
+    protected <T extends Operation.Data> Response<T> makeSynchronous(Operation<T, ?, ?> query) throws Exception {
+        Semaphore semaphore = new Semaphore(0);
+        final Exception[] exceptions = new Exception[1];
+        final Response<T>[] responses = new Response[1];
+        ApolloCall<?> call;
+        if (query instanceof Query) {
+            call = apolloClient.query((Query<T, ?, ?>) query);
+        } else if(query instanceof Mutation) {
+            call = apolloClient.mutate((Mutation<T, ?, ?>) query);
+        } else {
+            throw new IllegalArgumentException("Query is unsupported");
+        }
+        call.enqueue(new ApolloCall.Callback() {
+            @Override
+            public void onResponse(@NonNull Response response) {
+                responses[0] = response;
+                semaphore.release();
+            }
+
+            @Override
+            public void onFailure(@NonNull ApolloException e) {
+                exceptions[0] = e;
+                semaphore.release();
+            }
+        });
+        if (!semaphore.tryAcquire(TIME_OUT_IN_MS, TimeUnit.MILLISECONDS)) {
+            throw new TimeoutException("Call couldn't finish within " + TIME_OUT_IN_MS + "ms");
+        }
+        Exception exception = exceptions[0];
+        if (exception != null) {
+            throw exception;
+        }
+        Response<T> response = responses[0];
+        if (response.hasErrors()) {
+            String details = response.getErrors().get(0).getMessage();
+            if (details.equals("User not authorized for this operation")) {
+                throw new HttpException(
+                        HttpURLConnection.HTTP_UNAUTHORIZED,
+                        details,
+                        null,
+                        null
+                );
+            }
+            throw new RuntimeException(response.toString());
+        }
+        return response;
     }
 }
