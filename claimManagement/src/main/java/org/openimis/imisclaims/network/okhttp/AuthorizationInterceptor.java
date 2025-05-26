@@ -23,7 +23,7 @@ public class AuthorizationInterceptor implements Interceptor {
     public AuthorizationInterceptor(@NonNull Global global) {
         this.global = global;
     }
-    private static final String REQUESTED_WITH = "mobile_app";
+    private static final String USER_AGENT = "mobile_app";
 
     @NonNull
     @Override
@@ -33,11 +33,7 @@ public class AuthorizationInterceptor implements Interceptor {
         if (token != null && token.isTokenValidJWT()) {
             Request.Builder builder = chain.request().newBuilder();
             builder.addHeader("Authorization", "bearer " + token.getTokenText().trim());
-            if(csrfToken != null){
-                Log.e("csrf token", csrfToken);
-                builder.addHeader("X-Csrftoken", csrfToken);
-                builder.addHeader("X-Requested-With", REQUESTED_WITH);
-            }
+            builder.addHeader("User-Agent", USER_AGENT);
             Response response = chain.proceed(builder.build());
             if (response.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 global.getJWTToken().clearToken();
