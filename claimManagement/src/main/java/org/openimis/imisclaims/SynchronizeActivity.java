@@ -1,27 +1,38 @@
 package org.openimis.imisclaims;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+
+import android.os.Environment;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+import org.openimis.imisclaims.network.exception.HttpException;
 import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.tools.StorageManager;
 import org.openimis.imisclaims.util.StreamUtils;
 import org.openimis.imisclaims.util.UriUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class SynchronizeActivity extends ImisActivity {
@@ -31,7 +42,7 @@ public class SynchronizeActivity extends ImisActivity {
     ArrayList<String> broadcastList;
 
     TextView tvUploadClaims, tvZipClaims;
-    RelativeLayout uploadClaims, zipClaims, importMasterData, downloadMasterData;
+    RelativeLayout uploadClaims, zipClaims, importMasterData, downloadMasterData, checkUpdate;
 
     ProgressDialog pd;
     Uri exportUri;
@@ -64,6 +75,7 @@ public class SynchronizeActivity extends ImisActivity {
         zipClaims = findViewById(R.id.zip_claims);
         importMasterData = findViewById(R.id.importMasterData);
         downloadMasterData = findViewById(R.id.downloadMasterData);
+        checkUpdate = findViewById(R.id.checkUpdate);
 
         uploadClaims.setOnClickListener(view -> doLoggedIn(this::confirmUploadClaims));
         zipClaims.setOnClickListener(view -> confirmXMLCreation());
@@ -72,6 +84,7 @@ public class SynchronizeActivity extends ImisActivity {
         downloadMasterData.setOnClickListener(view -> {
         }); //TODO Not yet implemented
         downloadMasterData.setVisibility(View.GONE);
+        checkUpdate.setOnClickListener(view -> CheckUpdate());
 
     }
 
@@ -204,5 +217,108 @@ public class SynchronizeActivity extends ImisActivity {
     public void exportClaims() {
         pd = ProgressDialog.show(this, "", getResources().getString(R.string.Processing));
         SynchronizeService.exportClaims(this);
+    }
+
+    public void CheckUpdate(){
+        if (global.isNetworkAvailable()) {
+            String progress_message = getResources().getString(R.string.Checking_For_Updates);
+            pd = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);
+
+            Thread thread = new Thread(() -> {
+                try {
+                    //get current release
+                    String currentVersion = BuildConfig.VERSION_NAME; //
+                    boolean updateAvailable = false;
+
+                    //get all github releases
+                    URL url = new URL("https://api.github.com/repos/openimis/claims_android_app_java/releases");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
+                    connection.setReadTimeout(60_000);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
+                    connection.disconnect();
+
+                    //get lastest version
+                    JSONArray jsonarray = new JSONArray(response.toString());
+                    String lastVersion = "";
+                    String tag_name = "";
+                    for (int i = 0; i < jsonarray.length(); i++){
+                        JSONObject releaseObj = jsonarray.getJSONObject(i);
+                        if(releaseObj.getString("tag_name").equals(getResources().getString(R.string.release_tag))){
+                            tag_name = releaseObj.getString("tag_name");
+                            String releaseName = releaseObj.getString("name");
+                            if(!releaseName.equals(currentVersion)){
+                                lastVersion = releaseName;
+                                updateAvailable = true;
+                            }
+                        }
+                    }
+
+                    //print result
+                    boolean finalUpdateAvailable = updateAvailable;
+                    String finalLastVersion = lastVersion;
+                    String finalTagName = tag_name;
+                    runOnUiThread(() -> {
+                        pd.dismiss();
+                        if (finalUpdateAvailable) {
+                            new AlertDialog.Builder(this)
+                                    .setTitle(getResources().getString(R.string.updateAvailable))
+                                    .setMessage(getResources().getString(R.string.newVersion) + " " + finalLastVersion )
+                                    .setPositiveButton(getResources().getString(R.string.download), (dialog, which) -> downloadUpdate(finalLastVersion, finalTagName))
+                                    .setNegativeButton(getResources().getString(R.string.cancel), null)
+                                    .show();
+                        } else {
+                            Toast.makeText(this,
+                                    getResources().getString(R.string.haveLastVersion) + " " + currentVersion,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } catch (HttpException e){
+                    runOnUiThread(() -> {
+                        pd.dismiss();
+                        Toast.makeText(this,
+                                getResources().getString(R.string.Error),
+                                Toast.LENGTH_SHORT).show();
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        pd.dismiss();
+                        Toast.makeText(this,
+                                e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
+            thread.start();
+        } else {
+           showDialog(getResources().getString(R.string.CheckInternet));
+        }
+    }
+
+    public void downloadUpdate(String lastVersion, String tagName) {
+        try {
+            String apkUrl = "https://github.com/openimis/claims_android_app_java/releases/download/" + tagName + "/claimManagement-"+ BuildConfig.FLAVOR + "-debug.apk";
+
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(apkUrl))
+                    .setTitle(getResources().getString(R.string.claimUpdate))
+                    .setDescription(getResources().getString(R.string.getVersion) + lastVersion)
+                    .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "claimManagement-"+ BuildConfig.FLAVOR + "-debug.apk")
+                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+            DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            manager.enqueue(request);
+
+            Toast.makeText(this, getResources().getString(R.string.downloading), Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            Toast.makeText(this, getResources().getString(R.string.downloadUpdateFail), Toast.LENGTH_SHORT).show();
+            Log.e("DownloadUpdate", "Erreur: ", e);
+        }
     }
 }

@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         applicationId "org.openimis.imisclaims"
-        minSdkVersion 21
+        minSdkVersion 26
         targetSdkVersion 32
         versionCode 4
         versionName "2.0.1"
@@ -61,6 +61,7 @@ android {
         buildConfigField "String", "REST_API_PREFIX", '"rest"'
         buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
         buildConfigField "String", "API_VERSION", '"3"'
+        resValue "string", "release_tag", "release/25.04"
     }
 
     productFlavors {
