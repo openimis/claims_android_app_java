@@ -65,6 +65,7 @@ public class Global extends Application {
     private static final String SHPREF_NAME = "SHPref";
     private static final String SHPREF_LANGUAGE = "language";
     private static final String DEFAULT_LANGUAGE_CODE = "en";
+    private static final String SHPREF_CSRF = "csrfToken";
     private static Global instance;
     private String OfficerCode;
     private String OfficerHealthFacility;
@@ -135,6 +136,11 @@ public class Global extends Application {
         if (JWTToken == null)
             JWTToken = new Token();
         return JWTToken;
+    }
+
+    public String getCsrfToken(){
+        SharedPreferences sp = getDefaultSharedPreferences();
+        return sp.getString(SHPREF_CSRF,null);
     }
 
     public boolean isLoggedIn() {
