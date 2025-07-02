@@ -10,9 +10,32 @@ query GetPaymentList($claim_administrator_code: String) {
                             edges {
                                 node {
                                     service {
+                                        id
                                         code
                                         name
                                         price
+                                        packagetype
+                                        type
+                                        careType
+                                        manualPrice
+                                        serviceserviceSet {
+                                            service {
+                                                id
+                                                code
+                                                name
+                                            }
+                                            qtyProvided
+                                            priceAsked
+                                        }
+                                        servicesLinked {
+                                            item {
+                                                id
+                                                code
+                                                name
+                                            }
+                                            qtyProvided
+                                            priceAsked
+                                        }
                                     }
                                 }
                             }
@@ -23,6 +46,7 @@ query GetPaymentList($claim_administrator_code: String) {
                             edges {
                                 node {
                                     item {
+                                        id
                                         code
                                         name
                                         price
