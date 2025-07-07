@@ -140,7 +140,7 @@ public class Global extends Application {
 
     public String getCsrfToken(){
         SharedPreferences sp = getDefaultSharedPreferences();
-        return sp.getString(SHPREF_CSRF,null);
+        return sp.getString(SHPREF_CSRF,"");
     }
 
     public boolean isLoggedIn() {
