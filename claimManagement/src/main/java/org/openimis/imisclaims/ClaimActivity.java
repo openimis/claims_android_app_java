@@ -128,6 +128,7 @@ public class ClaimActivity extends ImisActivity {
         ArrayAdapter<String> visitTypeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, visitTypes);
         visitTypeAdapter.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
         etVisitType.setAdapter(visitTypeAdapter);
+        etVisitType.setThreshold(100);
         etVisitType.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -155,6 +156,7 @@ public class ClaimActivity extends ImisActivity {
         String[] patientConditions = getResources().getStringArray(R.array.patientCondition);
         ArrayAdapter<String> patientConditionAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, patientConditions);
         etPatientCondition.setAdapter(patientConditionAdapter);
+        etPatientCondition.setThreshold(100);
         etPatientCondition.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -593,33 +595,42 @@ public class ClaimActivity extends ImisActivity {
                         switch (claimDetails.getString("VisitType")) {
                             case "E":
                                 etVisitType.setText(getResources().getString(R.string.Emergency));
+                                etVisitType.setTag("E");
                                 break;
                             case "R":
                                 etVisitType.setText(getResources().getString(R.string.Referral));
+                                etVisitType.setTag("R");
                                 tfReferal.setVisibility(View.VISIBLE);
                                 break;
                             case "O":
                                 etVisitType.setText(getResources().getString(R.string.Other));
+                                etVisitType.setTag("O");
                                 break;
                             default:
                                 etVisitType.setText("");
+                                etVisitType.setTag("");
                         }
 
                         switch (claimDetails.getString("PatientCondition")) {
                             case "H":
                                 etPatientCondition.setText(getResources().getString(R.string.Healed));
+                                etPatientCondition.setTag("H");
                                 break;
                             case "D":
                                 etPatientCondition.setText(getResources().getString(R.string.Deceased));
+                                etPatientCondition.setTag("D");
                                 break;
                             case "E":
                                 etPatientCondition.setText(getResources().getString(R.string.Escaped));
+                                etPatientCondition.setTag("E");
                                 break;
                             case "R":
                                 etPatientCondition.setText(getResources().getString(R.string.Referral));
+                                etPatientCondition.setTag("R");
                                 break;
                             default:
                                 etPatientCondition.setText("");
+                                etPatientCondition.setTag("");
                         }
 
                         lvItemList.clear();
