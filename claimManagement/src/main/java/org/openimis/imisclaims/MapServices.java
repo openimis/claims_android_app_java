@@ -354,9 +354,11 @@ public class MapServices extends ImisActivity {
 
                 //FilteredList = new ArrayList<HashMap<String, Object>>();
                 //FilteredList.clear();
-                for (int i = 0; i < ItemList.size(); i++) {
-                    MapServices.this.ServiceList.add(ItemList.get(i));
-                    notifyDataSetInvalidated();
+                if(ItemList != null){
+                    for (int i = 0; i < ItemList.size(); i++) {
+                        MapServices.this.ServiceList.add(ItemList.get(i));
+                        notifyDataSetInvalidated();
+                    }
                 }
 
             }
