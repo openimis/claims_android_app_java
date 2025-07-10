@@ -82,4 +82,4 @@ fastlane/readme.md
 *custom-flavours.gradle
 
 # DS_Store files
-*.DS_Store
+.DS_Store
