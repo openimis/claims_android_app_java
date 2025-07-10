@@ -215,4 +215,6 @@
   <string name="newVersion">Nouvelle version </string>
   <string name="claimUpdate">Mise à jour Claims</string>
   <string name="getVersion">Téléchargement version </string>
+  <string name="InvalidHealthFacility">Formation sanitaire de l\'administrateur invalide</string>
+  <string name="checkHfValidity">Vérification de la formation sanitaire</string>
 </resources>
