@@ -35,7 +35,7 @@
                     android:layout_height="50dp"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
-                    android:maxLength="8"></EditText>
+                    android:maxLength="8"/>
             </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -161,8 +161,7 @@
                     android:layout_height="50dp"
                     android:ems="10"
                     android:paddingLeft="5dp"
-                    android:fontFamily="sans-serif-light"
-                    android:maxLength="6"/>
+                    android:fontFamily="sans-serif-light"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
