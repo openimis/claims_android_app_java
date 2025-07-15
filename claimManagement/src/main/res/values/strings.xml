@@ -251,4 +251,6 @@
     <string name="newVersion">New version </string>
     <string name="claimUpdate">Update Claims</string>
     <string name="getVersion">Downloading version </string>
+    <string name="NoServicesPricelist">This healthfacility don\'t have services pricelist</string>
+    <string name="NoItemsPricelist">This healthfacility don\'t have items pricelist</string>
 </resources>

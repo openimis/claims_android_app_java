@@ -160,7 +160,7 @@
   <string name="reports">Rapports</string>
   <string name="map_items">Lier des prod. méd.</string>
   <string name="map_services">Lier des soins</string>
-  <string name="quit">Arrêter de fumer</string>
+  <string name="quit">Quitter</string>
   <string name="about">À propos de</string>
   <string name="home">Accueil</string>
   <string name="Enter_Credentials">Veuillez entrer votre nom d\'utilisateur et votre mot de passe</string>
@@ -215,4 +215,7 @@
   <string name="newVersion">Nouvelle version </string>
   <string name="claimUpdate">Mise à jour Claims</string>
   <string name="getVersion">Téléchargement version </string>
+  <string name="NoServicesPricelist">La formation sanitaire n\'a pas de liste de prix pour les services </string>
+  <string name="NoItemsPricelist">La formation sanitaire n\'a pas de liste de prix pour les produits </string>
+  <string name="entered">Entrée</string>
 </resources>
