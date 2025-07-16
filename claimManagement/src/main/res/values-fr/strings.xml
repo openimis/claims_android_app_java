@@ -214,5 +214,6 @@
   <string name="haveLastVersion">Vous avez la dernière version </string>
   <string name="newVersion">Nouvelle version </string>
   <string name="claimUpdate">Mise à jour Claims</string>
-  <string name="getVersion">Téléchargement version </string>
+  <string name="getVersion">Téléchargement version</string>
+  <string name="ClaimRejected">Prestation rejetée</string>
 </resources>

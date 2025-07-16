@@ -244,7 +244,7 @@ public class SynchronizeActivity extends ImisActivity {
                     reader.close();
                     connection.disconnect();
 
-                    //get lastest version
+                    //get latest version
                     JSONArray jsonarray = new JSONArray(response.toString());
                     String lastVersion = "";
                     String tag_name = "";

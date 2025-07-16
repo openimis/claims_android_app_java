@@ -465,7 +465,6 @@ public class SQLHandler extends SQLiteOpenHelper {
             for (int i = 0; i < claims.length(); i++) {
                 JSONObject claim = claims.getJSONObject(i);
                 String ClaimUUID = (String) claim.remove("ClaimUUID");
-                Log.e("hf code", claim.getString("HFCode"));
 
                 JSONObject resultClaim = new JSONObject();
                 resultClaim.put("details", claim);
