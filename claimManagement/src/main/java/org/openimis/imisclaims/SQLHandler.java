@@ -940,20 +940,4 @@ public class SQLHandler extends SQLiteOpenHelper {
             e.printStackTrace();
         }
     }
-
-    public String getHealthFacility(String code) {
-        String hf = "";
-        String query = "SELECT (Code ||' '|| Name)  FROM tblHealthFacilities WHERE upper(Code) like '" + code.toUpperCase() + "'";
-        try (Cursor cursor1 = db.rawQuery(query, null)) {
-            // looping through all rows
-            if (cursor1.moveToFirst()) {
-                do {
-                    hf = cursor1.getString(0);
-                } while (cursor1.moveToNext());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return  hf;
-    }
 }
