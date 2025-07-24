@@ -15,7 +15,6 @@ public class GetClaimsGraphQLRequest extends BaseGraphQLRequest {
     @NonNull
     @WorkerThread
     public GetClaimsQuery.Claims get(
-            @Nullable String claimAdministratorCode,
             @Nullable Integer status,
             @Nullable Date visitDateFrom,
             @Nullable Date visitDateTo,
@@ -23,7 +22,6 @@ public class GetClaimsGraphQLRequest extends BaseGraphQLRequest {
             @Nullable Date processedDateTo
     ) throws Exception {
         return makeSynchronous(new GetClaimsQuery(
-                Input.fromNullable(claimAdministratorCode),
                 Input.fromNullable(status),
                 Input.fromNullable(visitDateFrom),
                 Input.fromNullable(visitDateTo),

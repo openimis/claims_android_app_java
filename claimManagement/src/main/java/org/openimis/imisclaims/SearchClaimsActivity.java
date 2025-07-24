@@ -156,8 +156,7 @@ public class SearchClaimsActivity extends ImisActivity {
         new Thread(() -> {
 
             try {
-                List<Claim> claims = new FetchClaims().execute(
-                        claimAdministratorCode, status, visitDateFrom,
+                List<Claim> claims = new FetchClaims().execute( status, visitDateFrom,
                         visitDateTo, processedDateFrom, processedDateTo
                 );
                 pd.dismiss();
