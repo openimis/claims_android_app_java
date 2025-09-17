@@ -44,6 +44,7 @@ import org.openimis.imisclaims.util.TextViewUtils;
 
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -301,6 +302,7 @@ public class EnquireActivity extends ImisActivity {
         }
 
         ll.setVisibility(View.VISIBLE);
+        lv.setNestedScrollingEnabled(true);
 
         if (!etCHFID.getText().toString().trim().equals(insuree.getChfId()))
             return;
@@ -331,6 +333,7 @@ public class EnquireActivity extends ImisActivity {
         }
 
         ArrayList<Map<String, String>> PolicyList = new ArrayList<>();
+        Collections.reverse(insuree.getPolicies());
         for (Policy policy : insuree.getPolicies()) {
             HashMap<String, String> policyMap = new HashMap<>();
             double iDedType = policy.getDeductibleType() != null ? policy.getDeductibleType() : 0;
