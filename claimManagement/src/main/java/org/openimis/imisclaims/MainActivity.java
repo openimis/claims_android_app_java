@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -460,6 +461,7 @@ public class MainActivity extends ImisActivity {
     }
 
     public boolean getControls() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.getControls);
             progressDialog = ProgressDialog.show(this, getResources().getString(R.string.initializing), progress_message);

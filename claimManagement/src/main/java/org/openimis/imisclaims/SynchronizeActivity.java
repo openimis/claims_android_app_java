@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import android.os.Environment;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -210,6 +211,7 @@ public class SynchronizeActivity extends ImisActivity {
     }
 
     public void uploadClaims() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         pd = ProgressDialog.show(this, "", getResources().getString(R.string.Processing));
         SynchronizeService.uploadClaims(this);
     }
