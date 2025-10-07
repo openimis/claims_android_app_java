@@ -72,7 +72,7 @@ public class ClaimAdmin implements Parcelable {
         return hfCode;
     }
 
-    public static final Creator<ClaimAdmin> CREATOR = new Creator<>() {
+    public static final Creator<ClaimAdmin> CREATOR = new Creator<ClaimAdmin>() {
         @Override
         public ClaimAdmin createFromParcel(Parcel in) {
             return new ClaimAdmin(in);

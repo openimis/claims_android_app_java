@@ -501,7 +501,7 @@ public class Claim implements Parcelable {
             return justification;
         }
 
-        public static final Creator<Service> CREATOR = new Creator<>() {
+        public static final Creator<Service> CREATOR = new Creator<Service>() {
             @Override
             public Service createFromParcel(Parcel in) {
                 return new Service(in);
@@ -611,7 +611,7 @@ public class Claim implements Parcelable {
             return justification;
         }
 
-        public static final Creator<Medication> CREATOR = new Creator<>() {
+        public static final Creator<Medication> CREATOR = new Creator<Medication>() {
             @Override
             public Medication createFromParcel(Parcel in) {
                 return new Medication(in);

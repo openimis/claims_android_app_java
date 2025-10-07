@@ -59,7 +59,7 @@ public class PaymentList implements Parcelable {
         return medications;
     }
 
-    public static final Creator<PaymentList> CREATOR = new Creator<>() {
+    public static final Creator<PaymentList> CREATOR = new Creator<PaymentList>() {
         @Override
         public PaymentList createFromParcel(Parcel in) {
             return new PaymentList(in);

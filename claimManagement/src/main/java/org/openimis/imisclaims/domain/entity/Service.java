@@ -129,7 +129,7 @@ public class Service implements Parcelable {
         return subItems;
     }
 
-    public static final Creator<Service> CREATOR = new Creator<>() {
+    public static final Creator<Service> CREATOR = new Creator<Service>() {
         @Override
         public Service createFromParcel(Parcel in) {
             return new Service(in);

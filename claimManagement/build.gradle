@@ -62,6 +62,7 @@ android {
         buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
         buildConfigField "String", "API_VERSION", '"3"'
         resValue "string", "release_tag", "release/25.04"
+        resValue "string", "glitchip_dsn", "https://3afee255dd9f4b96b0d1b207b1bb5f1b@glitchtip.s2.openimis.org/3"
     }
 
     productFlavors {
@@ -171,8 +172,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     buildFeatures {
         viewBinding true
@@ -220,5 +221,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation group: 'com.squareup.picasso', name: 'picasso', version: '2.71828'
     implementation group: 'net.lingala.zip4j', name: 'zip4j', version: '1.2.7'
+    implementation 'io.sentry:sentry-android:5.3.0'
 
 }

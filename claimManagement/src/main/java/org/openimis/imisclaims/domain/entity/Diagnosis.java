@@ -46,7 +46,7 @@ public class Diagnosis implements Parcelable {
         return name;
     }
 
-    public static final Creator<Diagnosis> CREATOR = new Creator<>() {
+    public static final Creator<Diagnosis> CREATOR = new Creator<Diagnosis>() {
         @Override
         public Diagnosis createFromParcel(Parcel in) {
             return new Diagnosis(in);

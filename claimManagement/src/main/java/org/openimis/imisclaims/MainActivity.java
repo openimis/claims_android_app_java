@@ -58,6 +58,9 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.sentry.Sentry;
+import io.sentry.android.core.SentryAndroid;
+
 
 public class MainActivity extends ImisActivity {
     private static final int REQUEST_PERMISSIONS_CODE = 1;
@@ -109,49 +112,53 @@ public class MainActivity extends ImisActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        try {
+            setContentView(R.layout.activity_main);
 
-        isSDCardAvailable();
+            isSDCardAvailable();
 
-        broadcastList = new ArrayList<>();
-        broadcastList.add(SynchronizeService.ACTION_CLAIM_COUNT_RESULT);
+            broadcastList = new ArrayList<>();
+            broadcastList.add(SynchronizeService.ACTION_CLAIM_COUNT_RESULT);
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setCancelable(false);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        actionBar = getSupportActionBar();
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            actionBar = getSupportActionBar();
 
-        new Thread(this::checkForUpdates).start();
+            new Thread(this::checkForUpdates).start();
 
-        drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+            drawer = findViewById(R.id.drawer_layout);
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            drawer.addDrawerListener(toggle);
+            toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this::onNavigationItemSelected);
+            NavigationView navigationView = findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(this::onNavigationItemSelected);
 
-        View header = navigationView.getHeaderView(0);
-        loginText = header.findViewById(R.id.LoginText);
-        loginText.setText(global.isLoggedIn() ? R.string.Logout : R.string.Login);
-        RelativeLayout loginButton = header.findViewById(R.id.LoginButton);
-        loginButton.setOnClickListener((view) -> changeLoginState());
+            View header = navigationView.getHeaderView(0);
+            loginText = header.findViewById(R.id.LoginText);
+            loginText.setText(global.isLoggedIn() ? R.string.Logout : R.string.Login);
+            RelativeLayout loginButton = header.findViewById(R.id.LoginButton);
+            loginButton.setOnClickListener((view) -> changeLoginState());
 
-        accepted_count = findViewById(R.id.accepted_count);
-        rejected_count = findViewById(R.id.rejected_count);
-        entered_Count = findViewById(R.id.entered_count);
+            accepted_count = findViewById(R.id.accepted_count);
+            rejected_count = findViewById(R.id.rejected_count);
+            entered_Count = findViewById(R.id.entered_count);
 
-        accepted_count.setText("0");
-        rejected_count.setText("0");
-        entered_Count.setText("0");
+            accepted_count.setText("0");
+            rejected_count.setText("0");
+            entered_Count.setText("0");
 
-        AdminName = findViewById(R.id.AdminName);
+            AdminName = findViewById(R.id.AdminName);
 
-        if (checkRequirements()) {
-            onAllRequirementsMet();
+            if (checkRequirements()) {
+                onAllRequirementsMet();
+            }
+        } catch (Exception exception) {
+            Sentry.captureException(exception);
         }
     }
 
@@ -283,6 +290,7 @@ public class MainActivity extends ImisActivity {
                                     (d, i) -> finish());
                         }
                     } catch (Exception e) {
+                        Sentry.captureException(e);
                         Log.e(LOG_TAG, "Error while copying master data.", e);
                     }
                 }
@@ -303,6 +311,7 @@ public class MainActivity extends ImisActivity {
                             try {
                                 startActivityForResult(intent, REQUEST_PICK_MD_FILE);
                             } catch (ActivityNotFoundException e) {
+                                Sentry.captureException(e);
                                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.NoFileExporerInstalled), Toast.LENGTH_SHORT).show();
                             }
                         }).setNegativeButton(getResources().getString(R.string.No),
@@ -319,6 +328,7 @@ public class MainActivity extends ImisActivity {
                     try {
                         doLoggedIn(() -> DownLoadDiagnosesServicesItems(global.getOfficerCode()));
                     } catch (Exception e) {
+                        Sentry.captureException(e);
                         e.printStackTrace();
                     }
                 },
@@ -409,6 +419,7 @@ public class MainActivity extends ImisActivity {
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
+                            Sentry.captureException(e);
                             DownloadMasterDialog();
                         }
                     } else {
@@ -442,6 +453,7 @@ public class MainActivity extends ImisActivity {
                 try {
                     mNotificationManager.notify(SIMPLE_NOTIFICATION_ID, builder.build());
                 } catch (Exception e) {
+                    Sentry.captureException(e);
                     e.printStackTrace();
                 }
 
@@ -479,6 +491,7 @@ public class MainActivity extends ImisActivity {
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Sentry.captureException(e);
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             ErrorDialogBox(e.getMessage());
@@ -519,6 +532,7 @@ public class MainActivity extends ImisActivity {
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Sentry.captureException(e);
                     runOnUiThread(() -> progressDialog.dismiss());
                 }
             });
@@ -553,6 +567,7 @@ public class MainActivity extends ImisActivity {
                             progressDialog.dismiss();
                             doLoggedIn(() -> DownLoadDiagnosesServicesItems(claimAdminCode));
                         } catch (Exception e) {
+                            Sentry.captureException(e);
                             e.printStackTrace();
                         }
                     }
@@ -636,6 +651,7 @@ public class MainActivity extends ImisActivity {
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Sentry.captureException(e);
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, e.getMessage() + "-" + getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
@@ -680,6 +696,7 @@ public class MainActivity extends ImisActivity {
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Sentry.captureException(e);
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, e.getMessage() + "-" + getResources().getString(R.string.AccessDenied), Toast.LENGTH_LONG).show();

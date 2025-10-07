@@ -261,7 +261,7 @@ public class PendingClaim implements Parcelable {
         return medications;
     }
 
-    public static final Creator<PendingClaim> CREATOR = new Creator<>() {
+    public static final Creator<PendingClaim> CREATOR = new Creator<PendingClaim>() {
         @Override
         public PendingClaim createFromParcel(Parcel in) {
             return new PendingClaim(in);
@@ -334,7 +334,7 @@ public class PendingClaim implements Parcelable {
             return quantity;
         }
 
-        public static final Creator<Service> CREATOR = new Creator<>() {
+        public static final Creator<Service> CREATOR = new Creator<Service>() {
             @Override
             public Service createFromParcel(Parcel in) {
                 return new Service(in);
@@ -408,7 +408,7 @@ public class PendingClaim implements Parcelable {
             return quantity;
         }
 
-        public static final Creator<Medication> CREATOR = new Creator<>() {
+        public static final Creator<Medication> CREATOR = new Creator<Medication>() {
             @Override
             public Medication createFromParcel(Parcel in) {
                 return new Medication(in);

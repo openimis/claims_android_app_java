@@ -45,7 +45,7 @@ public class SubServiceItem implements Parcelable{
     public String getPrice() {
         return price;
     }
-    public static final Parcelable.Creator<SubServiceItem> CREATOR = new Parcelable.Creator<>() {
+    public static final Parcelable.Creator<SubServiceItem> CREATOR = new Parcelable.Creator<SubServiceItem>() {
         @Override
         public SubServiceItem createFromParcel(Parcel in) {
             return new SubServiceItem(in);
