@@ -39,7 +39,10 @@ private String _Domain = "http://132.148.151.32/";
 ```
 
 For demo purposes, the default Web Services domain is set to the openIMIS
-demo server: demo.openimis.org (IP: 132.148.151.32).  
+demo server: demo.openimis.org (IP: 132.148.151.32).
+
+If you want to receive error and exception events in sentry
+you can set `sentry_dsn` in build.gradle file
 
 ### Running the app
 

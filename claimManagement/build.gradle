@@ -62,7 +62,7 @@ android {
         buildConfigField "String", "RAR_PASSWORD", '")(#$1HsD"'
         buildConfigField "String", "API_VERSION", '"3"'
         resValue "string", "release_tag", "release/25.04"
-        resValue "string", "sentry_dsn", "https://3afee255dd9f4b96b0d1b207b1bb5f1b@glitchtip.s2.openimis.org/3"
+        resValue "string", "sentry_dsn", ""
     }
 
     productFlavors {
