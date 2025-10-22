@@ -547,8 +547,9 @@ public class MainActivity extends ImisActivity {
                     AdminName.setText(global.getOfficeName());
                 }
                 Cursor c = sqlHandler.getMapping("I");
-                if (c != null) {
-                    if (c.getCount() == 0) {
+                Cursor c1 = sqlHandler.getMapping("S");
+                if (c != null && c1 != null) {
+                    if (c.getCount() == 0 && c1.getCount() == 0) {
                         try {
                             progressDialog.dismiss();
                             doLoggedIn(() -> DownLoadDiagnosesServicesItems(claimAdminCode));
