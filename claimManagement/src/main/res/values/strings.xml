@@ -251,4 +251,5 @@
     <string name="newVersion">New version </string>
     <string name="claimUpdate">Update Claims</string>
     <string name="getVersion">Downloading version </string>
+    <string name="News">New changes:</string>
 </resources>

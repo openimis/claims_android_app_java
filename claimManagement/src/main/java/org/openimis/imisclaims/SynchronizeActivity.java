@@ -250,6 +250,7 @@ public class SynchronizeActivity extends ImisActivity {
                     JSONArray jsonarray = new JSONArray(response.toString());
                     String lastVersion = "";
                     String tag_name = "";
+                    String notes = "";
                     for (int i = 0; i < jsonarray.length(); i++){
                         JSONObject releaseObj = jsonarray.getJSONObject(i);
                         if(releaseObj.getString("tag_name").equals(getResources().getString(R.string.release_tag))){
@@ -258,6 +259,7 @@ public class SynchronizeActivity extends ImisActivity {
                             if(!releaseName.equals(currentVersion)){
                                 lastVersion = releaseName;
                                 updateAvailable = true;
+                                notes = releaseObj.getString("body");
                             }
                         }
                     }
@@ -266,12 +268,17 @@ public class SynchronizeActivity extends ImisActivity {
                     boolean finalUpdateAvailable = updateAvailable;
                     String finalLastVersion = lastVersion;
                     String finalTagName = tag_name;
+                    String finalNotes = notes;
                     runOnUiThread(() -> {
                         pd.dismiss();
                         if (finalUpdateAvailable) {
                             new AlertDialog.Builder(this)
                                     .setTitle(getResources().getString(R.string.updateAvailable))
-                                    .setMessage(getResources().getString(R.string.newVersion) + " " + finalLastVersion )
+                                    .setMessage(
+                                            getResources().getString(R.string.newVersion) + " " + finalLastVersion + "\n \n"
+                                                    +  getResources().getString(R.string.News) + "\n"
+                                                    + "\n" + finalNotes
+                                    )
                                     .setPositiveButton(getResources().getString(R.string.download), (dialog, which) -> downloadUpdate(finalLastVersion, finalTagName))
                                     .setNegativeButton(getResources().getString(R.string.cancel), null)
                                     .show();

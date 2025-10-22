@@ -215,4 +215,5 @@
   <string name="newVersion">Nouvelle version </string>
   <string name="claimUpdate">Mise à jour Claims</string>
   <string name="getVersion">Téléchargement version </string>
+  <string name="News">Nouveautés:</string>
 </resources>
