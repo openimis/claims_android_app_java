@@ -218,4 +218,5 @@
   <string name="NoServicesPricelist">La formation sanitaire n\'a pas de liste de prix pour les services </string>
   <string name="NoItemsPricelist">La formation sanitaire n\'a pas de liste de prix pour les produits </string>
   <string name="entered">Entrée</string>
+  <string name="News">Nouveautés:</string>
 </resources>
