@@ -87,3 +87,4 @@ fastlane/readme.md
 .DS_Store
 *.properties
 ./gradle
+*.DS_Store
