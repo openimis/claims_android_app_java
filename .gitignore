@@ -85,3 +85,5 @@ fastlane/readme.md
 *custom-flavours.gradle
 
 .DS_Store
+*.properties
+./gradle
