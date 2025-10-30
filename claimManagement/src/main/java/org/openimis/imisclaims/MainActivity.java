@@ -112,53 +112,49 @@ public class MainActivity extends ImisActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
-            isSDCardAvailable();
+        isSDCardAvailable();
 
-            broadcastList = new ArrayList<>();
-            broadcastList.add(SynchronizeService.ACTION_CLAIM_COUNT_RESULT);
+        broadcastList = new ArrayList<>();
+        broadcastList.add(SynchronizeService.ACTION_CLAIM_COUNT_RESULT);
 
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setCancelable(false);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
 
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-            actionBar = getSupportActionBar();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        actionBar = getSupportActionBar();
 
-            new Thread(this::checkForUpdates).start();
+        new Thread(this::checkForUpdates).start();
 
-            drawer = findViewById(R.id.drawer_layout);
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-            drawer.addDrawerListener(toggle);
-            toggle.syncState();
+        drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
 
-            NavigationView navigationView = findViewById(R.id.nav_view);
-            navigationView.setNavigationItemSelectedListener(this::onNavigationItemSelected);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this::onNavigationItemSelected);
 
-            View header = navigationView.getHeaderView(0);
-            loginText = header.findViewById(R.id.LoginText);
-            loginText.setText(global.isLoggedIn() ? R.string.Logout : R.string.Login);
-            RelativeLayout loginButton = header.findViewById(R.id.LoginButton);
-            loginButton.setOnClickListener((view) -> changeLoginState());
+        View header = navigationView.getHeaderView(0);
+        loginText = header.findViewById(R.id.LoginText);
+        loginText.setText(global.isLoggedIn() ? R.string.Logout : R.string.Login);
+        RelativeLayout loginButton = header.findViewById(R.id.LoginButton);
+        loginButton.setOnClickListener((view) -> changeLoginState());
 
-            accepted_count = findViewById(R.id.accepted_count);
-            rejected_count = findViewById(R.id.rejected_count);
-            entered_Count = findViewById(R.id.entered_count);
+        accepted_count = findViewById(R.id.accepted_count);
+        rejected_count = findViewById(R.id.rejected_count);
+        entered_Count = findViewById(R.id.entered_count);
 
-            accepted_count.setText("0");
-            rejected_count.setText("0");
-            entered_Count.setText("0");
+        accepted_count.setText("0");
+        rejected_count.setText("0");
+        entered_Count.setText("0");
 
-            AdminName = findViewById(R.id.AdminName);
+        AdminName = findViewById(R.id.AdminName);
 
-            if (checkRequirements()) {
-                onAllRequirementsMet();
-            }
-        } catch (Exception exception) {
-            Sentry.captureException(exception);
+        if (checkRequirements()) {
+            onAllRequirementsMet();
         }
     }
 

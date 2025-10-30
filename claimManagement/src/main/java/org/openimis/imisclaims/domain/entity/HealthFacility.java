@@ -46,7 +46,7 @@ public class HealthFacility implements Parcelable {
     public String getName(){
         return name;
     }
-    public static final Creator<HealthFacility> CREATOR = new Creator<HealthFacility>() {
+    public static final Creator<HealthFacility> CREATOR = new Creator<>() {
         @Override
         public HealthFacility createFromParcel(Parcel in) {
             return new HealthFacility(in);

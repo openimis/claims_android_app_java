@@ -70,7 +70,7 @@ public class DiagnosesServicesMedications implements Parcelable {
         return medications;
     }
 
-    public static final Creator<DiagnosesServicesMedications> CREATOR = new Creator<DiagnosesServicesMedications>() {
+    public static final Creator<DiagnosesServicesMedications> CREATOR = new Creator<>() {
         @Override
         public DiagnosesServicesMedications createFromParcel(Parcel in) {
             return new DiagnosesServicesMedications(in);

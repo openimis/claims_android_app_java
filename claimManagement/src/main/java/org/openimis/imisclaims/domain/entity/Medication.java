@@ -90,7 +90,7 @@ public class Medication implements Parcelable {
         return currency;
     }
 
-    public static final Creator<Medication> CREATOR = new Creator<Medication>() {
+    public static final Creator<Medication> CREATOR = new Creator<>() {
         @Override
         public Medication createFromParcel(Parcel in) {
             return new Medication(in);
