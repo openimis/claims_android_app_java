@@ -47,6 +47,7 @@ import org.openimis.imisclaims.domain.entity.PaymentList;
 import org.openimis.imisclaims.domain.entity.Service;
 import org.openimis.imisclaims.domain.entity.SubServiceItem;
 import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.usecase.CheckHealthFacility;
 import org.openimis.imisclaims.usecase.FetchClaimAdmins;
 import org.openimis.imisclaims.usecase.FetchControls;
 import org.openimis.imisclaims.usecase.FetchDiagnosesServicesItems;
@@ -552,7 +553,7 @@ public class MainActivity extends ImisActivity {
                     if (c.getCount() == 0 && c1.getCount() == 0) {
                         try {
                             progressDialog.dismiss();
-                            doLoggedIn(() -> DownLoadDiagnosesServicesItems(claimAdminCode));
+                            doLoggedIn(() -> CheckHealthFacility(claimAdminCode, HealthFacilityName));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -561,6 +562,39 @@ public class MainActivity extends ImisActivity {
                 }
             }
         }
+    }
+
+    public void CheckHealthFacility (String claimAdminCode, String HfCode){
+        String progress_message = getResources().getString(R.string.checkHfValidity);
+        progressDialog = ProgressDialog.show(this, getResources().getString(R.string.application), progress_message);
+        Thread thread = new Thread() {
+            public void run() {
+                try {
+                    boolean isValidHealthFacility = new CheckHealthFacility().execute(HfCode);
+                    Log.e("is valid", String.valueOf(isValidHealthFacility));
+                    if(isValidHealthFacility){
+                        runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            DownLoadDiagnosesServicesItems(claimAdminCode);
+                        });
+                    } else {
+                        runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            Toast.makeText(MainActivity.this, getResources().getString(R.string.InvalidHealthFacility), Toast.LENGTH_LONG).show();
+                            ClaimAdminDialogBox();
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        Toast.makeText(MainActivity.this, e.getMessage() + "-" + getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
+                        ClaimAdminDialogBox();
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 
     public void DownLoadDiagnosesServicesItems(@Nullable final String officerCode) {

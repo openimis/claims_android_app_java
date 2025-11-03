@@ -1,4 +1,4 @@
-query GetHealthFacility ($offset: Int){
+query GetHealthFacilities ($offset: Int){
     healthFacilities(offset: $offset) {
         pageInfo {
           hasNextPage
