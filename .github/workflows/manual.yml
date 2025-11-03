@@ -70,7 +70,7 @@ jobs:
 
       # Run Tests Build
       - name: Run gradle tests
-        run: ./gradlew testCliDebugUnitTest
+        run: ./gradlew testCliDebugUnitTest --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:

@@ -37,7 +37,7 @@ jobs:
           gradle --version
 
       - name: Run gradle tests
-        run: ./gradlew test
+        run: ./gradlew testDemoProdDebugUnitTest --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
