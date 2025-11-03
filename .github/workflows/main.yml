@@ -13,11 +13,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-      - name: Setup JDK 11
+      - name: Setup JDK 17
         uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
           cache: 'gradle'
 
       - name: Environment info
@@ -35,6 +35,9 @@ jobs:
       - name: Environment info
         run: |
           gradle --version
+
+      - name: Run gradle tests
+        run: ./gradlew testDemoProdDebugUnitTest --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
