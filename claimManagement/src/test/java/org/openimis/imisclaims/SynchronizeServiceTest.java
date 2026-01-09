@@ -81,6 +81,7 @@ public class SynchronizeServiceTest {
         verify(global).isNetworkAvailable();
         assertNotNull(capturedIntent);
         assertEquals(SynchronizeService.ACTION_SYNC_ERROR, capturedIntent.getAction());
+        System.out.println("Error Message: " + capturedIntent.getStringExtra(SynchronizeService.EXTRA_ERROR_MESSAGE));
         assertEquals("Error message", capturedIntent.getStringExtra(SynchronizeService.EXTRA_ERROR_MESSAGE));
     }
 

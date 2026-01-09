@@ -57,6 +57,7 @@ public class SynchronizeService extends JobIntentService {
     protected Global global;
     protected SQLHandler sqlHandler;
     protected StorageManager storageManager;
+    protected PostNewClaims postNewClaims;
 
     @Override
     public void onCreate() {
@@ -64,6 +65,10 @@ public class SynchronizeService extends JobIntentService {
         global = (Global) getApplicationContext();
         sqlHandler = new SQLHandler(this);
         storageManager = StorageManager.of(this);
+    }
+
+    public void setPostNewClaims(PostNewClaims postNewClaims) {
+        this.postNewClaims = postNewClaims;
     }
 
     public static void uploadClaims(Context context) {
@@ -109,7 +114,10 @@ public class SynchronizeService extends JobIntentService {
         }
 
         try {
-            List<PostNewClaims.Result> results = new PostNewClaims().execute(PendingClaim.fromJson(claims));
+            if (postNewClaims == null) {
+                postNewClaims = new PostNewClaims();
+            }
+            List<PostNewClaims.Result> results = postNewClaims.execute(PendingClaim.fromJson(claims));
             JSONArray claimStatus = processClaimResponse(results);
             broadcastSyncSuccess(claimStatus);
         } catch (Exception e) {
