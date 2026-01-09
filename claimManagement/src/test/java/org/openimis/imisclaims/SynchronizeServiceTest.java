@@ -25,7 +25,6 @@ import org.openimis.imisclaims.tools.StorageManager;
 import java.util.Arrays;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
 public class SynchronizeServiceTest {
 
     @Mock private Global global;

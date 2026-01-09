@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 28, manifest = Config.NONE)
 public class ClaimActivityTest {
 
     ClaimActivity activity;
