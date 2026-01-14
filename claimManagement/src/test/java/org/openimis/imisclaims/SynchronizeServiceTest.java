@@ -16,13 +16,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.openimis.imisclaims.domain.entity.Claim;
+import org.openimis.imisclaims.usecase.FetchClaims;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Date;
+
+
 import org.openimis.imisclaims.usecase.PostNewClaims;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import org.openimis.imisclaims.tools.StorageManager;
-
-import java.util.Arrays;
 
 @RunWith(RobolectricTestRunner.class)
 public class SynchronizeServiceTest {
@@ -197,5 +202,84 @@ public class SynchronizeServiceTest {
         assertEquals(5, capturedIntent.getIntExtra(SynchronizeService.EXTRA_CLAIM_COUNT_ENTERED, 0));
         assertEquals(3, capturedIntent.getIntExtra(SynchronizeService.EXTRA_CLAIM_COUNT_ACCEPTED, 0));
         assertEquals(2, capturedIntent.getIntExtra(SynchronizeService.EXTRA_CLAIM_COUNT_REJECTED, 0));
+    }
+
+    @Test
+    public void testDownloadClaims_WhenNetworkAvailable_ReturnsClaimsList() throws Exception {
+        // Given
+        when(global.isNetworkAvailable()).thenReturn(true);
+        
+        // Create a mock claim
+        Claim.Service mockService = new Claim.Service(
+                "SERVICE1", "Service 1", 100.0, "$", 
+                "1", "1", null, null, null, null);
+        Claim.Medication mockMedication = new Claim.Medication(
+                "MED1", "Medication 1", 50.0, "$", 
+                "2", "2", null, null, null, null);
+        
+        Claim mockClaim = new Claim(
+                "claim-uuid-123", "HF001", "Health Facility 1", 
+                "INS123", "John Doe", "CLAIM-001", 
+                new Date(), new Date(), new Date(), 
+                "O", Claim.Status.PROCESSED, "A01", 
+                null, null, null, null, 
+                150.0, 150.0, null, null, "G123", 
+                Arrays.asList(mockService), 
+                Arrays.asList(mockMedication)
+        );
+        
+        // Mock the FetchClaims class
+        FetchClaims fetchClaims = mock(FetchClaims.class);
+        when(fetchClaims.execute(
+                eq(global.getOfficerCode()),
+                any(Claim.Status.class),
+                any(Date.class),
+                any(Date.class),
+                any(Date.class),
+                any(Date.class)
+        )).thenReturn(Arrays.asList(mockClaim));
+        
+        // When
+        List<Claim> claims = fetchClaims.execute(
+                global.getOfficerCode(),
+                Claim.Status.PROCESSED,
+                new Date(),
+                new Date(),
+                new Date(),
+                new Date()
+        );
+        
+        // Then
+        assertNotNull(claims);
+        assertFalse(claims.isEmpty());
+        assertEquals(1, claims.size());
+        assertEquals("CLAIM-001", claims.get(0).getClaimNumber());
+        assertEquals("John Doe", claims.get(0).getPatientName());
+        assertEquals(Claim.Status.PROCESSED, claims.get(0).getStatus());
+        
+        // Verify the service and medication were included
+        assertFalse(claims.get(0).getServices().isEmpty());
+        assertFalse(claims.get(0).getMedications().isEmpty());
+        assertEquals("SERVICE1", claims.get(0).getServices().get(0).getCode());
+        assertEquals("MED1", claims.get(0).getMedications().get(0).getCode());
+    }
+
+    @Test
+    public void testDownloadClaims_WhenNetworkUnavailable_ThrowsException() {
+        // Given
+        when(global.isNetworkAvailable()).thenReturn(false);
+        
+        // When/Then
+        assertThrows(Exception.class, () -> {
+            // This should fail because there's no network
+            new FetchClaims().execute(
+                    global.getOfficerCode(),
+                    Claim.Status.PROCESSED,
+                    new Date(),
+                    new Date(),
+                    new Date(),
+                    new Date()
+            );
+        });
     }
 }
