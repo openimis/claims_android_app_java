@@ -79,6 +79,9 @@ public class Claim implements Parcelable {
     @NonNull
     private final List<Medication> medications;
 
+    @NonNull
+    private final String claimProgram;
+
 
     public Claim(
             @NonNull String uuid,
@@ -103,7 +106,8 @@ public class Claim implements Parcelable {
             @Nullable String adjustment,
             @Nullable String guaranteeNumber,
             @NonNull List<Service> services,
-            @NonNull List<Medication> medications
+            @NonNull List<Medication> medications,
+            @NonNull String claimProgram
     ) {
         this.uuid = uuid;
         this.healthFacilityCode = healthFacilityCode;
@@ -128,6 +132,7 @@ public class Claim implements Parcelable {
         this.guaranteeNumber = guaranteeNumber;
         this.services = services;
         this.medications = medications;
+        this.claimProgram = claimProgram;
     }
 
     protected Claim(Parcel in) {
@@ -179,6 +184,7 @@ public class Claim implements Parcelable {
         } else {
             status = Claim.Status.valueOf(in.readString());
         }
+        claimProgram = in.readString();
     }
 
     @Override
@@ -237,6 +243,7 @@ public class Claim implements Parcelable {
             dest.writeByte((byte) 1);
             dest.writeString(status.name());
         }
+        dest.writeString(claimProgram);
     }
 
     @Override
@@ -403,6 +410,11 @@ public class Claim implements Parcelable {
             return new Claim[size];
         }
     };
+
+    @NonNull
+    public String getClaimProgram() {
+        return claimProgram;
+    }
 
     public static class Service extends org.openimis.imisclaims.domain.entity.Service {
 

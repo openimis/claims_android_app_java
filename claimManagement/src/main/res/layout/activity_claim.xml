@@ -153,6 +153,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
+                android:hint="@string/program"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <AutoCompleteTextView
+                    android:id="@+id/etProgram"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:ems="10"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:fontFamily="sans-serif-light"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:hint="@string/Diagnosis"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <AutoCompleteTextView

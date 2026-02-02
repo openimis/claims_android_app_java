@@ -44,6 +44,7 @@ import org.openimis.imisclaims.domain.entity.Diagnosis;
 import org.openimis.imisclaims.domain.entity.HealthFacility;
 import org.openimis.imisclaims.domain.entity.Medication;
 import org.openimis.imisclaims.domain.entity.PaymentList;
+import org.openimis.imisclaims.domain.entity.Program;
 import org.openimis.imisclaims.domain.entity.Service;
 import org.openimis.imisclaims.domain.entity.SubServiceItem;
 import org.openimis.imisclaims.tools.Log;
@@ -53,6 +54,7 @@ import org.openimis.imisclaims.usecase.FetchControls;
 import org.openimis.imisclaims.usecase.FetchDiagnosesServicesItems;
 import org.openimis.imisclaims.usecase.FetchHealthfacilities;
 import org.openimis.imisclaims.usecase.FetchPaymentList;
+import org.openimis.imisclaims.usecase.FetchPrograms;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -614,6 +616,7 @@ public class MainActivity extends ImisActivity {
                         sqlHandler.ClearAll("tblItems");
                         sqlHandler.ClearMapping("S");
                         sqlHandler.ClearMapping("I");
+                        sqlHandler.ClearAll("tblPrograms");
                         //Insert Diagnoses
                         for (Diagnosis diagnosis : diagnosesServicesMedications.getDiagnoses()) {
                             sqlHandler.InsertReferences(diagnosis.getCode(), diagnosis.getName(), "D", "");
@@ -661,6 +664,11 @@ public class MainActivity extends ImisActivity {
                         List<HealthFacility> healthFacilities = new FetchHealthfacilities().execute();
                         for(HealthFacility hf: healthFacilities) {
                             sqlHandler.InsertHealthFacilities(hf.getId(), hf.getCode(), hf.getName());
+                        }
+
+                        List<Program> programs = new FetchPrograms().execute();
+                        for (Program program : programs) {
+                            sqlHandler.InsertPrograms(program.getIdProgram(), program.getCode(), program.getNameProgram());
                         }
 
                         runOnUiThread(() -> {

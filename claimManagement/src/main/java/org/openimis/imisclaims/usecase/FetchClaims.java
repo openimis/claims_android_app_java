@@ -121,7 +121,8 @@ public class FetchClaims {
                 /* adjustment = */ node.adjustment(),
                 /* guaranteeNumber = */ node.guaranteeId(),
                 /* services = */ serviceMapper.map(node.services()),
-                /* medications = */ medicationMapper.map(node.items())
+                /* medications = */ medicationMapper.map(node.items()),
+                /* claimProgram = */ node.program() != null ? node.program().nameProgram(): null
         );
     }
 

@@ -75,7 +75,7 @@ public class ClaimActivity extends ImisActivity {
     String patientCondition, visitType;
 
     EditText etStartDate, etEndDate, etClaimCode, etHealthFacility, etInsureeNumber, etClaimAdmin, etGuaranteeNo;
-    AutoCompleteTextView etDiagnosis, etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4, etReferalHF, etPatientCondition, etVisitType;
+    AutoCompleteTextView etDiagnosis, etDiagnosis1, etDiagnosis2, etDiagnosis3, etDiagnosis4, etReferalHF, etPatientCondition, etVisitType, etProgram;
     TextView tvItemTotal, tvServiceTotal;
     Button btnPost, btnNew;
     RadioGroup rgVisitType;
@@ -124,6 +124,7 @@ public class ClaimActivity extends ImisActivity {
         etPatientCondition = findViewById(R.id.patientCondition);
         etVisitType = findViewById(R.id.etVisitType);
         tfReferal = findViewById(R.id.tfReferal);
+        etProgram = findViewById(R.id.etProgram);
 
         String[] visitTypes = getResources().getStringArray(R.array.visitType);
         ArrayAdapter<String> visitTypeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, visitTypes);
@@ -222,6 +223,11 @@ public class ClaimActivity extends ImisActivity {
             showDialog(EndDate_Dialog_ID);
             return false;
         });
+
+        ProgramAdapter progamAdapter = new ProgramAdapter(ClaimActivity.this, sqlHandler);
+        etProgram.setAdapter(progamAdapter);
+        etProgram.setThreshold(1);
+        etReferalHF.setOnItemClickListener(progamAdapter);
 
         findViewById(R.id.ivAddItem).setOnClickListener(v -> addItem());
         findViewById(R.id.ivAddService).setOnClickListener(v -> addService());
@@ -468,6 +474,7 @@ public class ClaimActivity extends ImisActivity {
         etPatientCondition.setText("");
         etVisitType.setText("");
         etClaimCode.requestFocus();
+        etProgram.setText("");
     }
 
     private void disableForm() {
@@ -491,6 +498,7 @@ public class ClaimActivity extends ImisActivity {
         disableView(etPreAuthorization);
         disableView(etPatientCondition);
         disableView(etVisitType);
+        disableView(etProgram);
     }
 
     private void fillClaimFromRestore(Claim claim) {
@@ -522,6 +530,7 @@ public class ClaimActivity extends ImisActivity {
         etDiagnosis2.setText(sqlHandler.getDiseaseCode(claim.getSecDg2()));
         etDiagnosis3.setText(sqlHandler.getDiseaseCode(claim.getSecDg3()));
         etDiagnosis4.setText(sqlHandler.getDiseaseCode(claim.getSecDg4()));
+        etProgram.setText(sqlHandler.getProgamName(claim.getClaimProgram()));
 
         switch (claim.getVisitType() != null ? claim.getVisitType() : "") {
             case "E":
@@ -597,6 +606,7 @@ public class ClaimActivity extends ImisActivity {
                         etDiagnosis3.setText(claimDetails.getString("ICDCode3"));
                         etDiagnosis4.setText(claimDetails.getString("ICDCode4"));
                         etReferalHF.setText(claimDetails.getString("ReferalHF"));
+                        etProgram.setText(claimDetails.getString("Program"));
                         if(claimDetails.getInt("PreAuthorization") == 1){
                             etPreAuthorization.setChecked(true);
                         }else{
@@ -848,6 +858,7 @@ public class ClaimActivity extends ImisActivity {
         claimCV.put("VisitType", etVisitType.getTag().toString());
         claimCV.put("ReferalHF", etReferalHF.getText().toString());
         claimCV.put("PatientCondition", etPatientCondition.getTag().toString());
+        claimCV.put("Program", etProgram.getText().toString());
         if(etPreAuthorization.isChecked()){
             claimCV.put("PreAuthorization", 1);
         }else{

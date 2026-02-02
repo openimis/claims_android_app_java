@@ -186,6 +186,20 @@ type Query {
   usernameLength: Int
   _debug: DjangoDebug
   node("""The ID of the object""" id: ID!): Node
+  program(first: Int): ProgramGQLTypeConnection
+}
+
+type ProgramGQLTypeConnection {
+  """
+  Pagination data for this connection.
+  """
+  pageInfo: PageInfo!
+  """
+  Contains the nodes in this connection.
+  """
+  edges: [ProgramGQLTypeEdge]!
+  totalCount: Int
+  edgeCount: Int
 }
 
 type ControlGQLTypeConnection {
@@ -442,6 +456,23 @@ type InteractiveUserGQLType implements Node {
   Same as userRoles but a straight list, without the M-N relation
   """
   roles: [RoleGQLType]
+}
+
+type ProgramGQLTypeEdge {
+  """
+  The item at the end of the edge
+  """
+  node: ProgramGQLType
+  """
+  A cursor for use in pagination
+  """
+  cursor: String!
+}
+
+type ProgramGQLType {
+  idProgram: String!
+  code: String!
+  nameProgram: String!
 }
 
 type LanguageGQLType {
@@ -1472,6 +1503,7 @@ type ClaimGQLType implements Node {
   dedrems(offset: Int, before: String, after: String, first: Int, last: Int): ClaimDedRemGQLTypeConnection!
   clientMutationId: String
   dateProcessedTo: Date
+  program: ProgramGQLType
 }
 
 type FeedbackGQLType {
@@ -5891,6 +5923,7 @@ input CreateClaimMutationInput {
   services: [ClaimServiceInputType]
   attachments: [ClaimAttachmentInputType]
   clientMutationId: String
+  program: Int!
 }
 
 scalar ClaimCodeInputType

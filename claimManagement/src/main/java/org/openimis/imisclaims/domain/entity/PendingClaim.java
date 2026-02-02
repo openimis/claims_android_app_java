@@ -29,6 +29,7 @@ public class PendingClaim implements Parcelable {
                     /* claimCode = */ details.getString("ClaimCode"),
                     /* guaranteeNumber = */ details.getString("GuaranteeNumber"),
                     /* chfId = */ details.getString("CHFID"),
+                    /* claimProgram = */ details.getString("Program"),
                     /* startDate = */ DateUtils.dateFromString(details.getString("StartDate")),
                     /* endDate = */ DateUtils.dateFromString(details.getString("EndDate")),
                     /* icdCode = */ details.getString("ICDCode"),
@@ -82,6 +83,8 @@ public class PendingClaim implements Parcelable {
     private final List<Service> services;
     @NonNull
     private final List<Medication> medications;
+    @NonNull
+    private final String claimProgram;
 
     public PendingClaim(
             @NonNull Date claimDate,
@@ -90,6 +93,7 @@ public class PendingClaim implements Parcelable {
             @NonNull String claimCode,
             @Nullable String guaranteeNumber,
             @NonNull String chfId,
+            @Nullable String claimProgram,
             @NonNull Date startDate,
             @NonNull Date endDate,
             @NonNull String icdCode,
@@ -121,6 +125,7 @@ public class PendingClaim implements Parcelable {
         this.visitType = visitType;
         this.services = services;
         this.medications = medications;
+        this.claimProgram = claimProgram;
     }
 
     protected PendingClaim(Parcel in) {
@@ -142,6 +147,7 @@ public class PendingClaim implements Parcelable {
         visitType = in.readString();
         services = in.createTypedArrayList(Service.CREATOR);
         medications = in.createTypedArrayList(Medication.CREATOR);
+        claimProgram = in.readString();
     }
 
     @Override
@@ -164,6 +170,7 @@ public class PendingClaim implements Parcelable {
         dest.writeString(visitType);
         dest.writeTypedList(services);
         dest.writeTypedList(medications);
+        dest.writeString(claimProgram);
     }
 
     @Override
@@ -249,6 +256,11 @@ public class PendingClaim implements Parcelable {
     @NonNull
     public String getVisitType() {
         return visitType;
+    }
+
+    @NonNull
+    public String getClaimProgram() {
+        return claimProgram;
     }
 
     @NonNull
@@ -407,6 +419,7 @@ public class PendingClaim implements Parcelable {
         public double getQuantity() {
             return quantity;
         }
+
 
         public static final Creator<Medication> CREATOR = new Creator<>() {
             @Override

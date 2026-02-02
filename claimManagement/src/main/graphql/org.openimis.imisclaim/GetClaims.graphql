@@ -48,6 +48,10 @@ query GetClaims($claim_administrator_code: String, $status_claim: Int, $visit_da
         adjustment
         explanation
         guaranteeId
+        program {
+          idProgram
+          nameProgram
+        }
         services {
           qtyProvided
           qtyApproved

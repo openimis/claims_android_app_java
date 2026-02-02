@@ -1,0 +1,11 @@
+query GetPrograms($first: Int) {
+    program(first: $first){
+        edges{
+            node{
+                idProgram
+                code
+                nameProgram
+            }
+        }
+    }
+}

@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.openimis.imisclaims.tools.Log;
 
+import java.util.List;
 import java.util.Locale;
 
 public class SQLHandler extends SQLiteOpenHelper {
@@ -40,7 +41,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     private static final String CreateTableControls = "CREATE TABLE IF NOT EXISTS tblControls(FieldName TEXT, Adjustability TEXT);";
     private static final String CreateTableClaimAdmins = "CREATE TABLE IF NOT EXISTS tblClaimAdmins(Code TEXT, HFCode TEXT ,Name TEXT);";
     private static final String CreateTableReferences = "CREATE TABLE IF NOT EXISTS tblReferences(Code TEXT, Name TEXT, Type TEXT, Price TEXT);";
-    private static final String createTableClaimDetails = "CREATE TABLE IF NOT EXISTS tblClaimDetails(ClaimUUID TEXT, ClaimDate TEXT, HFCode TEXT, ClaimAdmin TEXT, ClaimCode TEXT, GuaranteeNumber TEXT, InsureeNumber TEXT, StartDate TEXT, EndDate TEXT, ICDCode TEXT, Comment TEXT, Total TEXT, ICDCode1 TEXT, ICDCode2 TEXT, ICDCode3 TEXT, ICDCode4 TEXT, VisitType TEXT, ReferalHF TEXT, PatientCondition TEXT,PreAuthorization Int );";
+    private static final String createTableClaimDetails = "CREATE TABLE IF NOT EXISTS tblClaimDetails(ClaimUUID TEXT, ClaimDate TEXT, HFCode TEXT, ClaimAdmin TEXT, ClaimCode TEXT, GuaranteeNumber TEXT, InsureeNumber TEXT, StartDate TEXT, EndDate TEXT, ICDCode TEXT, Comment TEXT, Total TEXT, ICDCode1 TEXT, ICDCode2 TEXT, ICDCode3 TEXT, ICDCode4 TEXT, VisitType TEXT, ReferalHF TEXT, PatientCondition TEXT,PreAuthorization Int, Program TEXT );";
     private static final String createTableClaimItems = "CREATE TABLE IF NOT EXISTS tblClaimItems(ClaimUUID TEXT, ItemCode TEXT, ItemPrice TEXT, ItemQuantity TEXT);";
     private static final String createTableClaimServices = "CREATE TABLE IF NOT EXISTS tblClaimServices(ClaimUUID TEXT, ServiceCode TEXT, ServicePrice TEXT, ServiceQuantity TEXT, ServicePackageType TEXT, SubServicesItems TEXT);";
     private static final String createTableClaimUploadStatus = "CREATE TABLE IF NOT EXISTS tblClaimUploadStatus(ClaimUUID TEXT, UploadDate TEXT, UploadStatus TEXT, UploadMessage TEXT);";
@@ -49,6 +50,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     private static final String CreateTableSubServices = "CREATE TABLE IF NOT EXISTS tblSubServices(ServiceId text, ServiceLinked text, Quantity text, Price text);";
     private static final String CreateTableSubItems = "CREATE TABLE IF NOT EXISTS tblSubItems(ItemId text, ServiceId text, Quantity text, Price text);";
     private static final String CreateTableHealthFacilities = "CREATE TABLE IF NOT EXISTS tblHealthFacilities(Id TEXT, Code TEXT, Name TEXT);";
+    private static final String CreateTablePrograms = "CREATE TABLE IF NOT EXISTS tblPrograms(Id TEXT, Code TEXT, Name TEXT);";
 
     public final String REFERENCE_UNKNOWN;
 
@@ -322,7 +324,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         String[] commands = {CreateTableControls, CreateTableReferences, CreateTableClaimAdmins,
                 createTablePolicyInquiry, createTableClaimDetails, createTableClaimItems, createTableClaimServices,
                 createTableClaimUploadStatus, CreateTableSubItems,
-                CreateTableSubServices,CreateTableItems,CreateTableServices, CreateTableHealthFacilities};
+                CreateTableSubServices,CreateTableItems,CreateTableServices, CreateTableHealthFacilities, CreateTablePrograms};
         for (String command : commands) {
             try {
                 db.execSQL(command);
@@ -422,7 +424,7 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     public JSONObject getClaim(String claimUUID) {
         JSONArray claimDetails = getQueryResultAsJsonArray("tblClaimDetails",
-                new String[]{"ClaimUUID", "ClaimDate", "HFCode", "ClaimAdmin", "ClaimCode", "GuaranteeNumber", "InsureeNumber", "StartDate", "EndDate", "ICDCode", "Comment", "Total", "ICDCode1", "ICDCode2", "ICDCode3", "ICDCode4", "VisitType", "ReferalHF", "PatientCondition", "PreAuthorization"},
+                new String[]{"ClaimUUID", "ClaimDate", "HFCode", "ClaimAdmin", "ClaimCode", "GuaranteeNumber", "InsureeNumber", "StartDate", "EndDate", "ICDCode", "Comment", "Total", "ICDCode1", "ICDCode2", "ICDCode3", "ICDCode4", "VisitType", "ReferalHF", "PatientCondition", "PreAuthorization", "Program"},
                 "LOWER(ClaimUUID) = ?",
                 new String[]{claimUUID.toLowerCase(Locale.ROOT)});
 
@@ -454,7 +456,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         // Rename InsureeNumber to CHFID
         // This is required to support legacy Rest API and Web App
         JSONArray claims = getQueryResultAsJsonArray(
-                "SELECT ClaimUUID, ClaimDate, HFCode, ClaimAdmin, ClaimCode, GuaranteeNumber, InsureeNumber AS CHFID, StartDate, EndDate, ICDCode, Comment, Total, ICDCode1, ICDCode2, ICDCode3, ICDCode4, VisitType" +
+                "SELECT ClaimUUID, ClaimDate, HFCode, ClaimAdmin, ClaimCode, GuaranteeNumber, InsureeNumber AS CHFID, StartDate, EndDate, ICDCode, Comment, Total, ICDCode1, ICDCode2, ICDCode3, ICDCode4, VisitType, Program" +
                         " FROM tblClaimDetails cd" +
                         " WHERE NOT EXISTS (SELECT cus.ClaimUUID FROM tblClaimUploadStatus cus WHERE cus.ClaimUUID = cd.ClaimUUID AND cus.UploadStatus != ?)",
                 new String[]{CLAIM_UPLOAD_STATUS_ERROR}
@@ -939,5 +941,83 @@ public class SQLHandler extends SQLiteOpenHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public Cursor SearchProgram(String InputText) {
+        Cursor c = db.rawQuery("SELECT Name as _id,Code, Name FROM tblPrograms WHERE (Code LIKE '%" + InputText + "%' OR Name LIKE '%" + InputText + "%')", null);
+        if (c != null) {
+            c.moveToFirst();
+        }
+
+        return c;
+    }
+
+    public void InsertPrograms(String Id, String Code, String Name) {
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("Id", Id);
+            cv.put("Code", Code);
+            cv.put("Name", Name);
+            db.insert("tblPrograms", null, cv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getProgamName(String program) {
+        String name = "";
+        try {
+            String table = "tblPrograms";
+            String[] columns = {"Name"};
+            String selection = "Name=?";
+            String[] selectionArgs = {program};
+            String limit = "1";
+            Cursor c = db.query(table, columns, selection, selectionArgs, null, null, null, limit);
+            if (c.getCount() == 1) {
+                c.moveToFirst();
+                name = c.getString(c.getColumnIndexOrThrow("Name"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return name;
+    }
+
+    public int getProgamId(String programName) {
+        String id = "0";
+        try {
+            String table = "tblPrograms";
+            String[] columns = {"Id"};
+            String selection = "Name=?";
+            String[] selectionArgs = {programName};
+            String limit = "1";
+            Cursor c = db.query(table, columns, selection, selectionArgs, null, null, null, limit);
+            if (c.getCount() == 1) {
+                c.moveToFirst();
+                id = c.getString(c.getColumnIndexOrThrow("Id"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Integer.valueOf(id);
+    }
+
+    public String getProgamCode(String programName) {
+        String code = "";
+        try {
+            String table = "tblPrograms";
+            String[] columns = {"Code"};
+            String selection = "Name=?";
+            String[] selectionArgs = {programName};
+            String limit = "1";
+            Cursor c = db.query(table, columns, selection, selectionArgs, null, null, null, limit);
+            if (c.getCount() == 1) {
+                c.moveToFirst();
+                code = c.getString(c.getColumnIndexOrThrow("Code"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return code;
     }
 }

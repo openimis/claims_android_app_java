@@ -256,4 +256,5 @@
     <string name="NoServicesPricelist">This healthfacility don\'t have services pricelist</string>
     <string name="NoItemsPricelist">This healthfacility don\'t have items pricelist</string>
     <string name="News">New changes:</string>
+    <string name="program">Program</string>
 </resources>
