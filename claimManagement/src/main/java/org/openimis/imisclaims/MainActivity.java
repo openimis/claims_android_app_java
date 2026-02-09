@@ -150,6 +150,7 @@ public class MainActivity extends ImisActivity {
         entered_Count.setText("0");
 
         AdminName = findViewById(R.id.AdminName);
+        global.getDarkMode();
 
         if (checkRequirements()) {
             onAllRequirementsMet();

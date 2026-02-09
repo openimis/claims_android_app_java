@@ -68,7 +68,7 @@ android {
         demoProd {
             applicationIdSuffix ".demoProd"
             resValue "string", "app_name_claims", "Claims Demo"
-            buildConfigField "String", "API_BASE_URL", '"http://demo.openimis.org/"'
+            buildConfigField "String", "API_BASE_URL", '"https://demo.openimis.org/"'
             dimension 'std'
         }
 
@@ -180,6 +180,7 @@ android {
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
     }
+    namespace 'org.openimis.imisclaims'
 }
 
 apollo {
