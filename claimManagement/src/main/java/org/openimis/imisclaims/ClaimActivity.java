@@ -811,7 +811,7 @@ public class ClaimActivity extends ImisActivity {
         runOnUiThread(() -> showDialog(msg, (dialog, which) -> ClearForm(), (dialog, which) -> dialog.dismiss()));
     }
 
-    private boolean saveClaim() {
+    protected boolean saveClaim() {
         Intent intent = getIntent();
         String claimUUID;
         if (intent.hasExtra(EXTRA_CLAIM_UUID)) {
