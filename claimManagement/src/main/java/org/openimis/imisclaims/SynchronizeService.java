@@ -31,6 +31,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.sentry.Sentry;
+
 public class SynchronizeService extends JobIntentService {
     private static final int JOB_ID = 6541259; //Random unique Job id
     private static final String LOG_TAG = "SYNCSERVICE";
@@ -114,6 +116,7 @@ public class SynchronizeService extends JobIntentService {
             broadcastSyncSuccess(claimStatus);
         } catch (Exception e) {
             e.printStackTrace();
+            Sentry.captureException(e);
             broadcastError(getResources().getString(R.string.ErrorOccurred) + ": " + e.getMessage(), ACTION_UPLOAD_CLAIMS);
         }
     }
@@ -195,6 +198,7 @@ public class SynchronizeService extends JobIntentService {
                         AppInformation.DateTimeInfo.getDefaultIsoDatetimeFormatter().format(new Date()),
                         SQLHandler.CLAIM_UPLOAD_STATUS_EXPORTED, null);
             } catch (JSONException e) {
+                Sentry.captureException(e);
                 Log.e(LOG_TAG, "Exception while exporting claims", e);
             }
         }
@@ -219,6 +223,7 @@ public class SynchronizeService extends JobIntentService {
             String filename = "Claim_" + details.getString("HFCode") + "_" + details.getString("ClaimCode") + "_" + d + ".xml";
             return storageManager.createTempFile("exports/claim/" + filename);
         } catch (JSONException e) {
+            Sentry.captureException(e);
             Log.e(LOG_TAG, "Parsing claim JSON failed", e);
         }
         return null;

@@ -76,10 +76,16 @@ fastlane/readme.md
 
 # Visual Studio Code
 .vscode/
+./.DS_Store
+./.git/.DS_Store
+*.DS_Store
 
 
 # Custom product flavours
 *custom-flavours.gradle
 .DS_Store
 
+.DS_Store
+*.properties
+./gradle
 *.DS_Store

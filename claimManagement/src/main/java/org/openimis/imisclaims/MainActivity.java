@@ -59,6 +59,9 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.sentry.Sentry;
+import io.sentry.android.core.SentryAndroid;
+
 
 public class MainActivity extends ImisActivity {
     private static final int REQUEST_PERMISSIONS_CODE = 1;
@@ -284,6 +287,7 @@ public class MainActivity extends ImisActivity {
                                     (d, i) -> finish());
                         }
                     } catch (Exception e) {
+                        Sentry.captureException(e);
                         Log.e(LOG_TAG, "Error while copying master data.", e);
                     }
                 }
@@ -304,6 +308,7 @@ public class MainActivity extends ImisActivity {
                             try {
                                 startActivityForResult(intent, REQUEST_PICK_MD_FILE);
                             } catch (ActivityNotFoundException e) {
+                                Sentry.captureException(e);
                                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.NoFileExporerInstalled), Toast.LENGTH_SHORT).show();
                             }
                         }).setNegativeButton(getResources().getString(R.string.No),
@@ -320,6 +325,7 @@ public class MainActivity extends ImisActivity {
                     try {
                         doLoggedIn(() -> DownLoadDiagnosesServicesItems(global.getOfficerCode()));
                     } catch (Exception e) {
+                        Sentry.captureException(e);
                         e.printStackTrace();
                     }
                 },
@@ -410,6 +416,7 @@ public class MainActivity extends ImisActivity {
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
+                            Sentry.captureException(e);
                             DownloadMasterDialog();
                         }
                     } else {
@@ -443,6 +450,7 @@ public class MainActivity extends ImisActivity {
                 try {
                     mNotificationManager.notify(SIMPLE_NOTIFICATION_ID, builder.build());
                 } catch (Exception e) {
+                    Sentry.captureException(e);
                     e.printStackTrace();
                 }
 
@@ -480,6 +488,7 @@ public class MainActivity extends ImisActivity {
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Sentry.captureException(e);
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             ErrorDialogBox(e.getMessage());
@@ -520,6 +529,7 @@ public class MainActivity extends ImisActivity {
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Sentry.captureException(e);
                     runOnUiThread(() -> progressDialog.dismiss());
                 }
             });
@@ -555,6 +565,7 @@ public class MainActivity extends ImisActivity {
                             progressDialog.dismiss();
                             doLoggedIn(() -> CheckHealthFacility(claimAdminCode, HealthFacilityName));
                         } catch (Exception e) {
+                            Sentry.captureException(e);
                             e.printStackTrace();
                         }
                     }
@@ -671,6 +682,7 @@ public class MainActivity extends ImisActivity {
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Sentry.captureException(e);
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, e.getMessage() + "-" + getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
@@ -715,6 +727,7 @@ public class MainActivity extends ImisActivity {
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Sentry.captureException(e);
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, e.getMessage() + "-" + getResources().getString(R.string.AccessDenied), Toast.LENGTH_LONG).show();
