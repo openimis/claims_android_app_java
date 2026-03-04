@@ -39,7 +39,6 @@ public class MapItems extends ImisActivity {
     ListView lvMapItems;
     CheckBox chkAll, chk;
     EditText etSearchItems;
-
     ArrayList<HashMap<String, Object>> ItemsList = new ArrayList<HashMap<String, Object>>();
 
     HashMap<String, Object> oItem;
@@ -118,11 +117,9 @@ public class MapItems extends ImisActivity {
         //String[] Items = {"Item1","Item2","Item3","Item4","Item5"};
 
         //SQLHandler sql = new SQLHandler(null, null, null, 3);
-        SQLHandler sql = new SQLHandler(this);
 
-        Cursor c = sql.getMapping("I");
+        Cursor c = sqlHandler.getMapping("I");
         boolean isMapped = false;
-
 
         for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
             HashMap<String, Object> item = new HashMap<String, Object>();
@@ -154,7 +151,7 @@ public class MapItems extends ImisActivity {
         }
     }
 
-    private void CheckUncheckAll(boolean isChecked) {
+    protected void CheckUncheckAll(boolean isChecked) {
         for (int i = 0; i < ItemsList.size(); i++) {
             oItem = (HashMap<String, Object>) ItemsList.get(i);
             oItem.put("isMapped", isChecked);
@@ -224,7 +221,7 @@ public class MapItems extends ImisActivity {
         }
     }
 
-    private int Save() {
+    protected int Save() {
         int count = 0;
         sqlHandler.ClearMapping("I");
         for (int i = 0; i < ItemsList.size(); i++) {
@@ -258,7 +255,7 @@ public class MapItems extends ImisActivity {
     }
 
 
-    private class ItemAdapter extends SimpleAdapter {
+    protected class ItemAdapter extends SimpleAdapter {
 
         private ArrayList<HashMap<String, Object>> OriginalList, FilteredList;
         private ArrayList<HashMap<String, Object>> ItemList;
