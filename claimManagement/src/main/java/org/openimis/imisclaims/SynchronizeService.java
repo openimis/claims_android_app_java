@@ -56,9 +56,10 @@ public class SynchronizeService extends JobIntentService {
 
     private static final String claimResponseLine = "[%s] %s";
 
-    private Global global;
-    private SQLHandler sqlHandler;
-    private StorageManager storageManager;
+    protected Global global;
+    protected SQLHandler sqlHandler;
+    protected StorageManager storageManager;
+    protected PostNewClaims postNewClaims;
 
     @Override
     public void onCreate() {
@@ -66,6 +67,10 @@ public class SynchronizeService extends JobIntentService {
         global = (Global) getApplicationContext();
         sqlHandler = new SQLHandler(this);
         storageManager = StorageManager.of(this);
+    }
+
+    public void setPostNewClaims(PostNewClaims postNewClaims) {
+        this.postNewClaims = postNewClaims;
     }
 
     public static void uploadClaims(Context context) {
@@ -98,7 +103,7 @@ public class SynchronizeService extends JobIntentService {
         }
     }
 
-    private void handleUploadClaims() {
+    protected void handleUploadClaims() {
         if (!global.isNetworkAvailable()) {
             broadcastError(getResources().getString(R.string.CheckInternet), ACTION_UPLOAD_CLAIMS);
             return;
@@ -111,7 +116,10 @@ public class SynchronizeService extends JobIntentService {
         }
 
         try {
-            List<PostNewClaims.Result> results = new PostNewClaims().execute(PendingClaim.fromJson(claims));
+            if (postNewClaims == null) {
+                postNewClaims = new PostNewClaims();
+            }
+            List<PostNewClaims.Result> results = postNewClaims.execute(PendingClaim.fromJson(claims));
             JSONArray claimStatus = processClaimResponse(results);
             broadcastSyncSuccess(claimStatus);
         } catch (Exception e) {
@@ -121,7 +129,7 @@ public class SynchronizeService extends JobIntentService {
         }
     }
 
-    private JSONArray processClaimResponse(List<PostNewClaims.Result> results) {
+    protected JSONArray processClaimResponse(List<PostNewClaims.Result> results) {
         JSONArray jsonResults = new JSONArray();
         String date = AppInformation.DateTimeInfo.getDefaultIsoDatetimeFormatter().format(new Date());
         for (PostNewClaims.Result result : results) {
@@ -257,7 +265,7 @@ public class SynchronizeService extends JobIntentService {
                 zipFile);
     }
 
-    private void handleGetClaimCount() {
+    protected void handleGetClaimCount() {
         JSONObject counts = sqlHandler.getClaimCounts();
 
         int enteredCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ENTERED, 0);
