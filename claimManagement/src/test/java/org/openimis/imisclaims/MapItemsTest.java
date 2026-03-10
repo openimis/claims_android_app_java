@@ -177,4 +177,61 @@ public class MapItemsTest {
         AlertDialog dialog = activity.ShowDialog("Test message");
         assertNotNull(dialog);
     }
+
+    @Test
+    public void uncheckAll_setsAllItemsUnmapped() {
+        for (int i = 0; i < 3; i++) {
+            HashMap<String, Object> item = new HashMap<>();
+            item.put("Code", "ITEM00" + i);
+            item.put("Name", "Item " + i);
+            item.put("isMapped", true);
+            activity.ItemsList.add(item);
+        }
+
+        activity.alAdapter = activity.new ItemAdapter(activity, activity.ItemsList,
+                R.layout.mappinglist,
+                new String[]{"Code", "Name", "isMapped"},
+                new int[]{R.id.tvMapCode, R.id.tvMapName, R.id.chkMap});
+
+        activity.CheckUncheckAll(false);
+
+        for (HashMap<String, Object> item : activity.ItemsList) {
+            assertFalse((Boolean) item.get("isMapped"));
+        }
+    }
+
+    @Test
+    public void bindItemList_loadsMultipleItemsCorrectly() {
+        doReturn(mockCursor).when(activity.sqlHandler).getMapping("I");
+        when(mockCursor.moveToFirst()).thenReturn(true);
+        when(mockCursor.isAfterLast()).thenReturn(false, false, true);
+        when(mockCursor.getString(0)).thenReturn("ITEM001", "ITEM002");
+        when(mockCursor.getString(1)).thenReturn("Paracetamol", "Aspirin");
+        when(mockCursor.getString(2)).thenReturn(null, "mapped");
+
+        activity.BindItemList();
+
+        assertEquals(2, activity.ItemsList.size());
+        assertFalse((Boolean) activity.ItemsList.get(0).get("isMapped"));
+        assertTrue((Boolean) activity.ItemsList.get(1).get("isMapped"));
+        verify(mockCursor).close();
+    }
+
+    @Test
+    public void save_clearsMapping_beforeInserting() {
+        HashMap<String, Object> item = new HashMap<>();
+        item.put("Code", "ITEM001");
+        item.put("Name", "Test");
+        item.put("isMapped", true);
+        activity.ItemsList.add(item);
+
+        when(mockSqlHandler.InsertMapping(anyString(), anyString(), anyString())).thenReturn(true);
+        doNothing().when(mockSqlHandler).ClearMapping("I");
+
+        activity.Save();
+
+        verify(mockSqlHandler).ClearMapping("I");
+        verify(mockSqlHandler).InsertMapping("ITEM001", "Test", "I");
+    }
+
 }
