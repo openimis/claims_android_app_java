@@ -7,6 +7,7 @@ import org.openimis.imisclaims.domain.entity.Medication;
 import org.openimis.imisclaims.network.request.GetMedicationsGraphQLRequest;
 import org.openimis.imisclaims.network.util.Mapper;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 public class FetchMedications {
@@ -22,12 +23,12 @@ public class FetchMedications {
     }
     @WorkerThread
     @NonNull
-    public List<Medication> execute() throws Exception {
+    public List<Medication> execute(String pricelistUuid, Date date) throws Exception {
         List<Medication> items = new ArrayList<>();
         int page = 0;
         boolean hasNextPage;
         do{
-            GetMedicationsQuery.MedicalItems response = request.get(page);
+            GetMedicationsQuery.MedicalItemsStr response = request.get(page, pricelistUuid, date);
             items.addAll(
                     Mapper.map(
                             response.edges(),

@@ -36,6 +36,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import io.sentry.Sentry;
+
 public class SynchronizeActivity extends ImisActivity {
     private static final String LOG_TAG = "SYNCACTIVITY";
     private static final int PICK_FILE_REQUEST_CODE = 1;
@@ -129,6 +131,7 @@ public class SynchronizeActivity extends ImisActivity {
                         showDialog(getResources().getString(R.string.BulkUpload));
                     }
                 } catch (JSONException e) {
+                    Sentry.captureException(e);
                     Log.e(LOG_TAG, "Error while processing claim response", e);
                 }
                 break;
@@ -296,6 +299,7 @@ public class SynchronizeActivity extends ImisActivity {
                                 Toast.LENGTH_SHORT).show();
                     });
                 } catch (Exception e) {
+                    Sentry.captureException(e);
                     runOnUiThread(() -> {
                         pd.dismiss();
                         Toast.makeText(this,
@@ -327,6 +331,7 @@ public class SynchronizeActivity extends ImisActivity {
 
         } catch (Exception e) {
             Toast.makeText(this, getResources().getString(R.string.downloadUpdateFail), Toast.LENGTH_SHORT).show();
+            Sentry.captureException(e);
             Log.e("DownloadUpdate", "Erreur: ", e);
         }
     }

@@ -712,7 +712,7 @@ public class ClaimActivity extends ImisActivity {
         }
     }
 
-    private boolean isValidData() {
+    protected boolean isValidData() {
 
         if (etHealthFacility.getText().length() == 0) {
             showValidationDialog(etHealthFacility, getResources().getString(R.string.MissingHealthFacility));
@@ -793,7 +793,7 @@ public class ClaimActivity extends ImisActivity {
         return true;
     }
 
-    private boolean isValidInsureeNumber() {
+    protected boolean isValidInsureeNumber() {
         Escape escape = new Escape();
         return escape.CheckCHFID(etInsureeNumber.getText().toString());
     }
@@ -811,7 +811,7 @@ public class ClaimActivity extends ImisActivity {
         runOnUiThread(() -> showDialog(msg, (dialog, which) -> ClearForm(), (dialog, which) -> dialog.dismiss()));
     }
 
-    private boolean saveClaim() {
+    protected boolean saveClaim() {
         Intent intent = getIntent();
         String claimUUID;
         if (intent.hasExtra(EXTRA_CLAIM_UUID)) {

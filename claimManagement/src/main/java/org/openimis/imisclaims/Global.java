@@ -80,6 +80,15 @@ public class Global extends Application {
     private Token JWTToken;
     private String[] permissions;
 
+    public static boolean isRunningTest() {
+        try {
+            Class.forName("org.robolectric.RobolectricTestRunner");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
