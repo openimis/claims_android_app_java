@@ -36,6 +36,7 @@ public class SearchClaimsActivity extends ImisActivity {
     private final Calendar visitDateToCalendar = Calendar.getInstance();
     private final Calendar dateProcessedFromCalendar = Calendar.getInstance();
     private final Calendar dateProcessedToCalendar = Calendar.getInstance();
+    protected FetchClaims fetchClaims;
 
     private Spinner spinner;
 
@@ -77,6 +78,7 @@ public class SearchClaimsActivity extends ImisActivity {
             dateProcessedToCalendar.setTimeInMillis(savedInstanceState.getLong(PROCESSED_TO));
             TextViewUtils.setDate(dateProcessedTo, dateProcessedToCalendar.getTime());
         }
+        fetchClaims = new FetchClaims();
 
         findViewById(R.id.clear).setOnClickListener(view -> {
             visitDateFrom.setText("");
@@ -119,7 +121,7 @@ public class SearchClaimsActivity extends ImisActivity {
     }
 
     @Nullable
-    private Claim.Status getStatus(Spinner spinner) {
+    protected Claim.Status getStatus(Spinner spinner) {
         switch (spinner.getSelectedItemPosition()) {
             case 1:
                 return Claim.Status.ENTERED;
@@ -137,14 +139,14 @@ public class SearchClaimsActivity extends ImisActivity {
     }
 
     @Nullable
-    private Date getDate(@NonNull EditText editText, @NonNull Calendar calendar) {
+    protected Date getDate(@NonNull EditText editText, @NonNull Calendar calendar) {
         if (editText.length() != 0) {
             return calendar.getTime();
         }
         return null;
     }
 
-    private void getClaims(
+    protected void getClaims(
             @Nullable String claimAdministratorCode,
             @Nullable Claim.Status status,
             @Nullable Date visitDateFrom,

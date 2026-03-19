@@ -44,6 +44,7 @@ import org.openimis.imisclaims.util.TextViewUtils;
 
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -200,7 +201,7 @@ public class EnquireActivity extends ImisActivity {
 
     @SuppressLint({"WrongConstant", "Range"})
     @Nullable
-    private Insuree getDataFromDb(String chfid) {
+    protected Insuree getDataFromDb(String chfid) {
         try {
             SQLiteDatabase db = openOrCreateDatabase(SQLHandler.DB_NAME_DATA, SQLiteDatabase.OPEN_READONLY, null);
             String[] columns = {"CHFID", "Photo", "InsureeName", "DOB", "Gender", "ProductCode", "ProductName", "ExpiryDate", "Status", "DedType", "Ded1", "Ded2", "Ceiling1", "Ceiling2"};
@@ -270,13 +271,22 @@ public class EnquireActivity extends ImisActivity {
 
     }
 
+    protected Insuree createFetchInsureeInquire(String chfid) {
+        try {
+            return new FetchInsureeInquire().execute(chfid);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Fetching online enquire failed", e);
+            return null;
+        }
+    }
+
     @WorkerThread
-    private void getInsureeInfo() {
+    protected void getInsureeInfo() {
         runOnUiThread(this::ClearForm);
         String chfid = etCHFID.getText().toString();
         if (global.isNetworkAvailable()) {
             try {
-                Insuree insuree = new FetchInsureeInquire().execute(chfid);
+                Insuree insuree = createFetchInsureeInquire(chfid);
                 runOnUiThread(() -> renderResult(insuree));
             } catch (HttpException e) {
                 if (e.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
@@ -301,6 +311,7 @@ public class EnquireActivity extends ImisActivity {
         }
 
         ll.setVisibility(View.VISIBLE);
+        lv.setNestedScrollingEnabled(true);
 
         if (!etCHFID.getText().toString().trim().equals(insuree.getChfId()))
             return;
@@ -331,6 +342,7 @@ public class EnquireActivity extends ImisActivity {
         }
 
         ArrayList<Map<String, String>> PolicyList = new ArrayList<>();
+        Collections.reverse(insuree.getPolicies());
         for (Policy policy : insuree.getPolicies()) {
             HashMap<String, String> policyMap = new HashMap<>();
             double iDedType = policy.getDeductibleType() != null ? policy.getDeductibleType() : 0;

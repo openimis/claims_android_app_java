@@ -1,0 +1,11 @@
+query GetHealthFacility($code: String){
+    healthFacilities(code: $code) {
+        edges {
+            node {
+                id
+                code
+                name
+            }
+        }
+    }
+}

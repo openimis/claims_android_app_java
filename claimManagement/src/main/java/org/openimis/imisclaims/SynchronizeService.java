@@ -31,6 +31,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import io.sentry.Sentry;
+
 public class SynchronizeService extends JobIntentService {
     private static final int JOB_ID = 6541259; //Random unique Job id
     private static final String LOG_TAG = "SYNCSERVICE";
@@ -54,9 +56,10 @@ public class SynchronizeService extends JobIntentService {
 
     private static final String claimResponseLine = "[%s] %s";
 
-    private Global global;
-    private SQLHandler sqlHandler;
-    private StorageManager storageManager;
+    protected Global global;
+    protected SQLHandler sqlHandler;
+    protected StorageManager storageManager;
+    protected PostNewClaims postNewClaims;
 
     @Override
     public void onCreate() {
@@ -64,6 +67,10 @@ public class SynchronizeService extends JobIntentService {
         global = (Global) getApplicationContext();
         sqlHandler = new SQLHandler(this);
         storageManager = StorageManager.of(this);
+    }
+
+    public void setPostNewClaims(PostNewClaims postNewClaims) {
+        this.postNewClaims = postNewClaims;
     }
 
     public static void uploadClaims(Context context) {
@@ -96,7 +103,7 @@ public class SynchronizeService extends JobIntentService {
         }
     }
 
-    private void handleUploadClaims() {
+    protected void handleUploadClaims() {
         if (!global.isNetworkAvailable()) {
             broadcastError(getResources().getString(R.string.CheckInternet), ACTION_UPLOAD_CLAIMS);
             return;
@@ -109,16 +116,20 @@ public class SynchronizeService extends JobIntentService {
         }
 
         try {
-            List<PostNewClaims.Result> results = new PostNewClaims().execute(PendingClaim.fromJson(claims));
+            if (postNewClaims == null) {
+                postNewClaims = new PostNewClaims();
+            }
+            List<PostNewClaims.Result> results = postNewClaims.execute(PendingClaim.fromJson(claims));
             JSONArray claimStatus = processClaimResponse(results);
             broadcastSyncSuccess(claimStatus);
         } catch (Exception e) {
             e.printStackTrace();
+            Sentry.captureException(e);
             broadcastError(getResources().getString(R.string.ErrorOccurred) + ": " + e.getMessage(), ACTION_UPLOAD_CLAIMS);
         }
     }
 
-    private JSONArray processClaimResponse(List<PostNewClaims.Result> results) {
+    protected JSONArray processClaimResponse(List<PostNewClaims.Result> results) {
         JSONArray jsonResults = new JSONArray();
         String date = AppInformation.DateTimeInfo.getDefaultIsoDatetimeFormatter().format(new Date());
         for (PostNewClaims.Result result : results) {
@@ -195,6 +206,7 @@ public class SynchronizeService extends JobIntentService {
                         AppInformation.DateTimeInfo.getDefaultIsoDatetimeFormatter().format(new Date()),
                         SQLHandler.CLAIM_UPLOAD_STATUS_EXPORTED, null);
             } catch (JSONException e) {
+                Sentry.captureException(e);
                 Log.e(LOG_TAG, "Exception while exporting claims", e);
             }
         }
@@ -219,6 +231,7 @@ public class SynchronizeService extends JobIntentService {
             String filename = "Claim_" + details.getString("HFCode") + "_" + details.getString("ClaimCode") + "_" + d + ".xml";
             return storageManager.createTempFile("exports/claim/" + filename);
         } catch (JSONException e) {
+            Sentry.captureException(e);
             Log.e(LOG_TAG, "Parsing claim JSON failed", e);
         }
         return null;
@@ -252,7 +265,7 @@ public class SynchronizeService extends JobIntentService {
                 zipFile);
     }
 
-    private void handleGetClaimCount() {
+    protected void handleGetClaimCount() {
         JSONObject counts = sqlHandler.getClaimCounts();
 
         int enteredCount = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ENTERED, 0);

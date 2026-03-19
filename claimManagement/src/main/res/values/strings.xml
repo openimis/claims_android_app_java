@@ -251,4 +251,9 @@
     <string name="newVersion">New version </string>
     <string name="claimUpdate">Update Claims</string>
     <string name="getVersion">Downloading version </string>
+    <string name="InvalidHealthFacility">Invalid healthfacility for this claim admin</string>
+    <string name="checkHfValidity">Check healthFacility validity</string>
+    <string name="NoServicesPricelist">This healthfacility don\'t have services pricelist</string>
+    <string name="NoItemsPricelist">This healthfacility don\'t have items pricelist</string>
+    <string name="News">New changes:</string>
 </resources>

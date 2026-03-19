@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import android.os.Environment;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +35,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+
+import io.sentry.Sentry;
 
 public class SynchronizeActivity extends ImisActivity {
     private static final String LOG_TAG = "SYNCACTIVITY";
@@ -128,6 +131,7 @@ public class SynchronizeActivity extends ImisActivity {
                         showDialog(getResources().getString(R.string.BulkUpload));
                     }
                 } catch (JSONException e) {
+                    Sentry.captureException(e);
                     Log.e(LOG_TAG, "Error while processing claim response", e);
                 }
                 break;
@@ -210,6 +214,7 @@ public class SynchronizeActivity extends ImisActivity {
     }
 
     public void uploadClaims() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         pd = ProgressDialog.show(this, "", getResources().getString(R.string.Processing));
         SynchronizeService.uploadClaims(this);
     }
@@ -248,6 +253,7 @@ public class SynchronizeActivity extends ImisActivity {
                     JSONArray jsonarray = new JSONArray(response.toString());
                     String lastVersion = "";
                     String tag_name = "";
+                    String notes = "";
                     for (int i = 0; i < jsonarray.length(); i++){
                         JSONObject releaseObj = jsonarray.getJSONObject(i);
                         if(releaseObj.getString("tag_name").equals(getResources().getString(R.string.release_tag))){
@@ -256,6 +262,7 @@ public class SynchronizeActivity extends ImisActivity {
                             if(!releaseName.equals(currentVersion)){
                                 lastVersion = releaseName;
                                 updateAvailable = true;
+                                notes = releaseObj.getString("body");
                             }
                         }
                     }
@@ -264,12 +271,17 @@ public class SynchronizeActivity extends ImisActivity {
                     boolean finalUpdateAvailable = updateAvailable;
                     String finalLastVersion = lastVersion;
                     String finalTagName = tag_name;
+                    String finalNotes = notes;
                     runOnUiThread(() -> {
                         pd.dismiss();
                         if (finalUpdateAvailable) {
                             new AlertDialog.Builder(this)
                                     .setTitle(getResources().getString(R.string.updateAvailable))
-                                    .setMessage(getResources().getString(R.string.newVersion) + " " + finalLastVersion )
+                                    .setMessage(
+                                            getResources().getString(R.string.newVersion) + " " + finalLastVersion + "\n \n"
+                                                    +  getResources().getString(R.string.News) + "\n"
+                                                    + "\n" + finalNotes
+                                    )
                                     .setPositiveButton(getResources().getString(R.string.download), (dialog, which) -> downloadUpdate(finalLastVersion, finalTagName))
                                     .setNegativeButton(getResources().getString(R.string.cancel), null)
                                     .show();
@@ -287,6 +299,7 @@ public class SynchronizeActivity extends ImisActivity {
                                 Toast.LENGTH_SHORT).show();
                     });
                 } catch (Exception e) {
+                    Sentry.captureException(e);
                     runOnUiThread(() -> {
                         pd.dismiss();
                         Toast.makeText(this,
@@ -318,6 +331,7 @@ public class SynchronizeActivity extends ImisActivity {
 
         } catch (Exception e) {
             Toast.makeText(this, getResources().getString(R.string.downloadUpdateFail), Toast.LENGTH_SHORT).show();
+            Sentry.captureException(e);
             Log.e("DownloadUpdate", "Erreur: ", e);
         }
     }

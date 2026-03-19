@@ -392,7 +392,7 @@ public class Claim implements Parcelable {
         return medications;
     }
 
-    public static final Creator<Claim> CREATOR = new Creator<Claim>() {
+    public static final Creator<Claim> CREATOR = new Creator<>() {
         @Override
         public Claim createFromParcel(Parcel in) {
             return new Claim(in);
