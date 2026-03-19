@@ -117,9 +117,8 @@ public class MapServices extends ImisActivity {
         //String[] Items = {"Item1","Item2","Item3","Item4","Item5"};
 
         //SQLHandler sql = new SQLHandler(null, null, null, 3);
-        SQLHandler sql = new SQLHandler(this);
 
-        Cursor c = sql.getMapping("S");
+        Cursor c = sqlHandler.getMapping("S");
         boolean isMapped = false;
         for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
             HashMap<String, Object> item = new HashMap<String, Object>();
@@ -149,7 +148,7 @@ public class MapServices extends ImisActivity {
         }
     }
 
-    private void CheckUncheckAll(boolean isChecked) {
+    protected void CheckUncheckAll(boolean isChecked) {
         for (int i = 0; i < ServiceList.size(); i++) {
             oService = (HashMap<String, Object>) ServiceList.get(i);
             oService.put("isMapped", isChecked);
@@ -218,7 +217,7 @@ public class MapServices extends ImisActivity {
         }
     }
 
-    private int Save() {
+    protected int Save() {
         int count = 0;
         sqlHandler.ClearMapping("S");
         for (int i = 0; i < ServiceList.size(); i++) {
@@ -252,7 +251,7 @@ public class MapServices extends ImisActivity {
                 }).show();
     }
 
-    private class ServiceAdapter extends SimpleAdapter {
+    protected class ServiceAdapter extends SimpleAdapter {
 
         private ArrayList<HashMap<String, Object>> OriginalList, FilteredList;
         private ArrayList<HashMap<String, Object>> ItemList;

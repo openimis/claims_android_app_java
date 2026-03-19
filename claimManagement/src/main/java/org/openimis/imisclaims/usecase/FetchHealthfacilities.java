@@ -2,7 +2,7 @@ package org.openimis.imisclaims.usecase;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 import org.apache.commons.codec.binary.Base64;
-import org.openimis.imisclaims.GetHealthFacilityQuery;
+import org.openimis.imisclaims.GetHealthFacilitiesQuery;
 import org.openimis.imisclaims.domain.entity.HealthFacility;
 import org.openimis.imisclaims.network.request.GetHealthfacilitiesGraphQLRequest;
 import org.openimis.imisclaims.network.util.Mapper;
@@ -27,11 +27,11 @@ public class FetchHealthfacilities {
         int page = 0;
         boolean hasNextPage;
         do{
-            GetHealthFacilityQuery.HealthFacilities response = hfRequest.get(page);
+            GetHealthFacilitiesQuery.HealthFacilities response = hfRequest.get(page);
             healthFacilities.addAll(Mapper.map(
                     response.edges(),
                     dto ->{
-                        GetHealthFacilityQuery.Node node = Objects.requireNonNull(dto.node());
+                        GetHealthFacilitiesQuery.Node node = Objects.requireNonNull(dto.node());
                         byte[] bytes = node.id().getBytes();
                         String id = new String(Base64.decodeBase64(bytes)).split(":")[1];
                         return new HealthFacility(

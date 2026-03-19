@@ -32,8 +32,8 @@ public class SQLHandler extends SQLiteOpenHelper {
     public static final String CLAIM_UPLOAD_STATUS_ENTERED = "Entered";
     public static final String CLAIM_UPLOAD_STATUS_ARCHIVED = "Archived";
 
-    public static final String DB_NAME_MAPPING = Global.getGlobal().getSubdirectory("Databases") + "/" + "Mapping.db3";
-    public static final String DB_NAME_DATA = Global.getGlobal().getSubdirectory("Databases") + "/" + "ImisData.db3";
+    public static final String DB_NAME_MAPPING = isRunningTest() ? "fakemapping" : Global.getGlobal().getSubdirectory("Databases") + "/" + "Mapping.db3";
+    public static final String DB_NAME_DATA = isRunningTest() ? "fakedatabase" : Global.getGlobal().getSubdirectory("Databases") + "/" + "ImisData.db3";
 
     private static final String CreateTableMapping = "CREATE TABLE IF NOT EXISTS tblMapping(Code TEXT,Name TEXT,Type TEXT);";
     private static final String createTablePolicyInquiry = "CREATE TABLE IF NOT EXISTS tblPolicyInquiry(InsureeNumber text,Photo BLOB, InsureeName Text, DOB Text, Gender Text, ProductCode Text, ProductName Text, ExpiryDate Text, Status Text, DedType Int, Ded1 Int, Ded2 Int, Ceiling1 Int, Ceiling2 Int);";
@@ -77,6 +77,15 @@ public class SQLHandler extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    }
+
+    public static boolean isRunningTest() {
+        try {
+            Class.forName("org.robolectric.RobolectricTestRunner");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     @Nullable

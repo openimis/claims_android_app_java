@@ -127,7 +127,7 @@ public class MasterDataService extends JobIntentService {
         return isValid;
     }
 
-    private boolean tableExists(SQLiteDatabase db, String table) {
+    protected boolean tableExists(SQLiteDatabase db, String table) {
         Cursor c = db.query("sqlite_master", new String[]{"tbl_name "}, "tbl_name = ?", new String[]{table}, null, null, null);
         boolean exists = c.getCount() > 0;
         c.close();

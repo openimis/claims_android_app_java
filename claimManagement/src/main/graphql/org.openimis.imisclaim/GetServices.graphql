@@ -1,0 +1,37 @@
+query GetServices ($offset: Int, $pricelistUuid: UUID, $date: Date) {
+    medicalServicesStr(offset: $offset, pricelistUuid: $pricelistUuid, date: $date) {
+        pageInfo {
+            hasNextPage
+        }
+        edges {
+            node {
+                id
+                code
+                name
+                packagetype
+                type
+                price
+                careType
+                manualPrice
+                serviceserviceSet {
+                    service {
+                        id
+                        code
+                        name
+                    }
+                    qtyProvided
+                    priceAsked
+                }
+                servicesLinked {
+                    item {
+                        id
+                        code
+                        name
+                    }
+                    qtyProvided
+                    priceAsked
+                }
+            }
+        }
+    }
+}

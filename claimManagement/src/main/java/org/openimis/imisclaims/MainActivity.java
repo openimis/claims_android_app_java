@@ -47,16 +47,24 @@ import org.openimis.imisclaims.domain.entity.PaymentList;
 import org.openimis.imisclaims.domain.entity.Service;
 import org.openimis.imisclaims.domain.entity.SubServiceItem;
 import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.usecase.CheckHealthFacility;
 import org.openimis.imisclaims.usecase.FetchClaimAdmins;
 import org.openimis.imisclaims.usecase.FetchControls;
 import org.openimis.imisclaims.usecase.FetchDiagnosesServicesItems;
 import org.openimis.imisclaims.usecase.FetchHealthfacilities;
+import org.openimis.imisclaims.usecase.FetchMedications;
 import org.openimis.imisclaims.usecase.FetchPaymentList;
+import org.openimis.imisclaims.usecase.FetchServices;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import io.sentry.Sentry;
+import io.sentry.android.core.SentryAndroid;
 
 
 public class MainActivity extends ImisActivity {
@@ -283,6 +291,7 @@ public class MainActivity extends ImisActivity {
                                     (d, i) -> finish());
                         }
                     } catch (Exception e) {
+                        Sentry.captureException(e);
                         Log.e(LOG_TAG, "Error while copying master data.", e);
                     }
                 }
@@ -303,6 +312,7 @@ public class MainActivity extends ImisActivity {
                             try {
                                 startActivityForResult(intent, REQUEST_PICK_MD_FILE);
                             } catch (ActivityNotFoundException e) {
+                                Sentry.captureException(e);
                                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.NoFileExporerInstalled), Toast.LENGTH_SHORT).show();
                             }
                         }).setNegativeButton(getResources().getString(R.string.No),
@@ -319,6 +329,7 @@ public class MainActivity extends ImisActivity {
                     try {
                         doLoggedIn(() -> DownLoadDiagnosesServicesItems(global.getOfficerCode()));
                     } catch (Exception e) {
+                        Sentry.captureException(e);
                         e.printStackTrace();
                     }
                 },
@@ -409,6 +420,7 @@ public class MainActivity extends ImisActivity {
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
+                            Sentry.captureException(e);
                             DownloadMasterDialog();
                         }
                     } else {
@@ -442,6 +454,7 @@ public class MainActivity extends ImisActivity {
                 try {
                     mNotificationManager.notify(SIMPLE_NOTIFICATION_ID, builder.build());
                 } catch (Exception e) {
+                    Sentry.captureException(e);
                     e.printStackTrace();
                 }
 
@@ -479,6 +492,7 @@ public class MainActivity extends ImisActivity {
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Sentry.captureException(e);
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             ErrorDialogBox(e.getMessage());
@@ -519,6 +533,7 @@ public class MainActivity extends ImisActivity {
                     });
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Sentry.captureException(e);
                     runOnUiThread(() -> progressDialog.dismiss());
                 }
             });
@@ -547,12 +562,14 @@ public class MainActivity extends ImisActivity {
                     AdminName.setText(global.getOfficeName());
                 }
                 Cursor c = sqlHandler.getMapping("I");
-                if (c != null) {
-                    if (c.getCount() == 0) {
+                Cursor c1 = sqlHandler.getMapping("S");
+                if (c != null && c1 != null) {
+                    if (c.getCount() == 0 && c1.getCount() == 0) {
                         try {
                             progressDialog.dismiss();
-                            doLoggedIn(() -> DownLoadDiagnosesServicesItems(claimAdminCode));
+                            doLoggedIn(() -> CheckHealthFacility(claimAdminCode, HealthFacilityName));
                         } catch (Exception e) {
+                            Sentry.captureException(e);
                             e.printStackTrace();
                         }
                     }
@@ -560,6 +577,39 @@ public class MainActivity extends ImisActivity {
                 }
             }
         }
+    }
+
+    public void CheckHealthFacility (String claimAdminCode, String HfCode){
+        String progress_message = getResources().getString(R.string.checkHfValidity);
+        progressDialog = ProgressDialog.show(this, getResources().getString(R.string.application), progress_message);
+        Thread thread = new Thread() {
+            public void run() {
+                try {
+                    boolean isValidHealthFacility = new CheckHealthFacility().execute(HfCode);
+                    Log.e("is valid", String.valueOf(isValidHealthFacility));
+                    if(isValidHealthFacility){
+                        runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            DownLoadDiagnosesServicesItems(claimAdminCode);
+                        });
+                    } else {
+                        runOnUiThread(() -> {
+                            progressDialog.dismiss();
+                            Toast.makeText(MainActivity.this, getResources().getString(R.string.InvalidHealthFacility), Toast.LENGTH_LONG).show();
+                            ClaimAdminDialogBox();
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> {
+                        progressDialog.dismiss();
+                        Toast.makeText(MainActivity.this, e.getMessage() + "-" + getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
+                        ClaimAdminDialogBox();
+                    });
+                }
+            }
+        };
+        thread.start();
     }
 
     public void DownLoadDiagnosesServicesItems(@Nullable final String officerCode) {
@@ -586,40 +636,48 @@ public class MainActivity extends ImisActivity {
 
                         if (officerCode != null) {
                             PaymentList paymentList = new FetchPaymentList().execute(officerCode);
-                            // insert services
-                            for (Service service : paymentList.getServices()) {
-                                sqlHandler.InsertService(service.getId(),
-                                        service.getCode(),
-                                        service.getName(), "S",
-                                        String.valueOf(service.getPrice()),
-                                        service.getPackageType(),
-                                        service.getManualPrice()
-                                );
-                                sqlHandler.InsertReferences(service.getCode(), service.getName(), "S", String.valueOf(service.getPrice()));
-                                sqlHandler.InsertMapping(service.getCode(), service.getName(), "S");
+                            Date date = Calendar.getInstance().getTime();
 
-                                if (service.getSubServices() != null && !service.getSubServices().isEmpty()) {
-                                    List<SubServiceItem> subServices = service.getSubServices();
-                                    for (SubServiceItem subService : subServices) {
-                                        sqlHandler.InsertSubServices(subService.getId(),
-                                                service.getId(), String.valueOf(subService.getQty()), subService.getPrice());
+                            // insert services
+                            if(paymentList.getServicesPricelistUuid() != null && !paymentList.getServicesPricelistUuid().isEmpty()){
+                                List<Service> services = new FetchServices().execute(paymentList.getServicesPricelistUuid(), date);
+                                for (Service service : services) {
+                                    sqlHandler.InsertService(service.getId(),
+                                            service.getCode(),
+                                            service.getName(), "S",
+                                            String.valueOf(service.getPrice()),
+                                            service.getPackageType(),
+                                            service.getManualPrice()
+                                    );
+                                    sqlHandler.InsertReferences(service.getCode(), service.getName(), "S", String.valueOf(service.getPrice()));
+                                    sqlHandler.InsertMapping(service.getCode(), service.getName(), "S");
+
+                                    if (service.getSubServices() != null && !service.getSubServices().isEmpty()) {
+                                        List<SubServiceItem> subServices = service.getSubServices();
+                                        for (SubServiceItem subService : subServices) {
+                                            sqlHandler.InsertSubServices(subService.getId(),
+                                                    service.getId(), String.valueOf(subService.getQty()), subService.getPrice());
+                                        }
                                     }
-                                }
-                                //insert subItems
-                                if (service.getSubItems() != null && !service.getSubItems().isEmpty()) {
-                                    List<SubServiceItem> subItems = service.getSubItems();
-                                    for (SubServiceItem subItem : subItems) {
-                                        sqlHandler.InsertSubItems(subItem.getId(),
-                                                service.getId(), String.valueOf(subItem.getQty()), subItem.getPrice());
+                                    //insert subItems
+                                    if (service.getSubItems() != null && !service.getSubItems().isEmpty()) {
+                                        List<SubServiceItem> subItems = service.getSubItems();
+                                        for (SubServiceItem subItem : subItems) {
+                                            sqlHandler.InsertSubItems(subItem.getId(),
+                                                    service.getId(), String.valueOf(subItem.getQty()), subItem.getPrice());
+                                        }
                                     }
                                 }
                             }
 
                             //insert Items
-                            for (Medication medication : paymentList.getMedications()) {
-                                sqlHandler.InsertReferences(medication.getCode(), medication.getName(), "I", String.valueOf(medication.getPrice()));
-                                sqlHandler.InsertMapping(medication.getCode(), medication.getName(), "I");
-                                sqlHandler.InsertItem(medication.getId(),medication.getCode(),medication.getName(), "I", String.valueOf(medication.getPrice()));
+                            if(paymentList.getItemsPricelistUuid() != null && !paymentList.getItemsPricelistUuid().isEmpty()){
+                                List<Medication> medications = new FetchMedications().execute(paymentList.getItemsPricelistUuid(), date);
+                                for (Medication medication : medications) {
+                                    sqlHandler.InsertReferences(medication.getCode(), medication.getName(), "I", String.valueOf(medication.getPrice()));
+                                    sqlHandler.InsertMapping(medication.getCode(), medication.getName(), "I");
+                                    sqlHandler.InsertItem(medication.getId(),medication.getCode(),medication.getName(), "I", String.valueOf(medication.getPrice()));
+                                }
                             }
                         }
 
@@ -636,6 +694,7 @@ public class MainActivity extends ImisActivity {
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Sentry.captureException(e);
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, e.getMessage() + "-" + getResources().getString(R.string.SomethingWentWrongServer), Toast.LENGTH_LONG).show();
@@ -662,16 +721,21 @@ public class MainActivity extends ImisActivity {
                 public void run() {
                     try {
                         PaymentList paymentList = new FetchPaymentList().execute(claimAdministratorCode);
+                        String servicesPricelistUuid = paymentList.getServicesPricelistUuid();
+                        Date date = Calendar.getInstance().getTime();
+                        List<Service> services = new FetchServices().execute(servicesPricelistUuid, date);
+                        String itemsPriceListUuid = paymentList.getItemsPricelistUuid();
+                        List<Medication> medications = new FetchMedications().execute(itemsPriceListUuid, date);
                         sqlHandler.ClearMapping("S");
                         sqlHandler.ClearMapping("I");
 
                         //Insert Services
-                        for (Service service : paymentList.getServices()) {
+                        for (Service service : services) {
                             sqlHandler.InsertMapping(service.getCode(), service.getName(), "S");
                         }
 
                         //Insert Items
-                        for (Medication medication : paymentList.getMedications()) {
+                        for (Medication medication : medications) {
                             sqlHandler.InsertMapping(medication.getCode(), medication.getName(), "I");
                         }
                         runOnUiThread(() -> {
@@ -680,6 +744,7 @@ public class MainActivity extends ImisActivity {
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Sentry.captureException(e);
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, e.getMessage() + "-" + getResources().getString(R.string.AccessDenied), Toast.LENGTH_LONG).show();
