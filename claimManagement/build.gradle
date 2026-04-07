@@ -19,6 +19,7 @@ repositories {
 }
 
 android {
+    namespace 'org.openimis.imisclaims'
     compileSdkVersion 32
     buildToolsVersion '33.0.0'
 
