@@ -57,7 +57,7 @@ import java.util.Map;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-import static org.openimis.imisclaims.BuildConfig.RAR_PASSWORD;
+import static org.openimis.imisclaims.BuildConfig.ZIP_PASSWORD;
 
 import org.openimis.imisclaims.tools.Log;
 
@@ -73,7 +73,7 @@ public class Global extends Application {
     private int UserId;
     private String AppDirectory;
     private final Map<String, String> SubDirectories = new HashMap<>();
-    private static final String _DefaultRarPassword = RAR_PASSWORD;
+    private static final String _DefaultZipPassword = ZIP_PASSWORD;
     private Token JWTToken;
     private String[] permissions;
 
@@ -101,8 +101,8 @@ public class Global extends Application {
         return instance.getApplicationContext();
     }
 
-    public String getDefaultRarPassword() {
-        return _DefaultRarPassword;
+    public String getDefaultZipPassword() {
+        return _DefaultZipPassword;
     }
 
     public String getOfficerCode() {
@@ -288,18 +288,18 @@ public class Global extends Application {
         return Environment.getExternalStorageState();
     }
 
-    public String getRarPwd() {
+    public String getZipPwd() {
         String password = "";
         SharedPreferences sharedPreferences = getDefaultSharedPreferences();
-        if (!sharedPreferences.contains("rarPwd")) {
-            password = getDefaultRarPassword();
+        if (!sharedPreferences.contains("zipPwd")) {
+            password = getDefaultZipPassword();
         } else {
-            String encryptedRarPassword = sharedPreferences.getString("rarPwd", getDefaultRarPassword());
-            String trimEncryptedPassword = encryptedRarPassword.trim();
+            String encryptedZipPassword = sharedPreferences.getString("zipPwd", getDefaultZipPassword());
+            String trimEncryptedPassword = encryptedZipPassword.trim();
             String salt = sharedPreferences.getString("salt", null);
             String trimSalt = salt.trim();
             try {
-                password = decryptRarPwd(trimEncryptedPassword, trimSalt);
+                password = decryptZipPwd(trimEncryptedPassword, trimSalt);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -307,7 +307,7 @@ public class Global extends Application {
         return password;
     }
 
-    private String decryptRarPwd(String dataToDecrypt, String decPassword) throws Exception {
+    private String decryptZipPwd(String dataToDecrypt, String decPassword) throws Exception {
         SecretKeySpec key = generateKey(decPassword);
         Cipher c = Cipher.getInstance("AES");
         c.init(Cipher.DECRYPT_MODE, key);

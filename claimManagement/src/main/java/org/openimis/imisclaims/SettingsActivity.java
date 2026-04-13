@@ -16,8 +16,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class SettingsActivity extends ImisActivity {
 
-    Button btnSaveRarPwd, btnDefaultRarPassword;
-    EditText etRarPassword;
+    Button btnSaveZipPwd, btnDefaultZipPassword;
+    EditText etZipPassword;
     private String salt, password;
     public static String generatedSalt;
     Global global;
@@ -29,27 +29,27 @@ public class SettingsActivity extends ImisActivity {
 
         actionBar.setTitle("Settings");
 
-        btnSaveRarPwd = (Button)findViewById(R.id.btnSaveRarPwd);
-        etRarPassword = (EditText)findViewById(R.id.rarPassword);
-        btnDefaultRarPassword = (Button) findViewById(R.id.btnDefaultRarPassword);
+        btnSaveZipPwd = (Button)findViewById(R.id.btnSaveZipPwd);
+        etZipPassword = (EditText)findViewById(R.id.zipPassword);
+        btnDefaultZipPassword = (Button) findViewById(R.id.btnDefaultZipPassword);
 
-        btnSaveRarPwd.setOnClickListener(view -> {
-            if(etRarPassword.getText().length() == 0){
-               ShowDialog("Rar password required");
+        btnSaveZipPwd.setOnClickListener(view -> {
+            if(etZipPassword.getText().length() == 0){
+               ShowDialog("Zip password required");
             }
             else {
-                password = etRarPassword.getText().toString();
-                saveRarPassword(password);
+                password = etZipPassword.getText().toString();
+                saveZipPassword(password);
                 ShowDialog("Password has been changed");
-                etRarPassword.setText("");
+                etZipPassword.setText("");
             }
 
         });
 
-        btnDefaultRarPassword.setOnClickListener(view -> {
-            password = global.getDefaultRarPassword();
-            saveRarPassword(password);
-            ShowDialog("Password has been changed to the default rar password");
+        btnDefaultZipPassword.setOnClickListener(view -> {
+            password = global.getDefaultZipPassword();
+            saveZipPassword(password);
+            ShowDialog("Password has been changed to the default zip password");
         });
 
     }
@@ -67,7 +67,7 @@ public class SettingsActivity extends ImisActivity {
         return secretKeySpec;
     }
 
-    public String encryptRarPwd(String dataToEncrypt, String encPassword) throws Exception{
+    public String encryptZipPwd(String dataToEncrypt, String encPassword) throws Exception{
         SecretKeySpec key = generateKey(encPassword);
         Cipher c = Cipher.getInstance("AES");
         c.init(Cipher.ENCRYPT_MODE, key);
@@ -76,7 +76,7 @@ public class SettingsActivity extends ImisActivity {
         return encryptedValue;
     }
 
-    public String decryptRarPwd(String dataToDecrypt, String decPassword) throws Exception {
+    public String decryptZipPwd(String dataToDecrypt, String decPassword) throws Exception {
         SecretKeySpec key = generateKey(decPassword);
         Cipher c = Cipher.getInstance("AES");
         c.init(Cipher.DECRYPT_MODE, key);
@@ -96,15 +96,15 @@ public class SettingsActivity extends ImisActivity {
         return encodedSalt;
     }
 
-    public void saveRarPassword(String password){
+    public void saveZipPassword(String password){
         try {
             SharedPreferences sharedPreferences = global.getDefaultSharedPreferences();
             SharedPreferences.Editor editor = sharedPreferences.edit();
             salt = generateSalt();
             String trimSalt = salt.trim();
-            String encryptedPassword = encryptRarPwd(password, trimSalt);
+            String encryptedPassword = encryptZipPwd(password, trimSalt);
             String trimEncryptedPassword = encryptedPassword.trim();
-            editor.putString("rarPwd", trimEncryptedPassword);
+            editor.putString("zipPwd", trimEncryptedPassword);
             editor.putString("salt", trimSalt);
             editor.apply();
         }
