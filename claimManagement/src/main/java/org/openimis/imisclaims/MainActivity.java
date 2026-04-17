@@ -688,7 +688,18 @@ public class MainActivity extends ImisActivity {
 
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
-                            if (officerCode != null) {
+                            if (!fetchDiagnosesServicesItems.getSkippedMedicationPages().isEmpty()) {
+                                final String errorLogMessage = "Master data synced with partial medications.\nSkipped pages: "
+                                        + fetchDiagnosesServicesItems.getSkippedMedicationPages();
+                                showDialog(
+                                        errorLogMessage,
+                                        (dialog, which) -> {
+                                            if (officerCode != null) {
+                                                DownLoadServicesItemsPriceList(officerCode);
+                                            }
+                                        }
+                                );
+                            } else if (officerCode != null) {
                                 DownLoadServicesItemsPriceList(officerCode);
                             }
                         });
