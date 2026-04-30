@@ -21,6 +21,7 @@ repositories {
 android {
     compileSdkVersion 32
     buildToolsVersion '33.0.0'
+    namespace 'org.openimis.imisclaims'
 
     defaultConfig {
         applicationId "org.openimis.imisclaims"
