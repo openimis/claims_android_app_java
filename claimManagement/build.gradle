@@ -188,6 +188,7 @@ android {
             returnDefaultValues = true
         }
     }
+    namespace 'org.openimis.imisclaims'
 }
 
 apollo {
