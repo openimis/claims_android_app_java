@@ -117,7 +117,7 @@
   <string name="No">Non</string>
   <string name="ConfirmDiscard">Il y a une prestation non enregistrée. Voulez-vous vous supprimer de votre prestation et en faire une nouvelle ?</string>
   <string name="Uploading">Téléchargement....</string>
-  <string name="UploadAllClaims">Télécharger les prestations</string>
+  <string name="UploadAllClaims">Téléverser les prestations</string>
   <string name="NoClaim">Aucune prestation trouvée.</string>
   <string name="CheckInternet">Internet est nécessaire pour communiquer avec le serveur.</string>
   <string name="BulkUpload">Les données ont été téléchargées avec succès. Veuillez vérifier votre dossier Rejeté/Accepté pour vérifier la réponse du serveur.</string>
@@ -176,7 +176,7 @@
   <string name="Continue">Continuer</string>
   <string name="accepted_claims">prestations acceptées</string>
   <string name="rejected_claims">prestation rejetées</string>
-  <string name="pending_claims">prestation en instance</string>
+  <string name="pending_claims">prestation en attente</string>
   <string name="code">code</string>
   <string name="release">Version : 2.0.0, publiée : Novembre 2019</string>
   <string name="refresh_mapping">Rafraîchir les liens</string>
@@ -221,4 +221,7 @@
   <string name="NoItemsPricelist">La formation sanitaire n\'a pas de liste de prix pour les produits </string>
   <string name="entered">Entrée</string>
   <string name="News">Nouveautés:</string>
+  <string name="importMasterData">Importer les données de base</string>
+  <string name="DeleteClaim">Supprimer la prestation</string>
+  <string name="ConfirmDeleteClaim">Voulez-vous supprimer cette prestation?</string>
 </resources>
