@@ -76,7 +76,7 @@
   <string name="ContentTitle">La nouvelle version de Claim Management est maintenant disponible.</string>
   <string name="ContentText">Cliquez ici pour télécharger.</string>
   <string name="SomethingWentWrongServer">Quelque chose a mal tourné sur le serveur.</string>
-  <string name="app_name_claim">prestation</string>
+  <string name="app_name_claim">Prestation</string>
   <string name="app_name_enquire">Renseignement</string>
   <string name="ClaimAdmin">Administration des prestations</string>
   <string name="CHFID">Numéro d\'assurance</string>
@@ -174,9 +174,9 @@
   <string name="ZipXMLCreated">Fichier XML zippé Créé avec succès</string>
   <string name="AreYouSure">Vous êtes sûr de vouloir continuer ?</string>
   <string name="Continue">Continuer</string>
-  <string name="accepted_claims">prestations acceptées</string>
-  <string name="rejected_claims">prestation rejetées</string>
-  <string name="pending_claims">prestation en attente</string>
+  <string name="accepted_claims">Prestations acceptées</string>
+  <string name="rejected_claims">Prestation rejetées</string>
+  <string name="pending_claims">Prestation en attente</string>
   <string name="code">code</string>
   <string name="release">Version : 2.0.0, publiée : Novembre 2019</string>
   <string name="refresh_mapping">Rafraîchir les liens</string>
@@ -224,4 +224,7 @@
   <string name="importMasterData">Importer les données de base</string>
   <string name="DeleteClaim">Supprimer la prestation</string>
   <string name="ConfirmDeleteClaim">Voulez-vous supprimer cette prestation?</string>
+  <string name="masterData">Données de base</string>
+  <string name="downloadMasterData">Télécharger les données de base</string>
+  <string name="ConfirmArchiveClaim">Voulez-vous archiver cette prestation?</string>
 </resources>
