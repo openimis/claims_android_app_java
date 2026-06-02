@@ -227,4 +227,5 @@
   <string name="masterData">Données de base</string>
   <string name="downloadMasterData">Télécharger les données de base</string>
   <string name="ConfirmArchiveClaim">Voulez-vous archiver cette prestation?</string>
+  <string name="SelectClaimStatus">Sélectionner le statut de la prestation</string>
 </resources>

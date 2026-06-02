@@ -52,7 +52,7 @@ public class SearchClaimsActivity extends ImisActivity {
 
         spinner = findViewById(R.id.spinner_status);
         List<String> categories = new ArrayList<>();
-        categories.add("Select claim status");
+        categories.add(getString(R.string.SelectClaimStatus));
         categories.add(getString(R.string.Entered));
         categories.add(getString(R.string.Checked));
         categories.add(getString(R.string.Processed));
