@@ -21,6 +21,7 @@ import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.usecase.Login;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public abstract class ImisActivity extends AppCompatActivity {
 
@@ -48,7 +49,9 @@ public abstract class ImisActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         global = (Global) getApplicationContext();
-        global.setLanguage(this, global.getSavedLanguage());
+        String systemLanguage = resolveStartupLanguage();
+        global.setSavedLanguage(systemLanguage);
+        global.setLanguage(this, systemLanguage);
 
         actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -63,6 +66,15 @@ public abstract class ImisActivity extends AppCompatActivity {
         };
 
         sqlHandler = new SQLHandler(this);
+    }
+
+    private String resolveStartupLanguage() {
+        Locale systemLocale = getResources().getConfiguration().locale;
+        String language = systemLocale != null ? systemLocale.getLanguage() : "";
+        if ("fr".equalsIgnoreCase(language)) {
+            return "fr";
+        }
+        return "en";
     }
 
     @Override
