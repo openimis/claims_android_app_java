@@ -105,7 +105,7 @@
                         android:layout_weight="1"
                         android:ems="10"
                         android:fontFamily="sans-serif-light"
-                        android:inputType="number"
+                        android:inputType="text"
                         android:maxLength="12"></EditText>
 
                 </com.google.android.material.textfield.TextInputLayout>
