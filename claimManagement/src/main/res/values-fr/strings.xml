@@ -221,4 +221,9 @@
   <string name="NoItemsPricelist">La formation sanitaire n\'a pas de liste de prix pour les produits </string>
   <string name="entered">Entrée</string>
   <string name="News">Nouveautés:</string>
+  <string name="getConfig">Modules configurations</string>
+  <string name="downloaded_config">Configurations downloaded successfully</string>
+  <string name="InvalidClaimCode">Le code de la prestation doit contenir maximum %d caractères</string>
+  <string name="maxCharactersRequired">Maximum %d caractères</string>
+  <string name="invalidChfId">Le numéro d\'assuré doit contenir maximum %d caractères</string>
 </resources>

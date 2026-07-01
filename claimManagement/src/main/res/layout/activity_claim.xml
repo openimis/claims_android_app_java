@@ -66,8 +66,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:ems="10"
-                    android:fontFamily="sans-serif-light"
-                    android:maxLength="8">
+                    android:fontFamily="sans-serif-light">
                     <requestFocus />
                 </EditText>
             </com.google.android.material.textfield.TextInputLayout>
@@ -105,8 +104,7 @@
                         android:layout_weight="1"
                         android:ems="10"
                         android:fontFamily="sans-serif-light"
-                        android:inputType="number"
-                        android:maxLength="12"></EditText>
+                        android:inputType="number"></EditText>
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -306,6 +304,7 @@
                 android:text="@string/preAuthorization"/>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tiPatientCondition"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
