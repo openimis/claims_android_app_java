@@ -183,14 +183,31 @@ public class ClaimActivityTest {
     }
 
     @Test
-    public void isValidData_NoItemsAndServices_ReturnsFalse() {
+    public void isValidData_NoItemsAndServices_ReturnsTrue() {
         ClaimActivity.lvItemList.clear();
         ClaimActivity.lvServiceList.clear();
         activity.tvItemTotal.setText("0");
         activity.tvServiceTotal.setText("0");
 
         boolean result = activity.isValidData();
+        if(activity.canSaveClaimWithoutServiceNorItem){
+            assertTrue(result);
+        } else {
+            assertFalse(result);
+        }
+    }
 
+    @Test
+    public void isValidData_ChfIdMaxLength_ReturnsFalse(){
+        activity.etInsureeNumber.setText("12345678901234567890");
+        boolean result = activity.isValidData();
+        assertFalse(result);
+    }
+
+    @Test
+    public void isValidData_ClaimCodeMaxLength_ReturnsFalse(){
+        activity.etClaimCode.setText("CGDHHYY2903");
+        boolean result = activity.isValidData();
         assertFalse(result);
     }
 
