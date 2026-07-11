@@ -12,7 +12,16 @@ import java.util.List;
 public class GetHealthfacilityGraphQLRequest extends BaseGraphQLRequest{
     @NonNull
     @WorkerThread
-    public List<GetHealthFacilityQuery.Edge> get (@NonNull String HfCode) throws Exception {
-        return makeSynchronous(new GetHealthFacilityQuery(Input.fromNullable(HfCode))).getData().healthFacilities().edges();
+    public List<GetHealthFacilityQuery.Edge> get(@NonNull String hfCode) throws Exception {
+
+        GetHealthFacilityQuery.Data data =
+                makeSynchronous(new GetHealthFacilityQuery(Input.fromNullable(hfCode)))
+                        .getData();
+
+        if (data == null || data.healthFacilities() == null || data.healthFacilities().edges() == null) {
+            return java.util.Collections.emptyList();
+        }
+
+        return data.healthFacilities().edges();
     }
 }
