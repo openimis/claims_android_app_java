@@ -311,7 +311,7 @@ public class ClaimActivity extends ImisActivity {
             } else {
                 Log.e(LOG_TAG, "Delete claim invoked, but no claim UUID");
             }
-        });
+        }, (dialog, which) -> dialog.dismiss());
     }
 
     private void confirmArchive() {
