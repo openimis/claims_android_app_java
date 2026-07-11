@@ -5,6 +5,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import java.io.File;
 
 public class Report extends ImisActivity {
@@ -38,6 +40,8 @@ public class Report extends ImisActivity {
         File pendingFolder = new File(PendingFolder);
         File trashFolder = new File(TrashFolder);
 
+        JSONObject counts = sqlHandler.getClaimCounts();
+
         int countAccepted = 0;
         int countRejected = 0;
         if (acceptedClaims.listFiles().length > 0) {
@@ -54,7 +58,7 @@ public class Report extends ImisActivity {
                 }
             }
         } else {
-            countAccepted = 0;
+            countAccepted = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ACCEPTED, 0);;
         }
 
         if (rejectedClaims.listFiles().length > 0) {
@@ -71,7 +75,7 @@ public class Report extends ImisActivity {
                 }
             }
         } else {
-            countRejected = 0;
+            countRejected = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_REJECTED, 0);;
         }
         //Pending & Trash
         int count_pending = 0;
@@ -90,7 +94,7 @@ public class Report extends ImisActivity {
                 }
             }
         } else {
-            count_pending = 0;
+            count_pending = counts.optInt(SQLHandler.CLAIM_UPLOAD_STATUS_ENTERED, 0);;
         }
 
         if (trashFolder.listFiles().length > 0) {
