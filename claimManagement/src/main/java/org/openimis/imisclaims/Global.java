@@ -60,6 +60,7 @@ import javax.crypto.spec.SecretKeySpec;
 import static org.openimis.imisclaims.BuildConfig.RAR_PASSWORD;
 
 import org.openimis.imisclaims.tools.Log;
+import org.openimis.imisclaims.network.util.PersistentCookieJar;
 
 public class Global extends Application {
     private static final String SHPREF_NAME = "SHPref";
@@ -76,6 +77,7 @@ public class Global extends Application {
     private static final String _DefaultRarPassword = RAR_PASSWORD;
     private Token JWTToken;
     private String[] permissions;
+    private PersistentCookieJar cookieJar;
 
     public static boolean isRunningTest() {
         try {
@@ -129,6 +131,14 @@ public class Global extends Application {
         UserId = userId;
     }
 
+    public void setCookieJar(PersistentCookieJar jar) {
+        this.cookieJar = jar;
+    }
+
+    public PersistentCookieJar getCookieJar() {
+        return cookieJar;
+    }
+    
     public void setOfficerName(String officerName) {
         OfficerName = officerName;
     }
@@ -153,10 +163,20 @@ public class Global extends Application {
     }
 
     public boolean isLoggedIn() {
-        boolean isLoggedIn = getJWTToken().isTokenValidJWT();
+        long expiry = getDefaultSharedPreferences()
+                .getLong("session_expiry", 0);
+
+        boolean isLoggedIn = getJWTToken().isTokenValidJWT()
+                && expiry > System.currentTimeMillis();
+
         if (!isLoggedIn) {
             getJWTToken().clearToken();
+
+            if (cookieJar != null) {
+                cookieJar.clear();
+            }
         }
+
         return isLoggedIn;
     }
 

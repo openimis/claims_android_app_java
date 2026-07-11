@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import org.openimis.imisclaims.BuildConfig;
 import org.openimis.imisclaims.Global;
 import org.openimis.imisclaims.network.okhttp.AuthorizationInterceptor;
+import org.openimis.imisclaims.network.util.PersistentCookieJar;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +26,7 @@ public class OkHttpUtils {
         throw new IllegalAccessError("This constructor is private");
     }
 
+
     @NonNull
     public static OkHttpClient getDefaultOkHttpClient() {
         if (client == null) {
@@ -32,6 +34,10 @@ public class OkHttpUtils {
                 if (client == null) {
                     OkHttpClient.Builder builder = new OkHttpClient.Builder();
                     builder.readTimeout(2000, TimeUnit.SECONDS);
+                    PersistentCookieJar cookieJar =
+                            new PersistentCookieJar(Global.getGlobal().getDefaultSharedPreferences());
+                    Global.getGlobal().setCookieJar(cookieJar);
+                    builder.cookieJar(cookieJar);
                     HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
                     interceptor.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.BASIC);
                     builder.addInterceptor(interceptor);
