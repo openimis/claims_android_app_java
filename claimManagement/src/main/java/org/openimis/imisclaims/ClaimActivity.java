@@ -403,7 +403,6 @@ public class ClaimActivity extends ImisActivity {
                 dialog = new DatePickerDialog(this, EndDatePickerListner, year, month, day);
 
                 String startDateStr = etStartDate.getText().toString();
-                Log.e("date de début", startDateStr);
                 if (!startDateStr.isEmpty()) {
                     try {
                         Date startDate = DateUtils.dateFromString(startDateStr);
