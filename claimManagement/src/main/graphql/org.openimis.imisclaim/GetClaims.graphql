@@ -1,6 +1,5 @@
-query GetClaims($claim_administrator_code: String, $status_claim: Int, $visit_date_from: Date, $visit_date_to: Date, $processed_date_from: Date, $processed_date_to: Date) {
+query GetClaims($status_claim: Int, $visit_date_from: Date, $visit_date_to: Date, $processed_date_from: Date, $processed_date_to: Date) {
   claims(
-    admin_Code: $claim_administrator_code
     status: $status_claim
     dateClaimed_Gte: $visit_date_from
     dateClaimed_Lte: $visit_date_to
