@@ -231,7 +231,6 @@ public class SynchronizeServiceTest {
         // Mock the FetchClaims class
         FetchClaims fetchClaims = mock(FetchClaims.class);
         when(fetchClaims.execute(
-                eq(global.getOfficerCode()),
                 any(Claim.Status.class),
                 any(Date.class),
                 any(Date.class),
@@ -241,7 +240,6 @@ public class SynchronizeServiceTest {
         
         // When
         List<Claim> claims = fetchClaims.execute(
-                global.getOfficerCode(),
                 Claim.Status.PROCESSED,
                 new Date(),
                 new Date(),
@@ -273,7 +271,6 @@ public class SynchronizeServiceTest {
         assertThrows(Exception.class, () -> {
             // This should fail because there's no network
             new FetchClaims().execute(
-                    global.getOfficerCode(),
                     Claim.Status.PROCESSED,
                     new Date(),
                     new Date(),
