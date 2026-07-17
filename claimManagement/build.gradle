@@ -22,6 +22,7 @@ android {
     namespace 'org.openimis.imisclaims'
     compileSdkVersion 32
     buildToolsVersion '33.0.0'
+    namespace 'org.openimis.imisclaims'
 
     defaultConfig {
         applicationId "org.openimis.imisclaims"
@@ -203,6 +204,9 @@ apollo {
 }
 
 tasks.withType(Test).configureEach {
+    maxHeapSize = "1536m"
+    maxParallelForks = 1
+    forkEvery = 50
     testLogging {
         events "passed", "skipped", "failed"
         exceptionFormat "full"

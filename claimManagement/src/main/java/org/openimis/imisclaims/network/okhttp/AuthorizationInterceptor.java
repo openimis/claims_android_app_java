@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class AuthorizationInterceptor implements Interceptor {
 
@@ -34,10 +35,21 @@ public class AuthorizationInterceptor implements Interceptor {
             Request.Builder builder = chain.request().newBuilder();
             builder.addHeader("Authorization", "bearer " + token.getTokenText().trim());
             builder.addHeader("User-Agent", USER_AGENT);
-            Response response = chain.proceed(builder.build());
-            if (response.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                global.getJWTToken().clearToken();
+            if (csrfToken != null && !csrfToken.trim().isEmpty()) {
+                builder.addHeader("X-CSRFToken", csrfToken);
             }
+            Response response = chain.proceed(builder.build());
+            ResponseBody body = response.peekBody(Long.MAX_VALUE);
+            String bodyString = body.string();
+
+            if (bodyString.contains("'csrftoken'") || response.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+
+                global.getJWTToken().clearToken();
+
+                if (global.getCookieJar() != null) {
+                    global.getCookieJar().clear();
+                }
+                response = chain.proceed(chain.request());}
             return response;
         }
         return chain.proceed(chain.request());
