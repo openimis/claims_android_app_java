@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class ClaimActivity extends ImisActivity {
@@ -236,7 +237,7 @@ public class ClaimActivity extends ImisActivity {
         btnPost.setOnClickListener(v -> {
             progressDialog = ProgressDialog.show(this, "", getResources().getString(R.string.Processing));
             runOnNewThread(
-                    () -> isValidData() && saveClaim(),
+                    () -> isValidData() && isValidDiagnosis() && saveClaim(),
                     () -> runOnUiThread(() -> {
                         ClearForm();
                         progressDialog.dismiss();
@@ -790,6 +791,26 @@ public class ClaimActivity extends ImisActivity {
             return false;
         }
 
+        return true;
+    }
+
+    private boolean isValidDiagnosis(){
+        List<AutoCompleteTextView> diagnosisList = new ArrayList<>();
+        diagnosisList.add(etDiagnosis);
+        diagnosisList.add(etDiagnosis1);
+        diagnosisList.add(etDiagnosis2);
+        diagnosisList.add(etDiagnosis3);
+        diagnosisList.add(etDiagnosis4);
+
+        for(AutoCompleteTextView diagnosis : diagnosisList){
+            if(!diagnosis.getText().toString().isEmpty()){
+                String name = sqlHandler.getReferenceName(diagnosis.getText().toString());
+                if(name.equals(getResources().getString(R.string.Unknown))){
+                    showValidationDialog(diagnosis, getResources().getString(R.string.invalidDisease));
+                    return false;
+                }
+            }
+        }
         return true;
     }
 
