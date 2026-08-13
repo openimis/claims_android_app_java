@@ -47,6 +47,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
+import io.sentry.Sentry;
+
 public class ClaimActivity extends ImisActivity {
     private static final String LOG_TAG = "CLAIM";
     private static final int REQUEST_SCAN_QR_CODE = 1;
@@ -408,6 +410,7 @@ public class ClaimActivity extends ImisActivity {
                         Date startDate = DateUtils.dateFromString(startDateStr);
                         dialog.getDatePicker().setMinDate(startDate.getTime());
                     } catch (Exception e) {
+                        Sentry.captureException(e);
                         e.printStackTrace();
                     }
                 }
