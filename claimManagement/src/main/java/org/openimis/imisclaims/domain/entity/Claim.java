@@ -177,7 +177,7 @@ public class Claim implements Parcelable {
         if (in.readByte() == 0) {
             status = null;
         } else {
-            status = Claim.Status.valueOf(in.readString());
+            status = Status.valueOf(in.readString());
         }
     }
 

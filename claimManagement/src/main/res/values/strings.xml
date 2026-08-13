@@ -258,4 +258,5 @@
     <string name="News">New changes:</string>
     <string name="ClaimAccepted">Claim accepted</string>
     <string name="ClaimRejected">Claim rejected</string>
+    <string name="invalidDisease">Invalid disease code</string>
 </resources>

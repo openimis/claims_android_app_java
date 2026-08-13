@@ -141,6 +141,7 @@ public class MainActivity extends ImisActivity {
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this::onNavigationItemSelected);
+        navigationView.setItemIconTintList(null);
 
         View header = navigationView.getHeaderView(0);
         loginText = header.findViewById(R.id.LoginText);
