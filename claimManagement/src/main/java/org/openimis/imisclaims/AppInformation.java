@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import static org.openimis.imisclaims.BuildConfig.API_BASE_URL;
-import static org.openimis.imisclaims.BuildConfig.RAR_PASSWORD;
+import static org.openimis.imisclaims.BuildConfig.ZIP_PASSWORD;
 import static org.openimis.imisclaims.BuildConfig.API_VERSION;
 
 public final class AppInformation {
@@ -13,8 +13,8 @@ public final class AppInformation {
             return API_BASE_URL;
         }
 
-        public static String getDefaultRarPassword() {
-            return RAR_PASSWORD;
+        public static String getDefaultZipPassword() {
+            return ZIP_PASSWORD;
         }
 
         public static String getApiVersion() {

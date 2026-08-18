@@ -12,10 +12,10 @@
         android:textColor="@color/Black"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text="@string/RarPassword" />
+        android:text="@string/ZipPassword" />
 
     <EditText
-        android:id="@+id/rarPassword"
+        android:id="@+id/zipPassword"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:paddingLeft="10dp"
@@ -24,17 +24,17 @@
         android:inputType="textPassword">
     </EditText>
 
-    <LinearLayout android:id="@+id/llSaveRarButton"
+    <LinearLayout android:id="@+id/llSaveZipButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <Button
-        android:id="@+id/btnSaveRarPwd"
+        android:id="@+id/btnSaveZipPwd"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="@string/SaveRarPassword"
+        android:text="@string/SaveZipPassword"
         android:layout_marginBottom="10dp"/>
     </LinearLayout>
 
@@ -46,19 +46,19 @@
         android:textColor="@color/Black"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text="@string/DefaultRarPassword" />
+        android:text="@string/DefaultZipPassword" />
 
-    <LinearLayout android:id="@+id/llDefaultRarPassword"
+    <LinearLayout android:id="@+id/llDefaultZipPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btnDefaultRarPassword"
+            android:id="@+id/btnDefaultZipPassword"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/SaveRarPassword" />
+            android:text="@string/SaveZipPassword" />
     </LinearLayout>
 
 </LinearLayout>

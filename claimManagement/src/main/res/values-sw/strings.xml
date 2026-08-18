@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <string name="settings">Mipangilio</string>
-  <string name="RarPassword">Nenosiri la RAR</string>
-  <string name="DefaultRarPassword">Weka nambari ya default ya RAR</string>
-  <string name="SaveRarPassword">Hifadhi</string>
+  <string name="ZipPassword">Nenosiri la ZIP</string>
+  <string name="DefaultZipPassword">Weka nambari ya default ya ZIP</string>
+  <string name="SaveZipPassword">Hifadhi</string>
   <string name="InsuranceNumber">CHFID</string>
   <string name="ErrorOccurred">Tatizo limetokea wakati wa kuchakata taarifa.</string>
   <string name="SomethingWrongServer">Kuna kitu hakijakaa sawa kwenye kompuyta kuu.</string>

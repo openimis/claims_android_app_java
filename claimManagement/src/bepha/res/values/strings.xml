@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
   <string name="settings">Settings</string>
-  <string name="RarPassword">RAR Password</string>
-  <string name="DefaultRarPassword">Set the default RAR password</string>
-  <string name="SaveRarPassword">Save</string>
+  <string name="ZipPassword">ZIP Password</string>
+  <string name="DefaultZipPassword">Set the default ZIP password</string>
+  <string name="SaveZipPassword">Save</string>
   <string name="InsuranceNumber">Insuree number</string>
   <string name="ErrorOccurred">Error occurred while processing data</string>
   <string name="SomethingWrongServer">Something went wrong on the server.</string>
