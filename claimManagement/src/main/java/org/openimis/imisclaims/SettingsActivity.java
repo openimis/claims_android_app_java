@@ -20,7 +20,6 @@ public class SettingsActivity extends ImisActivity {
     EditText etRarPassword;
     private String salt, password;
     public static String generatedSalt;
-    Global global;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
