@@ -1,4 +1,6 @@
 package org.openimis.imisclaims;
+import static org.openimis.imisclaims.util.AndroidUtils.showDialog;
+
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,10 +10,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 public class CustomAdapter extends BaseAdapter {
@@ -71,7 +69,7 @@ public class CustomAdapter extends BaseAdapter {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 // faire les controle en fonction du package type
-                if(!holder.editQty.getText().toString().equals("")){
+                if(!holder.editQty.getText().toString().isEmpty()){
                     editModelArrayList.get(position).setQty(holder.editQty.getText().toString());
                 }else{
                     editModelArrayList.get(position).setQty("0");
@@ -80,23 +78,22 @@ public class CustomAdapter extends BaseAdapter {
             @Override
             public void afterTextChanged(Editable editable) {
                 float amount = 0;
-                int qtyMax = Integer.valueOf(editModelArrayList.get(position).getQtyMax());
+                int qtyMax = Integer.parseInt(editModelArrayList.get(position).getQtyMax());
                 if(!holder.editQty.getText().toString().isEmpty()){
+                    float qty = Float.parseFloat(holder.editQty.getText().toString());
                     if (AddServices.packageType.equals("F")){
-                        if(Float.valueOf(holder.editQty.getText().toString()) > qtyMax){
-                            Toast.makeText(context, context.getResources().getString(R.string.qtyAlert) + " " + qtyMax, Toast.LENGTH_LONG).show();
-                            holder.editQty.setText(String.valueOf(qtyMax));
+                        if( qty > qtyMax){
+                            holder.editQty.setError(context.getResources().getString(R.string.qtyAlert) + " " + qtyMax);
                         }
                     }else if (AddServices.packageType.equals("P")){
-                        if(Float.valueOf(holder.editQty.getText().toString()) != qtyMax && Float.valueOf(holder.editQty.getText().toString()) != 0 ){
-                            Toast.makeText(context, context.getResources().getString(R.string.qtyAlertAsk) + " " + qtyMax, Toast.LENGTH_LONG).show();
-                            holder.editQty.setText(String.valueOf(qtyMax));
+                        if(qty != qtyMax && qty != 0){
+                            holder.editQty.setError(context.getResources().getString(R.string.qtyAlertAsk) + " " + qtyMax);
                         }
                     }
                 }
                 if(AddServices.manualPrice.equals("0")){
                     for(int i = 0 ; i < editModelArrayList.size(); i++){
-                        amount = amount + (Float.valueOf(editModelArrayList.get(i).getQty()) * Float.valueOf(editModelArrayList.get(i).getPrice()));
+                        amount = amount + (Float.parseFloat(editModelArrayList.get(i).getQty()) * Float.parseFloat(editModelArrayList.get(i).getPrice()));
                     }
                     AddServices.etSAmount.setText(String.valueOf(amount));
                 }
@@ -104,7 +101,7 @@ public class CustomAdapter extends BaseAdapter {
         });
         return convertView;
     }
-    private class ViewHolder {
+    private static class ViewHolder {
         protected EditText editQty;
         protected EditText editName;
         protected EditText editPrice;

@@ -161,7 +161,7 @@
   <string name="map_items">Lier des prod. méd.</string>
   <string name="map_services">Lier des soins</string>
   <string name="quit">Quitter</string>
-  <string name="about">À propos de</string>
+  <string name="about">À propos</string>
   <string name="home">Accueil</string>
   <string name="Enter_Credentials">Veuillez entrer votre nom d\'utilisateur et votre mot de passe</string>
   <string name="Login_Successful">Connexion réussie</string>
@@ -221,4 +221,7 @@
   <string name="NoItemsPricelist">La formation sanitaire n\'a pas de liste de prix pour les produits </string>
   <string name="entered">Entrée</string>
   <string name="News">Nouveautés:</string>
+  <string name="ClaimAccepted">Prestation acceptée</string>
+  <string name="ClaimRejected">Prestation rejetée</string>
+  <string name="invalidDisease">Code de diagnostic invalide</string>
 </resources>

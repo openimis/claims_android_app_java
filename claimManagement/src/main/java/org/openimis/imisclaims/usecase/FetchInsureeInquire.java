@@ -100,7 +100,8 @@ public class FetchInsureeInquire {
                 /* totalConsultationsLeft = */ product.maxNoConsultation(),
                 /* totalDeliveriesLeft = */ product.maxNoDelivery(),
                 /* totalSurgeriesLeft = */ product.maxNoSurgery(),
-                /* totalVisitsLeft = */ product.maxNoVisits()
+                /* totalVisitsLeft = */ product.maxNoVisits(),
+                /* validityTo = */ policy.validityTo()
         );
     }
 
