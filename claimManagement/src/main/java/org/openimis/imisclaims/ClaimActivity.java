@@ -40,12 +40,15 @@ import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.util.DateUtils;
 import org.openimis.imisclaims.util.TextViewUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import io.sentry.Sentry;
 
 public class ClaimActivity extends ImisActivity {
     private static final String LOG_TAG = "CLAIM";
@@ -214,6 +217,8 @@ public class ClaimActivity extends ImisActivity {
         etPreAuthorization.setChecked(false);
         tfReferal.setVisibility(View.GONE);
 
+        LocalDate today = LocalDate.now();
+        etStartDate.setText(today.toString());
         etStartDate.setOnTouchListener((v, event) -> {
             showDialog(StartDate_Dialog_ID);
             return false;
@@ -385,22 +390,33 @@ public class ClaimActivity extends ImisActivity {
 
     @Override
     protected Dialog onCreateDialog(int id) {
+        DatePickerDialog dialog;
+        year = cal.get(Calendar.YEAR);
+        month = cal.get(Calendar.MONTH);
+        day = cal.get(Calendar.DAY_OF_MONTH);
+
         switch (id) {
 
             case StartDate_Dialog_ID:
-
-                year = cal.get(Calendar.YEAR);
-                month = cal.get(Calendar.MONTH);
-                day = cal.get(Calendar.DAY_OF_MONTH);
-
-                return new DatePickerDialog(this, StartdatePickerListener, year, month, day);
+                dialog = new DatePickerDialog(this, StartdatePickerListener, year, month, day);
+                dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+                return dialog;
 
             case EndDate_Dialog_ID:
-                year = cal.get(Calendar.YEAR);
-                month = cal.get(Calendar.MONTH);
-                day = cal.get(Calendar.DAY_OF_MONTH);
+                dialog = new DatePickerDialog(this, EndDatePickerListner, year, month, day);
 
-                return new DatePickerDialog(this, EndDatePickerListner, year, month, day);
+                String startDateStr = etStartDate.getText().toString();
+                if (!startDateStr.isEmpty()) {
+                    try {
+                        Date startDate = DateUtils.dateFromString(startDateStr);
+                        dialog.getDatePicker().setMinDate(startDate.getTime());
+                    } catch (Exception e) {
+                        Sentry.captureException(e);
+                        e.printStackTrace();
+                    }
+                }
+                dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+                return dialog;
         }
         return null;
     }
