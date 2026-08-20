@@ -256,6 +256,7 @@
     <string name="NoServicesPricelist">This healthfacility don\'t have services pricelist</string>
     <string name="NoItemsPricelist">This healthfacility don\'t have items pricelist</string>
     <string name="News">New changes:</string>
+    <string name="DarkMode">Dark mode</string>
     <string name="ClaimAccepted">Claim accepted</string>
     <string name="ClaimRejected">Claim rejected</string>
     <string name="invalidDisease">Invalid disease code</string>

@@ -183,6 +183,7 @@ android {
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
     }
+    namespace 'org.openimis.imisclaims'
 
     testOptions {
         unitTests {

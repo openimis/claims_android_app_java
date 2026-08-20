@@ -59,12 +59,15 @@ import javax.crypto.spec.SecretKeySpec;
 
 import static org.openimis.imisclaims.BuildConfig.RAR_PASSWORD;
 
+import androidx.appcompat.app.AppCompatDelegate;
+
 import org.openimis.imisclaims.tools.Log;
 import org.openimis.imisclaims.network.util.PersistentCookieJar;
 
 public class Global extends Application {
     private static final String SHPREF_NAME = "SHPref";
     private static final String SHPREF_LANGUAGE = "language";
+    private static final String SHPREF_DARK_MODE = "night";
     private static final String DEFAULT_LANGUAGE_CODE = "en";
     private static final String SHPREF_CSRF = "csrfToken";
     private static Global instance;
@@ -357,6 +360,23 @@ public class Global extends Application {
         SharedPreferences sp = getDefaultSharedPreferences();
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(SHPREF_LANGUAGE, languageCode);
+        editor.apply();
+    }
+
+    public void getDarkMode () {
+        SharedPreferences sp = getDefaultSharedPreferences();
+        boolean dark_mode = sp.getBoolean(SHPREF_DARK_MODE, false);
+        if(dark_mode){
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
+
+    public void setDarkMode(boolean darkMode){
+        SharedPreferences sp = getDefaultSharedPreferences();
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean(SHPREF_DARK_MODE, darkMode);
         editor.apply();
     }
 }
