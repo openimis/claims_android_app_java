@@ -35,7 +35,7 @@
                     android:layout_height="50dp"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
-                    android:maxLength="8"></EditText>
+                    android:maxLength="8"/>
             </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -52,7 +52,7 @@
                     android:layout_height="50dp"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
-                    android:maxLength="8"></EditText>
+                    android:maxLength="8"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -84,7 +84,7 @@
                     android:layout_height="50dp"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
-                    android:maxLength="8"></EditText>
+                    android:maxLength="8"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -106,7 +106,7 @@
                         android:ems="10"
                         android:fontFamily="sans-serif-light"
                         android:inputType="text"
-                        android:maxLength="12"></EditText>
+                        android:maxLength="12"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 

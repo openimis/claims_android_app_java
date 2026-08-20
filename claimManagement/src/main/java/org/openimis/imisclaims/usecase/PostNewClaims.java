@@ -1,11 +1,14 @@
 package org.openimis.imisclaims.usecase;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openimis.imisclaims.R;
 import org.openimis.imisclaims.domain.entity.PendingClaim;
 import org.openimis.imisclaims.network.exception.HttpException;
 import org.openimis.imisclaims.network.request.PostNewClaimRequest;
@@ -29,7 +32,7 @@ public class PostNewClaims {
     }
 
     @WorkerThread
-    public List<Result> execute(@NonNull List<PendingClaim> pendingClaims) throws Exception {
+    public List<Result> execute(@NonNull Context context, @NonNull List<PendingClaim> pendingClaims) throws Exception {
         List<Result> results = new ArrayList<>();
         for (PendingClaim pendingClaim : pendingClaims) {
             try {
@@ -38,7 +41,7 @@ public class PostNewClaims {
                         new Result(
                                 /* claimCode = */ pendingClaim.getClaimCode(),
                                 /* status = */ isAccepted ? Result.Status.SUCCESS : Result.Status.REJECTED,
-                                /* message = */ null
+                                /* message = */ isAccepted ? context.getResources().getString(R.string.ClaimAccepted) : context.getResources().getString(R.string.ClaimRejected)
                         )
                 );
             } catch (HttpException e) {

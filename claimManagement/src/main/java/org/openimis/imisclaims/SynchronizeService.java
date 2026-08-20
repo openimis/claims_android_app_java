@@ -119,7 +119,7 @@ public class SynchronizeService extends JobIntentService {
             if (postNewClaims == null) {
                 postNewClaims = new PostNewClaims();
             }
-            List<PostNewClaims.Result> results = postNewClaims.execute(PendingClaim.fromJson(claims));
+            List<PostNewClaims.Result> results = postNewClaims.execute(this,PendingClaim.fromJson(claims));
             JSONArray claimStatus = processClaimResponse(results);
             broadcastSyncSuccess(claimStatus);
         } catch (Exception e) {
@@ -142,10 +142,11 @@ public class SynchronizeService extends JobIntentService {
             } else {
                 if (claimResponseCode == PostNewClaims.Result.Status.REJECTED) {
                     sqlHandler.insertClaimUploadStatus(claimUUID, date, SQLHandler.CLAIM_UPLOAD_STATUS_REJECTED, null);
+                    jsonResults.put(String.format(claimResponseLine, claimCode, getResources().getString(R.string.ClaimRejected)));
                 } else {
                     sqlHandler.insertClaimUploadStatus(claimUUID, date, SQLHandler.CLAIM_UPLOAD_STATUS_ERROR, result.getMessage());
+                    jsonResults.put(String.format(claimResponseLine, claimCode, result.getMessage()));
                 }
-                jsonResults.put(String.format(claimResponseLine, claimCode, result.getMessage()));
             }
         }
         return jsonResults;
