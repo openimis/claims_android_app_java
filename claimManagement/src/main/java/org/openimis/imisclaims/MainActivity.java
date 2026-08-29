@@ -621,7 +621,8 @@ public class MainActivity extends ImisActivity {
             Thread thread = new Thread() {
                 public void run() {
                     try {
-                        DiagnosesServicesMedications diagnosesServicesMedications = new FetchDiagnosesServicesItems().execute();
+                        FetchDiagnosesServicesItems fetchDiagnosesServicesItems = new FetchDiagnosesServicesItems();
+                        DiagnosesServicesMedications diagnosesServicesMedications = fetchDiagnosesServicesItems.execute();
                         saveLastUpdateDate(diagnosesServicesMedications.getLastUpdated());
                         sqlHandler.ClearAll("tblReferences");
                         sqlHandler.ClearAll("tblHealthFacilities");
@@ -690,9 +691,7 @@ public class MainActivity extends ImisActivity {
 
                         runOnUiThread(() -> {
                             progressDialog.dismiss();
-                            if (officerCode != null) {
-                                DownLoadServicesItemsPriceList(officerCode);
-                            }
+                            handlePostMasterDataSync(officerCode, fetchDiagnosesServicesItems.getSkippedMedicationPages());
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -715,7 +714,27 @@ public class MainActivity extends ImisActivity {
         }
     }
 
-    private void DownLoadServicesItemsPriceList(@NonNull final String claimAdministratorCode) {
+    void handlePostMasterDataSync(
+            @Nullable String officerCode,
+            @NonNull List<Integer> skippedMedicationPages
+    ) {
+        if (!skippedMedicationPages.isEmpty()) {
+            final String errorLogMessage = "Master data synced with partial medications.\nSkipped pages: "
+                    + skippedMedicationPages;
+            showDialog(
+                    errorLogMessage,
+                    (dialog, which) -> {
+                        if (officerCode != null) {
+                            DownLoadServicesItemsPriceList(officerCode);
+                        }
+                    }
+            );
+        } else if (officerCode != null) {
+            DownLoadServicesItemsPriceList(officerCode);
+        }
+    }
+
+    protected void DownLoadServicesItemsPriceList(@NonNull final String claimAdministratorCode) {
         if (global.isNetworkAvailable()) {
             String progress_message = getResources().getString(R.string.Services) + ", " + getResources().getString(R.string.Items) + "...";
             progressDialog = ProgressDialog.show(this, getResources().getString(R.string.mapping), progress_message);
