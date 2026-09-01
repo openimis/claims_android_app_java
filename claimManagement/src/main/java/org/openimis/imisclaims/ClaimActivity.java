@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -86,7 +88,13 @@ public class ClaimActivity extends ImisActivity {
     RadioButton rbEmergency, rbReferral, rbOther;
     ImageButton btnScan;
     CheckBox etPreAuthorization;
-    TextInputLayout tfReferal;
+    TextInputLayout tfReferal, tiPatientCondition;
+    JSONObject claimConfig;
+    JSONObject insureeConfig;
+    int codeMaxLength = 8, chfIdMaxLength = 12, numberOfAdditionalDiagnosis = 4;
+    boolean showPatientCondition = false, showPreAuthorization = false, canSaveClaimWithoutServiceNorItem = true;
+    List<AutoCompleteTextView> secDiagnosis = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +136,7 @@ public class ClaimActivity extends ImisActivity {
         etPatientCondition = findViewById(R.id.patientCondition);
         etVisitType = findViewById(R.id.etVisitType);
         tfReferal = findViewById(R.id.tfReferal);
+        tiPatientCondition = findViewById(R.id.tiPatientCondition);
 
         String[] visitTypes = getResources().getStringArray(R.array.visitType);
         ArrayAdapter<String> visitTypeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, visitTypes);
@@ -196,18 +205,26 @@ public class ClaimActivity extends ImisActivity {
         etDiagnosis1.setAdapter(adapter);
         etDiagnosis1.setThreshold(1);
         etDiagnosis1.setOnItemClickListener(adapter);
+        etDiagnosis1.setVisibility(View.GONE);
+        secDiagnosis.add(etDiagnosis1);
 
         etDiagnosis2.setAdapter(adapter);
         etDiagnosis2.setThreshold(1);
         etDiagnosis2.setOnItemClickListener(adapter);
+        etDiagnosis2.setVisibility(View.GONE);
+        secDiagnosis.add(etDiagnosis2);
 
         etDiagnosis3.setAdapter(adapter);
         etDiagnosis3.setThreshold(1);
         etDiagnosis3.setOnItemClickListener(adapter);
+        etDiagnosis3.setVisibility(View.GONE);
+        secDiagnosis.add(etDiagnosis3);
 
         etDiagnosis4.setAdapter(adapter);
         etDiagnosis4.setThreshold(1);
         etDiagnosis4.setOnItemClickListener(adapter);
+        etDiagnosis4.setVisibility(View.GONE);
+        secDiagnosis.add(etDiagnosis4);
 
         HFAdapter hfAdapter = new HFAdapter(ClaimActivity.this, sqlHandler);
         etReferalHF.setAdapter(hfAdapter);
@@ -228,6 +245,8 @@ public class ClaimActivity extends ImisActivity {
             showDialog(EndDate_Dialog_ID);
             return false;
         });
+
+        initConfigurations();
 
         findViewById(R.id.ivAddItem).setOnClickListener(v -> addItem());
         findViewById(R.id.ivAddService).setOnClickListener(v -> addService());
@@ -297,6 +316,88 @@ public class ClaimActivity extends ImisActivity {
                     ClearForm();
                 }
             });
+        }
+
+        etInsureeNumber.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                int length = s != null ? s.length() : 0;if (length > chfIdMaxLength) {
+                    etInsureeNumber.setError(getResources().getString(R.string.maxCharactersRequired, chfIdMaxLength));
+                } else {
+                    etInsureeNumber.setError(null);
+                }
+            }
+        });
+
+        etClaimCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                int length = s != null ? s.length() : 0;
+                if (length > codeMaxLength) {
+                    etClaimCode.setError(getResources().getString(R.string.maxCharactersRequired, codeMaxLength));
+                } else {
+                    etClaimCode.setError(null);
+                }
+            }
+        });
+    }
+
+    private void initConfigurations(){
+        try {
+            claimConfig = sqlHandler.getModuleConfig("fe-claim");
+            insureeConfig = sqlHandler.getModuleConfig("fe-insuree");
+
+            if(claimConfig.has("claimForm.codeMaxLength")){
+                codeMaxLength = claimConfig.getInt("claimForm.codeMaxLength");
+            }
+
+            if(insureeConfig.has("insureeForm.chfIdMaxLength")){
+                chfIdMaxLength = insureeConfig.getInt("insureeForm.chfIdMaxLength");
+            }
+
+            if(claimConfig.has("showPatientCondition")){
+                showPatientCondition = claimConfig.getBoolean("showPatientCondition");
+            }
+
+            if(claimConfig.has("showPreAuthorization")){
+                showPreAuthorization = claimConfig.getBoolean("showPreAuthorization");
+            }
+
+            if(claimConfig.has("claimForm.numberOfAdditionalDiagnosis")){
+                numberOfAdditionalDiagnosis = claimConfig.getInt("claimForm.numberOfAdditionalDiagnosis");
+            }
+
+            if(!showPreAuthorization){
+                etPreAuthorization.setVisibility(View.GONE);
+            } else {
+                etPreAuthorization.setVisibility(View.VISIBLE);
+            }
+
+            if(!showPatientCondition){
+                tiPatientCondition.setVisibility(View.GONE);
+            } else {
+                tiPatientCondition.setVisibility(View.VISIBLE);
+            }
+
+            for (int i = 0; i < numberOfAdditionalDiagnosis; i++){
+                secDiagnosis.get(i).setVisibility(View.VISIBLE);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -746,8 +847,18 @@ public class ClaimActivity extends ImisActivity {
             return false;
         }
 
+        if(etClaimCode.getText().length() > codeMaxLength){
+            showValidationDialog(etClaimCode, getResources().getString(R.string.InvalidClaimCode, codeMaxLength));
+            return false;
+        }
+
         if (etInsureeNumber.getText().length() == 0) {
             showValidationDialog(etInsureeNumber, getResources().getString(R.string.MissingCHFID));
+            return false;
+        }
+
+        if(etInsureeNumber.getText().length() > chfIdMaxLength) {
+            showValidationDialog(etInsureeNumber, getResources().getString(R.string.invalidChfId, chfIdMaxLength));
             return false;
         }
 
@@ -802,7 +913,7 @@ public class ClaimActivity extends ImisActivity {
             return false;
         }
 
-        if (Float.parseFloat(tvItemTotal.getText().toString()) + Float.parseFloat(tvServiceTotal.getText().toString()) == 0) {
+        if (!canSaveClaimWithoutServiceNorItem && Float.parseFloat(tvItemTotal.getText().toString()) + Float.parseFloat(tvServiceTotal.getText().toString()) == 0) {
             showValidationDialog(tvItemTotal, getResources().getString(R.string.MissingClaim));
             return false;
         }
@@ -884,8 +995,10 @@ public class ClaimActivity extends ImisActivity {
         claimCV.put("ICDCode4", etDiagnosis4.getText().toString());
         claimCV.put("VisitType", etVisitType.getTag().toString());
         claimCV.put("ReferalHF", etReferalHF.getText().toString());
-        claimCV.put("PatientCondition", etPatientCondition.getTag().toString());
-        if(etPreAuthorization.isChecked()){
+        if(showPatientCondition){
+            claimCV.put("PatientCondition", etPatientCondition.getTag().toString());
+        }
+        if(showPreAuthorization && etPreAuthorization.isChecked()){
             claimCV.put("PreAuthorization", 1);
         }else{
             claimCV.put("PreAuthorization", 0);

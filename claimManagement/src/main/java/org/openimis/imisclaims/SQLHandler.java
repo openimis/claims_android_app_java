@@ -49,6 +49,7 @@ public class SQLHandler extends SQLiteOpenHelper {
     private static final String CreateTableSubServices = "CREATE TABLE IF NOT EXISTS tblSubServices(ServiceId text, ServiceLinked text, Quantity text, Price text);";
     private static final String CreateTableSubItems = "CREATE TABLE IF NOT EXISTS tblSubItems(ItemId text, ServiceId text, Quantity text, Price text);";
     private static final String CreateTableHealthFacilities = "CREATE TABLE IF NOT EXISTS tblHealthFacilities(Id TEXT, Code TEXT, Name TEXT);";
+    private static final String createTableModuleConfig = "CREATE TABLE IF NOT EXISTS tblConfig(Id INTEGER, Module TEXT, Config TEXT);";
 
     public final String REFERENCE_UNKNOWN;
 
@@ -331,7 +332,7 @@ public class SQLHandler extends SQLiteOpenHelper {
         String[] commands = {CreateTableControls, CreateTableReferences, CreateTableClaimAdmins,
                 createTablePolicyInquiry, createTableClaimDetails, createTableClaimItems, createTableClaimServices,
                 createTableClaimUploadStatus, CreateTableSubItems,
-                CreateTableSubServices,CreateTableItems,CreateTableServices, CreateTableHealthFacilities};
+                CreateTableSubServices,CreateTableItems,CreateTableServices, CreateTableHealthFacilities, createTableModuleConfig};
         for (String command : commands) {
             try {
                 db.execSQL(command);
@@ -948,5 +949,35 @@ public class SQLHandler extends SQLiteOpenHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void InsertConfig(int id, String module, String config) {
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("Id", id);
+            cv.put("Module", module);
+            cv.put("Config", config);
+
+            db.insert("tblConfig", null, cv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public JSONObject getModuleConfig(String module){
+        JSONObject config = new JSONObject();
+        try {
+            String query = "SELECT Config FROM tblConfig WHERE Module = \"" + module + "\"";
+            Cursor cursor1 = db.rawQuery(query, null);
+            // looping through all rows
+            if (cursor1.moveToFirst()) {
+                do {
+                    config = new JSONObject(cursor1.getString(0));
+                } while (cursor1.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return config;
     }
 }

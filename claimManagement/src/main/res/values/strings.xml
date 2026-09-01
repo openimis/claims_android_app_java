@@ -256,6 +256,11 @@
     <string name="NoServicesPricelist">This healthfacility don\'t have services pricelist</string>
     <string name="NoItemsPricelist">This healthfacility don\'t have items pricelist</string>
     <string name="News">New changes:</string>
+    <string name="getConfig">Configurations des modules</string>
+    <string name="downloaded_config">Configurations téléchargées avec succès</string>
+    <string name="InvalidClaimCode">The claim code must be %d characters maximum</string>
+    <string name="maxCharactersRequired">Maximum %d characters</string>
+    <string name="invalidChfId">The insuree number must be %d characters maximum</string>
     <string name="DarkMode">Dark mode</string>
     <string name="ClaimAccepted">Claim accepted</string>
     <string name="ClaimRejected">Claim rejected</string>
