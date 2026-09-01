@@ -19,8 +19,10 @@ repositories {
 }
 
 android {
+    namespace 'org.openimis.imisclaims'
     compileSdkVersion 32
     buildToolsVersion '33.0.0'
+    namespace 'org.openimis.imisclaims'
 
     defaultConfig {
         applicationId "org.openimis.imisclaims"
@@ -181,6 +183,7 @@ android {
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
     }
+    namespace 'org.openimis.imisclaims'
 
     testOptions {
         unitTests {
@@ -188,6 +191,7 @@ android {
             returnDefaultValues = true
         }
     }
+    namespace 'org.openimis.imisclaims'
 }
 
 apollo {

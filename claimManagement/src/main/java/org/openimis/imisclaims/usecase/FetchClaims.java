@@ -31,7 +31,6 @@ public class FetchClaims {
     @WorkerThread
     @NonNull
     public List<Claim> execute(
-            @Nullable String claimAdministratorCode,
             @Nullable Claim.Status status,
             @Nullable Date visitDateFrom,
             @Nullable Date visitDateTo,
@@ -41,7 +40,6 @@ public class FetchClaims {
         Mapper<GetClaimsQuery.Service, Claim.Service> serviceMapper = new Mapper<>(this::toService);
         Mapper<GetClaimsQuery.Item, Claim.Medication> medicationMapper = new Mapper<>(this::toMedication);
         return Mapper.map(request.get(
-                claimAdministratorCode,
                 statusAsInt(status),
                 visitDateFrom,
                 visitDateTo,

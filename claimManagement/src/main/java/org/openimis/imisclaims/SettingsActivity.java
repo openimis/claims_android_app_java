@@ -1,11 +1,17 @@
 package org.openimis.imisclaims;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
+
+import androidx.appcompat.app.AppCompatDelegate;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -21,6 +27,11 @@ public class SettingsActivity extends ImisActivity {
     private String salt, password;
     public static String generatedSalt;
     Global global;
+    private Switch mode_switch;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+    private static final String SHPREF_NAME = "SHPref";
+    boolean dark_mode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +43,15 @@ public class SettingsActivity extends ImisActivity {
         btnSaveRarPwd = (Button)findViewById(R.id.btnSaveRarPwd);
         etRarPassword = (EditText)findViewById(R.id.rarPassword);
         btnDefaultRarPassword = (Button) findViewById(R.id.btnDefaultRarPassword);
+        mode_switch = findViewById(R.id.mode_switch);
+        global = (Global) getApplicationContext();
+
+        sharedPreferences = getSharedPreferences(SHPREF_NAME, Context.MODE_PRIVATE);
+        dark_mode = sharedPreferences.getBoolean("night", false);
+
+        if(dark_mode){
+            mode_switch.setChecked(true);
+        }
 
         btnSaveRarPwd.setOnClickListener(view -> {
             if(etRarPassword.getText().length() == 0){
@@ -50,6 +70,19 @@ public class SettingsActivity extends ImisActivity {
             password = global.getDefaultRarPassword();
             saveRarPassword(password);
             ShowDialog("Password has been changed to the default rar password");
+        });
+
+        mode_switch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(dark_mode){
+                    global.setDarkMode(false);
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                } else {
+                    global.setDarkMode(true);
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                }
+            }
         });
 
     }

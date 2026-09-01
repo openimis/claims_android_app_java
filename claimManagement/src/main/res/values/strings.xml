@@ -261,4 +261,8 @@
     <string name="InvalidClaimCode">The claim code must be %d characters maximum</string>
     <string name="maxCharactersRequired">Maximum %d characters</string>
     <string name="invalidChfId">The insuree number must be %d characters maximum</string>
+    <string name="DarkMode">Dark mode</string>
+    <string name="ClaimAccepted">Claim accepted</string>
+    <string name="ClaimRejected">Claim rejected</string>
+    <string name="invalidDisease">Invalid disease code</string>
 </resources>

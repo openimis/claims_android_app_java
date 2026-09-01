@@ -9,7 +9,7 @@ import org.openimis.imisclaims.Global;
 import org.openimis.imisclaims.network.okhttp.AuthorizationInterceptor;
 import org.openimis.imisclaims.network.util.PersistentCookieJar;
 
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -33,7 +33,7 @@ public class OkHttpUtils {
             synchronized (OkHttpUtils.class) {
                 if (client == null) {
                     OkHttpClient.Builder builder = new OkHttpClient.Builder();
-                    builder.readTimeout(Duration.ofSeconds(30));
+                    builder.readTimeout(2000, TimeUnit.SECONDS);
                     PersistentCookieJar cookieJar =
                             new PersistentCookieJar(Global.getGlobal().getDefaultSharedPreferences());
                     Global.getGlobal().setCookieJar(cookieJar);
