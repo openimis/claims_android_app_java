@@ -19,8 +19,11 @@ import org.openimis.imisclaims.network.util.PaginatedResponseUtils;
 import org.openimis.imisclaims.util.DateUtils;
 
 import java.util.Date;
+import java.util.List;
 
 public class FetchDiagnosesServicesItems {
+    private static final int MAX_PAGES = 1000;
+    private static final int MAX_CONSECUTIVE_FAILURES = 3;
 
     @NonNull
     private final GetActivityDefinitionsRequest getActivityDefinitionsRequest;
@@ -28,6 +31,8 @@ public class FetchDiagnosesServicesItems {
     private final GetDiagnosesRequest getDiagnosesRequest;
     @NonNull
     private final GetMedicationsRequest getMedicationsRequest;
+    @NonNull
+    private List<Integer> skippedMedicationPages = java.util.Collections.emptyList();
 
     public FetchDiagnosesServicesItems() {
         this(
@@ -50,6 +55,16 @@ public class FetchDiagnosesServicesItems {
     @NonNull
     @WorkerThread
     public DiagnosesServicesMedications execute() throws Exception {
+        PaginatedResponseUtils.DownloadResult<Medication> medicationDownloadResult =
+                PaginatedResponseUtils.downloadAllSkipFailedPages(
+                        "Medication",
+                        getMedicationsRequest::get,
+                        this::toMedication,
+                        MAX_PAGES,
+                        MAX_CONSECUTIVE_FAILURES
+                );
+        skippedMedicationPages = medicationDownloadResult.getSkippedPages();
+
         // previous code was passing sometimes a `last_updated_date` but it was either empty or
         // `new Date(0)`. I'm still returning the last updated date in case it's one day used
         // again.¯\_(ツ)_/¯
@@ -60,11 +75,13 @@ public class FetchDiagnosesServicesItems {
                 getActivityDefinitionsRequest::get,
                 this::toService
         ),
-                /* medications = */ PaginatedResponseUtils.downloadAll(
-                getMedicationsRequest::get,
-                this::toMedication
-        )
+                /* medications = */ medicationDownloadResult.getItems()
         );
+    }
+
+    @NonNull
+    public List<Integer> getSkippedMedicationPages() {
+        return skippedMedicationPages;
     }
 
     @NonNull
