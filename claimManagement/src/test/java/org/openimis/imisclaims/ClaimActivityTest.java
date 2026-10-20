@@ -37,6 +37,12 @@ public class ClaimActivityTest {
                 .resume()
                 .get();
 
+        // onCreate() already opened the real (shared, on-disk) test databases.
+        // Close them before replacing the handler with a mock, otherwise the
+        // open connections leak across the suite and later tests fail with
+        // SQLITE_BUSY ("Failed to change locale ... database is locked").
+        activity.sqlHandler.closeDatabases();
+
         // Inject mocks
         activity.sqlHandler = mock(SQLHandler.class);
         activity.global = mock(Global.class);
@@ -199,7 +205,12 @@ public class ClaimActivityTest {
 
     @Test
     public void isValidData_ChfIdMaxLength_ReturnsFalse(){
-        activity.etInsureeNumber.setText("12345678901234567890");
+        // The CHFID field caps input at 12 characters via an android:maxLength
+        // filter in the layout, so a longer string is truncated before it ever
+        // reaches validation. Lower the configured maximum length instead, to
+        // actually exercise the "exceeds maximum length" validation branch.
+        activity.chfIdMaxLength = 5;
+        activity.etInsureeNumber.setText("123456789012");
         boolean result = activity.isValidData();
         assertFalse(result);
     }

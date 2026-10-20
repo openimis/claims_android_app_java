@@ -37,6 +37,10 @@ public class AddItemsTest {
         ClaimActivity.lvItemList = new java.util.ArrayList<>();
 
         activity = Robolectric.buildActivity(AddItems.class).create().get();
+        // Release the real test databases opened in onCreate before swapping in
+        // the mock, otherwise the leaked connections to the shared DB files make
+        // later tests in the suite fail with SQLITE_BUSY.
+        activity.sqlHandler.closeDatabases();
         activity.sqlHandler = mockSqlHandler;
 
         etItems = activity.findViewById(R.id.etItems);

@@ -202,11 +202,13 @@ public class EnquireActivity extends ImisActivity {
     @SuppressLint({"WrongConstant", "Range"})
     @Nullable
     protected Insuree getDataFromDb(String chfid) {
-        try {
-            SQLiteDatabase db = openOrCreateDatabase(SQLHandler.DB_NAME_DATA, SQLiteDatabase.OPEN_READONLY, null);
-            String[] columns = {"CHFID", "Photo", "InsureeName", "DOB", "Gender", "ProductCode", "ProductName", "ExpiryDate", "Status", "DedType", "Ded1", "Ded2", "Ceiling1", "Ceiling2"};
-            String[] selectionArgs = {chfid};
-            Cursor c = db.query("tblPolicyInquiry", columns, "Trim(CHFID)=?", selectionArgs, null, null, null);
+        String[] columns = {"CHFID", "Photo", "InsureeName", "DOB", "Gender", "ProductCode", "ProductName", "ExpiryDate", "Status", "DedType", "Ded1", "Ded2", "Ceiling1", "Ceiling2"};
+        String[] selectionArgs = {chfid};
+        // try-with-resources so the database connection and cursor are always
+        // closed, including on the exception path; otherwise the connection to
+        // the shared DB file leaks (and, under tests, causes SQLITE_BUSY).
+        try (SQLiteDatabase db = openOrCreateDatabase(SQLHandler.DB_NAME_DATA, SQLiteDatabase.OPEN_READONLY, null);
+             Cursor c = db.query("tblPolicyInquiry", columns, "Trim(CHFID)=?", selectionArgs, null, null, null)) {
             String name = null;
             Date dateOfBirth = null;
             String gender = null;
@@ -254,8 +256,6 @@ public class EnquireActivity extends ImisActivity {
                         /* validityTo = */ null
                 ));
             }
-            c.close();
-            db.close();
             return new Insuree(
                     /* chfId = */ chfid,
                     /* name = */ Objects.requireNonNull(name),
