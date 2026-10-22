@@ -130,6 +130,10 @@ public class SynchronizeServiceTest {
                 new PostNewClaims.Result("claim123", PostNewClaims.Result.Status.REJECTED, "Claim rejected");
 
         when(sqlHandler.getClaimUUIDForCode("claim123")).thenReturn("uuid123");
+        // setUp() stubs getString(anyInt()) to return "Error message" for every
+        // resource id. The rejected branch uses the R.string.ClaimRejected
+        // resource (not the Result message), so stub it explicitly here.
+        when(resources.getString(R.string.ClaimRejected)).thenReturn("Claim rejected");
 
         JSONArray result = synchronizeService.processClaimResponse(Arrays.asList(rejectedResult));
 

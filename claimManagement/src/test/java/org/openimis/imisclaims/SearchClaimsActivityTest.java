@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +38,15 @@ public class SearchClaimsActivityTest {
         spinner = activity.findViewById(R.id.spinner_status);
         visitDateFrom = activity.findViewById(R.id.visit_date_from);
         dateProcessedFrom = activity.findViewById(R.id.date_processed_from);
+    }
+
+    @After
+    public void tearDown() {
+        // Close the real databases opened in onCreate so the connections to the
+        // shared test DB files do not leak and cause SQLITE_BUSY in later tests.
+        if (activity != null && activity.sqlHandler != null) {
+            activity.sqlHandler.closeDatabases();
+        }
     }
 
     @Test

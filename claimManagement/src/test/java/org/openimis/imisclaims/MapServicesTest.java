@@ -30,6 +30,10 @@ public class MapServicesTest {
         mockCursor = mock(Cursor.class);
 
         activity = Robolectric.buildActivity(MapServices.class).create().get();
+        // Release the real test databases opened in onCreate before swapping in
+        // the mock, otherwise the leaked connections to the shared DB files make
+        // later tests in the suite fail with SQLITE_BUSY.
+        activity.sqlHandler.closeDatabases();
         activity.sqlHandler = mockSqlHandler;
     }
 

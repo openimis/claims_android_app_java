@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.ListAdapter;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +45,15 @@ public class EnquireActivityTest {
 
         // Default CHFID
         activity.etCHFID.setText("CHF123");
+    }
+
+    @After
+    public void tearDown() {
+        // Close the real databases opened in onCreate so the connections to the
+        // shared test DB files do not leak and cause SQLITE_BUSY in later tests.
+        if (activity != null && activity.sqlHandler != null) {
+            activity.sqlHandler.closeDatabases();
+        }
     }
 
     /* =====================================================

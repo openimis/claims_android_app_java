@@ -16,7 +16,16 @@ public class ImisActivityTest {
                 .create()
                 .get();
 
-        return activity.global.getSavedLanguage();
+        try {
+            return activity.global.getSavedLanguage();
+        } finally {
+            // Close the real databases opened in onCreate so the connections to
+            // the shared test DB files do not leak and cause SQLITE_BUSY in
+            // later tests of the suite.
+            if (activity.sqlHandler != null) {
+                activity.sqlHandler.closeDatabases();
+            }
+        }
     }
 
     @Test
